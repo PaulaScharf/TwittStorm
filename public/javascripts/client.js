@@ -22,4 +22,6 @@ success: function(data) {
         unwetterPoly.addData(data);
     });
 }
-}).error(function() {});
+}).error(function() {
+	
+});
