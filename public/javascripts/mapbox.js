@@ -14,7 +14,8 @@ map.on('load', function () {
 
 //get coordinates
     var coordinates = data.features[0].geometry.coordinates;
-    console.log(coordinates[0][0][0]);
+  //  console.log(coordinates);
+    console.log(data.features[0].properties);
     map.jumpTo({ 'center': coordinates[0][0][0], 'zoom': 4 });
 
 
