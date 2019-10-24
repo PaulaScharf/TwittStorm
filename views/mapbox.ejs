@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Twittstorm</title>
+
+  <link rel="stylesheet" type="text/css" href="css/project.css">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="leaflet/leaflet.css" />
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.2/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.2/mapbox-gl.css' rel='stylesheet' />
+
+
+</head>
+
+<body>
+
+  <!-- new Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Twittstorm</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="nav-item nav-link" href="/">Leaflet</a>
+        <a class="nav-item nav-link active" href="/mapbox">Mapbox</a>
+        <a class="nav-item nav-link" href="/create">Create Stuff</a>
+        <a class="nav-item nav-link" href="/update">Update Stuff</a>
+        <a class="nav-item nav-link" href="/delete">Delete Stuff</a>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- Leaflet Map -->
+  <div class="container-fluid">
+    <div id="map" style="width: 100%; height: 700px;" ;></div>
+  </div>
+    <!-- footer -->
+    <footer class="page-footer font-small">
+        <p><center><a href="/author">Author Contacts</a> <p class="footertext">© 2019</p></center></p>
+    </footer>
+
+    <script src="jquery/jquery.js"></script>
+    <script src="popper/umd/popper.js"></script>
+    <script src="bootstrap/js/bootstrap.js"></script>
+
+    <script src="/javascripts/turf.min.js"></script>
+    <script src="/javascripts/mapbox.js"></script>
+    <script src="/javascripts/client.js"></script>
+    <script src="/javascripts/meeting.js"></script>
+    <script src="/javascripts/turf.min.js"></script>
+
+
+  </body>
+</html>

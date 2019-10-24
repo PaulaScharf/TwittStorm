@@ -1,0 +1,16 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    links:
+      - mongodbservice
+    depends_on:
+      - mongodbservice
+  mongodbservice:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - /data/db:/data/mongodb/db
