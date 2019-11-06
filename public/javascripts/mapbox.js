@@ -49,7 +49,7 @@ displayUnwetter(unwetterId, output, color);
 function displayUnwetter (unwetterId, output, color) {
   console.log(output.properties.EVENT);
   // Change for desired weather event
-if (output.properties.EVENT == 'WINDBÖEN' ||'STURMBÖEN'){
+if (output.properties.EVENT == 'WINDBÖEN'){
     // add it to the map
     map.addSource(unwetterId, { type: 'geojson', data: output});
 
@@ -65,10 +65,37 @@ if (output.properties.EVENT == 'WINDBÖEN' ||'STURMBÖEN'){
 
 
 });
-
+//create popup according to the area
 var popup = new mapboxgl.Popup({ offset: 25 })
 .setText(output.properties.EVENT);
+//create marker
+var marker = new mapboxgl.Marker({className: 'my-class', color: 'gray'})
+  .setLngLat(output.geometry.coordinates[0][0][0])
+  .setPopup(popup)
+  .addTo(map);
 
+
+}
+if (output.properties.EVENT == 'FROST'){
+    // add it to the map
+    map.addSource(unwetterId, { type: 'geojson', data: output});
+
+    map.addLayer({
+      "id": unwetterId,
+      "type": "fill",
+      "source": unwetterId,
+      'paint': {
+'fill-color': color,
+'fill-opacity': 0.6
+}
+
+
+
+});
+//create popup according to the area
+var popup = new mapboxgl.Popup({ offset: 25 })
+.setText(output.properties.EVENT);
+//create marker
 var marker = new mapboxgl.Marker({className: 'my-class', color: 'gray'})
   .setLngLat(output.geometry.coordinates[0][0][0])
   .setPopup(popup)
