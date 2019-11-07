@@ -1,1 +1,8 @@
-node_modules
+# installed modules
+node_modules/*
+
+# package-lock
+package-lock.json
+
+# JSDoc
+out/

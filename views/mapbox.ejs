@@ -5,25 +5,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Twittstorm</title>
+  <title>TwittStorm</title>
 
   <link rel="stylesheet" type="text/css" href="css/project.css">
-  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="leaflet/leaflet.css" />
-  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.2/mapbox-gl.js'></script>
-  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.2/mapbox-gl.css' rel='stylesheet' />
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/leaflet/leaflet.css" />
 
+  <link rel="stylesheet" href="/mapbox/mapbox-gl.css"/>
+  <link rel="stylesheet" href="/mapbox-draw/mapbox-gl-draw.css"/>
 
 </head>
 
 <body>
-
-  <!-- new Navbar -->
+  <!-- new navbar -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="/">Twittstorm</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <span class="navbar-toggler-icon"></span>
+    </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/">Leaflet</a>
@@ -35,21 +34,24 @@
     </div>
   </nav>
 
-
-  <!-- Leaflet Map -->
+  <!-- map -->
   <div class="container-fluid">
     <div id="map" style="width: 100%; height: 700px;" ;></div>
   </div>
-    <!-- footer -->
-    <footer class="page-footer font-small">
-        <p><center><a href="/author">Author Contacts</a> <p class="footertext">© 2019</p></center></p>
-    </footer>
 
-    <script src="jquery/jquery.js"></script>
-    <script src="popper/umd/popper.js"></script>
-    <script src="bootstrap/js/bootstrap.js"></script>
-    <script src="/javascripts/mapbox.js"></script>
+  <!-- footer -->
+  <footer class="page-footer font-small">
+    <p><center><a href="/author">Author Contacts</a> <p class="footertext">© 2019</p></center></p>
+  </footer>
 
-
-  </body>
+</body>
 </html>
+
+<script src="/jquery/jquery.js"></script>
+<script src="/popper/umd/popper.js"></script>
+<script src="/bootstrap/js/bootstrap.js"></script>
+<script src="/mapbox/mapbox-gl.js"></script>
+<script src="/mapbox-draw/mapbox-gl-draw.js"></script>
+
+<script src="/javascripts/mapbox.js"></script>
+<script src="/javascripts/germanyBoundary.js"></script>
