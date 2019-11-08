@@ -12,19 +12,8 @@ router.get('/author', function(req, res, next) {
 });
 
 /* GET create site */
-router.get('/create', function(req, res, next) {
-  res.render('create', { title: 'Create Route'});
-});
-
-/* GET delete site */
-router.get('/delete', function(req, res, next) {
-  res.render('delete', { title: 'Delete Route'});
-});
-
-
-/* GET update site */
-router.get('/update', function(req, res, next) {
-  res.render('update', { title: 'Update Route'});
+router.get('/help', function(req, res, next) {
+  res.render('help', { title: 'User Documentation'});
 });
 
 /* GET animals API site */
