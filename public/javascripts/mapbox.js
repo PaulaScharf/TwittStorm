@@ -44,7 +44,7 @@ map.addControl(new mapboxgl.NavigationControl());
 // TODO: pan-Button fehlt noch
 
 
-// specify and add a control for drawing a polygon into the map
+// specify and add a control for DRAWING A POLYGON into the map
 var draw = new MapboxDraw({
   displayControlsDefault: false, // all controls to be off by default for self-specifiying the controls as follows
   controls: {
@@ -55,7 +55,7 @@ var draw = new MapboxDraw({
 map.addControl(draw);
 
 
-//
+// thie event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
 map.on('load', function() {
 
   // for a better orientation, add the boundary of germany to the map
@@ -78,165 +78,233 @@ map.on('load', function() {
   });
 
 
+  // TODO: folgendes als AJAX?
   // load the GeoJSON from the DWD Geoserver and display the current Unwetter-areas
   $.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=100&outputFormat=application%2Fjson', function(data) {
+    // EPSG: 4326
 
-    // EPSG::4326
+    let unwetterID = ""; // unwetterID has to be a String because addSource() needs a String (it's called later on)
 
-    // get coordinates of .... ???
-    //var coordinates = data.features[0].geometry.coordinates;
-    // TODO: folgendes löschen, da zu Beginn Deutschland komplett und daher auch mittig gezeigt werden soll?
-    //map.jumpTo({ 'center': coordinates[0][0][0], 'zoom': 5 });
+    // one feature for a Unwetter (could be FROST, WINDBÖEN, ...)
+    let unwetterFeature;
 
+
+    // **************** EVENT-TYPES UNTERSCHEIDEN ****************
+    //
+    let frostFeaturesArray = [];
 
     //
+    let windboeenFeaturesArray = [];
+
+    //
+    let glaetteFeaturesArray = [];
+
+    // ***********************************************************
+
+
+    // iteration over all Unwetter given in the DWD-response
     for (let i = 0; i < data.features.length; i++) {
 
-      // use only the Unwetter which are observed and therefore certain, not just likely
+      // FILTER:
+
+      // use only the Unwetter which are observed and therefore certain, not just likely ...
       // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
-      if (data.features[i].properties.CERTAINTY === "Likely"){
+      // ... and use only the notifications that are actual reports and not just tests
+      if ((data.features[i].properties.CERTAINTY === "Likely") && (data.features[i].properties.STATUS	=== "Actual")){
 
-        let unwetterID = "";
-        unwetterID = i.toString(); // unwetterID has to be a String because addSource() needs a String (it's called later on)
+        // TODO: WEITERE MÖGLICHE FILTER
+        //      data.features[i].properties.CERTAINTY === "Observed"
+        //      data.features[i].properties.RESPONSETYPE
+        //      data.features[i].properties.URGENCY === "Immediate"
+        //      data.features[i].properties.SEVERITY === "Severe" || data.features[i].properties.SEVERITY === "Extreme"
+        //      data.features[i].properties.HEADLINE beginnt mit "Amtliche UNWETTERWARNUNG"
 
-        var unwetterObj = data.features[i];
+        //      data.features[i].properties.ONSET       GIBT ANFANGSZEIT, AB WANN WARNUNG GILT
+        //      data.features[i].properties.EXPIREs     GIBT ENDZEIT, BIS WANN WARNUNG GILT
+        // für Zeitformat siehe:  https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_profile_de_pdf.pdf?__blob=publicationFile&v=2
 
-        // display the i-th Unwetter-area in the map
-        displayUnwetter(unwetterID, unwetterObj);
+        // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
+
+
+        // *********************** FROST ***********************
+        //
+        if (data.features[i].properties.EVENT === 'FROST'){
+
+          //
+          unwetterFeature = {
+            "type": "Feature",
+            "geometry": data.features[i].geometry,
+            "properties": data.features[i].properties
+          };
+
+          //
+          frostFeaturesArray.push(unwetterFeature);
+        }
+
+
+        // *********************** WINDBÖEN ***********************
+        //
+        if (data.features[i].properties.EVENT === 'WINDBÖEN'){
+
+          //
+          let unwetterFeature = {
+            "type": "Feature",
+            "geometry": data.features[i].geometry,
+            "properties": data.features[i].properties
+          };
+
+          //
+          windboeenFeaturesArray.push(unwetterFeature);
+        }
+
+
+        // *********************** GLÄTTE ***********************
+        //
+        if (data.features[i].properties.EVENT === 'GLÄTTE'){
+
+          //
+          let unwetterFeature = {
+            "type": "Feature",
+            "geometry": data.features[i].geometry,
+            "properties": data.features[i].properties
+          };
+
+          //
+          glaetteFeaturesArray.push(unwetterFeature);
+        }
+
+        // *********************** ????? ***********************
+
+
+
       }
     }
+
+    // make one GeoJSON-FeatureCollection for every event-type and display its Unwetter-events in the map:
+    //
+    var frostFeaturesGeoJSON = {
+      "type": "FeatureCollection",
+      "features": frostFeaturesArray
+    };
+    displayUnwetterEvent("frost", frostFeaturesGeoJSON, "blue");
+
+    //
+    var windboeenFeaturesGeoJSON = {
+      "type": "FeatureCollection",
+      "features": windboeenFeaturesArray
+    };
+    displayUnwetterEvent("windboeen", windboeenFeaturesGeoJSON, "red");
+
+    //
+    var glaetteFeaturesGeoJSON = {
+      "type": "FeatureCollection",
+      "features": glaetteFeaturesArray
+    };
+    displayUnwetterEvent("glaette", glaetteFeaturesGeoJSON, "yellow");
+
   });
 });
 
 
-// TODO: entweder für alle events (windböen, gewitter etc.) je einen einzelnen layer
-// oder für alle unwetter zusammen nur einen layer erstellen!!
-// (nicht für jedes einzelne unwetter einen layer)
-// https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/
 
+
+
+// entweder für jeden event-type (windböen, gewitter etc.) je einen einzelnen layer
+// oder für alle unwetter zusammen nur einen layer erstellen (dies schwierig wg. unterschiedlicher Einfärbung innerhalb eines layers -> data-driven-styles)
+// (nicht für jedes einzelne unwetter einen eigenen layer)
+// https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/
 /**
-* @desc Displays the current Unwetter with the fitting event target.
+* @desc Displays the ........ in the map.
 * @author Benjamin Rieke, Katharina Poppinga
 * @private
-* @param unwetterID index for the Array of Unwetter given by the DWD
-* @param unwetterObj a certain Unwetter (as JSON) of the response from the DWD
+* @param {String} unwetterID ID for the Unwetter-event-type
+* @param {Object} unwetterEventFeatureCollection GeoJSON-FeatureCollection of all Unwetter-events of a specific event-type
+* @param color color in which the corresponding polygons in the map will be colored
 */
-function displayUnwetter(unwetterID, unwetterObj) {
+function displayUnwetterEvent(unwetterID, unwetterEventFeatureCollection, color) {
 
-  // add the given Unwetter as a source to the map
+  console.log(unwetterEventFeatureCollection);
+
+  // add the given Unwetter-event as a source to the map
   map.addSource(unwetterID, {
     type: 'geojson',
-    data: unwetterObj
+    data: unwetterEventFeatureCollection
   });
 
-  console.log(unwetterObj.properties.EVENT);
+  // add the given Unwetter-event as a layer to the map
+  map.addLayer({
+    "id": unwetterID,
+    "type": "fill",
+    "source": unwetterID,
+    "paint": {
+      "fill-color": color,
+      "fill-opacity": 0.5
+    }
+  });
 
-  // add the given Unwetter as a layer to the map, in doing so fill its area with a the specific color regarding the event-type:
-  //
-  if (unwetterObj.properties.EVENT === 'WINDBÖEN'){
-    map.addLayer({
-      "id": unwetterID,
-      "type": "fill",
-      "source": unwetterID,
-      'paint': {
-        'fill-color': 'red',
-        'fill-opacity': 0.5
-      }
-    });
-  }
-// alle Windböen in ein GeoJSON schreiben ??
-/*
-let windboeen;
-windboeen = {
-    type: "FeatureCollection",
-    features: [
-      // hier unwetterObj einfügen
-      unwetterObj
-    ]
-  };
-*/
-
-
-  //
-  if (unwetterObj.properties.EVENT === 'FROST'){
-    map.addLayer({
-      "id": unwetterID,
-      "type": "fill",
-      "source": unwetterID,
-      'paint': {
-        'fill-color': 'blue',
-        'fill-opacity': 0.5
-      }
-    });
-  }
-
-
-  //
-  if (unwetterObj.properties.EVENT === 'GLÄTTE'){
-    map.addLayer({
-      "id": unwetterID,
-      "type": "fill",
-      "source": unwetterID,
-      'paint': {
-        'fill-color': 'yellow',
-        'fill-opacity': 0.5
-      }
-    });
-  }
-
-
-  // TODO:
-  // ............. KÜRZEN UND FÜR ALLE EVENT-TYPES FARBEN FESTLEGEN
+  // https://github.com/mapbox/mapbox-gl-js/issues/908#issuecomment-254577133
+  // https://docs.mapbox.com/help/how-mapbox-works/map-design/#data-driven-styles
+  // https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/
 
 }
 
 
 
-// TODO: FUER FOLGENDES MUSS AUCH EIN LAYER ANGEGEBEN WERDEN, DAFÜR WÄRE AUCH EIN LAYER FÜR ALLE UNWETTER ZUSAMMEN NÖTIG
+
 // https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
 
 // change the cursor to a pointer when hovering the layer ...
-map.on('mouseenter', 'LAYERID', function () {
-map.getCanvas().style.cursor = 'pointer';
+map.on('mouseenter', 'frost', function () {
+  map.getCanvas().style.cursor = 'pointer';
 });
-
 // change the cursor back to a hand when leaving the layer ...
-map.on('mouseleave', 'LAYERID', function () {
-map.getCanvas().style.cursor = '';
+map.on('mouseleave', 'frost', function () {
+  map.getCanvas().style.cursor = '';
+});
+
+
+// change the cursor to a pointer when hovering the layer ...
+map.on('mouseenter', 'windboeen', function () {
+  map.getCanvas().style.cursor = 'pointer';
+});
+// change the cursor back to a hand when leaving the layer ...
+map.on('mouseleave', 'windboeen', function () {
+  map.getCanvas().style.cursor = '';
+});
+
+
+// change the cursor to a pointer when hovering the layer ...
+map.on('mouseenter', 'glaette', function () {
+  map.getCanvas().style.cursor = 'pointer';
+});
+// change the cursor back to a hand when leaving the layer ...
+map.on('mouseleave', 'glaette', function () {
+  map.getCanvas().style.cursor = '';
 });
 
 
 
+// TODO: PROBLEM: wie hier auf spezifisches unwetter zugreifen, wie spezifisches polygon anwählen?
+// 2nd parameter: layerID
+map.on('click', 'frost', function(e){
 
-// PROBLEM: ONCLICK (ER-)KENNT NICHT DIE ANGEKLICKTEN POLYGONE UND DAHER NICHT DIE EINZELNEN UNWETTER
-// 2. parameter ist die layerID
-map.on('click', '1', function(e){
-
-// unwetterObj hier nicht möglich!!!
   console.log(e);
 
   new mapboxgl.Popup()
   .setLngLat(e.lngLat)
-  .setHTML(e.features[0].properties) // TODO: hier event-type und beschreibung einfügen, aber wie darauf zugreifen bei onclick?
+  .setHTML("Frost") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
   .addTo(map);
-
-
 
 /*
-  let description = unwetterObj.properties.DESCRIPTION;
-  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen
-
-  //
-  new mapboxgl.Popup()
-  .setText(unwetterObj.properties.EVENT) // hier auch description einfügen
-  .addTo(map);
+  let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
+  let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
+  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
 */
-
 });
 
 
 
-// ************************ drawn polygons ************************
+// ************************ events for drawn polygons ************************
 // https://github.com/mapbox/mapbox-gl-draw/blob/master/docs/API.md
 
 // if a polygon is drawn ...
