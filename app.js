@@ -12,6 +12,19 @@ var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var app = express();
+const Twitter = require("twitter");
+const dotenv = require("dotenv");
+
+dotenv.config({ path: "./config.env" });
+
+
+var client = new Twitter({
+  consumer_key: process.env.CONSUMER_KEY,
+  consumer_secret: process.env.CONSUMER_SECRET,
+  access_token_key: process.env.ACCESS_TOKEN_KEY,
+  access_token_secret: process.env.ACCESS_TOKEN_SECRET
+});
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,6 +37,35 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+
+// activates the stream in the console when localhost:3000/tweets is called. Uses the twitter libary https://github.com/desmondmorris/node-twitter
+app.get("/tweets", function(req, res) {
+  console.log(client);
+  var params = {
+    screen_name: "Twittstormy",
+    trim_user: true,
+    exclude_replies: true,
+    include_rts: false,
+    count: 1
+  };
+
+  client.stream('statuses/filter', {track: 'weather'}, function(stream) {
+    stream.on('data', function(event) {
+      console.log(event && event.text);
+    });
+
+    stream.on('error', function(error) {
+      throw error;
+    });
+  });
+
+
+
+});
+
+
 
 //  using the mongo-driver
 const mongodb = require('mongodb');
@@ -69,7 +111,6 @@ app.use((req, res, next) => {
   req.db = app.locals.db;
   next();
 });
-
 
 app.use("/leaflet", express.static(__dirname + "/node_modules/leaflet/dist"));
 app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist'));
