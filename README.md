@@ -21,4 +21,4 @@ To start the application via docker navigate to the app´s folder, open your com
 `docker-compose up`
 The application can be found with your browser at http://192.168.99.100:3000/
 ## Tests
-Who needs tests? LOL XDSXDDXDXXDDXDXDDXDXDX ahahahxxaxaaxaaxaxxaaxxa
+merging test
