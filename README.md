@@ -1,7 +1,7 @@
-# Twittstorm
-Twittstorm for Geosoft II
+# TwittStorm
+TwittStorm for Geosoftware II
 ## Weblinks
-The code of this project can be found on github: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)
+The code of this project can be found on GitHub: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)
 ## Routes
 Are in the routes folder in the index.js. The crud functionality is provided through the users.js in the same folder
 ## Pages

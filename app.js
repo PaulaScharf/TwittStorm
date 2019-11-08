@@ -6,7 +6,7 @@
 
 /**
 * @desc TwittStorm, Geosoftware2, WiSe2019/2020
-* @author name: Jonathan Bahlmann, Katharina Poppinga, Benjmain Rieke, Paula Scharf
+* @author name: Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 */
 
 
@@ -118,7 +118,7 @@ function connectMongoDb() {
       console.log("URL for starting the app: http://localhost:3000/");
 
       // catch possible errors and tell the user about them:
-    } catch(error) {
+    } catch (error) {
 
       // for using docker:
       // try to connect to mongodb on mongodbservice:27017
