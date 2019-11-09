@@ -9,9 +9,6 @@ The Webpages are in the views folder and are in the .ejs format which can be use
 ## CRUD
 The CRUD functionality is based on the solution for geosoft1 and still uses the format that was used for that task. can be changed once
 we know what we need to use it for
-## Mapbox VS. Leaflet
-The visualization of the Unwetterdata from the DWD works for both maps. Right now I have the feeling that Mapbox offers cooler and easier
-ways to display our data
 ## How to set things up
 To start the application via npm navigate to the app´s folder, open your commandprompt and enter <br/>
 `npm install`

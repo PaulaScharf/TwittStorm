@@ -1,12 +1,12 @@
 // jshint esversion: 8
 // jshint node: true
+// jshint maxerr: 1000
 
 "use strict"; // JavaScript code is executed in "strict mode"
 
-
 /**
-* @desc TwittStorm, Geosoftware2, WiSe2019/2020
-* @author name: Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 */
 
 
