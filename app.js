@@ -21,6 +21,7 @@ var app = express();
 
 var createError = require('http-errors');
 var bodyParser = require('body-parser');
+//  using the mongo-driver
 const mongodb = require('mongodb');
 
 var JL = require('jsnlog').JL;
@@ -100,12 +101,8 @@ app.get("/tweets", function(req, res) {
 
 
 
-//  using the mongo-driver
-const mongodb = require('mongodb');
 
 // set the routes for npm-installed client-libraries
-// TODO: leaflet löschen?
-app.use("/leaflet", express.static(path.join(__dirname, 'node_modules', 'leaflet', 'dist')));
 app.use("/jquery", express.static(path.join(__dirname, 'node_modules', 'jquery', 'dist')));
 app.use("/qunit", express.static(path.join(__dirname, 'node_modules', 'qunit', 'qunit')));
 app.use("/bootstrap", express.static(path.join(__dirname, 'node_modules', 'bootstrap', 'dist')));

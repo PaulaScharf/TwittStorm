@@ -5,13 +5,16 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>TwittStorm</title>
+    <title>TwittStorm</title>
 
-  <link rel="stylesheet" type="text/css" href="css/project.css">
-  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/project.css">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/mapbox/mapbox-gl.css"/>
+    <link rel="stylesheet" href="/mapbox-draw/mapbox-gl-draw.css"/>
 
 </head>
 
@@ -21,24 +24,29 @@
 <%- include('partial/navbar', {active: "home"}); %>
 
 <main>
-  <!-- map -->
-  <div class="container-fluid">
-    <div id="mapdiv" style="width: 100%; height: 700px;" ;></div>
-  </div>
+    <!-- map -->
+    <div class="container-fluid">
+        <div id="map" style="width: 100%; height: 700px;"></div>
+    </div>
 
 
     <div class="container-fluid">
         <input type="text" id="Twittwall"> Name of Route</input>
     </div>
 </main>
+
 <!-- footer -->
 <%- include('partial/footer'); %>
 
-    <script src="/jquery/jquery.js"></script>
-    <script src="/popper/umd/popper.js"></script>
-    <script src="/bootstrap/js/bootstrap.js"></script>
-    <script src="/javascripts/client.js"></script>
-    <script src="/javascripts/twitter.js"></script>
 
 </body>
 </html>
+
+<script src="/jquery/jquery.js"></script>
+<script src="/popper/umd/popper.js"></script>
+<script src="/bootstrap/js/bootstrap.js"></script>
+<script src="/mapbox/mapbox-gl.js"></script>
+<script src="/mapbox-draw/mapbox-gl-draw.js"></script>
+
+<script src="/javascripts/mapbox.js"></script>
+<script src="/javascripts/germanyBoundary.js"></script>
