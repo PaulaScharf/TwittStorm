@@ -27,8 +27,7 @@ var JL = require('jsnlog').JL;
 var jsnlog_nodejs = require('jsnlog-nodejs').jsnlog_nodejs;
 
 
-// TODO: wozu benutzen wir das beides?
-var cookieParser = require('cookie-parser');
+// TODO: benutzen wir morgan?
 var logger = require('morgan');
 
 
@@ -56,7 +55,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // TODO: wozu benutzen wir das?
-app.use(cookieParser());
+//app.use(cookieParser());
 
 
 // set the routes for npm-installed client-libraries
