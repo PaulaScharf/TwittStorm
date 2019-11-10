@@ -1,29 +1,33 @@
+<!-- Project: TwittStorm, Geosoftware 2, WiSe 2019/2020 -->
+<!-- Authors: Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf -->
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TwittStorm</title>
-
-    <link rel="stylesheet" type="text/css" href="css/project.css">
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-
+  <title>TwittStorm</title>
+  <link rel="stylesheet" type="text/css" href="/css/project.css">
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 </head>
 
 <body>
 
-<!-- Navbar -->
-<%- include('partial/navbar', {active: "help"}); %>
+  <!-- navbar -->
+  <%- include('partial/navbar', {active: "help"}); %>
 
-<main>
+  <main>
     <h1 align="center">User Documentation</h1>
     <p align="center">Press a button and have fun</p>
-</main>
+  </main>
 
-<!-- footer -->
-<%- include('partial/footer'); %>
+  <!-- footer -->
+  <%- include('partial/footer'); %>
 
 </body>
 </html>
+
+<script src="/jquery/jquery.js"></script>
+<script src="/popper/umd/popper.js"></script>
+<script src="/bootstrap/js/bootstrap.js"></script>

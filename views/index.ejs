@@ -3,41 +3,35 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TwittStorm</title>
-
-    <link rel="stylesheet" type="text/css" href="css/project.css">
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-
-    <link rel="stylesheet" href="/mapbox/mapbox-gl.css"/>
-    <link rel="stylesheet" href="/mapbox-draw/mapbox-gl-draw.css"/>
-
+  <title>TwittStorm</title>
+  <link rel="stylesheet" type="text/css" href="/css/project.css">
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/mapbox/mapbox-gl.css"/>
+  <link rel="stylesheet" href="/mapbox-draw/mapbox-gl-draw.css"/>
 </head>
 
 <body>
 
-<!-- Navbar -->
-<%- include('partial/navbar', {active: "home"}); %>
+  <!-- navbar -->
+  <%- include('partial/navbar', {active: "home"}); %>
 
-<main>
+  <main>
     <!-- map -->
     <div class="container-fluid">
-        <div id="map" style="width: 100%; height: 700px;"></div>
+      <div id="map" style="width: 100%; height: 700px;"></div>
     </div>
-
 
     <div class="container-fluid">
-        <input type="text" id="Twittwall"> Name of Route</input>
+      <input type="text" id="Twittwall"> Name of Route</input>
     </div>
-</main>
+  </main>
 
-<!-- footer -->
-<%- include('partial/footer'); %>
-
+  <!-- footer -->
+  <%- include('partial/footer'); %>
 
 </body>
 </html>

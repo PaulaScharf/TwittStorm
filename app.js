@@ -15,18 +15,16 @@ const http = require("http");
 const https = require("https");
 const path = require('path');
 
-// ********** load third-modules: (after installed using cmd: npm install ...) **********
+// ********** load third-modules: **********
 var express = require('express');
 var app = express();
 
 var createError = require('http-errors');
 var bodyParser = require('body-parser');
-//  using the mongo-driver
-const mongodb = require('mongodb');
+const mongodb = require('mongodb');   // using the mongo-driver
 
 var JL = require('jsnlog').JL;
 var jsnlog_nodejs = require('jsnlog-nodejs').jsnlog_nodejs;
-
 
 // TODO: benutzen wir morgan?
 var logger = require('morgan');
@@ -73,35 +71,6 @@ app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser());
 
 
-
-// activates the stream in the console when localhost:3000/tweets is called. Uses the twitter libary https://github.com/desmondmorris/node-twitter
-app.get("/tweets", function(req, res) {
-  console.log(client);
-  var params = {
-    screen_name: "Twittstormy",
-    trim_user: true,
-    exclude_replies: true,
-    include_rts: false,
-    count: 1
-  };
-
-  client.stream('statuses/filter', {track: 'weather'}, function(stream) {
-    stream.on('data', function(event) {
-      console.log(event && event.text);
-    });
-
-    stream.on('error', function(error) {
-      throw error;
-    });
-  });
-
-
-
-});
-
-
-
-
 // set the routes for npm-installed client-libraries
 app.use("/jquery", express.static(path.join(__dirname, 'node_modules', 'jquery', 'dist')));
 app.use("/qunit", express.static(path.join(__dirname, 'node_modules', 'qunit', 'qunit')));
@@ -112,28 +81,20 @@ app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@ma
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
 
 
-// ********************************** JSNLog ***********************************
 
-// "ensure that the JSON objects received from the client get parsed correctly"
-app.use(bodyParser.json());
+// ***************************** mongo-database *******************************
 
-// jsnlog.js on the client-side sends log messages to /jsnlog.logger, using POST
-app.post("/jsnlog.logger", function (req, res) {
-  jsnlog_nodejs(JL, req.body);
-
-  // jsnlog on the client-side does not use the response from server, therefore send an empty response
-  res.send('');
+// middleware for making the db connection available via the request object
+app.use((req, res, next) => {
+  req.db = app.locals.db;
+  next();
 });
 
 
-
-// ************************ mongo-database connection **************************
 /**
-*
 * Try to connect to mongodb on localhost:27017 (if not using docker),
 * if not possible try to connect on mongodbservice:27017 (if using docker),
 * if not possible print the error.
-*
 */
 function connectMongoDb() {
 
@@ -201,13 +162,51 @@ function connectMongoDb() {
 connectMongoDb();
 
 
-// middleware for making the db connection available via the request object
-app.use((req, res, next) => {
-  req.db = app.locals.db;
-  next();
+
+// ********************************** JSNLog ***********************************
+
+// "ensure that the JSON objects received from the client get parsed correctly"
+app.use(bodyParser.json());
+
+// jsnlog.js on the client-side sends log messages to /jsnlog.logger, using POST
+app.post("/jsnlog.logger", function (req, res) {
+  jsnlog_nodejs(JL, req.body);
+
+  // jsnlog on the client-side does not use the response from server, therefore send an empty response
+  res.send('');
 });
 
 
+
+
+// ********************************** Twitter ***********************************
+
+// activates the stream in the console when localhost:3000/tweets is called. Uses the twitter libary https://github.com/desmondmorris/node-twitter
+app.get("/tweets", function(req, res) {
+  console.log(client);
+  var params = {
+    screen_name: "Twittstormy",
+    trim_user: true,
+    exclude_replies: true,
+    include_rts: false,
+    count: 1
+  };
+
+  client.stream('statuses/filter', {track: 'weather'}, function(stream) {
+    stream.on('data', function(event) {
+      console.log(event && event.text);
+    });
+
+    stream.on('error', function(error) {
+      throw error;
+    });
+  });
+
+});
+
+
+
+// *****************************************************************************
 
 // index-router
 app.use('/', indexRouter);

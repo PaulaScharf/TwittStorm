@@ -1,3 +1,10 @@
+
+/**
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
+
+
 var Twitter = require('twitter');
 
 var client = new Twitter({

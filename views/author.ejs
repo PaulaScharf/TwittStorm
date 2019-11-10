@@ -7,36 +7,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TwittStorm</title>
-    <link rel="stylesheet" type="text/css" href="/css/project.css">
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-
+  <title>TwittStorm</title>
+  <link rel="stylesheet" type="text/css" href="/css/project.css">
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 </head>
 
 <body>
 
-<!-- Navbar -->
-<%- include('partial/navbar', {active: "home"}); %>
+  <!-- navbar -->
+  <%- include('partial/navbar', {active: "home"}); %>
 
-    <div class="container-fluid">
-      <h4>TwittStorm</h4>
-      by Jonathan Bahlmann // 453 524 <a href="jbahlmann@uni-muenster.de">jbahlmann@uni-muenster.de</a>
-      <br>
-      Katharina Poppinga // 450 146 <a href="k_popp02@uni-muenster.de">k_popp02@uni-muenster.de</a>
-      <br>
-      Paula Scharf // 450 334 <a href="p_scha53@uni-muenster.de">p_scha53@uni-muenster.de</a>
-      <br>
-      and Benjamin Rieke // 408 743 <a href="b_riek01@uni-muenster.de">b_riek01@uni-muenster.de</a>
-    </div>
+  <div class="container-fluid">
+    <h4>TwittStorm</h4>
+    by Jonathan Bahlmann // 453 524 <a href="jbahlmann@uni-muenster.de">jbahlmann@uni-muenster.de</a>
+    <br>
+    Katharina Poppinga // 450 146 <a href="k_popp02@uni-muenster.de">k_popp02@uni-muenster.de</a>
+    <br>
+    Paula Scharf // 450 334 <a href="p_scha53@uni-muenster.de">p_scha53@uni-muenster.de</a>
+    <br>
+    and Benjamin Rieke // 408 743 <a href="b_riek01@uni-muenster.de">b_riek01@uni-muenster.de</a>
+  </div>
 
-    <!-- footer -->
-    <footer class="page-footer font-small" id="footer">
-        <p><center><a href="/author">Author Contacts</a> <p class="footertext">© 2019</p></center></p>
-    </footer>
-
-    <script src="/jquery/jquery.js"></script>
-    <script src="/popper/umd/popper.js"></script>
-    <script src="/bootstrap/js/bootstrap.js"></script>
+  <!-- footer -->
+  <!-- footer hier unnötig, da der nur wieder zur gleichen Seite leitet? -->
+  <%- include('partial/footer'); %>
 
 </body>
 </html>
+
+<script src="/jquery/jquery.js"></script>
+<script src="/popper/umd/popper.js"></script>
+<script src="/bootstrap/js/bootstrap.js"></script>
