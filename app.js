@@ -29,6 +29,8 @@ var jsnlog_nodejs = require('jsnlog-nodejs').jsnlog_nodejs;
 // TODO: benutzen wir morgan?
 var logger = require('morgan');
 
+//Buffer?
+const Buffer = require('buffer');
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
@@ -79,6 +81,7 @@ app.use("/popper", express.static(path.join(__dirname, 'node_modules', 'popper.j
 app.use("/mapbox", express.static(path.join(__dirname, 'node_modules', 'mapbox-gl', 'dist')));
 app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@mapbox', 'mapbox-gl-draw', 'dist')));
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
+app.use("/buffer", express.static(path.join(__dirname, 'node_modules', 'buffer')));
 
 
 

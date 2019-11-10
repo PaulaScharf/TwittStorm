@@ -1,8 +1,14 @@
 // jshint esversion: 8
 // tutorial
-// routes array to store JSON data
-var routesArray = [];
 
+$.get("https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.1.0&request=GetMap&layers=dwd%3AFX-Produkt&bbox=-523.462%2C-4658.645%2C376.538%2C-3758.645&width=767&height=768&srs=EPSG%3A1000001&format=image%2Fpng", function(data) {
+  console.log("got wms png");
+  //TODO figure out why Buffer is not defined even though the module is installed and app.js links its source folder
+  var buf = Buffer.from(data);
+  console.log(buf);
+});
+
+// ############ show content of local instance of mongoDB #########
 // on DOM ready
 $(document).ready(function() {
   showRoutes();
@@ -48,6 +54,7 @@ function deleteRoute(event) {
     });
 }
 
+// ################# on button click, add element to DB for testing purposes ##################
 //create
 function createRouteButton() {
   event.preventDefault();
