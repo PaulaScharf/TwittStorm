@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 # copy package(-lock).json
 COPY package*.json ./
 
-# install dependecies
+# install dependencies
 RUN npm install
 
 # bundle app source
@@ -17,4 +17,3 @@ EXPOSE 3000
 
 # command to start app
 CMD [ "npm", "start" ]
-
