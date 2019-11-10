@@ -263,18 +263,83 @@ function displayUnwetterEvent(unwetterID, unwetterEventFeatureCollection, color)
     "source": unwetterID,
     "paint": {
       "fill-color": color,
-      "fill-opacity": 0.5
+      "fill-opacity": 0.3
     }
   });
 
   // https://github.com/mapbox/mapbox-gl-js/issues/908#issuecomment-254577133
   // https://docs.mapbox.com/help/how-mapbox-works/map-design/#data-driven-styles
   // https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/
-
 }
 
 
 
+/**
+* @desc ...
+* @author Katharina Poppinga
+* @private
+* @param {Object} e ...
+*/
+function showUnwetterPopup(e) {
+
+  //
+  var pickedUnwetter = map.queryRenderedFeatures(e.point);
+
+  //
+  if (pickedUnwetter[0].properties.INSTRUCTION !== "null") {
+    new mapboxgl.Popup()
+    .setLngLat(e.lngLat)
+    .setHTML("<b>"+pickedUnwetter[0].properties.EVENT+"</b>" + "<br>" + pickedUnwetter[0].properties.DESCRIPTION + "<br><b>onset: </b>" + pickedUnwetter[0].properties.ONSET + "<br><b>expires: </b>" + pickedUnwetter[0].properties.EXPIRES + "<br>" + pickedUnwetter[0].properties.INSTRUCTION)
+    .addTo(map);
+  }
+
+  //
+  else {
+    new mapboxgl.Popup()
+    .setLngLat(e.lngLat)
+    .setHTML("<b>"+pickedUnwetter[0].properties.EVENT+"</b>" + "<br>" + pickedUnwetter[0].properties.DESCRIPTION + "<br><b>onset: </b>" + pickedUnwetter[0].properties.ONSET + "<br><b>expires: </b>" + pickedUnwetter[0].properties.EXPIRES)
+    .addTo(map);
+  }
+
+  //let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
+}
+
+
+// *****************************************************************************
+
+// TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
+
+
+// 2nd parameter: layerID
+map.on('click', 'frost', function(e){
+  //
+  showUnwetterPopup(e);
+});
+
+
+// 2nd parameter: layerID
+map.on('click', 'windboeen', function(e){
+  //
+  showUnwetterPopup(e);
+});
+
+
+// 2nd parameter: layerID
+map.on('click', 'glaette', function(e){
+  //
+  showUnwetterPopup(e);
+});
+
+
+// 2nd parameter: layerID
+map.on('click', 'schneefall', function(e){
+  //
+  showUnwetterPopup(e);
+});
+
+
+
+// *****************************************************************************
 
 // https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
 
@@ -316,88 +381,6 @@ map.on('mouseenter', 'schneefall', function () {
 map.on('mouseleave', 'schneefall', function () {
   map.getCanvas().style.cursor = '';
 });
-
-
-
-// TODO: PROBLEM: wie hier auf spezifisches unwetter zugreifen, wie spezifisches polygon anwählen?
-// 2nd parameter: layerID
-map.on('click', 'frost', function(e){
-
-  console.log(e);
-
-  new mapboxgl.Popup()
-  .setLngLat(e.lngLat)
-  .setHTML("Frost") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
-  .addTo(map);
-
-/*
-  let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
-  let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
-  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
-*/
-});
-
-
-
-// TODO: PROBLEM: wie hier auf spezifisches unwetter zugreifen, wie spezifisches polygon anwählen?
-// 2nd parameter: layerID
-map.on('click', 'windboeen', function(e){
-
-  console.log(e);
-
-  new mapboxgl.Popup()
-  .setLngLat(e.lngLat)
-  .setHTML("Windböen") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
-  .addTo(map);
-
-/*
-  let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
-  let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
-  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
-*/
-});
-
-
-
-// TODO: PROBLEM: wie hier auf spezifisches unwetter zugreifen, wie spezifisches polygon anwählen?
-// 2nd parameter: layerID
-map.on('click', 'glaette', function(e){
-
-  console.log(e);
-
-  new mapboxgl.Popup()
-  .setLngLat(e.lngLat)
-  .setHTML("Glätte") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
-  .addTo(map);
-
-/*
-  let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
-  let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
-  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
-*/
-});
-
-
-
-// TODO: PROBLEM: wie hier auf spezifisches unwetter zugreifen, wie spezifisches polygon anwählen?
-// 2nd parameter: layerID
-map.on('click', 'schneefall', function(e){
-
-  console.log(e);
-
-  new mapboxgl.Popup()
-  .setLngLat(e.lngLat)
-  .setHTML("Schneefall") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
-  .addTo(map);
-
-/*
-  let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
-  let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
-  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
-*/
-});
-
-
 
 
 // ************************ events for drawn polygons ************************
