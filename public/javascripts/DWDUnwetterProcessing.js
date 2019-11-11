@@ -4,22 +4,41 @@ function saveNewUnwetterFromDWD() {
         // EPSG: 4326
         for (let i = 0; i < data.features.length; i++) {
             let currentFeature = data.features[i];
+            // use only the Unwetter which are observed and therefore certain, not just likely ...
+            // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
+            // ... and use only the notifications that are actual reports and not just tests
             if ((currentFeature.properties.CERTAINTY === "Likely") && (data.features[i].properties.STATUS === "Actual")) {
+                // TODO: WEITERE MÖGLICHE FILTER
+                //      allUnwetter[i].properties.CERTAINTY === "Observed"
+                //      allUnwetter[i].properties.RESPONSETYPE
+                //      allUnwetter[i].properties.URGENCY === "Immediate"
+                //      allUnwetter[i].properties.SEVERITY === "Severe" || allUnwetter[i].properties.SEVERITY === "Extreme"
+                //      allUnwetter[i].properties.HEADLINE beginnt mit "Amtliche UNWETTERWARNUNG"
+
+                //      allUnwetter[i].properties.ONSET       GIBT ANFANGSZEIT, AB WANN WARNUNG GILT
+                //      allUnwetter[i].properties.EXPIREs     GIBT ENDZEIT, BIS WANN WARNUNG GILT
+                // für Zeitformat siehe:  https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_profile_de_pdf.pdf?__blob=publicationFile&v=2
+
+                // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
+
                 let area_color = (currentFeature.properties.EC_AREA_COLOR).split(' ').map(Number);
                 let color = rgbToHex(area_color[0],area_color[1],area_color[2]);
                 let currentUnwetter = {
                     type: "Unwetter",
                     geometry: currentFeature.geometry,
-                    ec_Group: currentFeature.properties.EC_GROUP,
-                    ec_ii: currentFeature.properties.EC_II,
-                    name: "Leichter SCHNEEFALL",
-                    parameter: currentFeature.properties.Parameter,
-                    certainty: currentFeature.properties.CERTAINTY,
-                    description: currentFeature.properties.DESCRIPTION,
-                    color: color,
-                    effective: currentFeature.properties.EFFECTIVE,
-                    expires: currentFeature.properties.EXPIRES
+                    properties: {
+                        ec_Group: currentFeature.properties.EC_GROUP,
+                        ec_ii: currentFeature.properties.EC_II,
+                        name: currentFeature.properties.EVENT,
+                        parameter: currentFeature.properties.Parameter,
+                        certainty: currentFeature.properties.CERTAINTY,
+                        description: currentFeature.properties.DESCRIPTION,
+                        color: color,
+                        effective: currentFeature.properties.EFFECTIVE,
+                        expires: currentFeature.properties.EXPIRES
+                    }
                 };
+                debugger;
                 postItem(currentUnwetter);
             }
         }
