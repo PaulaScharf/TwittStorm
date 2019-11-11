@@ -83,10 +83,6 @@ app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@ma
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
 app.use("/buffer", express.static(path.join(__dirname, 'node_modules', 'buffer')));
 
-var buf1 = Buffer.from("hello");
-console.log(buf1);
-
-
 
 // ***************************** mongo-database *******************************
 

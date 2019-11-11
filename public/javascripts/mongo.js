@@ -3,7 +3,7 @@
 
 $.get("https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.1.0&request=GetMap&layers=dwd%3AFX-Produkt&bbox=-523.462%2C-4658.645%2C376.538%2C-3758.645&width=767&height=768&srs=EPSG%3A1000001&format=image%2Fpng", function(data) {
   console.log("got wms png");
-  //TODO figure out why Buffer is not defined even though the module is installed and app.js links its source folder
+  //TODO move to users.js
   var buf = Buffer.from(data);
   console.log(buf);
 });
