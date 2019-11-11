@@ -33,5 +33,9 @@ router.get('/mapbox', function(req, res, next) {
   res.render('mapbox', { title: 'Mapbox'});
 });
 
+/* GET animals API site */
+router.get('/mongo', function(req, res, next) {
+  res.render('mongo', { title: 'MongoDB'});
+});
 
 module.exports = router;
