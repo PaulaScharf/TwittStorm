@@ -30,7 +30,7 @@ var jsnlog_nodejs = require('jsnlog-nodejs').jsnlog_nodejs;
 var logger = require('morgan');
 
 //Buffer?
-const Buffer = require('buffer');
+const Buffer = require('buffer/').Buffer;
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
@@ -82,6 +82,9 @@ app.use("/mapbox", express.static(path.join(__dirname, 'node_modules', 'mapbox-g
 app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@mapbox', 'mapbox-gl-draw', 'dist')));
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
 app.use("/buffer", express.static(path.join(__dirname, 'node_modules', 'buffer')));
+
+var buf1 = Buffer.from("hello");
+console.log(buf1);
 
 
 

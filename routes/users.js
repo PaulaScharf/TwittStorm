@@ -79,4 +79,7 @@ router.put("/putroute", (req, res) => {
   });
 });
 
+var buf1 = Buffer.from("klvneaoimewp r");
+console.log(buf1);
+
 module.exports = router;
