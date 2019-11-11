@@ -32,7 +32,7 @@ var logger = require('morgan');
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var usersRouter = require('./routes/database');
 
 var app = express();
 const Twitter = require("twitter");
@@ -211,7 +211,7 @@ app.get("/tweets", function(req, res) {
 // index-router
 app.use('/', indexRouter);
 //
-app.use('/users', usersRouter);
+app.use('/db', dbRouter);
 
 
 // catch 404 and forward to error handler
