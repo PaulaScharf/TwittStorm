@@ -34,7 +34,8 @@ const Buffer = require('buffer/').Buffer;
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/database');
+var dbRouter = require('./routes/database');
+var usersRouter = require('./routes/users');
 
 var app = express();
 const Twitter = require("twitter");
@@ -214,6 +215,8 @@ app.get("/tweets", function(req, res) {
 app.use('/', indexRouter);
 //
 app.use('/db', dbRouter);
+//
+app.use('/users', usersRouter);
 
 
 // catch 404 and forward to error handler

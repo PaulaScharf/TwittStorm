@@ -77,6 +77,9 @@ map.on('load', function() {
     }
   });
 
+  saveNewUnwetterFromDWD();
+  console.log("test")
+  let allUnwetter = getAllItems({type: "Unwetter"});
 
   // TODO: Folgendes als AJAX, wenn Datenbank steht
 
@@ -143,7 +146,6 @@ map.on('load', function() {
 
           //
           frostFeaturesArray.push(unwetterFeature);
-          postItem(unwetterFeature);
         }
 
 
@@ -160,7 +162,6 @@ map.on('load', function() {
 
           //
           windboeenFeaturesArray.push(unwetterFeature);
-          postItem(unwetterFeature);
         }
 
 
@@ -177,7 +178,6 @@ map.on('load', function() {
 
           //
           glaetteFeaturesArray.push(unwetterFeature);
-          postItem(unwetterFeature);
         }
 
 
@@ -194,7 +194,6 @@ map.on('load', function() {
 
           //
           schneefallFeaturesArray.push(unwetterFeature);
-          postItem(unwetterFeature);
         }
         // *********************** ????? ***********************
         // ...

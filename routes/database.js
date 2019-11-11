@@ -52,7 +52,6 @@ router.post('/add', function(req, res) {
     } else {
       // ... give a notice, that inserting the item has succeeded
       res.json({
-        data: routeData,
         error: 0,
         msg: "item mit der ID " + result.insertedId + " angelegt."
       });
