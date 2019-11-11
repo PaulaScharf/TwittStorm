@@ -2,8 +2,6 @@
 .idea/
 *.iml
 
-.htmlhintrc
-
 # installed modules
 node_modules/*
 

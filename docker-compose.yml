@@ -2,6 +2,7 @@ version: '3'
 services:
   app:
     build: .
+    image: paulasch/twittstorm
     ports:
       - "3000:3000"
     links:

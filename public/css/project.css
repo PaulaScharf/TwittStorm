@@ -1,13 +1,12 @@
-<style>
-body{
-}
-#footer{
-    position: fixed;
-    bottom:0;
-    height: 50px;
-    width: 100%;
-    text-align: center;
-}
+/* --------------------------------------------------------
+* Project: TwittStorm, Geosoftware 2, WiSe 2019/2020
+* Authors: Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+----------------------------------------------------------*/
 
-
-</style>
+#footer {
+  position: fixed;
+  bottom:0;
+  height: 50px;
+  width: 100%;
+  text-align: center;
+}

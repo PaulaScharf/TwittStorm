@@ -1,54 +1,40 @@
+<!-- Project: TwittStorm, Geosoftware 2, WiSe 2019/2020 -->
+<!-- Authors: Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf -->
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Twittstorm</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <link rel="stylesheet" type="text/css" href="css/project.css">
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <title>TwittStorm</title>
+  <link rel="stylesheet" type="text/css" href="/css/project.css">
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+</head>
 
-  </head>
+<body>
 
-  <body>
-    <!-- new Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="/">Twittstorm</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-          <a class="nav-item nav-link" href="/">Leaflet</a>
-          <a class="nav-item nav-link" href="/mapbox">Mapbox</a>
-          <a class="nav-item nav-link" href="/create">Create Stuff</a>
-          <a class="nav-item nav-link" href="/update">Update Stuff</a>
-          <a class="nav-item nav-link" href="/delete">Delete Stuff</a>
-        </div>
-      </div>
-    </nav>
+  <!-- navbar -->
+  <%- include('partial/navbar', {active: "home"}); %>
 
+  <div class="container-fluid">
+    <h4>TwittStorm</h4>
+    by Jonathan Bahlmann // 453 524 <a href="jbahlmann@uni-muenster.de">jbahlmann@uni-muenster.de</a>
+    <br>
+    Katharina Poppinga // 450 146 <a href="k_popp02@uni-muenster.de">k_popp02@uni-muenster.de</a>
+    <br>
+    Paula Scharf // 450 334 <a href="p_scha53@uni-muenster.de">p_scha53@uni-muenster.de</a>
+    <br>
+    and Benjamin Rieke // 408 743 <a href="b_riek01@uni-muenster.de">b_riek01@uni-muenster.de</a>
+  </div>
 
-    <div class="container-fluid">
-      <h4>Twittstorm</h4>
-      by Jonathan Bahlmann // 453 524 <a href="jbahlmann@uni-muenster.de">jbahlmann@uni-muenster.de</a>
-      <br>
-      Katharina Poppinga // <a href="k_popp02@uni-muenster.de">k_popp02@uni-muenster.de</a>
-      <br>
-      Paula Scharf // <a href="p_scha53@uni-muenster.de">p_scha53@uni-muenster.de</a>
-      <br>
-      and Benjamin Rieke // 408 743 <a href="b_riek01@uni-muenster.de">b_riek01@uni-muenster.de</a>
-    </div>
+  <!-- footer -->
+  <!-- footer hier unnötig, da der nur wieder zur gleichen Seite leitet? -->
+  <%- include('partial/footer'); %>
 
-    <!-- footer -->
-    <footer class="page-footer font-small">
-        <p><center><a href="/author">Author Contacts</a> <p class="footertext">© 2019</p></center></p>
-    </footer>
-
-    <script src="jquery/jquery.js"></script>
-    <script src="popper/umd/popper.js"></script>
-    <script src="bootstrap/js/bootstrap.js"></script>
-
-  </body>
+</body>
 </html>
+
+<script src="/jquery/jquery.js"></script>
+<script src="/popper/umd/popper.js"></script>
+<script src="/bootstrap/js/bootstrap.js"></script>
