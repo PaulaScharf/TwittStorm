@@ -57,7 +57,6 @@ map.addControl(draw);
 
 // thie event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
 map.on('load', function() {
-
   // for a better orientation, add the boundary of germany to the map
   map.addLayer({
     'id': 'boundaryGermany',
@@ -77,133 +76,138 @@ map.on('load', function() {
     }
   });
 
-  saveNewUnwetterFromDWD();
-  let allUnwetter = getAllItems({type: "Unwetter"});
-  // EPSG: 4326
+  // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
+  saveAndReturnNewUnwetterFromDWD()
+      .catch(console.error)
+      .then(function(result) {
+    let allUnwetter = result;
+    debugger;
 
-  let unwetterID = ""; // unwetterID has to be a String because addSource() needs a String (it's called later on)
+    let unwetterID = ""; // unwetterID has to be a String because addSource() needs a String (it's called later on)
 
-  // one feature for a Unwetter (could be FROST, WINDBÖEN, ...)
-  let unwetterFeature;
-
-
-  // **************** EVENT-TYPES UNTERSCHEIDEN ****************
-  //
-  let frostFeaturesArray = [];
-
-  //
-  let windboeenFeaturesArray = [];
-
-  //
-  let glaetteFeaturesArray = [];
-
-  //
-  let schneefallFeaturesArray = [];
-
-  // ***********************************************************
+    // one feature for a Unwetter (could be FROST, WINDBÖEN, ...)
+    let unwetterFeature;
 
 
-  // iteration over all Unwetter given in the DWD-response
-  for (let i = 0; i < allUnwetter.length; i++) {
-
-    // FILTER:
-
-    // *********************** FROST ***********************
+    // **************** EVENT-TYPES UNTERSCHEIDEN ****************
     //
-    if (allUnwetter[i].properties.name === 'FROST'){
+    let frostFeaturesArray = [];
 
-      //
-      unwetterFeature = {
-        "type": "Feature",
-        "geometry": allUnwetter[i].geometry,
-        "properties": allUnwetter[i].properties
-      };
+    //
+    let windboeenFeaturesArray = [];
 
+    //
+    let glaetteFeaturesArray = [];
+
+    //
+    let schneefallFeaturesArray = [];
+
+    // ***********************************************************
+
+
+    // iteration over all Unwetter given in the DWD-response
+    for (let i = 0; i < allUnwetter.length; i++) {
+
+      // FILTER:
+
+      // *********************** FROST ***********************
       //
-      frostFeaturesArray.push(unwetterFeature);
+      if (allUnwetter[i].properties.name === 'FROST') {
+
+        //
+        unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
+
+        //
+        frostFeaturesArray.push(unwetterFeature);
+      }
+
+
+      // *********************** WINDBÖEN ***********************
+      //
+      if (allUnwetter[i].properties.name === 'WINDBÖEN') {
+
+        //
+        let unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
+
+        //
+        windboeenFeaturesArray.push(unwetterFeature);
+      }
+
+
+      // *********************** GLÄTTE ***********************
+      //
+      if (allUnwetter[i].properties.name === 'GLÄTTE') {
+
+        //
+        let unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
+
+        //
+        glaetteFeaturesArray.push(unwetterFeature);
+      }
+
+
+      // *********************** SCHNEEFALL ***********************
+      //
+      if (allUnwetter[i].properties.name === 'LEICHTER SCHNEEFALL') {   // weitere Schneeevents hiNzufügen
+
+        //
+        let unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
+
+        //
+        schneefallFeaturesArray.push(unwetterFeature);
+      }
+      // *********************** ????? ***********************
+      // ...
+
     }
 
-
-    // *********************** WINDBÖEN ***********************
+    // make one GeoJSON-FeatureCollection for every event-type and display its Unwetter-events in the map:
     //
-    if (allUnwetter[i].properties.name === 'WINDBÖEN'){
+    var frostFeaturesGeoJSON = {
+      "type": "FeatureCollection",
+      "features": frostFeaturesArray
+    };
+    displayUnwetterEvent("frost", frostFeaturesGeoJSON, "blue");
 
-      //
-      let unwetterFeature = {
-        "type": "Feature",
-        "geometry": allUnwetter[i].geometry,
-        "properties": allUnwetter[i].properties
-      };
-
-      //
-      windboeenFeaturesArray.push(unwetterFeature);
-    }
-
-
-    // *********************** GLÄTTE ***********************
     //
-    if (allUnwetter[i].properties.name === 'GLÄTTE'){
+    var windboeenFeaturesGeoJSON = {
+      "type": "FeatureCollection",
+      "features": windboeenFeaturesArray
+    };
+    displayUnwetterEvent("windboeen", windboeenFeaturesGeoJSON, "red");
 
-      //
-      let unwetterFeature = {
-        "type": "Feature",
-        "geometry": allUnwetter[i].geometry,
-        "properties": allUnwetter[i].properties
-      };
-
-      //
-      glaetteFeaturesArray.push(unwetterFeature);
-    }
-
-
-    // *********************** SCHNEEFALL ***********************
     //
-    if (allUnwetter[i].properties.name === 'LEICHTER SCHNEEFALL'){   // weitere Schneeevents hiNzufügen
+    var glaetteFeaturesGeoJSON = {
+      "type": "FeatureCollection",
+      "features": glaetteFeaturesArray
+    };
+    displayUnwetterEvent("glaette", glaetteFeaturesGeoJSON, "yellow");
 
-      //
-      let unwetterFeature = {
-        "type": "Feature",
-        "geometry": allUnwetter[i].geometry,
-        "properties": allUnwetter[i].properties
-      };
-
-      //
-      schneefallFeaturesArray.push(unwetterFeature);
-    }
-    // *********************** ????? ***********************
-    // ...
-
-  }
-
-  // make one GeoJSON-FeatureCollection for every event-type and display its Unwetter-events in the map:
-  //
-  var frostFeaturesGeoJSON = {
-    "type": "FeatureCollection",
-    "features": frostFeaturesArray
-  };
-  displayUnwetterEvent("frost", frostFeaturesGeoJSON, "blue");
-
-  //
-  var windboeenFeaturesGeoJSON = {
-    "type": "FeatureCollection",
-    "features": windboeenFeaturesArray
-  };
-  displayUnwetterEvent("windboeen", windboeenFeaturesGeoJSON, "red");
-
-  //
-  var glaetteFeaturesGeoJSON = {
-    "type": "FeatureCollection",
-    "features": glaetteFeaturesArray
-  };
-  displayUnwetterEvent("glaette", glaetteFeaturesGeoJSON, "yellow");
-
-  //
-  var schneefallFeaturesGeoJSON = {
-    "type": "FeatureCollection",
-    "features": schneefallFeaturesArray
-  };
-  displayUnwetterEvent("schneefall", schneefallFeaturesGeoJSON, "white");
-
+    //
+    var schneefallFeaturesGeoJSON = {
+      "type": "FeatureCollection",
+      "features": schneefallFeaturesArray
+    };
+    displayUnwetterEvent("schneefall", schneefallFeaturesGeoJSON, "white");
+  }, function(err) {
+    console.log(err);
+  });
 });
 
 

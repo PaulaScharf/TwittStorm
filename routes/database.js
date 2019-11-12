@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
   console.dir(req.body);
   var db = req.db;
   // find all
-  db.collection('item').find(req.body).toArray((error, result) => {
+  db.collection('item').find({}).toArray((error, result) => {
     if(error){
       // give a notice, that reading all items has failed and show the error on the console
       console.log("Failure in reading all items from 'item'.", error);
@@ -28,7 +28,7 @@ router.get("/", (req, res) => {
       // if no error occurs ...
     } else {
       // ... give a notice, that the reading has succeeded and show the result on the console
-      console.log("Successfully read the item from 'item'.");
+      console.log("Successfully read the items from 'item'.");
       // ... and send the result to the ajax request
       res.json(result);
     }
@@ -38,9 +38,6 @@ router.get("/", (req, res) => {
 /* POST to add items. */
 router.post('/add', function(req, res) {
   var db = req.db;
-
-  console.dir(req.body);
-  var routeData = req.body;
 
   db.collection('item').insertOne(req.body, (error, result) => {
     if(error){
