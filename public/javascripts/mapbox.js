@@ -76,12 +76,17 @@ map.on('load', function() {
     }
   });
 
+  saveAndReturnNewTweetsThroughSearch()
+      .catch(console.error)
+      .then(function(result) {
+        console.log(result);
+      });
+/*
   // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
   saveAndReturnNewUnwetterFromDWD()
       .catch(console.error)
       .then(function(result) {
     let allUnwetter = result;
-    debugger;
 
     let unwetterID = ""; // unwetterID has to be a String because addSource() needs a String (it's called later on)
 
@@ -208,6 +213,7 @@ map.on('load', function() {
   }, function(err) {
     console.log(err);
   });
+  */
 });
 
 

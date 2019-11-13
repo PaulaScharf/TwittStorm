@@ -36,6 +36,7 @@ const Buffer = require('buffer/').Buffer;
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
 var usersRouter = require('./routes/users');
+var twitterRouter = require('./routes/twitter');
 
 var app = express();
 const Twitter = require("twitter");
@@ -217,6 +218,8 @@ app.use('/', indexRouter);
 app.use('/db', dbRouter);
 //
 app.use('/users', usersRouter);
+//
+app.use('/twitter', twitterRouter);
 
 
 // catch 404 and forward to error handler
