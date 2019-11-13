@@ -4,9 +4,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 // please put in your own tokens at ???
 
@@ -18,9 +18,9 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxb
 // ****************************** global variables *****************************
 
 /**
-*
-* @type {Object}
-*/
+ *
+ * @type {Object}
+ */
 //let unwetterObj;
 
 // *****************************************************************************
@@ -57,7 +57,6 @@ map.addControl(draw);
 
 // thie event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
 map.on('load', function() {
-
   // for a better orientation, add the boundary of germany to the map
   map.addLayer({
     'id': 'boundaryGermany',
@@ -77,12 +76,12 @@ map.on('load', function() {
     }
   });
 
-
-  // TODO: Folgendes als AJAX, wenn Datenbank steht
-
-  // load the GeoJSON from the DWD Geoserver and display the current Unwetter-areas
-  $.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=100&outputFormat=application%2Fjson', function(data) {
-    // EPSG: 4326
+  // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
+  saveAndReturnNewUnwetterFromDWD()
+      .catch(console.error)
+      .then(function(result) {
+    let allUnwetter = result;
+    debugger;
 
     let unwetterID = ""; // unwetterID has to be a String because addSource() needs a String (it's called later on)
 
@@ -107,96 +106,75 @@ map.on('load', function() {
 
 
     // iteration over all Unwetter given in the DWD-response
-    for (let i = 0; i < data.features.length; i++) {
+    for (let i = 0; i < allUnwetter.length; i++) {
 
       // FILTER:
 
-      // use only the Unwetter which are observed and therefore certain, not just likely ...
-      // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
-      // ... and use only the notifications that are actual reports and not just tests
-      if ((data.features[i].properties.CERTAINTY === "Likely") && (data.features[i].properties.STATUS	=== "Actual")){
+      // *********************** FROST ***********************
+      //
+      if (allUnwetter[i].properties.name === 'FROST') {
 
-        // TODO: WEITERE MÖGLICHE FILTER
-        //      data.features[i].properties.CERTAINTY === "Observed"
-        //      data.features[i].properties.RESPONSETYPE
-        //      data.features[i].properties.URGENCY === "Immediate"
-        //      data.features[i].properties.SEVERITY === "Severe" || data.features[i].properties.SEVERITY === "Extreme"
-        //      data.features[i].properties.HEADLINE beginnt mit "Amtliche UNWETTERWARNUNG"
-
-        //      data.features[i].properties.ONSET       GIBT ANFANGSZEIT, AB WANN WARNUNG GILT
-        //      data.features[i].properties.EXPIREs     GIBT ENDZEIT, BIS WANN WARNUNG GILT
-        // für Zeitformat siehe:  https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_profile_de_pdf.pdf?__blob=publicationFile&v=2
-
-        // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
-
-
-        // *********************** FROST ***********************
         //
-        if (data.features[i].properties.EVENT === 'FROST'){
+        unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
 
-          //
-          unwetterFeature = {
-            "type": "Feature",
-            "geometry": data.features[i].geometry,
-            "properties": data.features[i].properties
-          };
-
-          //
-          frostFeaturesArray.push(unwetterFeature);
-        }
-
-
-        // *********************** WINDBÖEN ***********************
         //
-        if (data.features[i].properties.EVENT === 'WINDBÖEN'){
-
-          //
-          let unwetterFeature = {
-            "type": "Feature",
-            "geometry": data.features[i].geometry,
-            "properties": data.features[i].properties
-          };
-
-          //
-          windboeenFeaturesArray.push(unwetterFeature);
-        }
-
-
-        // *********************** GLÄTTE ***********************
-        //
-        if (data.features[i].properties.EVENT === 'GLÄTTE'){
-
-          //
-          let unwetterFeature = {
-            "type": "Feature",
-            "geometry": data.features[i].geometry,
-            "properties": data.features[i].properties
-          };
-
-          //
-          glaetteFeaturesArray.push(unwetterFeature);
-        }
-
-
-        // *********************** SCHNEEFALL ***********************
-        //
-        if (data.features[i].properties.EVENT === 'LEICHTER SCHNEEFALL'){   // weitere Schneeevents hiNzufügen
-
-          //
-          let unwetterFeature = {
-            "type": "Feature",
-            "geometry": data.features[i].geometry,
-            "properties": data.features[i].properties
-          };
-
-          //
-          schneefallFeaturesArray.push(unwetterFeature);
-        }
-        // *********************** ????? ***********************
-        // ...
-
-
+        frostFeaturesArray.push(unwetterFeature);
       }
+
+
+      // *********************** WINDBÖEN ***********************
+      //
+      if (allUnwetter[i].properties.name === 'WINDBÖEN') {
+
+        //
+        let unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
+
+        //
+        windboeenFeaturesArray.push(unwetterFeature);
+      }
+
+
+      // *********************** GLÄTTE ***********************
+      //
+      if (allUnwetter[i].properties.name === 'GLÄTTE') {
+
+        //
+        let unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
+
+        //
+        glaetteFeaturesArray.push(unwetterFeature);
+      }
+
+
+      // *********************** SCHNEEFALL ***********************
+      //
+      if (allUnwetter[i].properties.name === 'LEICHTER SCHNEEFALL') {   // weitere Schneeevents hiNzufügen
+
+        //
+        let unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
+
+        //
+        schneefallFeaturesArray.push(unwetterFeature);
+      }
+      // *********************** ????? ***********************
+      // ...
+
     }
 
     // make one GeoJSON-FeatureCollection for every event-type and display its Unwetter-events in the map:
@@ -227,7 +205,8 @@ map.on('load', function() {
       "features": schneefallFeaturesArray
     };
     displayUnwetterEvent("schneefall", schneefallFeaturesGeoJSON, "white");
-
+  }, function(err) {
+    console.log(err);
   });
 });
 
@@ -239,13 +218,13 @@ map.on('load', function() {
 // (nicht für jedes einzelne unwetter einen eigenen layer und auch nicht für alle unwetter zusammen nur einen layer)
 // https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/
 /**
-* @desc Displays the ........ in the map.
-* @author Benjamin Rieke, Katharina Poppinga
-* @private
-* @param {String} unwetterID ID for the Unwetter-event-type
-* @param {Object} unwetterEventFeatureCollection GeoJSON-FeatureCollection of all Unwetter-events of a specific event-type
-* @param color color in which the corresponding polygons in the map will be colored
-*/
+ * @desc Displays the ........ in the map.
+ * @author Benjamin Rieke, Katharina Poppinga
+ * @private
+ * @param {String} unwetterID ID for the Unwetter-event-type
+ * @param {Object} unwetterEventFeatureCollection GeoJSON-FeatureCollection of all Unwetter-events of a specific event-type
+ * @param color color in which the corresponding polygons in the map will be colored
+ */
 function displayUnwetterEvent(unwetterID, unwetterEventFeatureCollection, color) {
 
   console.log(unwetterEventFeatureCollection);
@@ -326,15 +305,15 @@ map.on('click', 'frost', function(e){
   console.log(e);
 
   new mapboxgl.Popup()
-  .setLngLat(e.lngLat)
-  .setHTML("Frost") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
-  .addTo(map);
+      .setLngLat(e.lngLat)
+      .setHTML("Frost") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
+      .addTo(map);
 
-/*
-  let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
-  let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
-  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
-*/
+  /*
+    let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
+    let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
+    let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
+  */
 });
 
 
@@ -346,15 +325,15 @@ map.on('click', 'windboeen', function(e){
   console.log(e);
 
   new mapboxgl.Popup()
-  .setLngLat(e.lngLat)
-  .setHTML("Windböen") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
-  .addTo(map);
+      .setLngLat(e.lngLat)
+      .setHTML("Windböen") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
+      .addTo(map);
 
-/*
-  let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
-  let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
-  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
-*/
+  /*
+    let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
+    let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
+    let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
+  */
 });
 
 
@@ -366,15 +345,15 @@ map.on('click', 'glaette', function(e){
   console.log(e);
 
   new mapboxgl.Popup()
-  .setLngLat(e.lngLat)
-  .setHTML("Glätte") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
-  .addTo(map);
+      .setLngLat(e.lngLat)
+      .setHTML("Glätte") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
+      .addTo(map);
 
-/*
-  let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
-  let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
-  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
-*/
+  /*
+    let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
+    let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
+    let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
+  */
 });
 
 
@@ -386,15 +365,15 @@ map.on('click', 'schneefall', function(e){
   console.log(e);
 
   new mapboxgl.Popup()
-  .setLngLat(e.lngLat)
-  .setHTML("Schneefall") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
-  .addTo(map);
+      .setLngLat(e.lngLat)
+      .setHTML("Schneefall") // TODO: hier auch beschreibung und instruction einfügen, aber wie darauf zugreifen bei onclick?
+      .addTo(map);
 
-/*
-  let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
-  let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
-  let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
-*/
+  /*
+    let description = unwetterObj.properties.DESCRIPTION;   // für Infobox
+    let instruction = unwetterObj.properties.INSTRUCTION;   // für Infobox
+    let sent = unwetterObj.properties.SENT; // TODO: daraus timestamp in brauchbarem format machen ODER onset und expires verwenden?!
+  */
 });
 
 
