@@ -15,8 +15,6 @@ function saveAndReturnNewTweetsThroughSearch() {
 
         // if the request is done successfully, ...
             .done(function (response) {
-                // ... give a notice on the console that the AJAX request for reading all routes has succeeded
-                console.log("AJAX request (reading all tweets) is done successfully.");
                 (async () => {
                     for (let i = response.statuses.length - 1; i >= 0; i--) {
                         let currentFeature = response.statuses[i];
@@ -26,12 +24,12 @@ function saveAndReturnNewTweetsThroughSearch() {
                             statusmessage: currentFeature.text,
                             author: {
                                 id: currentFeature.user.id,
-                                name: currentFeature.user.name
+                                name: currentFeature.user.name,
+                                location_home: currentFeature.user.location
                             },
                             timestamp: currentFeature.created_at,
                             location_actual: currentFeature.coordinates,
-                            location_home: currentFeature.user.location,
-                            Unwetter: ""
+                            unwetter: ""
                         };
                         arrayOfPromises.push(promiseToPostItem(currentStatus));
                     }
@@ -40,6 +38,8 @@ function saveAndReturnNewTweetsThroughSearch() {
                         await Promise.all(arrayOfPromises);
                         // return the promise to get all Items
                         resolve(promiseToGetAllItems({type: "Tweet"}));
+                        // ... give a notice on the console that the AJAX request for reading all routes has succeeded
+                        console.log("AJAX request (reading all tweets) is done successfully.");
                     } catch (e) {
                         reject("couldnt post all tweets")
                     }

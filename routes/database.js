@@ -16,19 +16,13 @@ const mongodb = require('mongodb');
 
 /* GET items */
 var getAllWithQuery = function(req, res) {
-  console.dir(req.body);
   var db = req.db;
-  let query = "{";
+  let query = {};
   for (let key in req.body) {
-    if (p.hasOwnProperty(key)) {
-      console.log(key + " -> " + p[key]);
-      query += key + ": " + p[key] + ","
+    if (req.body.hasOwnProperty(key)) {
+      query[key] = req.body[key];
     }
   }
-  query = query.substring(0, query.length - 1);
-  query += "}";
-  query = JSON.parse(query);
-  console.dir(query);
   // find all
   db.collection('item').find(query).toArray((error, result) => {
     if(error){
@@ -46,7 +40,7 @@ var getAllWithQuery = function(req, res) {
   });
 };
 
-router.route("/readAnimal").post(getAllWithQuery);
+router.route("/").post(getAllWithQuery);
 
 /* POST to add items. */
 router.post('/add', function(req, res) {
