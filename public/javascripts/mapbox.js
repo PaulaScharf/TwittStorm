@@ -10,6 +10,7 @@
 
 // please put in your own tokens at ???
 
+// TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
 
 // TODO: in tokens-Datei auslagern
 mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA';
@@ -19,9 +20,9 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxb
 
 /**
 *
-* @type {Object}
+* @type {Array}
 */
-//let unwetterObj;
+let unwetterEvents = ["rain", "snow", "thunderstorm", "other"];
 
 // *****************************************************************************
 
@@ -84,24 +85,25 @@ map.on('load', function() {
   $.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=100&outputFormat=application%2Fjson', function(data) {
     // EPSG: 4326
 
+    // TODO: ändern
     let unwetterID = ""; // unwetterID has to be a String because addSource() needs a String (it's called later on)
 
-    // one feature for a Unwetter (could be FROST, WINDBÖEN, ...)
+    // one feature for a Unwetter (could be rain, snow, thunderstorm)
     let unwetterFeature;
 
 
-    // **************** EVENT-TYPES UNTERSCHEIDEN ****************
+    // **************** different supergroups of events ****************
     //
-    let frostFeaturesArray = [];
+    let rainFeaturesArray = [];
 
     //
-    let windboeenFeaturesArray = [];
+    let snowFeaturesArray = [];
 
     //
-    let glaetteFeaturesArray = [];
+    let thunderstormFeaturesArray = [];
 
-    //
-    let schneefallFeaturesArray = [];
+    // TODO: später löschen, da nur zum Ausprobieren
+    let allOtherFeaturesArray = [];
 
     // ***********************************************************
 
@@ -130,25 +132,9 @@ map.on('load', function() {
         // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
 
 
-        // *********************** FROST ***********************
+        // *********************** RAIN ***********************
         //
-        if (data.features[i].properties.EVENT === 'FROST'){
-
-          //
-          unwetterFeature = {
-            "type": "Feature",
-            "geometry": data.features[i].geometry,
-            "properties": data.features[i].properties
-          };
-
-          //
-          frostFeaturesArray.push(unwetterFeature);
-        }
-
-
-        // *********************** WINDBÖEN ***********************
-        //
-        if (data.features[i].properties.EVENT === 'WINDBÖEN'){
+        if (data.features[i].properties.EVENT === 'DAUERREGEN'){   // TODO: weitere Regenevents hinzufügen
 
           //
           let unwetterFeature = {
@@ -158,13 +144,13 @@ map.on('load', function() {
           };
 
           //
-          windboeenFeaturesArray.push(unwetterFeature);
+          rainFeaturesArray.push(unwetterFeature);
         }
 
 
-        // *********************** GLÄTTE ***********************
+        // *********************** SNOW ***********************
         //
-        if (data.features[i].properties.EVENT === 'GLÄTTE'){
+        if (data.features[i].properties.EVENT === 'LEICHTER SCHNEEFALL'){   // TODO: weitere Schneeevents hinzufügen
 
           //
           let unwetterFeature = {
@@ -174,13 +160,13 @@ map.on('load', function() {
           };
 
           //
-          glaetteFeaturesArray.push(unwetterFeature);
+          snowFeaturesArray.push(unwetterFeature);
         }
 
 
-        // *********************** SCHNEEFALL ***********************
+        // *********************** THUNDERSTORM ***********************
         //
-        if (data.features[i].properties.EVENT === 'LEICHTER SCHNEEFALL'){   // weitere Schneeevents hiNzufügen
+        if (data.features[i].properties.EVENT === 'STARKES GEWITTER'){   // TODO: weitere Gewitterevents hinzufügen
 
           //
           let unwetterFeature = {
@@ -190,53 +176,66 @@ map.on('load', function() {
           };
 
           //
-          schneefallFeaturesArray.push(unwetterFeature);
+          snowFeaturesArray.push(unwetterFeature);
         }
-        // *********************** ????? ***********************
-        // ...
 
 
+        // TODO: später löschen, da nur zum Ausprobieren
+        // *********************** some other ***********************
+        //
+        if ((data.features[i].properties.EVENT === 'FROST') || (data.features[i].properties.EVENT === 'WINDBÖEN') || (data.features[i].properties.EVENT === 'GLÄTTE')) {
+
+          //
+          let unwetterFeature = {
+            "type": "Feature",
+            "geometry": data.features[i].geometry,
+            "properties": data.features[i].properties
+          };
+
+          //
+          allOtherFeaturesArray.push(unwetterFeature);
+        }
       }
     }
 
-    // make one GeoJSON-FeatureCollection for every event-type and display its Unwetter-events in the map:
+
+    // make one GeoJSON-FeatureCollection for every supergroup-event-type and display its Unwetter-events in the map:
     //
-    var frostFeaturesGeoJSON = {
+    var snowFeaturesGeoJSON = {
       "type": "FeatureCollection",
-      "features": frostFeaturesArray
+      "features": snowFeaturesArray
     };
-    displayUnwetterEvent("frost", frostFeaturesGeoJSON, "blue");
+    displayUnwetterEvent("snow", snowFeaturesGeoJSON, "yellow");
 
     //
-    var windboeenFeaturesGeoJSON = {
+    var rainFeaturesGeoJSON = {
       "type": "FeatureCollection",
-      "features": windboeenFeaturesArray
+      "features": rainFeaturesArray
     };
-    displayUnwetterEvent("windboeen", windboeenFeaturesGeoJSON, "red");
+    displayUnwetterEvent("rain", rainFeaturesGeoJSON, "blue");
 
     //
-    var glaetteFeaturesGeoJSON = {
+    var thunderstormFeaturesGeoJSON = {
       "type": "FeatureCollection",
-      "features": glaetteFeaturesArray
+      "features": thunderstormFeaturesArray
     };
-    displayUnwetterEvent("glaette", glaetteFeaturesGeoJSON, "yellow");
+    displayUnwetterEvent("thunderstorm", thunderstormFeaturesGeoJSON, "red");
 
-    //
-    var schneefallFeaturesGeoJSON = {
+
+    // TODO: später löschen, da nur zum Ausprobieren
+    var allOtherFeaturesGeoJSON = {
       "type": "FeatureCollection",
-      "features": schneefallFeaturesArray
+      "features": allOtherFeaturesArray
     };
-    displayUnwetterEvent("schneefall", schneefallFeaturesGeoJSON, "white");
+    displayUnwetterEvent("other", allOtherFeaturesGeoJSON, "orange");
 
   });
 });
 
 
 
-
-
 // HIER: für jeden event-type (windböen, gewitter etc.) je einen einzelnen layer
-// (nicht für jedes einzelne unwetter einen eigenen layer und auch nicht für alle unwetter zusammen nur einen layer)
+// (nicht für jedes einzelne unwetter einen eigenen layer?)
 // https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/
 /**
 * @desc Displays the ........ in the map.
@@ -256,6 +255,7 @@ function displayUnwetterEvent(unwetterID, unwetterEventFeatureCollection, color)
     data: unwetterEventFeatureCollection
   });
 
+  // TODO: hier unterschiedliche Farben innerhalb des jeweiligen Layers einbauen
   // add the given Unwetter-event as a layer to the map
   map.addLayer({
     "id": unwetterID,
@@ -272,6 +272,20 @@ function displayUnwetterEvent(unwetterID, unwetterEventFeatureCollection, color)
   // https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/
 }
 
+
+
+// ************************ showing popups on click ************************
+// TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
+// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
+
+//
+for (let i = 0; i < unwetterEvents.length; i++) {
+  // 2nd parameter: layerID
+  //
+  map.on('click', unwetterEvents[i], function(e){
+    showUnwetterPopup(e);
+  });
+}
 
 
 /**
@@ -292,7 +306,6 @@ function showUnwetterPopup(e) {
     .setHTML("<b>"+pickedUnwetter[0].properties.EVENT+"</b>" + "<br>" + pickedUnwetter[0].properties.DESCRIPTION + "<br><b>onset: </b>" + pickedUnwetter[0].properties.ONSET + "<br><b>expires: </b>" + pickedUnwetter[0].properties.EXPIRES + "<br>" + pickedUnwetter[0].properties.INSTRUCTION)
     .addTo(map);
   }
-
   //
   else {
     new mapboxgl.Popup()
@@ -305,82 +318,21 @@ function showUnwetterPopup(e) {
 }
 
 
-// *****************************************************************************
 
-// TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
-
-
-// 2nd parameter: layerID
-map.on('click', 'frost', function(e){
-  //
-  showUnwetterPopup(e);
-});
-
-
-// 2nd parameter: layerID
-map.on('click', 'windboeen', function(e){
-  //
-  showUnwetterPopup(e);
-});
-
-
-// 2nd parameter: layerID
-map.on('click', 'glaette', function(e){
-  //
-  showUnwetterPopup(e);
-});
-
-
-// 2nd parameter: layerID
-map.on('click', 'schneefall', function(e){
-  //
-  showUnwetterPopup(e);
-});
-
-
-
-// *****************************************************************************
-
+// ************************ changing of curser style ************************
 // https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
 
-// change the cursor to a pointer when hovering the layer ...
-map.on('mouseenter', 'frost', function () {
-  map.getCanvas().style.cursor = 'pointer';
-});
-// change the cursor back to a hand when leaving the layer ...
-map.on('mouseleave', 'frost', function () {
-  map.getCanvas().style.cursor = '';
-});
-
-
-// change the cursor to a pointer when hovering the layer ...
-map.on('mouseenter', 'windboeen', function () {
-  map.getCanvas().style.cursor = 'pointer';
-});
-// change the cursor back to a hand when leaving the layer ...
-map.on('mouseleave', 'windboeen', function () {
-  map.getCanvas().style.cursor = '';
-});
-
-
-// change the cursor to a pointer when hovering the layer ...
-map.on('mouseenter', 'glaette', function () {
-  map.getCanvas().style.cursor = 'pointer';
-});
-// change the cursor back to a hand when leaving the layer ...
-map.on('mouseleave', 'glaette', function () {
-  map.getCanvas().style.cursor = '';
-});
-
-
-// change the cursor to a pointer when hovering the layer ...
-map.on('mouseenter', 'schneefall', function () {
-  map.getCanvas().style.cursor = 'pointer';
-});
-// change the cursor back to a hand when leaving the layer ...
-map.on('mouseleave', 'schneefall', function () {
-  map.getCanvas().style.cursor = '';
-});
+for (let i = 0; i < unwetterEvents.length; i++) {
+  // 2nd parameter: layerID
+  // if hovering the layer, change the cursor to a pointer
+  map.on('mouseenter', unwetterEvents[i], function () {
+    map.getCanvas().style.cursor = 'pointer';
+  });
+  // if leaving the layer, change the cursor back to a hand
+  map.on('mouseleave', unwetterEvents[i], function () {
+    map.getCanvas().style.cursor = '';
+  });
+}
 
 
 // ************************ events for drawn polygons ************************
