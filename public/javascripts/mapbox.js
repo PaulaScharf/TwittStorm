@@ -58,7 +58,6 @@ map.addControl(draw);
 
 // thie event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
 map.on('load', function() {
-
   // for a better orientation, add the boundary of germany to the map
   map.addLayer({
     'id': 'boundaryGermany',
@@ -78,12 +77,14 @@ map.on('load', function() {
     }
   });
 
+  // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
+  saveAndReturnNewUnwetterFromDWD()
+  //
+  .catch(console.error)
+  //
+  .then(function(result) {
 
-  // TODO: Folgendes als AJAX, wenn Datenbank steht
-
-  // load the GeoJSON from the DWD Geoserver and display the current Unwetter-areas
-  $.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=100&outputFormat=application%2Fjson', function(data) {
-    // EPSG: 4326
+    let allUnwetter = result;
 
     // TODO: ändern
     let unwetterID = ""; // unwetterID has to be a String because addSource() needs a String (it's called later on)
@@ -109,92 +110,72 @@ map.on('load', function() {
 
 
     // iteration over all Unwetter given in the DWD-response
-    for (let i = 0; i < data.features.length; i++) {
-
-      // FILTER:
-
-      // use only the Unwetter which are observed and therefore certain, not just likely ...
-      // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
-      // ... and use only the notifications that are actual reports and not just tests
-      if ((data.features[i].properties.CERTAINTY === "Likely") && (data.features[i].properties.STATUS	=== "Actual")){
-
-        // TODO: WEITERE MÖGLICHE FILTER
-        //      data.features[i].properties.CERTAINTY === "Observed"
-        //      data.features[i].properties.RESPONSETYPE
-        //      data.features[i].properties.URGENCY === "Immediate"
-        //      data.features[i].properties.SEVERITY === "Severe" || data.features[i].properties.SEVERITY === "Extreme"
-        //      data.features[i].properties.HEADLINE beginnt mit "Amtliche UNWETTERWARNUNG"
-
-        //      data.features[i].properties.ONSET       GIBT ANFANGSZEIT, AB WANN WARNUNG GILT
-        //      data.features[i].properties.EXPIREs     GIBT ENDZEIT, BIS WANN WARNUNG GILT
-        // für Zeitformat siehe:  https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_profile_de_pdf.pdf?__blob=publicationFile&v=2
-
-        // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
+    for (let i = 0; i < allUnwetter.length; i++) {
 
 
-        // *********************** RAIN ***********************
+
+      // *********************** RAIN ***********************
+      //
+      if (allUnwetter[i].properties.EVENT === 'DAUERREGEN') {   // TODO: weitere Regenevents hinzufügen
+
         //
-        if (data.features[i].properties.EVENT === 'DAUERREGEN'){   // TODO: weitere Regenevents hinzufügen
+        let unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
 
-          //
-          let unwetterFeature = {
-            "type": "Feature",
-            "geometry": data.features[i].geometry,
-            "properties": data.features[i].properties
-          };
-
-          //
-          rainFeaturesArray.push(unwetterFeature);
-        }
-
-
-        // *********************** SNOW ***********************
         //
-        if (data.features[i].properties.EVENT === 'LEICHTER SCHNEEFALL'){   // TODO: weitere Schneeevents hinzufügen
-
-          //
-          let unwetterFeature = {
-            "type": "Feature",
-            "geometry": data.features[i].geometry,
-            "properties": data.features[i].properties
-          };
-
-          //
-          snowFeaturesArray.push(unwetterFeature);
-        }
+        rainFeaturesArray.push(unwetterFeature);
+      }
 
 
-        // *********************** THUNDERSTORM ***********************
+      // *********************** SNOW ***********************
+      //
+      if (allUnwetter[i].properties.EVENT === 'LEICHTER SCHNEEFALL') {   // TODO: weitere Schneeevents hinzufügen
+
         //
-        if (data.features[i].properties.EVENT === 'STARKES GEWITTER'){   // TODO: weitere Gewitterevents hinzufügen
+        unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
 
-          //
-          let unwetterFeature = {
-            "type": "Feature",
-            "geometry": data.features[i].geometry,
-            "properties": data.features[i].properties
-          };
-
-          //
-          snowFeaturesArray.push(unwetterFeature);
-        }
-
-
-        // TODO: später löschen, da nur zum Ausprobieren
-        // *********************** some other ***********************
         //
-        if ((data.features[i].properties.EVENT === 'FROST') || (data.features[i].properties.EVENT === 'WINDBÖEN') || (data.features[i].properties.EVENT === 'GLÄTTE')) {
+        snowFeaturesArray.push(unwetterFeature);
+      }
 
-          //
-          let unwetterFeature = {
-            "type": "Feature",
-            "geometry": data.features[i].geometry,
-            "properties": data.features[i].properties
-          };
 
-          //
-          allOtherFeaturesArray.push(unwetterFeature);
-        }
+      // *********************** THUNDERSTORM ***********************
+      //
+      if (allUnwetter[i].properties.EVENT === 'STARKES GEWITTER') {   // TODO: weitere Gewitterevents hinzufügen
+
+        //
+        let unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
+
+        //
+        thunderstormFeaturesArray.push(unwetterFeature);
+      }
+
+
+      // TODO: später löschen, da nur zum Ausprobieren
+      // *********************** some other ***********************
+      //
+      if ((allUnwetter[i].properties.EVENT === 'FROST') || (allUnwetter[i].properties.EVENT === 'WINDBÖEN') || (allUnwetter[i].properties.EVENT === 'GLÄTTE')) {
+
+        //
+        let unwetterFeature = {
+          "type": "Feature",
+          "geometry": allUnwetter[i].geometry,
+          "properties": allUnwetter[i].properties
+        };
+
+        //
+        allOtherFeaturesArray.push(unwetterFeature);
       }
     }
 
@@ -229,6 +210,10 @@ map.on('load', function() {
     };
     displayUnwetterEvent("other", allOtherFeaturesGeoJSON, "orange");
 
+
+
+  }, function(err) {
+    console.log(err);
   });
 });
 

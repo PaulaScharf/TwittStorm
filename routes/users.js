@@ -79,4 +79,8 @@ router.put("/putroute", (req, res) => {
   });
 });
 
+//TODO work with buffer here
+var buf1 = Buffer.from("klvneaoimewp r");
+console.log(buf1);
+
 module.exports = router;
