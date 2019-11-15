@@ -24,16 +24,14 @@ function saveAndReturnNewUnwetterFromDWD() {
             (async () => {
                 for (let i = data.features.length - 1; i >= 0; i--) {
                     let currentFeature = data.features[i];
-                    // use only the Unwetter which are observed and therefore certain, not just likely ...
                     // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
+                    // TODO: ANSONSTEN CERTAINTY FILTER WEGLASSEN, DAMIT OBSERVED UND LIKELY DRIN SIND
                     // ... and use only the notifications that are actual reports and not just tests
                     if ((currentFeature.properties.CERTAINTY === "Likely") && (data.features[i].properties.STATUS === "Actual")) {
                         // TODO: WEITERE MÖGLICHE FILTER
-                        //      allUnwetter[i].properties.CERTAINTY === "Observed"
+                        // TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
                         //      allUnwetter[i].properties.RESPONSETYPE
                         //      allUnwetter[i].properties.URGENCY === "Immediate"
-                        //      allUnwetter[i].properties.SEVERITY === "Severe" || allUnwetter[i].properties.SEVERITY === "Extreme"
-                        //      allUnwetter[i].properties.HEADLINE beginnt mit "Amtliche UNWETTERWARNUNG"
 
                         //      allUnwetter[i].properties.ONSET       GIBT ANFANGSZEIT, AB WANN WARNUNG GILT
                         //      allUnwetter[i].properties.EXPIREs     GIBT ENDZEIT, BIS WANN WARNUNG GILT
@@ -47,15 +45,25 @@ function saveAndReturnNewUnwetterFromDWD() {
                             type: "Unwetter",
                             geometry: currentFeature.geometry,
                             properties: {
+                              // TODO: am Ende überprüfen, ob alle Attribute hier benötigt werden, ansonsten unbenötigte löschen
                                 ec_Group: currentFeature.properties.EC_GROUP,
+                                event: currentFeature.properties.EVENT,
                                 ec_ii: currentFeature.properties.EC_II,
                                 name: currentFeature.properties.EVENT,
+                                responseType: currentFeature.properties.RESPONSETYPE,
+                                urgency: currentFeature.properties.URGENCY,
+                                severity: currentFeature.properties.SEVERITY,
                                 parameter: currentFeature.properties.Parameter,
                                 certainty: currentFeature.properties.CERTAINTY,
                                 description: currentFeature.properties.DESCRIPTION,
+                                instruction: currentFeature.properties.INSTRUCTION,
                                 color: color,
+                                sent: currentFeature.properties.SENT,
+                                onset: currentFeature.properties.ONSET,
                                 effective: currentFeature.properties.EFFECTIVE,
-                                expires: currentFeature.properties.EXPIRES
+                                expires: currentFeature.properties.EXPIRES,
+                                altitude: currentFeature.properties.ALTITUDE,
+                                ceiling: currentFeature.properties.CEILING
                             }
                         };
                         arrayOfPromises.push(promiseToPostItem(currentUnwetter));
@@ -74,61 +82,7 @@ function saveAndReturnNewUnwetterFromDWD() {
     });
 }
 
-/**
- * WIP
- * This function could be used to assign colors to different types of weather events. It is currently not used.
- * @author Paula Scharf, matr.: 450334
- * @param group - name of the ec_group of Unwetter
- * @returns {string}
- * @example assignColor("FROST")
- */
-function assignColor(group) {
-    switch (group) {
-        case "THUNDERSTORM":
-            return "#ff3333"; //red
-            break;
-        case "WIND":
-            return "#ecff33"; //yellow
-            break;
-        case "TORNADO":
-            return "#ffac33"; //orange
-            break;
-        case "RAIN":
-            return "#3349ff"; //blue
-            break;
-        case "HAIL":
-            return "#ff33f6"; //pink
-            break;
-        case "SNOWFALL":
-            return "#33ffe6"; //light blue/green
-            break;
-        case "SNOWDRIFT":
-            return "#33ff99"; //light green/blue
-            break;
-        case "FOG":
-            return "#beff54"; //green/yellow
-            break;
-        case "FROST":
-            return "#33d4ff"; //light blue
-            break;
-        case "GLAZE":
-            return "#6e33ff"; //purple
-            break;
-        case "THAW":
-            return "#00ff1f"; //green
-            break;
-        case "POWERLINEVIBRATION":
-            return "#d654ff"; //purple/pink
-            break;
-        case "UV":
-            return  "#ff547d"; //pink/red
-            break;
-        case "HEAT":
-            return  "#ff8354"; //orange/red
-            break;
-    }
 
-}
 
 /**
  * This function calls 'add' with AJAX, to save a given item in the database.
@@ -189,11 +143,10 @@ function promiseToGetAllItems(query) {
     return new Promise((resolve, reject) => {
         $.ajax({
             // use a http POST request
-            type: "GET",
+            type: "POST",
             // URL to send the request to
             url: "db/",
-            // type of the data that is sent to the server
-            contentType: "application/json; charset=utf-8",
+            data: query,
             // timeout set to 15 seconds
             timeout: 20000
         })
@@ -210,6 +163,7 @@ function promiseToGetAllItems(query) {
             .fail(function (xhr, status, error) {
                 // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
                 console.log("AJAX request (reading all items) has failed.", error);
+                console.dir(error);
 
                 // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
                 if (error === "timeout") {
