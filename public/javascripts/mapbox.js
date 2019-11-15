@@ -79,9 +79,10 @@ map.on('load', function() {
   saveAndReturnNewTweetsThroughSearch()
       .catch(console.error)
       .then(function(result) {
+        // TODO: display tweets on the map
         console.log(result);
       });
-/*
+
   // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
   saveAndReturnNewUnwetterFromDWD()
       .catch(console.error)
@@ -213,7 +214,6 @@ map.on('load', function() {
   }, function(err) {
     console.log(err);
   });
-  */
 });
 
 

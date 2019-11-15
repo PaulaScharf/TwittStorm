@@ -15,7 +15,7 @@ var router = express.Router();
 const mongodb = require('mongodb');
 
 /* GET items */
-var getAllWithQuery = function(req, res) {
+router.post("/", function(req, res) {
   var db = req.db;
   let query = {};
   for (let key in req.body) {
@@ -38,9 +38,8 @@ var getAllWithQuery = function(req, res) {
       res.json(result);
     }
   });
-};
+});
 
-router.route("/").post(getAllWithQuery);
 
 /* POST to add items. */
 router.post('/add', function(req, res) {
