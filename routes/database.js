@@ -15,17 +15,22 @@ var router = express.Router();
 const mongodb = require('mongodb');
 
 /* GET items */
-router.get("/", (req, res) => {
-  console.dir(req.body);
+router.post("/", function(req, res) {
   var db = req.db;
+  let query = {};
+  for (let key in req.body) {
+    if (req.body.hasOwnProperty(key)) {
+      query[key] = req.body[key];
+    }
+  }
   // find all
-  db.collection('item').find({}).toArray((error, result) => {
+  db.collection('item').find(query).toArray((error, result) => {
     if(error){
       // give a notice, that reading all items has failed and show the error on the console
       console.log("Failure in reading all items from 'item'.", error);
       // in case of an error while reading, do routing to "error.ejs"
       res.render('error');
-      // if no error occurs ...
+      //       // if no error occurs ...
     } else {
       // ... give a notice, that the reading has succeeded and show the result on the console
       console.log("Successfully read the items from 'item'.");
@@ -34,6 +39,7 @@ router.get("/", (req, res) => {
     }
   });
 });
+
 
 /* POST to add items. */
 router.post('/add', function(req, res) {

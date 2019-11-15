@@ -189,11 +189,10 @@ function promiseToGetAllItems(query) {
     return new Promise((resolve, reject) => {
         $.ajax({
             // use a http POST request
-            type: "GET",
+            type: "POST",
             // URL to send the request to
             url: "db/",
-            // type of the data that is sent to the server
-            contentType: "application/json; charset=utf-8",
+            data: query,
             // timeout set to 15 seconds
             timeout: 20000
         })
@@ -210,6 +209,7 @@ function promiseToGetAllItems(query) {
             .fail(function (xhr, status, error) {
                 // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
                 console.log("AJAX request (reading all items) has failed.", error);
+                console.dir(error);
 
                 // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
                 if (error === "timeout") {
