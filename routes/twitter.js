@@ -11,8 +11,12 @@ var client = new Twitter({
 });
 
 router.get("/search", (req, res) => {
-    var params = {
-        q: 'storm'};
+    let params = {};
+    for (let key in req.body) {
+        if (reg.body.hasOwnProperty(key)) {
+            params[key] = req.body[key];
+        }
+    }
 
 
     client.get('search/tweets', params, function (error, tweets, response) {
