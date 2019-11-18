@@ -13,6 +13,7 @@
 // TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
 
 // TODO: in tokens-Datei auslagern
+// TODO: wo wird der verwendet??
 mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA';
 
 
