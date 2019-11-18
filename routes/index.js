@@ -33,7 +33,7 @@ router.get('/mapbox', function(req, res, next) {
   res.render('mapbox', { title: 'Mapbox'});
 });
 
-/* GET database site */
+/* GET mongo site */
 router.get('/mongo', function(req, res, next) {
   res.render('mongo', { title: 'MongoDB'});
 });

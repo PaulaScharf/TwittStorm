@@ -57,6 +57,7 @@ function saveAndReturnNewTweetsThroughSearch() {
           resolve(promiseToGetAllItems({type: "Tweet"}));
           // ... give a notice on the console that the AJAX request for reading all routes has succeeded
           console.log("AJAX request (reading all tweets) is done successfully.");
+          // if await Promise.all(arrayOfPromises) fails:
         } catch (e) {
           reject("couldnt post all tweets")
         }
