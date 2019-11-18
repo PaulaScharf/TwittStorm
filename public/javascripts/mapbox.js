@@ -83,7 +83,7 @@ function showMap() {
 
 
     // enable drawing the area-of-interest-polygons
-    drawForAOI(map);
+    drawForAOI(map, unwetterEvents); // TODO: evtl. unwetterEvents hier löschen
 
 
     //
@@ -480,8 +480,9 @@ function showUnwetterPopup(map, e) {
 *
 * @author Katharina Poppinga
 * @param {mapbox-map} map map in which the polygons shall be drawn
+* @param ?????????????????
 */
-function drawForAOI(map) {
+function drawForAOI(map, unwetterEvents) {
 
   // specify and add a control for DRAWING A POLYGON into the map
   var draw = new MapboxDraw({
@@ -541,4 +542,24 @@ function drawForAOI(map) {
     console.log("drawnPolygons-selectionchanged:");
     console.log(e.features);
   });
+
+
+
+
+
+  // TODO: FOLGENDES FUNKTIONIERT NICHT, SOLL DAZU FÜHREN, DASS POLYGON-POPUPS SICH NICHT ÖFFNEN BEIM AOI ZEICHNEN
+  // TODO: FALLS FOLGENDES GELÖSCHT WIRD, DANN AUCH UNWETTEREVENTS AUS drawForAOI FUNKTION UND AUFRUF LÖSCHEN
+  map.on('draw.modechange', function (e) {
+    console.log("test");
+    console.log(e.features);
+
+    // loop over all event-supergroups(names)
+    for (let i = 0; i < unwetterEvents.length; i++) {
+      map.on('click', unwetterEvents[i], function(e){
+        showUnwetterPopup(map, e);
+      });
+    }
+  });
+
+
 }

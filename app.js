@@ -35,7 +35,6 @@ const Buffer = require('buffer/').Buffer;
 // set the routers-paths
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
-var usersRouter = require('./routes/users');
 var twitterRouter = require('./routes/twitter');
 
 var app = express();
@@ -216,8 +215,6 @@ app.get("/tweets", function(req, res) {
 app.use('/', indexRouter);
 //
 app.use('/db', dbRouter);
-//
-app.use('/users', usersRouter);
 //
 app.use('/twitter', twitterRouter);
 
