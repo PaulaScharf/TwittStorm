@@ -1,5 +1,4 @@
 needs(dplyr)
-
 needs(rdwd)
 needs(R.utils)
 needs(raster)
@@ -101,4 +100,4 @@ for(i in 1:for_length) {
   all_pol[[i]] <- l
 }
 
-result <- all_pol
+# result <- all_pol

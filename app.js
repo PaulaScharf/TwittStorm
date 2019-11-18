@@ -214,7 +214,8 @@ R("./node.R")
   .data({ "json" : "attr1", "json2" : "attr2" })
   .call(function(err, d) {
     if (err) throw err;
-    console.log(d);
+    //TODO redirect d into mongoDB
+    //console.log(d);
   });
 
 // *****************************************************************************
