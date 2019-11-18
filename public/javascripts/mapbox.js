@@ -224,7 +224,6 @@ function showMap() {
     .catch(console.error)
     //
     .then(function(result) {
-
       console.log("Tweets:");
       console.log(result);
 
