@@ -14,11 +14,16 @@ function saveAndReturnNewTweetsThroughSearch() {
   return new Promise((resolve, reject) => {
     // this array will contain all the calls of the function "promiseToPostItem"
     let arrayOfPromises = [];
+    let searchQuery = {
+      q: "Sturm"
+    };
     $.ajax({
       // use a http GET request
       type: "GET",
       // URL to send the request to
       url: "/twitter/search",
+      // parameters for the search api
+      data: searchQuery,
       // data type of the response
       dataType: "json",
       // timeout set to 20 seconds
