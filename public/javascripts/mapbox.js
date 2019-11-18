@@ -220,13 +220,18 @@ function showMap() {
 
     //
     saveAndReturnNewTweetsThroughSearch()
+    //
     .catch(console.error)
+    //
     .then(function(result) {
-      // TODO: display tweets on the map
 
-
-      
+      console.log("Tweets:");
       console.log(result);
+
+
+      // TODO: display the tweets-locations in map and their content next to map and/or as popups
+
+
     });
 
 
