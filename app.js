@@ -29,8 +29,8 @@ var jsnlog_nodejs = require('jsnlog-nodejs').jsnlog_nodejs;
 // TODO: benutzen wir morgan?
 var logger = require('morgan');
 
-//Buffer?
-const Buffer = require('buffer/').Buffer;
+// R
+const R = require('r-script');
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
@@ -83,7 +83,7 @@ app.use("/popper", express.static(path.join(__dirname, 'node_modules', 'popper.j
 app.use("/mapbox", express.static(path.join(__dirname, 'node_modules', 'mapbox-gl', 'dist')));
 app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@mapbox', 'mapbox-gl-draw', 'dist')));
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
-app.use("/buffer", express.static(path.join(__dirname, 'node_modules', 'buffer')));
+app.use("/R", express.static(path.join(__dirname, 'node_modules', 'r-script', )));
 
 
 // ***************************** mongo-database *******************************
@@ -208,7 +208,14 @@ app.get("/tweets", function(req, res) {
 
 });
 
-
+// *****************************************************************************
+// R
+R("./node.R")
+  .data({ "json" : "attr1", "json2" : "attr2" })
+  .call(function(err, d) {
+    if (err) throw err;
+    console.log(d);
+  });
 
 // *****************************************************************************
 
