@@ -85,7 +85,7 @@ function showMap() {
     // enable drawing the area-of-interest-polygons
     drawForAOI(map);
 
-
+/*
     //
     // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
     saveAndReturnNewUnwetterFromDWD()
@@ -216,7 +216,7 @@ function showMap() {
     }, function(err) {
       console.log(err);
     });
-
+*/
 
     //
     saveAndReturnNewTweetsThroughSearch()

@@ -19,7 +19,7 @@ function saveAndReturnNewTweetsThroughSearch() {
     };
     $.ajax({
       // use a http GET request
-      type: "GET",
+      type: "POST",
       // URL to send the request to
       url: "/twitter/search",
       // parameters for the search api

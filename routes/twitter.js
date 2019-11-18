@@ -10,10 +10,10 @@ var client = new Twitter({
     access_token_secret: 'W9b9MvmH93UTbiTcEMr1h2IBqLc2lQfF3LtqphfdeReJK'
 });
 
-router.get("/search", (req, res) => {
+router.post("/search", (req, res) => {
     let params = {};
     for (let key in req.body) {
-        if (reg.body.hasOwnProperty(key)) {
+        if (req.body.hasOwnProperty(key)) {
             params[key] = req.body[key];
         }
     }
