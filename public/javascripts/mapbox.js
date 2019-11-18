@@ -223,6 +223,9 @@ function showMap() {
     .catch(console.error)
     .then(function(result) {
       // TODO: display tweets on the map
+
+
+      
       console.log(result);
     });
 
