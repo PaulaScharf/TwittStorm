@@ -22,6 +22,7 @@ function saveAndReturnNewUnwetterFromDWD() {
             // EPSG: 4326
             // an async call is necessary here to use the await-functionality
             (async () => {
+                let arrayOfUnwetters = [];
                 for (let i = data.features.length - 1; i >= 0; i--) {
                     let currentFeature = data.features[i];
                     // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
@@ -43,6 +44,7 @@ function saveAndReturnNewUnwetterFromDWD() {
                         let color = rgbToHex(area_color[0], area_color[1], area_color[2]);
                         let currentUnwetter = {
                             type: "Unwetter",
+                            dwd_id: currentFeature.properties.IDENTIFIER,
                             geometry: currentFeature.geometry,
                             properties: {
                               // TODO: am Ende überprüfen, ob alle Attribute hier benötigt werden, ansonsten unbenötigte löschen
@@ -66,9 +68,18 @@ function saveAndReturnNewUnwetterFromDWD() {
                                 ceiling: currentFeature.properties.CEILING
                             }
                         };
-                        arrayOfPromises.push(promiseToPostItem(currentUnwetter));
+                        arrayOfUnwetters.push(currentUnwetter);
                     }
                 }
+                let groupedUnwetters = groupByArray(arrayOfUnwetters, 'dwd_id');
+                groupedUnwetters.forEach( function (item) {
+                    let currentUnwetter = JSON.parse(JSON.stringify(item.values[0]));
+                    currentUnwetter.geometry = [];
+                    for (let i = 0; i < item.values.length; i++) {
+                        currentUnwetter.geometry.push(item.values[i].geometry);
+                    }
+                    arrayOfPromises.push(promiseToPostItem(currentUnwetter));
+                });
                 try {
                     // wait for all the posts to the database to succeed
                     await Promise.all(arrayOfPromises);
@@ -83,6 +94,18 @@ function saveAndReturnNewUnwetterFromDWD() {
 }
 
 
+function groupByArray(xs, key) {
+    return xs.reduce(function (rv, x) {
+        let v = key instanceof Function ? key(x) : x[key];
+        let el = rv.find((r) => r && r.key === v);
+        if (el) {
+            el.values.push(x);
+        } else {
+            rv.push({key: v, values: [x]});
+        }
+        return rv;
+    }, []);
+}
 
 /**
  * This function calls 'add' with AJAX, to save a given item in the database.
@@ -109,20 +132,20 @@ function promiseToPostItem(item) {
         // if the request is done successfully, ...
             .done(function (response) {
                 // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
-                console.log("AJAX request (posting an item) is done successfully.");
+                console.log("AJAX request (posting an unwetter) is done successfully.");
                 resolve();
             })
 
             // if the request has failed, ...
             .fail(function (xhr, status, error) {
                 // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
-                console.log("AJAX request (posting an item) has failed.", error);
+                console.log("AJAX request (posting an unwetter) has failed.", error);
 
                 // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
                 if (error === "timeout") {
                     //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
                 }
-                reject("AJAX request (posting an item) has failed.")
+                reject("AJAX request (posting an unwetter) has failed.")
             });
     });
 }

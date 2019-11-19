@@ -10,12 +10,21 @@
 
 
 
-function saveAndReturnNewTweetsThroughSearch() {
+function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
   return new Promise((resolve, reject) => {
     // this array will contain all the calls of the function "promiseToPostItem"
     let arrayOfPromises = [];
+    let searchTerm = "";
+    twitterSearchQuery.searchWords.forEach(function (item) {
+      searchTerm += item + " OR ";
+    });
+
+    searchTerm = searchTerm.substring(0,searchTerm.length - 4);
     let searchQuery = {
-      q: "Sturm"
+      q: searchTerm,
+      geocode: "51.1586258,10.445921,434km",
+      result_type: "recent",
+      count: 100
     };
     $.ajax({
       // use a http GET request
@@ -46,7 +55,7 @@ function saveAndReturnNewTweetsThroughSearch() {
             },
             timestamp: currentFeature.created_at,
             location_actual: currentFeature.coordinates,
-            unwetter: ""
+            unwetter: unwetterID
           };
           arrayOfPromises.push(promiseToPostItem(currentStatus));
         }
@@ -54,9 +63,10 @@ function saveAndReturnNewTweetsThroughSearch() {
           // wait for all the posts to the database to succeed
           await Promise.all(arrayOfPromises);
           // return the promise to get all Items
-          resolve(promiseToGetAllItems({type: "Tweet"}));
+          resolve(promiseToGetAllItems({type: "Tweet", unwetter: unwetterID}));
           // ... give a notice on the console that the AJAX request for reading all routes has succeeded
           console.log("AJAX request (reading all tweets) is done successfully.");
+          // if await Promise.all(arrayOfPromises) fails:
         } catch (e) {
           reject("couldnt post all tweets")
         }
