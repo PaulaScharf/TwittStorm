@@ -14,28 +14,59 @@ var router = express.Router();
 var R = require('r-script');
 const mongodb = require('mongodb');
 
+// example code to work on, bypasses call of route
 R("./node.R")
   .data({ "rasterProduct" : "rw", "classification" : "quantiles" })
   .call(function(err, d) {
     if (err) throw err;
     //TODO redirect d into mongoDB
     //console.log(d[1].classes[0]);
-    var raster_meta = d[0];
-    var class_borders = d[1];
-    var answer_json = {
+    var rasterMeta = d[0];
+    var classBorders = d[1];
+
+    //rasterMeta: meta from dwd raster, timestamp etc.
+    //classBorders: info about classification intervals, important for display
+    var answerJSON = {
       "type": "RainRadar",
-      "raster_meta": raster_meta,
-      "class_borders": class_borders,
-      "geometry": null
+      "rasterMeta": rasterMeta,
+      "classBorders": classBorders,
+      "geometry": {
+        "type": "FeatureCollection",
+        "features": []
+      }
     };
 
     //make one big GeoJSON featurecollection
     for(let i = 2; i < d.length; i++) {
-
-      console.log(d[i].class);
+      var polygon = GeoJSONPolygon(d[i]);
+      //push to collection
+      answerJSON.geometry.features.push(polygon);
     }
   });
 
+/**
+  * function to return a GeoJSON formatted Polygon
+  * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+  * @param object part of the R JSON response, containing the coords of a polygon
+  */
+function GeoJSONPolygon(object) {
+  var result = {
+    "type": "Feature",
+    "properties": {
+    "class": object.class
+  },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        object.coords
+      ]
+    }
+  };
+  return result;
+}
+
+/* GET rasterProducts */
 router.get("/:rasterProduct/:classification", function(req, res) {
   var db = req.db;
   var rasterProduct = req.params.rasterProduct;
@@ -50,11 +81,27 @@ router.get("/:rasterProduct/:classification", function(req, res) {
     .call(function(err, d) {
       if(err) throw err;
       //TODO GeoJSONify response d
-      console.log(d);
+      var rasterMeta = d[0];
+      var classBorders = d[1];
+      var answerJSON = {
+        "type": "RainRadar",
+        "rasterMeta": rasterMeta,
+        "classBorders": classBorders,
+        "geometry": {
+          "type": "FeatureCollection",
+          "features": []
+        }
+      };
+
+      //make one big GeoJSON featurecollection
+      for(let i = 2; i < d.length; i++) {
+        var polygon = GeoJSONPolygon(d[i]);
+        //push to collection
+        answerJSON.geometry.features.push(polygon);
+      }
     });
 });
 
-//TODO output to GeoJSON
 //TODO connect to db get/post functionality
 
 //*******************************DB FUNCTIONALITY*****************************
