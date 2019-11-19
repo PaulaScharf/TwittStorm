@@ -28,6 +28,10 @@ function saveAndReturnNewUnwetterFromDWD() {
                     // TODO: ANSONSTEN CERTAINTY FILTER WEGLASSEN, DAMIT OBSERVED UND LIKELY DRIN SIND
                     // ... and use only the notifications that are actual reports and not just tests
                     if ((currentFeature.properties.CERTAINTY === "Likely") && (data.features[i].properties.STATUS === "Actual")) {
+
+                        // TODO: EXPIRES soll in der Zukunft liegen
+
+
                         // TODO: WEITERE MÖGLICHE FILTER
                         // TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
                         //      allUnwetter[i].properties.RESPONSETYPE
@@ -74,8 +78,9 @@ function saveAndReturnNewUnwetterFromDWD() {
                     await Promise.all(arrayOfPromises);
                     // return the promise to get all Items
                     resolve(promiseToGetAllItems({type: "Unwetter"}));
+                    // if await Promise.all(arrayOfPromises) fails:
                 } catch(e) {
-                    reject("couldnt post all Unwetter")
+                    reject("couldnt post all Unwetter");
                 }
             })();
         });
@@ -122,7 +127,7 @@ function promiseToPostItem(item) {
                 if (error === "timeout") {
                     //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
                 }
-                reject("AJAX request (posting an item) has failed.")
+                reject("AJAX request (posting an item) has failed.");
             });
     });
 }
@@ -169,7 +174,7 @@ function promiseToGetAllItems(query) {
                 if (error === "timeout") {
                     //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
                 }
-                reject("AJAX request (reading all items) has failed.")
+                reject("AJAX request (reading all items) has failed.");
             });
 
     });
