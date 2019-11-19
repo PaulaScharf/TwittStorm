@@ -96,6 +96,7 @@ function showMap() {
 
       // all Unwetter that are stored in the database
       let allUnwetter = result;
+      console.log(result);
 
       // one feature for a Unwetter (could be heavy rain, light snowfall, ...)
       let unwetterFeature;
@@ -108,16 +109,17 @@ function showMap() {
       // TODO: allOther später löschen, da nur zum Ausprobieren
       let allOtherFeatures = [];
 
+
       // *************************************************************************************************************
 
       // iteration over all Unwetter in the database
       for (let i = 0; i < allUnwetter.length; i++) {
 
-        // make a GeoJSON Feature out of the current Unwetter
-        unwetterFeature = {
-          "type": "Feature",
-          "geometry": allUnwetter[i].geometry,
-          "properties": allUnwetter[i].properties
+        let currentUnwetterEvent = allUnwetter[i];
+
+        let twitterSearchQuery = {
+          geometry: currentUnwetterEvent.geometry,
+          searchWords: ["Unwetter"]
         };
 
         // TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
@@ -125,34 +127,93 @@ function showMap() {
         // FALLS JA, DANN FARBEN IN fill-color ANPASSEN
 
         // if the current Unwetter is of supergroup RAIN ...
-        if ((allUnwetter[i].properties.ec_ii >= 61) && (allUnwetter[i].properties.ec_ii <= 66)) {
-          // ... add its GeoJSON Feature to the rainFeatures-array
-          rainFeatures.push(unwetterFeature);
+        if ((currentUnwetterEvent.properties.ec_ii >= 61) && (currentUnwetterEvent.properties.ec_ii <= 66)) {
+          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+            // make a GeoJSON Feature out of the current Unwetter
+            unwetterFeature = {
+              "type": "Feature",
+              "geometry": currentPolygon,
+              "properties": currentUnwetterEvent.properties
+            };
+            // ... add its GeoJSON Feature to the rainFeatures-array
+            rainFeatures.push(unwetterFeature);
+          });
+          twitterSearchQuery.searchWords.push("Starkregen");
         }
 
         // if the current Unwetter is of supergroup SNOWFALL ...
-        else if ((allUnwetter[i].properties.ec_ii >= 70) && (allUnwetter[i].properties.ec_ii <= 78)) {
-          // ... add its GeoJSON Feature to the snowfallFeatures-array
-          snowfallFeatures.push(unwetterFeature);
+        else if ((currentUnwetterEvent.properties.ec_ii >= 70) && (currentUnwetterEvent.properties.ec_ii <= 78)) {
+          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+            // make a GeoJSON Feature out of the current Unwetter
+            unwetterFeature = {
+              "type": "Feature",
+              "geometry": currentPolygon,
+              "properties": currentUnwetterEvent.properties
+            };
+            // ... add its GeoJSON Feature to the snowfallFeatures-array
+            snowfallFeatures.push(unwetterFeature);
+          });
+          twitterSearchQuery.searchWords.push("Schneefall");
         }
 
         // if the current Unwetter is of supergroup THUNDERSTORM ..
-        else if (((allUnwetter[i].properties.ec_ii >= 31) && (allUnwetter[i].properties.ec_ii <= 49)) || ((allUnwetter[i].properties.ec_ii >= 90) && (allUnwetter[i].properties.ec_ii <= 96))) {
-          // ... add its GeoJSON Feature to the thunderstormFeatures-array
-          thunderstormFeatures.push(unwetterFeature);
+        else if (((currentUnwetterEvent.properties.ec_ii >= 31) && (currentUnwetterEvent.properties.ec_ii <= 49)) || ((currentUnwetterEvent.properties.ec_ii >= 90) && (currentUnwetterEvent.properties.ec_ii <= 96))) {
+          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+            // make a GeoJSON Feature out of the current Unwetter
+            unwetterFeature = {
+              "type": "Feature",
+              "geometry": currentPolygon,
+              "properties": currentUnwetterEvent.properties
+            };
+            // ... add its GeoJSON Feature to the thunderstormFeatures-array
+            thunderstormFeatures.push(unwetterFeature);
+          });
+          twitterSearchQuery.searchWords.push("Gewitter");
         }
 
         // if the current Unwetter is of supergroup BLACKICE ..
-        else if ((allUnwetter[i].properties.ec_ii === 24) || ((allUnwetter[i].properties.ec_ii >= 84) && (allUnwetter[i].properties.ec_ii <= 87))) {
-          // ... add its GeoJSON Feature to the blackIceFeatures-array
-          blackIceFeatures.push(unwetterFeature);
+        else if ((currentUnwetterEvent.properties.ec_ii === 24) || ((currentUnwetterEvent.properties.ec_ii >= 84) && (currentUnwetterEvent.properties.ec_ii <= 87))) {
+          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+            // make a GeoJSON Feature out of the current Unwetter
+            unwetterFeature = {
+              "type": "Feature",
+              "geometry": currentPolygon,
+              "properties": currentUnwetterEvent.properties
+            };
+            // ... add its GeoJSON Feature to the blackIceFeatures-array
+            blackIceFeatures.push(unwetterFeature);
+          });
+          twitterSearchQuery.searchWords.push("Blitzeis");
         }
 
         // TODO: später löschen, da nur zum Ausprobieren
         // alle anderen Unwetter-Event-Typen:
         else {
-          allOtherFeatures.push(unwetterFeature);
+          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+            // make a GeoJSON Feature out of the current Unwetter
+            unwetterFeature = {
+              "type": "Feature",
+              "geometry": currentPolygon,
+              "properties": currentUnwetterEvent.properties
+            };
+            // ... add its GeoJSON Feature to the allOtherFeatures-array
+            allOtherFeatures.push(unwetterFeature);
+          });
         }
+
+        //
+        saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id)
+        //
+            .catch(console.error)
+            //
+            .then(function(result) {
+              result.forEach(function (item) {
+                if (item.location_actual !== null) {
+                  console.log(item.location_actual);
+                  displayTweet(item);
+                }
+              });
+            });
       }
 
       // *************************************************************************************************************
@@ -217,21 +278,6 @@ function showMap() {
       console.log(err);
     });
 
-
-    //
-    saveAndReturnNewTweetsThroughSearch()
-    //
-    .catch(console.error)
-    //
-    .then(function(result) {
-      console.log("Tweets:");
-      console.log(result);
-
-
-      // TODO: display the tweets-locations in map and their content next to map and/or as popups
-
-
-    });
 
 
     // TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -388,7 +434,9 @@ function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection) {
 }
 
 
+function displayTweet(map, layerID, tweetFeatureCollection) {
 
+}
 /**
 * WIP
 * This function could be used to assign colors to different types of weather events. It is currently not used.
