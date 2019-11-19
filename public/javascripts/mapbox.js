@@ -212,6 +212,7 @@ function showMap() {
               let tweetFeatures = [];
               result.forEach(function (item) {
                 if (item.location_actual !== null) {
+                  console.dir(item);
                   let tweetFeature = {
                     "type": "Feature",
                     "geometry": item.location_actual,
@@ -297,8 +298,8 @@ function showMap() {
     // TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 
 
+    // TODO: popups für tweets
     let events = unwetterEvents; //concat(tweetEvents)
-    console.log(events);
     // loop over all event-supergroups(names)
     for (let i = 0; i < events.length; i++) {
 
@@ -452,7 +453,6 @@ function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection) {
 
 function displayTweets(map, layerID, tweetFeatureCollection) {
 
-  console.dir(tweetFeatureCollection);
   // add the given Unwetter-event as a source to the map
   map.addSource(layerID, {
     type: 'geojson',
