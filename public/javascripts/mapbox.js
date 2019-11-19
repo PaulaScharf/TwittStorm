@@ -48,6 +48,16 @@ function showMap() {
     // style: 'mapbox://styles/mapbox/streets-v11',
     zoom: 5, // TODO: überprüfen, ob diese Zoomstufe auf allen gängigen Bildschirmgrößen Deutschland passend zeigt
     center: [10.5, 51.2], // starting position [lng, lat]: center of germany
+    "overlay": {
+    "type": "image",
+    "url": "https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.1.0&request=GetMap&layers=dwd%3ARADOLAN-RY&bbox=-523.462%2C-4658.645%2C376.538%2C-3758.645&width=767&height=768&srs=EPSG%3A1000001&format=image%2Fpng",
+    "coordinates": [
+    [51, 7],
+    [53, 9],
+    [53, 7],
+    [51, 9]
+    ]
+    }
   });
 
 
