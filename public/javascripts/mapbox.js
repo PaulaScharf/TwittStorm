@@ -37,7 +37,7 @@ function showMap() {
 
   // an Array containing all supergroups of events, they will be used as layerIDs for the map
   let unwetterEvents = ["rain", "snowfall", "thunderstorm", "blackIce", "other"]; // have to be a Strings because addSource() needs a String for the layerID
-
+  let tweetEvents = [];
 
   // create a new map in the "map"-div
   const map = new mapboxgl.Map({
@@ -119,8 +119,9 @@ function showMap() {
 
         let twitterSearchQuery = {
           geometry: currentUnwetterEvent.geometry,
-          searchWords: ["Unwetter"]
+          searchWords: []
         };
+        let tweetLayerId = currentUnwetterEvent.dwd_id;
 
         // TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
         // FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
@@ -199,6 +200,7 @@ function showMap() {
             // ... add its GeoJSON Feature to the allOtherFeatures-array
             allOtherFeatures.push(unwetterFeature);
           });
+          twitterSearchQuery.searchWords.push("Unwetter");
         }
 
         //
@@ -207,12 +209,25 @@ function showMap() {
             .catch(console.error)
             //
             .then(function(result) {
+              let tweetFeatures = [];
               result.forEach(function (item) {
                 if (item.location_actual !== null) {
-                  console.log(item.location_actual);
-                  displayTweet(item);
+                  let tweetFeature = {
+                    "type": "Feature",
+                    "geometry": item.location_actual,
+                    "properties": item
+                  };
+                  tweetFeatures.push(tweetFeature);
                 }
               });
+              if (tweetFeatures.length > 0) {
+                let tweetFeaturesGeoJSON = {
+                  "type": "FeatureCollection",
+                  "features": tweetFeatures
+                };
+                tweetEvents.push(tweetLayerId);
+                displayTweets(map, tweetLayerId, tweetFeaturesGeoJSON);
+              }
             });
       }
 
@@ -279,31 +294,24 @@ function showMap() {
     });
 
 
-    //
-    saveAndReturnNewTweetsThroughSearch()
-    .catch(console.error)
-    .then(function(result) {
-      // TODO: display tweets on the map
-      console.log(result);
-    });
-
-
     // TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 
 
+    let events = unwetterEvents; //concat(tweetEvents)
+    console.log(events);
     // loop over all event-supergroups(names)
-    for (let i = 0; i < unwetterEvents.length; i++) {
+    for (let i = 0; i < events.length; i++) {
 
       // map.on: 2nd parameter is the layerID
 
       // ************************ changing of curser style ***********************
       // https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
       // if hovering the layer, change the cursor to a pointer
-      map.on('mouseenter', unwetterEvents[i], function() {
+      map.on('mouseenter', events[i], function() {
         map.getCanvas().style.cursor = 'pointer';
       });
       // if leaving the layer, change the cursor back to a hand
-      map.on('mouseleave', unwetterEvents[i], function() {
+      map.on('mouseleave', events[i], function() {
         map.getCanvas().style.cursor = '';
       });
 
@@ -311,7 +319,7 @@ function showMap() {
       // ************************ showing popups on click ************************
       // TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
       // TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
-      map.on('click', unwetterEvents[i], function(e){
+      map.on('click', events[i], function(e){
         showUnwetterPopup(map, e);
       });
     }
@@ -442,9 +450,24 @@ function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection) {
 }
 
 
-function displayTweet(map, layerID, tweetFeatureCollection) {
+function displayTweets(map, layerID, tweetFeatureCollection) {
 
+  console.dir(tweetFeatureCollection);
+  // add the given Unwetter-event as a source to the map
+  map.addSource(layerID, {
+    type: 'geojson',
+    data: tweetFeatureCollection
+  });
+  map.addLayer({
+    "id": layerID,
+    "type": "symbol",
+    "source": layerID,
+    "layout": {
+      "icon-image": ["concat", "circle", "-15"],
+    }
+  });
 }
+
 /**
 * WIP
 * This function could be used to assign colors to different types of weather events. It is currently not used.
