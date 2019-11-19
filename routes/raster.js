@@ -16,7 +16,7 @@ const mongodb = require('mongodb');
 
 /* example code to work on, bypasses call of route
 R("./node.R")
-  .data({ "radarProduct" : "rw", "classification" : "quartiles" })
+  .data({ "radarProduct" : "rw", "classification" : "dwd" })
   .call(function(err, d) {
     if (err) throw err;
     //TODO redirect d into mongoDB
@@ -42,9 +42,9 @@ R("./node.R")
       //push to collection
       answerJSON.geometry.features.push(polygon);
     }
+    console.log(answerJSON.classBorders);
   });
 */
-
 /**
   * function to return a GeoJSON formatted Polygon
   * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
