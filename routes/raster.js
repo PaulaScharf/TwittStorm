@@ -19,7 +19,21 @@ R("./node.R")
   .call(function(err, d) {
     if (err) throw err;
     //TODO redirect d into mongoDB
-    console.log(d);
+    //console.log(d[1].classes[0]);
+    var raster_meta = d[0];
+    var class_borders = d[1];
+    var answer_json = {
+      "type": "RainRadar",
+      "raster_meta": raster_meta,
+      "class_borders": class_borders,
+      "geometry": null
+    };
+
+    //make one big GeoJSON featurecollection
+    for(let i = 2; i < d.length; i++) {
+
+      console.log(d[i].class);
+    }
   });
 
 router.get("/:rasterProduct/:classification", function(req, res) {
@@ -28,20 +42,20 @@ router.get("/:rasterProduct/:classification", function(req, res) {
   var classification = req.params.classification;
 
   //TODO check if this is already available
+  //db search with current timestamp, depending on availability of rasterProduct
 
   //call R script
   R("./node.R")
     .data({ "rasterProduct": rasterProduct, "classification": classification})
     .call(function(err, d) {
       if(err) throw err;
-      //TODO redirect d into mongoDB
+      //TODO GeoJSONify response d
       console.log(d);
     });
 });
 
 //TODO output to GeoJSON
-//TODO give path as input to R script
-//TODO connect to db get functionality
+//TODO connect to db get/post functionality
 
 //*******************************DB FUNCTIONALITY*****************************
 /* GET items */

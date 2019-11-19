@@ -124,4 +124,4 @@ for(i in 1:for_length) {
   all_pol[[i + meta_offset]] <- l
 }
 
-result <- all_pol[[2]]
+result <- all_pol
