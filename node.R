@@ -12,15 +12,15 @@ needs(sp)
 attach(input[[1]])
 
 # input handling
-if( rasterProduct == "sf") {
+if( radarProduct == "sf") {
   rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/sf"
   # scale info
 }
-if( rasterProduct == "ry") {
+if( radarProduct == "ry") {
   rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/ry"
   # scale info
 }
-if( rasterProduct == "rw") {
+if( radarProduct == "rw") {
   rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/rw"
   # scale info
 }
