@@ -16,7 +16,7 @@ const mongodb = require('mongodb');
 
 /* example code to work on, bypasses call of route
 R("./node.R")
-  .data({ "rasterProduct" : "rw", "classification" : "quantiles" })
+  .data({ "radarProduct" : "rw", "classification" : "dwd" })
   .call(function(err, d) {
     if (err) throw err;
     //TODO redirect d into mongoDB
@@ -42,9 +42,9 @@ R("./node.R")
       //push to collection
       answerJSON.geometry.features.push(polygon);
     }
+    console.log(answerJSON.classBorders);
   });
 */
-
 /**
   * function to return a GeoJSON formatted Polygon
   * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
@@ -67,18 +67,19 @@ function GeoJSONPolygon(object) {
   return result;
 }
 
-/* GET rasterProducts */
-router.get("/:rasterProduct/:classification", function(req, res) {
+/* GET raster data as polygons */
+/* returns JSON ready to be put into DB */
+router.get("/:radarProduct/:classification", function(req, res) {
   var db = req.db;
-  var rasterProduct = req.params.rasterProduct;
+  var radarProduct = req.params.radarProduct;
   var classification = req.params.classification;
 
   //TODO check if this is already available
-  //db search with current timestamp, depending on availability of rasterProduct
+  //db search with current timestamp, depending on availability of radarProduct
 
   //call R script
   R("./node.R")
-    .data({ "rasterProduct": rasterProduct, "classification": classification})
+    .data({ "radarProduct": radarProduct, "classification": classification})
     .call(function(err, d) {
       if(err) throw err;
       //TODO GeoJSONify response d
@@ -100,10 +101,10 @@ router.get("/:rasterProduct/:classification", function(req, res) {
         //push to collection
         answerJSON.geometry.features.push(polygon);
       }
-      //TODO POST to db
-      console.log("got raster data, timestamp: " + answerJSON.rasterMeta.date + ", " + answerJSON.rasterMeta.product + " product");
-      //TODO is return the right thing to do here?
-      return answerJSON;
+      //console.log("got raster data, timestamp: " + answerJSON.rasterMeta.date + ", " + answerJSON.rasterMeta.product + " product");
+
+      //send response, response is db-object like JSON
+      res.send(answerJSON);
     });
 });
 

@@ -12,15 +12,15 @@ needs(sp)
 attach(input[[1]])
 
 # input handling
-if( rasterProduct == "sf") {
+if( radarProduct == "sf") {
   rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/sf"
   # scale info
 }
-if( rasterProduct == "ry") {
+if( radarProduct == "ry") {
   rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/ry"
   # scale info
 }
-if( rasterProduct == "rw") {
+if( radarProduct == "rw") {
   rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/rw"
   # scale info
 }
@@ -49,12 +49,34 @@ rw_proj <- projectRasterDWD(raster::raster(rw_orig$dat), extent="radolan", quiet
 # replace < 0 and 0 with NA, so they're no part of the final product
 rw_proj[rw_proj == 0] <- NA
 rw_proj[rw_proj < 0] <- NA
+
+# classification
 # statistics about data
 sum = summary(rw_proj)
-reclass = c(sum[1],sum[2],1, sum[2],sum[3],2, sum[3],sum[4],3, sum[4],sum[5],4)
+
+if( classification == "quartiles" ) {
+  reclass = c(sum[1],sum[2],1, sum[2],sum[3],2, sum[3],sum[4],3, sum[4],sum[5],4)
+}
+# max is now 10000 TODO if/else decision? how to pass upper margin
+if( classification == "dwd" ) {
+  if( radarProduct == "rw") {
+    # unit: 1/10 mm/h, thus *10 for mm/h values (breaks have been devided by 10)
+    reclass = c(0,0.25,1, 0.25,1,2, 1,5,3, 5,10000,4)
+  }
+  if( radarProduct == "ry") {
+    # unit: 1/100 mm/5min, thus *100 *2 for mm/10min (breaks /100 *2)
+    reclass = c(0,0.01,1, 0.01,0.034,2, 0.034,0.166,3, 0.166,10000,4)
+  }
+  if( radarProduct == "sf") {
+    # unit: 1/10 mm/d, thus *10 /24 for mm/h (breaks /10 *24)
+    reclass = c(0,6,1, 6,24,2, 24,120,3, 120,10000,4)
+  }
+}
+
+# build matrix
 reclass_m = matrix(reclass,
-                    ncol = 3,
-                    byrow = TRUE)
+                  ncol = 3,
+                  byrow = TRUE)
 # reclass
 rw_proj_class = reclassify(rw_proj, reclass_m)
 
