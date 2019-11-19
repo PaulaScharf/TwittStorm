@@ -209,18 +209,6 @@ app.get("/tweets", function(req, res) {
 });
 
 // *****************************************************************************
-// R
-/* deprecated, functionality now in raster.js
-R("./node.R")
-  .data({ "json" : "attr1", "json2" : "attr2" })
-  .call(function(err, d) {
-    if (err) throw err;
-    //TODO redirect d into mongoDB
-    //console.log(d);
-  });
-*/
-
-// *****************************************************************************
 
 // index-router
 app.use('/', indexRouter);
