@@ -11,6 +11,20 @@ needs(sp)
 # TODO implement choosing the radar option depending on input
 attach(input[[1]])
 
+# input handling
+if( rasterProduct == "sf") {
+  rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/sf"
+  # scale info
+}
+if( rasterProduct == "ry") {
+  rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/ry"
+  # scale info
+}
+if( rasterProduct == "rw") {
+  rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/rw"
+  # scale info
+}
+
 # https://bookdown.org/brry/rdwd/use-case-recent-hourly-radar-files.html
 # radolan see https://www.dwd.de/DE/leistungen/radolan/produktuebersicht/radolan_produktuebersicht_pdf.pdf?__blob=publicationFile&v=7
 # rw hourly, after 30min
@@ -21,7 +35,7 @@ attach(input[[1]])
 # rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/ry"
 # sf (sum) hourly, after 40min
 # 1/10 mm/d
-rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/sf"
+# rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/sf"
 # scale_info = "1/10 mm/d"
 
 rw_urls <- indexFTP(base=rw_base, dir=tempdir(), folder="", quiet=TRUE)
@@ -90,14 +104,24 @@ gdal_polygonizeR <- function(x, outshape=NULL, gdalformat = 'ESRI Shapefile',
 pol <- gdal_polygonizeR(rw_proj_class)
 
 # transfer into list for JSON readability
+meta_offset <- 2
 for_length <- length(pol@data[[1]])
-all_pol <- vector("list", for_length)
+list_length <- for_length + meta_offset
+all_pol <- vector("list", list_length)
+
+# meta
+meta <- rw_orig$meta
+# meta from raster as list
+all_pol[[1]] <- meta
+# meta from classification as matrix
+all_pol[[2]] <- list(classes = reclass_m)
+
 for(i in 1:for_length) {
   class = pol@data[[1]][[i]]
   # or without data.frame
   coords = pol@polygons[[i]]@Polygons[[1]]@coords
-  l <- list(class, coords)
-  all_pol[[i]] <- l
+  l <- list(class = class, coords = coords)
+  all_pol[[i + meta_offset]] <- l
 }
 
-# result <- all_pol
+result <- all_pol[[2]]

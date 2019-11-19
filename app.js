@@ -36,6 +36,7 @@ const R = require('r-script');
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
 var twitterRouter = require('./routes/twitter');
+var rasterRouter = require('./routes/raster');
 
 var app = express();
 const Twitter = require("twitter");
@@ -209,6 +210,7 @@ app.get("/tweets", function(req, res) {
 
 // *****************************************************************************
 // R
+/* deprecated, functionality now in raster.js
 R("./node.R")
   .data({ "json" : "attr1", "json2" : "attr2" })
   .call(function(err, d) {
@@ -216,6 +218,7 @@ R("./node.R")
     //TODO redirect d into mongoDB
     //console.log(d);
   });
+*/
 
 // *****************************************************************************
 
@@ -225,6 +228,8 @@ app.use('/', indexRouter);
 app.use('/db', dbRouter);
 //
 app.use('/twitter', twitterRouter);
+//
+app.use('/raster', rasterRouter);
 
 
 // catch 404 and forward to error handler
