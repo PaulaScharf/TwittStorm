@@ -279,6 +279,14 @@ function showMap() {
     });
 
 
+    //
+    saveAndReturnNewTweetsThroughSearch()
+    .catch(console.error)
+    .then(function(result) {
+      // TODO: display tweets on the map
+      console.log(result);
+    });
+
 
     // TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 
