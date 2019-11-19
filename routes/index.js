@@ -28,12 +28,12 @@ router.get('/help', function(req, res, next) {
   res.render('help', { title: 'User Documentation'});
 });
 
-/* GET animals API site */
+/* GET map site */
 router.get('/mapbox', function(req, res, next) {
   res.render('mapbox', { title: 'Mapbox'});
 });
 
-/* GET animals API site */
+/* GET database site */
 router.get('/mongo', function(req, res, next) {
   res.render('mongo', { title: 'MongoDB'});
 });

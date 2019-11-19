@@ -35,7 +35,6 @@ const R = require('r-script');
 // set the routers-paths
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
-var usersRouter = require('./routes/users');
 var twitterRouter = require('./routes/twitter');
 
 var app = express();
@@ -224,8 +223,6 @@ R("./node.R")
 app.use('/', indexRouter);
 //
 app.use('/db', dbRouter);
-//
-app.use('/users', usersRouter);
 //
 app.use('/twitter', twitterRouter);
 
