@@ -596,7 +596,7 @@ function showTweetPopup(map, e) {
   // ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
   new mapboxgl.Popup()
       .setLngLat(e.lngLat)
-      .setHTML("<b>"+pickedTweet[0].properties.author.name+"</b>" +
+      .setHTML("<b>"+JSON.parse(pickedTweet[0].properties.author).name+"</b>" +
           "<br>" + pickedTweet[0].properties.statusmessage + "<br>" +
           "<b>timestamp: </b>" + pickedTweet[0].properties.timestamp + "<br>" +
           "<b>unwetter: </b>" + pickedTweet[0].properties.unwetter)
