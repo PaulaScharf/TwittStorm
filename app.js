@@ -29,14 +29,14 @@ var jsnlog_nodejs = require('jsnlog-nodejs').jsnlog_nodejs;
 // TODO: benutzen wir morgan?
 var logger = require('morgan');
 
-//Buffer?
-const Buffer = require('buffer/').Buffer;
+// R
+const R = require('r-script');
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
-var usersRouter = require('./routes/users');
 var twitterRouter = require('./routes/twitter');
+var rasterRouter = require('./routes/raster');
 
 var app = express();
 const Twitter = require("twitter");
@@ -83,7 +83,7 @@ app.use("/popper", express.static(path.join(__dirname, 'node_modules', 'popper.j
 app.use("/mapbox", express.static(path.join(__dirname, 'node_modules', 'mapbox-gl', 'dist')));
 app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@mapbox', 'mapbox-gl-draw', 'dist')));
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
-app.use("/buffer", express.static(path.join(__dirname, 'node_modules', 'buffer')));
+app.use("/R", express.static(path.join(__dirname, 'node_modules', 'r-script', )));
 
 
 // ***************************** mongo-database *******************************
@@ -208,8 +208,6 @@ app.get("/tweets", function(req, res) {
 
 });
 
-
-
 // *****************************************************************************
 
 // index-router
@@ -217,9 +215,9 @@ app.use('/', indexRouter);
 //
 app.use('/db', dbRouter);
 //
-app.use('/users', usersRouter);
-//
 app.use('/twitter', twitterRouter);
+//
+app.use('/raster', rasterRouter);
 
 
 // catch 404 and forward to error handler
