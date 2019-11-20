@@ -37,7 +37,7 @@ function showMap() {
 
   // an Array containing all supergroups of events, they will be used as layerIDs for the map
   let unwetterEvents = ["rain", "snowfall", "thunderstorm", "blackIce", "other"]; // have to be a Strings because addSource() needs a String for the layerID
-  let tweetEvents = [];
+  let tweetEvents = ["tweet"];
 
   // create a new map in the "map"-div
   const map = new mapboxgl.Map({
@@ -95,6 +95,9 @@ function showMap() {
     // enable drawing the area-of-interest-polygons
     drawForAOI(map);
 
+    // init tweetLayer
+    displayTweets(map, tweetEvents[0]);
+
 
     //
     // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
@@ -118,6 +121,8 @@ function showMap() {
       let blackIceFeatures = [];
       // TODO: allOther später löschen, da nur zum Ausprobieren
       let allOtherFeatures = [];
+
+      let tweetFeatures = [];
 
 
       // *************************************************************************************************************
@@ -219,7 +224,6 @@ function showMap() {
             .catch(console.error)
             //
             .then(function(result) {
-              let tweetFeatures = [];
               result.forEach(function (item) {
                 if (item.location_actual !== null) {
                   console.dir(item);
@@ -236,8 +240,7 @@ function showMap() {
                   "type": "FeatureCollection",
                   "features": tweetFeatures
                 };
-                tweetEvents.push(tweetLayerId);
-                displayTweets(map, tweetLayerId, tweetFeaturesGeoJSON);
+                  map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
               }
             });
       }
@@ -309,7 +312,7 @@ function showMap() {
 
 
     // TODO: popups für tweets
-    let events = unwetterEvents; //concat(tweetEvents)
+    let events = unwetterEvents.concat(tweetEvents);
     // loop over all event-supergroups(names)
     for (let i = 0; i < events.length; i++) {
 
@@ -331,7 +334,11 @@ function showMap() {
       // TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
       // TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
       map.on('click', events[i], function(e){
-        showUnwetterPopup(map, e);
+        if (events[i] === "tweet") {
+          showTweetPopup(map, e);
+        } else {
+          showUnwetterPopup(map, e);
+        }
       });
     }
   });
@@ -460,13 +467,20 @@ function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection) {
 */
 }
 
-
-function displayTweets(map, layerID, tweetFeatureCollection) {
+/**
+ * @desc Makes a mapbox-layer for all Tweets and adds it to the map.
+ * The tweets are added to the layer afterwards.
+ * @author Paula Scharf
+ * @private
+ * @param {mapbox-map} map map to which the Layer will be added
+ * @param {String} layerID ID for the map-layer to be created
+ */
+function displayTweets(map, layerID) {
 
   // add the given Unwetter-event as a source to the map
   map.addSource(layerID, {
     type: 'geojson',
-    data: tweetFeatureCollection
+    data: null
   });
   map.addLayer({
     "id": layerID,
@@ -565,6 +579,28 @@ function showUnwetterPopup(map, e) {
     .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + pickedUnwetter[0].properties.onset + "<br><b>expires: </b>" + pickedUnwetter[0].properties.expires)
     .addTo(map);
   }
+}
+
+/**
+ * @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
+ * The popup gives information about the author, the message content and time of creation
+ * @author Paula Scharf
+ * @private
+ * @param {mapbox-map} map map in which the Unwetter-features are in
+ * @param {Object} e ...
+ */
+function showTweetPopup(map, e) {
+  // get information about the feature on which it was clicked
+  var pickedTweet = map.queryRenderedFeatures(e.point);
+
+  // ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
+  new mapboxgl.Popup()
+      .setLngLat(e.lngLat)
+      .setHTML("<b>"+pickedTweet[0].properties.author.name+"</b>" +
+          "<br>" + pickedTweet[0].properties.statusmessage + "<br>" +
+          "<b>timestamp: </b>" + pickedTweet[0].properties.timestamp + "<br>" +
+          "<b>unwetter: </b>" + pickedTweet[0].properties.unwetter)
+      .addTo(map);
 }
 
 

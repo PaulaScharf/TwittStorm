@@ -132,20 +132,20 @@ function promiseToPostItem(item) {
         // if the request is done successfully, ...
             .done(function (response) {
                 // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
-                console.log("AJAX request (posting an unwetter) is done successfully.");
+                console.log("AJAX request (posting an item) is done successfully.");
                 resolve();
             })
 
             // if the request has failed, ...
             .fail(function (xhr, status, error) {
                 // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
-                console.log("AJAX request (posting an unwetter) has failed.", error);
+                console.log("AJAX request (posting an item) has failed.", error);
 
                 // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
                 if (error === "timeout") {
                     //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
                 }
-                reject("AJAX request (posting an unwetter) has failed.")
+                reject("AJAX request (posting an item) has failed.")
             });
     });
 }
