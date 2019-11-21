@@ -10,6 +10,13 @@
   <title>TwittStorm</title>
   <link rel="stylesheet" type="text/css" href="/css/project.css">
   <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
+  <script src="/jquery/jquery.js"></script>
+  <style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+  </style>
 </head>
 
 <body>
@@ -18,24 +25,39 @@
   <%- include('partial/navbar', {active: "help"}); %>
 
   <main>
-    test page to be able to interact with mongo database. click the button to add to the db.
-    <!-- write something to db -->
-    <input type="text" id="GeoJson"> GeoJson</input>
-    <button type="button" class="btn btn-secondary" onclick="createRouteButton()">Create Route</button>
-    <!-- table to see whats in your local database -->
-    <div class="container">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody id="routeTable">
 
-        </tbody>
-      </table>
-    </div>
+    <div id='map'></div>
+    <script>
+    $.getJSON('/raster/rw/dwd', function(data) {
+      var collection = data.geometry;
+      mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA';
+      var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/satellite-v9',
+      center: [9.0755,54.8797],
+      zoom: 5
+      });
+
+      map.on('load', function () {
+
+      map.addLayer({
+      'id': 'maine',
+      'type': 'fill',
+      'source': {
+      'type': 'geojson',
+      'data': collection
+      },
+      'layout': {},
+      'paint': {
+      'fill-color': '#088',
+      'fill-opacity': 0.8
+      }
+      });
+      });
+    });
+
+    </script>
+
   </main>
 
   <!-- footer -->
