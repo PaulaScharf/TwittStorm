@@ -24,7 +24,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
       q: searchTerm,
       geocode: "51.1586258,10.445921,434km",
       result_type: "recent",
-      count: 100
+      count: 20
     };
     $.ajax({
       // use a http GET request
