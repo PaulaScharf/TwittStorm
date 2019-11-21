@@ -33,7 +33,7 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxb
 */
 function openMenu(x) {
 x.classList.toggle("change");
-var x = document.getElementById("menu");
+x = document.getElementById("menu");
  if (x.style.display === "none") {
    x.style.display = "block";
  } else {
@@ -293,7 +293,7 @@ function showMap() {
                   "type": "FeatureCollection",
                   "features": tweetFeatures
                 };
-                  map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
+                  map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON);
               }
             });
       }
@@ -384,7 +384,7 @@ function showMap() {
 
 
       // ************************ showing popups on click ************************
-      // TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
+      // TODO: Problem: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
       // TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
       map.on('click', events[i], function(e){
         if (events[i] === "tweet") {
@@ -704,7 +704,7 @@ function drawForAOI(map, unwetterEvents) {
     console.log("coordinatesLastPolygon:");
     console.log(coordinatesLastPolygon);
 
-    // TODO: mit coordinatesLastPolygon in Funktion für die Tweed-Suche gehen
+    // TODO: mit coordinatesLastPolygon in Funktion für die Tweet-Suche gehen
   });
 
 
@@ -731,22 +731,15 @@ function drawForAOI(map, unwetterEvents) {
   });
 
 
-
-
-
-  // TODO: FOLGENDES FUNKTIONIERT NICHT, SOLL DAZU FÜHREN, DASS POLYGON-POPUPS SICH NICHT ÖFFNEN BEIM AOI ZEICHNEN
+  // TODO: FOLGENDES IST EIN TEIL DES VERSUCHS, DASS POLYGON-POPUPS SICH NICHT ÖFFNEN BEIM AOI ZEICHNEN;
+  // führte aber in Kombination mit modes und modechange.event bisher zu nichts!
   // TODO: FALLS FOLGENDES GELÖSCHT WIRD, DANN AUCH UNWETTEREVENTS AUS drawForAOI FUNKTION UND AUFRUF LÖSCHEN
-  map.on('draw.modechange', function (e) {
-    console.log("test");
-    console.log(e.features);
-
     // loop over all event-supergroups(names)
-    for (let i = 0; i < unwetterEvents.length; i++) {
-      map.on('click', unwetterEvents[i], function(e){
-        showUnwetterPopup(map, e);
-      });
-    }
-  });
+  //  for (let i = 0; i < unwetterEvents.length; i++) {
+  //    map.off('click', unwetterEvents[i], function(e){
+  //      showUnwetterPopup(map, e);
+  //    });
+  //  }
 
 
 }
