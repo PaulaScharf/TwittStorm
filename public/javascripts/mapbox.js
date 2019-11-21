@@ -26,6 +26,21 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxb
 // ******************************** functions **********************************
 
 /**
+* @desc Opens and closes the menu for the selection of the routes and changes the button to an X
+* @param x Links the button to the function for the animation
+* @author Benjamin Rieke
+*/
+function openMenu(x) {
+x.classList.toggle("change");
+var x = document.getElementById("menu");
+ if (x.style.display === "none") {
+   x.style.display = "block";
+ } else {
+   x.style.display = "none";
+ }
+}
+
+/**
 * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
 * and all Unwetter that are stored in the database. For each Unwetter, it provides an onclick-popup with a
 * description and its period of validity. Uses mapbox-gl-draw to enable drawing polygons in this map.
@@ -90,6 +105,43 @@ function showMap() {
       }
     });
     // *****************************************************************************
+
+
+    // ************************ adding the functionality for toggeling the layers *************************
+
+    var toggleableLayerIds = [ "rain", "snowfall", "thunderstorm", "blackIce", "other", 'tweet' ];
+
+    // for every mentioned layer
+    for (var i = 0; i < toggleableLayerIds.length; i++) {
+    var id = toggleableLayerIds[i];
+
+    // create an element for the menu
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = id;
+
+    // on click show the menu if it is not visible and hide it if it is visible
+    link.onclick = function (e) {
+    var clickedLayer = this.textContent;
+    e.preventDefault();
+    e.stopPropagation();
+
+    var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+    if (visibility === 'visible') {
+    map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+    this.className = '';
+    } else {
+    this.className = 'active';
+    map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+    }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+    }
+
 
 
     // enable drawing the area-of-interest-polygons
@@ -370,6 +422,7 @@ function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection) {
     "id": layerID,
     "type": "fill",
     "source": layerID,
+    "layout": {"visibility" :"visible"},
     "paint": {
       "fill-color": [
         "match", ["string", ["get", "event"]],
@@ -488,6 +541,7 @@ function displayTweets(map, layerID) {
     "source": layerID,
     "layout": {
       "icon-image": ["concat", "circle", "-15"],
+      "visibility" : "visible"
     }
   });
 }
