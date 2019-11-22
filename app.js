@@ -36,6 +36,7 @@ const R = require('r-script');
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
 var twitterRouter = require('./routes/twitter');
+var premiumTwitterRouter = require('./routes/premiumTwitter');
 var rasterRouter = require('./routes/raster');
 
 var app = express();
@@ -82,6 +83,7 @@ app.use("/bootstrap", express.static(path.join(__dirname, 'node_modules', 'boots
 app.use("/popper", express.static(path.join(__dirname, 'node_modules', 'popper.js', 'dist')));
 app.use("/mapbox", express.static(path.join(__dirname, 'node_modules', 'mapbox-gl', 'dist')));
 app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@mapbox', 'mapbox-gl-draw', 'dist')));
+app.use("/turf", express.static(path.join(__dirname, 'node_modules', '@turf')));
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
 app.use("/R", express.static(path.join(__dirname, 'node_modules', 'r-script', )));
 
@@ -218,6 +220,8 @@ app.use('/db', dbRouter);
 app.use('/twitter', twitterRouter);
 //
 app.use('/raster', rasterRouter);
+//
+app.use('/premium_twitter', premiumTwitterRouter);
 
 
 // catch 404 and forward to error handler

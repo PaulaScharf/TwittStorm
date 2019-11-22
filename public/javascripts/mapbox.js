@@ -130,12 +130,13 @@ function showMap(style) {
 
         let currentUnwetterEvent = allUnwetter[i];
 
+        //let bbox = turf.bbox(currentUnwetterEvent.geometry.coordinates);
         let twitterSearchQuery = {
           geometry: currentUnwetterEvent.geometry,
-          searchWords: []
+          searchWords: [],
+          fromTimestamp: "201711200000",
+          toTimestamp: "201711220000"
         };
-        let tweetLayerId = currentUnwetterEvent.dwd_id;
-
         // TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
         // FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
         // FALLS JA, DANN FARBEN IN fill-color ANPASSEN

@@ -14,17 +14,17 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
   return new Promise((resolve, reject) => {
     // this array will contain all the calls of the function "promiseToPostItem"
     let arrayOfPromises = [];
-    let searchTerm = "";
+    let query = "(";
     twitterSearchQuery.searchWords.forEach(function (item) {
-      searchTerm += item + " OR ";
+      query += item + " OR ";
     });
-
-    searchTerm = searchTerm.substring(0,searchTerm.length - 4);
+    query = query.substring(0,query.length - 4);
+    query += ") has:geo";
     let searchQuery = {
-      q: searchTerm,
-      geocode: "51.1586258,10.445921,434km",
-      result_type: "recent",
-      count: 20
+      query: query,
+      maxResults: 100,
+      fromDate: twitterSearchQuery.fromTimestamp,
+      toDate: twitterSearchQuery.toTimestamp
     };
     $.ajax({
       // use a http GET request
@@ -42,6 +42,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
     // if the request is done successfully, ...
     .done(function (response) {
       (async () => {
+        console.dir(response);
         for (let i = response.statuses.length - 1; i >= 0; i--) {
           let currentFeature = response.statuses[i];
           let currentStatus = {
