@@ -19,18 +19,19 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
       query += item + " OR ";
     });
     query = query.substring(0,query.length - 4);
-    query += ") has:geo";
+    query += ")";
     let searchQuery = {
       query: query,
       maxResults: 100,
       fromDate: twitterSearchQuery.fromTimestamp,
-      toDate: twitterSearchQuery.toTimestamp
+      toDate: twitterSearchQuery.toTimestamp,
+      bbox: twitterSearchQuery.geometry
     };
     $.ajax({
       // use a http GET request
       type: "POST",
       // URL to send the request to
-      url: "/twitter/search",
+      url: "/premium_twitter/search",
       // parameters for the search api
       data: searchQuery,
       // data type of the response
@@ -43,8 +44,8 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
     .done(function (response) {
       (async () => {
         console.dir(response);
-        for (let i = response.statuses.length - 1; i >= 0; i--) {
-          let currentFeature = response.statuses[i];
+        for (let i = response.results.length - 1; i >= 0; i--) {
+          let currentFeature = response.results[i];
           let currentStatus = {
             type: "Tweet",
             id: currentFeature.id,
