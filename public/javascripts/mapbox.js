@@ -184,12 +184,13 @@ function showMap() {
 
         let currentUnwetterEvent = allUnwetter[i];
 
-        //let bbox = turf.bbox(currentUnwetterEvent.geometry.coordinates);
+        let multiLineString = turf.multiLineString(currentUnwetterEvent.geometry[0].coordinates[0]);
+        let bbox = turf.bbox(multiLineString);
         let twitterSearchQuery = {
-          geometry: currentUnwetterEvent.geometry,
+          geometry: bbox,
           searchWords: [],
-          fromTimestamp: "201711200000",
-          toTimestamp: "201711220000"
+          fromTimestamp: "201911200000",
+          toTimestamp: "201911220000"
         };
         // TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
         // FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
@@ -288,6 +289,7 @@ function showMap() {
                   tweetFeatures.push(tweetFeature);
                 }
               });
+              console.dir(tweetFeatures);
               if (tweetFeatures.length > 0) {
                 let tweetFeaturesGeoJSON = {
                   "type": "FeatureCollection",
