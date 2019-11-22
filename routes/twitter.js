@@ -5,9 +5,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 
 var express = require('express');
@@ -22,7 +22,7 @@ var client = new Twitter({
     access_token_secret: 'W9b9MvmH93UTbiTcEMr1h2IBqLc2lQfF3LtqphfdeReJK'
 });
 
-router.post("/search", (req, res) => {
+router.post("search", (req, res) => {
     let params = {};
     for (let key in req.body) {
         if (req.body.hasOwnProperty(key)) {
@@ -30,7 +30,7 @@ router.post("/search", (req, res) => {
         }
     }
 
-    client.get('search/tweets', params, function (error, tweets, response) {
+    client.get('tweets/search/30day/dev.json', params, function (error, tweets, response) {
         if (!error) {
             // send the result to the ajax request
             res.json(JSON.parse(response.body));
