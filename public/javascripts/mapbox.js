@@ -19,28 +19,10 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxb
 
 // ****************************** global variables *****************************
 
-// ...
-
-
+// refers to the layer menu
+var layers = document.getElementById('menu');
 
 // ******************************** functions **********************************
-
-/**
-* @desc Opens and closes the menu for the selection of the routes and changes the button to an X
-* @param x Links the button to the function for the animation
-* @author Benjamin Rieke
-*/
-function openMenu(x) {
-  x.classList.toggle("change");
-  x = document.getElementById("menu");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
-  }
-}
-
-
 
 /**
 * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
@@ -50,16 +32,20 @@ function openMenu(x) {
 * This function is called, when "index.ejs" is loaded.
 * @author Katharina Poppinga
 */
-function showMap() {
+function showMap(style) {
 
   // an Array containing all supergroups of events, they will be used as layerIDs for the map
   let unwetterEvents = ["rain", "snowfall", "thunderstorm", "blackIce", "other"]; // have to be a Strings because addSource() needs a String for the layerID
   let tweetEvents = ["tweet"];
+  //Checks if the layer menu DOM is empty and if not flushes the dom
+  while (layers.firstChild) {
+    layers.removeChild(layers.firstChild);
+  }
 
   // create a new map in the "map"-div
   const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/satellite-v9',
+    style: style,
     // TODO: basemap durch Nutzer änderbar machen: https://docs.mapbox.com/mapbox-gl-js/example/setstyle/
     // style: 'mapbox://styles/mapbox/satellite-v9',
     // style: 'mapbox://styles/mapbox/streets-v11',
@@ -79,10 +65,35 @@ function showMap() {
     }
   });
 
+  // ************************ adding the functionality for toggeling the map styles *************************
+
+  //Takes the map styles from the selection on the index page
+  var layerList = document.getElementById('styleMenu');
+  var inputs = layerList.getElementsByTagName('input');
+
+  /**
+  * @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
+  * @param layer The chosen maplayer style
+  * @author Benjamin Rieke
+  */
+
+  function switchLayer(layer) {
+
+    //Takes the id from the layer and calls the showMap function
+    var layerId = layer.target.id;
+    showMap('mapbox://styles/mapbox/' + layerId);
+  }
+
+  for (var i = 0; i < inputs.length; i++) {
+    inputs[i].onclick = switchLayer;
+  }
+
+// **********************************************************************************************************
 
   // add zoom and rotation controls to the map
   map.addControl(new mapboxgl.NavigationControl());
   // TODO: pan-Button fehlt noch
+
 
 
   // ************************ adding boundary of Germany *************************
@@ -104,49 +115,11 @@ function showMap() {
       },
       'paint': {
         // TODO: passende Farbe aussuchen und bei basemap-Änderung anpassen
-        'line-color': '#ffffff',
+        'line-color': 'black',
         'line-width': 1
       }
     });
     // *****************************************************************************
-
-
-    // ************************ adding the functionality for toggeling the layers *************************
-
-    var toggleableLayerIds = [ "rain", "snowfall", "thunderstorm", "blackIce", "other", 'tweet' ];
-
-    // for every mentioned layer
-    for (var i = 0; i < toggleableLayerIds.length; i++) {
-      var id = toggleableLayerIds[i];
-
-      // create an element for the menu
-      var link = document.createElement('a');
-      link.href = '#';
-      link.className = 'active';
-      link.textContent = id;
-
-      // on click show the menu if it is not visible and hide it if it is visible
-      link.onclick = function (e) {
-        var clickedLayer = this.textContent;
-        e.preventDefault();
-        e.stopPropagation();
-
-        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-
-        if (visibility === 'visible') {
-          map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-          this.className = '';
-        } else {
-          this.className = 'active';
-          map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-        }
-      };
-
-      var layers = document.getElementById('menu');
-      layers.appendChild(link);
-    }
-
-
 
     // enable drawing the area-of-interest-polygons
     drawForAOI(map);
@@ -154,8 +127,6 @@ function showMap() {
     // init tweetLayer
     displayTweets(map, tweetEvents[0]);
 
-
-    //
     // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
     saveAndReturnNewUnwetterFromDWD()
     //
@@ -274,136 +245,175 @@ function showMap() {
           twitterSearchQuery.searchWords.push("Unwetter");
         }
 
-/*
+        /*
         //
         saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id)
         //
         .catch(console.error)
         //
         .then(function(result) {
-          result.forEach(function (item) {
-            if (item.location_actual !== null) {
-              console.dir(item);
-              let tweetFeature = {
-                "type": "Feature",
-                "geometry": item.location_actual,
-                "properties": item
-              };
-              tweetFeatures.push(tweetFeature);
-            }
-          });
-          if (tweetFeatures.length > 0) {
-            let tweetFeaturesGeoJSON = {
-              "type": "FeatureCollection",
-              "features": tweetFeatures
-            };
-            map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON);
-          }
-        });
-*/
-
-      }
-
-      // *************************************************************************************************************
-      // TODO: folgendes evtl. auch modularisieren
-      // make one GeoJSON-FeatureCollection for every supergroup-event-type and display its Unwetter-events in the map:
-
-      //
-      if (rainFeatures.length !== 0) {
-        //
-        var rainFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": rainFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[0], rainFeaturesGeoJSON);
-      }
-
-      //
-      if (snowfallFeatures.length !== 0) {
-        //
-        var snowfallFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": snowfallFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[1], snowfallFeaturesGeoJSON);
-      }
-
-      //
-      if (thunderstormFeatures.length !== 0) {
-        //
-        var thunderstormFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": thunderstormFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[2], thunderstormFeaturesGeoJSON);
-      }
-
-      //
-      if (blackIceFeatures.length !== 0) {
-        //
-        var blackIceFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": blackIceFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[3], blackIceFeaturesGeoJSON);
-      }
-
-      // TODO: später löschen, da nur zum Ausprobieren
-      //
-      if (allOtherFeatures.length !== 0) {
-        //
-        var allOtherFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": allOtherFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[4], allOtherFeaturesGeoJSON);
-      }
-
-      // *************************************************************************************************************
-
-      //
-    }, function(err) {
-      console.log(err);
-    });
-
-
-    // TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
-
-
-    //
-    let events = unwetterEvents.concat(tweetEvents);
-    // loop over all event-supergroups(names)
-    for (let i = 0; i < events.length; i++) {
-
-      // map.on: 2nd parameter is the layerID
-
-      // ************************ changing of curser style ***********************
-      // https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
-      // if hovering the layer, change the cursor to a pointer
-      map.on('mouseenter', events[i], function() {
-        map.getCanvas().style.cursor = 'pointer';
-      });
-      // if leaving the layer, change the cursor back to a hand
-      map.on('mouseleave', events[i], function() {
-        map.getCanvas().style.cursor = '';
-      });
-
-
-      // ************************ showing popups on click ************************
-      // TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
-      // TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
-      map.on('click', events[i], function(e){
-        if (events[i] === "tweet") {
-          showTweetPopup(map, e);
-        } else {
-          showUnwetterPopup(map, e);
-        }
-      });
+        result.forEach(function (item) {
+        if (item.location_actual !== null) {
+        console.dir(item);
+        let tweetFeature = {
+        "type": "Feature",
+        "geometry": item.location_actual,
+        "properties": item
+      };
+      tweetFeatures.push(tweetFeature);
     }
   });
+  if (tweetFeatures.length > 0) {
+  let tweetFeaturesGeoJSON = {
+  "type": "FeatureCollection",
+  "features": tweetFeatures
+};
+map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON);
+}
+});
+*/
+
+}
+
+// ************************ adding the functionality for toggeling the different layers *************************
+// For creating the layermenu
+//Change the layers, that are supposed to be toggleable
+var toggleableLayerIds = [ "rain", "snowfall", "thunderstorm", "blackIce", "other", 'tweet' ];
+
+// for every mentioned layer
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+  var id = toggleableLayerIds[i];
+
+  // create an element for the menu
+  var link = document.createElement('a');
+  link.href = '#';
+  link.className = 'active';
+  link.textContent = id;
+
+  // on click show the menu if it is not visible and hide it if it is visible
+  link.onclick = function (e) {
+    var clickedLayer = this.textContent;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // set visibility
+    var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+    // if the layer is visible hide it
+    if (visibility === 'visible') {
+      map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+      this.className = '';
+    }
+    // if not show it
+    else {
+      this.className = 'active';
+      map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+    }
+  };
+
+  // add the layers to the menu
+  layers.appendChild(link);
 }
 
 
+// *************************************************************************************************************
+// TODO: folgendes evtl. auch modularisieren
+// make one GeoJSON-FeatureCollection for every supergroup-event-type and display its Unwetter-events in the map:
+
+//
+if (rainFeatures.length !== 0) {
+  //
+  var rainFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": rainFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[0], rainFeaturesGeoJSON);
+}
+
+//
+if (snowfallFeatures.length !== 0) {
+  //
+  var snowfallFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": snowfallFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[1], snowfallFeaturesGeoJSON);
+}
+
+//
+if (thunderstormFeatures.length !== 0) {
+  //
+  var thunderstormFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": thunderstormFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[2], thunderstormFeaturesGeoJSON);
+}
+
+//
+if (blackIceFeatures.length !== 0) {
+  //
+  var blackIceFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": blackIceFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[3], blackIceFeaturesGeoJSON);
+}
+
+// TODO: später löschen, da nur zum Ausprobieren
+//
+if (allOtherFeatures.length !== 0) {
+  //
+  var allOtherFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": allOtherFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[4], allOtherFeaturesGeoJSON);
+}
+
+// *************************************************************************************************************
+
+
+//
+}, function(err) {
+  console.log(err);
+});
+
+
+// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
+
+
+//
+let events = unwetterEvents.concat(tweetEvents);
+// loop over all event-supergroups(names)
+for (let i = 0; i < events.length; i++) {
+
+  // map.on: 2nd parameter is the layerID
+
+  // ************************ changing of curser style ***********************
+  // https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
+  // if hovering the layer, change the cursor to a pointer
+  map.on('mouseenter', events[i], function() {
+    map.getCanvas().style.cursor = 'pointer';
+  });
+  // if leaving the layer, change the cursor back to a hand
+  map.on('mouseleave', events[i], function() {
+    map.getCanvas().style.cursor = '';
+  });
+
+  // ************************ showing popups on click ************************
+  // TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
+  // TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
+  map.on('click', events[i], function(e){
+    if (events[i] === "tweet") {
+      showTweetPopup(map, e);
+    } else {
+      showUnwetterPopup(map, e);
+    }
+  });
+}
+});
+}
 
 /**
 * @desc Makes a mapbox-layer out of all Unwetter of a specific event-supergroup (rain, snowfall, ...)
@@ -734,4 +744,21 @@ function drawForAOI(map) {
     console.log("drawnPolygons-selectionchanged:");
     console.log(e.features);
   });
+}
+
+/**
+* @desc Opens and closes the menu for the selection of the routes and changes the button to an X
+* @param button Links the button to the function for the animation
+* @author Benjamin Rieke
+*/
+
+function openMenu(button) {
+
+  button.classList.toggle("change");
+  var button = document.getElementById("menu");
+  if (button.style.display === "none") {
+    button.style.display = "block";
+  } else {
+    button.style.display = "none";
+  }
 }
