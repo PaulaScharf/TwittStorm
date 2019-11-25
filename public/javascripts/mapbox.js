@@ -63,34 +63,9 @@ function showMap(style) {
     }
   });
 
-  // ************************ adding the functionality for toggeling the map styles *************************
-
-  //Takes the map styles from the selection on the index page
-  var layerList = document.getElementById('styleMenu');
-  var inputs = layerList.getElementsByTagName('input');
-
-  /**
-  * @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
-  * @param layer The chosen maplayer style
-  * @author Benjamin Rieke
-  */
-
-  function switchLayer(layer) {
-
-  //Takes the id from the layer and calls the showMap function
-  var layerId = layer.target.id;
-  showMap('mapbox://styles/mapbox/' + layerId);
-  }
-
-  for (var i = 0; i < inputs.length; i++) {
-  inputs[i].onclick = switchLayer;
-  }
-
   // add zoom and rotation controls to the map
   map.addControl(new mapboxgl.NavigationControl());
   // TODO: pan-Button fehlt noch
-
-
 
   // ************************ adding boundary of Germany *************************
   // TODO: evtl. in eigene Funktion auslagern, der Übersicht halber
@@ -753,4 +728,27 @@ var button = document.getElementById("menu");
  } else {
    button.style.display = "none";
  }
+}
+
+// ************************ adding the functionality for toggeling the map styles *************************
+
+//Takes the map styles from the selection on the index page
+var layerList = document.getElementById('styleMenu');
+var inputs = layerList.getElementsByTagName('input');
+
+/**
+* @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
+* @param layer The chosen maplayer style
+* @author Benjamin Rieke
+*/
+
+function switchLayer(layer) {
+
+//Takes the id from the layer and calls the showMap function
+var layerId = layer.target.id;
+showMap('mapbox://styles/mapbox/' + layerId);
+}
+
+for (var i = 0; i < inputs.length; i++) {
+inputs[i].onclick = switchLayer;
 }
