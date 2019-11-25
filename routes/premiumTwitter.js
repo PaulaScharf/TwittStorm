@@ -51,23 +51,23 @@ router.post("/search", (req, res) => {
     let query = "";
     for (let key in req.body) {
         if (req.body.hasOwnProperty(key)) {
-            if (key == "query") {
-                console.dir(req.body[key]);
+            if (key === "query") {
                 query += req.body[key] + "&";
-            } else if (key == "fromDate") {
+            }/* else if (key === "fromDate") {
                 query += "fromDate=" + req.body[key] + "&";
-            } else if (key == "toDate") {
+            } else if (key === "toDate") {
                 query += "toDate=" + req.body[key] + "&";
-            } else if (key == "geometry") {
+            } else if (key === "geometry") {
                 let coordinateString = "[" + req.body[key][0] + " " + req.body[key][1] + " " + req.body[key][2] + " " + req.body[key][3] + " "
                 query += "bounding_box:" + coordinateString + "&";
-            }
+            }*/
         }
     }
 
     query = query.substring(0,query.length-1);
 
-    let endpoint = 'https://api.twitter.com/1.1/tweets/search/30day/dev30days.json?query=' + query;
+    let endpoint = 'https://api.twitter.com/1.1/tweets/search/30day/dev.json?query=' + query;
+    console.dir(endpoint);
     // define options for the following https-GET request
     const options = {
         // set the headers for the get-request
