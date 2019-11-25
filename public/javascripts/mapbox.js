@@ -31,14 +31,16 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxb
 * @author Benjamin Rieke
 */
 function openMenu(x) {
-x.classList.toggle("change");
-var x = document.getElementById("menu");
- if (x.style.display === "none") {
-   x.style.display = "block";
- } else {
-   x.style.display = "none";
- }
+  x.classList.toggle("change");
+  x = document.getElementById("menu");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
 }
+
+
 
 /**
 * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
@@ -63,15 +65,17 @@ function showMap() {
     // style: 'mapbox://styles/mapbox/streets-v11',
     zoom: 5, // TODO: überprüfen, ob diese Zoomstufe auf allen gängigen Bildschirmgrößen Deutschland passend zeigt
     center: [10.5, 51.2], // starting position [lng, lat]: center of germany
+
+    // TODO: wozu folgendes genau?
     "overlay": {
-    "type": "image",
-    "url": "https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.1.0&request=GetMap&layers=dwd%3ARADOLAN-RY&bbox=-523.462%2C-4658.645%2C376.538%2C-3758.645&width=767&height=768&srs=EPSG%3A1000001&format=image%2Fpng",
-    "coordinates": [
-    [51, 7],
-    [53, 9],
-    [53, 7],
-    [51, 9]
-    ]
+      "type": "image",
+      "url": "https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.1.0&request=GetMap&layers=dwd%3ARADOLAN-RY&bbox=-523.462%2C-4658.645%2C376.538%2C-3758.645&width=767&height=768&srs=EPSG%3A1000001&format=image%2Fpng",
+      "coordinates": [
+        [51, 7],
+        [53, 9],
+        [53, 7],
+        [51, 9]
+      ]
     }
   });
 
@@ -113,33 +117,33 @@ function showMap() {
 
     // for every mentioned layer
     for (var i = 0; i < toggleableLayerIds.length; i++) {
-    var id = toggleableLayerIds[i];
+      var id = toggleableLayerIds[i];
 
-    // create an element for the menu
-    var link = document.createElement('a');
-    link.href = '#';
-    link.className = 'active';
-    link.textContent = id;
+      // create an element for the menu
+      var link = document.createElement('a');
+      link.href = '#';
+      link.className = 'active';
+      link.textContent = id;
 
-    // on click show the menu if it is not visible and hide it if it is visible
-    link.onclick = function (e) {
-    var clickedLayer = this.textContent;
-    e.preventDefault();
-    e.stopPropagation();
+      // on click show the menu if it is not visible and hide it if it is visible
+      link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
 
-    var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
 
-    if (visibility === 'visible') {
-    map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-    this.className = '';
-    } else {
-    this.className = 'active';
-    map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-    }
-    };
+        if (visibility === 'visible') {
+          map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+          this.className = '';
+        } else {
+          this.className = 'active';
+          map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+        }
+      };
 
-    var layers = document.getElementById('menu');
-    layers.appendChild(link);
+      var layers = document.getElementById('menu');
+      layers.appendChild(link);
     }
 
 
@@ -270,31 +274,34 @@ function showMap() {
           twitterSearchQuery.searchWords.push("Unwetter");
         }
 
+/*
         //
         saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id)
         //
-            .catch(console.error)
-            //
-            .then(function(result) {
-              result.forEach(function (item) {
-                if (item.location_actual !== null) {
-                  console.dir(item);
-                  let tweetFeature = {
-                    "type": "Feature",
-                    "geometry": item.location_actual,
-                    "properties": item
-                  };
-                  tweetFeatures.push(tweetFeature);
-                }
-              });
-              if (tweetFeatures.length > 0) {
-                let tweetFeaturesGeoJSON = {
-                  "type": "FeatureCollection",
-                  "features": tweetFeatures
-                };
-                  map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
-              }
-            });
+        .catch(console.error)
+        //
+        .then(function(result) {
+          result.forEach(function (item) {
+            if (item.location_actual !== null) {
+              console.dir(item);
+              let tweetFeature = {
+                "type": "Feature",
+                "geometry": item.location_actual,
+                "properties": item
+              };
+              tweetFeatures.push(tweetFeature);
+            }
+          });
+          if (tweetFeatures.length > 0) {
+            let tweetFeaturesGeoJSON = {
+              "type": "FeatureCollection",
+              "features": tweetFeatures
+            };
+            map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON);
+          }
+        });
+*/
+
       }
 
       // *************************************************************************************************************
@@ -363,7 +370,7 @@ function showMap() {
     // TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 
 
-    // TODO: popups für tweets
+    //
     let events = unwetterEvents.concat(tweetEvents);
     // loop over all event-supergroups(names)
     for (let i = 0; i < events.length; i++) {
@@ -521,13 +528,13 @@ function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection) {
 }
 
 /**
- * @desc Makes a mapbox-layer for all Tweets and adds it to the map.
- * The tweets are added to the layer afterwards.
- * @author Paula Scharf
- * @private
- * @param {mapbox-map} map map to which the Layer will be added
- * @param {String} layerID ID for the map-layer to be created
- */
+* @desc Makes a mapbox-layer for all Tweets and adds it to the map.
+* The tweets are added to the layer afterwards.
+* @author Paula Scharf
+* @private
+* @param {mapbox-map} map map to which the Layer will be added
+* @param {String} layerID ID for the map-layer to be created
+*/
 function displayTweets(map, layerID) {
 
   // add the given Unwetter-event as a source to the map
@@ -636,25 +643,25 @@ function showUnwetterPopup(map, e) {
 }
 
 /**
- * @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
- * The popup gives information about the author, the message content and time of creation
- * @author Paula Scharf
- * @private
- * @param {mapbox-map} map map in which the Unwetter-features are in
- * @param {Object} e ...
- */
+* @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
+* The popup gives information about the author, the message content and time of creation
+* @author Paula Scharf
+* @private
+* @param {mapbox-map} map map in which the Unwetter-features are in
+* @param {Object} e ...
+*/
 function showTweetPopup(map, e) {
   // get information about the feature on which it was clicked
   var pickedTweet = map.queryRenderedFeatures(e.point);
 
   // ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
   new mapboxgl.Popup()
-      .setLngLat(e.lngLat)
-      .setHTML("<b>"+JSON.parse(pickedTweet[0].properties.author).name+"</b>" +
-          "<br>" + pickedTweet[0].properties.statusmessage + "<br>" +
-          "<b>timestamp: </b>" + pickedTweet[0].properties.timestamp + "<br>" +
-          "<b>unwetter: </b>" + pickedTweet[0].properties.unwetter)
-      .addTo(map);
+  .setLngLat(e.lngLat)
+  .setHTML("<b>"+JSON.parse(pickedTweet[0].properties.author).name+"</b>" +
+  "<br>" + pickedTweet[0].properties.statusmessage + "<br>" +
+  "<b>timestamp: </b>" + pickedTweet[0].properties.timestamp + "<br>" +
+  "<b>unwetter: </b>" + pickedTweet[0].properties.unwetter)
+  .addTo(map);
 }
 
 
