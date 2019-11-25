@@ -184,10 +184,8 @@ function showMap() {
 
         let currentUnwetterEvent = allUnwetter[i];
 
-        let multiLineString = turf.multiLineString(currentUnwetterEvent.geometry[0].coordinates[0]);
-        let bbox = turf.bbox(multiLineString);
         let twitterSearchQuery = {
-          geometry: bbox,
+          geometry: currentUnwetterEvent.geometry,
           searchWords: [],
           fromTimestamp: "201911200000",
           toTimestamp: "201911220000"
@@ -277,28 +275,33 @@ function showMap() {
         //
             .catch(console.error)
             //
-            .then(function(result) {
-              result.forEach(function (item) {
-                if (item.location_actual !== null) {
-                  console.dir(item);
-                  let tweetFeature = {
-                    "type": "Feature",
-                    "geometry": item.location_actual,
-                    "properties": item
+            .then(function (result) {
+              try {
+                result.forEach(function (item) {
+                  if (item.location_actual !== null) {
+                    let tweetFeature = {
+                      "type": "Feature",
+                      "geometry": item.location_actual,
+                      "properties": item
+                    };
+                    tweetFeatures.push(tweetFeature);
+                  }
+                });
+                if (tweetFeatures.length > 0) {
+                  let tweetFeaturesGeoJSON = {
+                    "type": "FeatureCollection",
+                    "features": tweetFeatures
                   };
-                  tweetFeatures.push(tweetFeature);
-                }
-              });
-              console.dir(tweetFeatures);
-              if (tweetFeatures.length > 0) {
-                let tweetFeaturesGeoJSON = {
-                  "type": "FeatureCollection",
-                  "features": tweetFeatures
-                };
                   map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
+                }
+              } catch {
+                console.log("there was an error while processing the tweets from the database");
               }
+            }, function (reason) {
+              console.dir(reason);
             });
       }
+
 
       // *************************************************************************************************************
       // TODO: folgendes evtl. auch modularisieren
@@ -311,7 +314,7 @@ function showMap() {
           "type": "FeatureCollection",
           "features": rainFeatures
         };
-        displayUnwetterEvents(map, unwetterEvents[0], rainFeaturesGeoJSON);
+        displayUnwetterEvents(map, unwetterEvents[0], rainFeaturesGeoJSON, tweetEvents);
       }
 
       //
@@ -321,7 +324,7 @@ function showMap() {
           "type": "FeatureCollection",
           "features": snowfallFeatures
         };
-        displayUnwetterEvents(map, unwetterEvents[1], snowfallFeaturesGeoJSON);
+        displayUnwetterEvents(map, unwetterEvents[1], snowfallFeaturesGeoJSON, tweetEvents);
       }
 
       //
@@ -331,7 +334,7 @@ function showMap() {
           "type": "FeatureCollection",
           "features": thunderstormFeatures
         };
-        displayUnwetterEvents(map, unwetterEvents[2], thunderstormFeaturesGeoJSON);
+        displayUnwetterEvents(map, unwetterEvents[2], thunderstormFeaturesGeoJSON, tweetEvents);
       }
 
       //
@@ -341,7 +344,7 @@ function showMap() {
           "type": "FeatureCollection",
           "features": blackIceFeatures
         };
-        displayUnwetterEvents(map, unwetterEvents[3], blackIceFeaturesGeoJSON);
+        displayUnwetterEvents(map, unwetterEvents[3], blackIceFeaturesGeoJSON, tweetEvents);
       }
 
       // TODO: später löschen, da nur zum Ausprobieren
@@ -352,7 +355,7 @@ function showMap() {
           "type": "FeatureCollection",
           "features": allOtherFeatures
         };
-        displayUnwetterEvents(map, unwetterEvents[4], allOtherFeaturesGeoJSON);
+        displayUnwetterEvents(map, unwetterEvents[4], allOtherFeaturesGeoJSON, tweetEvents);
       }
 
       // *************************************************************************************************************
@@ -409,8 +412,9 @@ function showMap() {
 * @param {mapbox-map} map map to which the Unwetter will be added
 * @param {String} layerID ID for the map-layer to be created, is equivalent to the Unwetter-event-supergroup
 * @param {Object} unwetterEventFeatureCollection GeoJSON-FeatureCollection of all Unwetter-events of the specific event-supergroup
-*/
-function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection) {
+* @param {Array} tweetEvents the ids of the tweetlayers
+ */
+function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection, tweetEvents) {
 
   // add the given Unwetter-event as a source to the map
   map.addSource(layerID, {
@@ -503,7 +507,7 @@ function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection) {
       ],
       "fill-opacity": 0.3
     }
-  });
+  }, tweetEvents[0]);
   // https://github.com/mapbox/mapbox-gl-js/issues/908#issuecomment-254577133
   // https://docs.mapbox.com/help/how-mapbox-works/map-design/#data-driven-styles
   // https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/

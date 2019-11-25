@@ -22,7 +22,7 @@ var client = new Twitter({
     access_token_secret: 'W9b9MvmH93UTbiTcEMr1h2IBqLc2lQfF3LtqphfdeReJK'
 });
 
-router.post("search", (req, res) => {
+router.post("/search", (req, res) => {
     let params = {};
     for (let key in req.body) {
         if (req.body.hasOwnProperty(key)) {
@@ -30,15 +30,15 @@ router.post("search", (req, res) => {
         }
     }
 
-    client.get('tweets/search/30day/dev.json', params, function (error, tweets, response) {
+    client.get('search/tweets', params, function (error, tweets, response) {
         if (!error) {
             // send the result to the ajax request
             res.json(JSON.parse(response.body));
         } else {
+            console.dir(error);
             res.render('error');
         }
     });
 });
-
 
 module.exports = router;

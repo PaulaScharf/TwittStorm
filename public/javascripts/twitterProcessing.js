@@ -9,29 +9,47 @@
 */
 
 
-
+/**
+ *
+ * @author Paula Scharf, matr.: 450334
+ * @param {object} twitterSearchQuery
+ * @param {string} unwetterID
+ * @returns {Promise<any>}
+ */
 function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
   return new Promise((resolve, reject) => {
     // this array will contain all the calls of the function "promiseToPostItem"
     let arrayOfPromises = [];
-    let query = "(";
+    let searchTerm = "";
     twitterSearchQuery.searchWords.forEach(function (item) {
-      query += item + " OR ";
+      searchTerm += item + " OR ";
     });
-    query = query.substring(0,query.length - 4);
-    query += ")";
+    searchTerm = searchTerm.substring(0,searchTerm.length - 4);
+
+    let arrayOfAllCoordinates = [];
+    twitterSearchQuery.geometry.forEach(function (item) {
+      item.coordinates[0].forEach(function (coordinates) {
+        arrayOfAllCoordinates = arrayOfAllCoordinates.concat(coordinates);
+      });
+    });
+    let enclosingCircle = calculateEnclosingCircle(arrayOfAllCoordinates);
+    console.dir(enclosingCircle);
+    /* this could be used to make a bbox out of the coordinates instead of the enclosing circle:
+    let multilineString = turf.multilinestring(twitterSearchQuery.geometry[0].coordinates[0]);
+    let bbox = turf.bbox(multiLineString);
+    */
+    let enclosingCircleAsString = "" + enclosingCircle.x + "," + enclosingCircle.y + "," + enclosingCircle.r + "km";
     let searchQuery = {
-      query: query,
-      maxResults: 100,
-      fromDate: twitterSearchQuery.fromTimestamp,
-      toDate: twitterSearchQuery.toTimestamp,
-      bbox: twitterSearchQuery.geometry
+      q: searchTerm,
+      geocode: enclosingCircleAsString,
+      result_type: "recent",
+      count: 20
     };
     $.ajax({
       // use a http GET request
       type: "POST",
       // URL to send the request to
-      url: "/premium_twitter/search",
+      url: "/twitter/search",
       // parameters for the search api
       data: searchQuery,
       // data type of the response
@@ -44,22 +62,32 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
     .done(function (response) {
       (async () => {
         console.dir(response);
-        for (let i = response.results.length - 1; i >= 0; i--) {
-          let currentFeature = response.results[i];
-          let currentStatus = {
-            type: "Tweet",
-            id: currentFeature.id,
-            statusmessage: currentFeature.text,
-            author: {
-              id: currentFeature.user.id,
-              name: currentFeature.user.name,
-              location_home: currentFeature.user.location
-            },
-            timestamp: currentFeature.created_at,
-            location_actual: currentFeature.coordinates,
-            unwetter: unwetterID
-          };
-          arrayOfPromises.push(promiseToPostItem(currentStatus));
+        if (response.statuses) {
+          for (let i = response.statuses.length - 1; i >= 0; i--) {
+            let currentFeature = response.statuses[i];
+            if (currentFeature.coordinates) {
+              let tweetLocation = turf.point(currentFeature.coordinates.coordinates);
+              let multiPolygon = turf.multiPolygon(twitterSearchQuery.geometry[0].coordinates[0]);
+              if (turf.booleanPointInPolygon(tweetLocation, multiPolygon)) {
+                let currentStatus = {
+                  type: "Tweet",
+                  id: currentFeature.id,
+                  statusmessage: currentFeature.text,
+                  author: {
+                    id: currentFeature.user.id,
+                    name: currentFeature.user.name,
+                    location_home: currentFeature.user.location
+                  },
+                  timestamp: currentFeature.created_at,
+                  location_actual: currentFeature.coordinates,
+                  unwetter: unwetterID
+                };
+                arrayOfPromises.push(promiseToPostItem(currentStatus));
+              }
+            }
+          }
+        } else {
+          reject(response);
         }
         try {
           // wait for all the posts to the database to succeed
@@ -70,7 +98,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
           console.log("AJAX request (reading all tweets) is done successfully.");
           // if await Promise.all(arrayOfPromises) fails:
         } catch (e) {
-          reject("couldnt post all tweets")
+          reject("couldnt post all tweets");
         }
       })();
     })
@@ -86,4 +114,27 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
       }
     });
   });
+}
+
+/**
+ * Calculates the smallest enclosing circle around an array of coordinates.
+ * @author Paula Scharf, matr.: 450334
+ * @param {Array} coordinatesAsArrays
+ * @returns {object} enclosing - circle object of the form: {x: longitude, y: latitude, r: radius in degree}
+ */
+function calculateEnclosingCircle(coordinatesAsArrays) {
+  let coordinatesAsObjects = [];
+  coordinatesAsArrays.forEach(function (item) {
+    let coordinateObject = {
+      x: item[0],
+      y: item[1]
+    };
+    coordinatesAsObjects.push(coordinateObject);
+  });
+  let enclosing = makeCircle(coordinatesAsObjects);
+  // convert the radius from degrees to kilometers (or: transform the ellipse into a circle)
+  // the maximum amount of kilometers a degree can be in germany is 111.32318 km
+  // the maximum is reached at the northern extent of germany (at latitude: 54.983104153)
+  enclosing.r = enclosing.r * 111.32318;
+  return enclosing;
 }
