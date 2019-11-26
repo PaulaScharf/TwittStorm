@@ -5,9 +5,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 
 var express = require('express');
@@ -35,10 +35,10 @@ router.post("/search", (req, res) => {
             // send the result to the ajax request
             res.json(JSON.parse(response.body));
         } else {
+            console.dir(error);
             res.render('error');
         }
     });
 });
-
 
 module.exports = router;
