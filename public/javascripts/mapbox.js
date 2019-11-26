@@ -209,7 +209,7 @@ function showMap(style) {
           });
           twitterSearchQuery.searchWords.push("Blitzeis");
         }
-        
+
         // TODO: später löschen, da nur zum Ausprobieren
         // alle anderen Unwetter-Event-Typen:
         else {
@@ -226,7 +226,7 @@ function showMap(style) {
           twitterSearchQuery.searchWords.push("Unwetter");
         }
 
-
+/*
         //
         saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id)
         //
@@ -258,6 +258,8 @@ function showMap(style) {
         }, function (reason) {
           console.dir(reason);
         });
+*/
+
       }
 
 
@@ -746,7 +748,7 @@ function drawForAOI(map) {
 function openMenu(button) {
 
   button.classList.toggle("change");
-  var button = document.getElementById("menu");
+  button = document.getElementById("menu");
   if (button.style.display === "none") {
     button.style.display = "block";
   } else {

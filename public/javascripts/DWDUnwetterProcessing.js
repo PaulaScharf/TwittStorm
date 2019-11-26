@@ -14,12 +14,12 @@
 *
 * then posts all polygons to the database.
 * Once thats finished it retrieves all polygons from the database.
-* @author Paula Scharf, matr.: 450334
+* @author Paula Scharf, Katharina Poppinga
 */
 function saveAndReturnNewUnwetterFromDWD() {
   //
   return new Promise((resolve, reject) => {
-    // this array will contain all the the calls of the function "promiseToPostItem"
+    // this array will contain all the calls of the function "promiseToPostItem"
     let arrayOfPromises = [];
 
     // load the GeoJSON from the DWD Geoserver and display the current Unwetter-areas
@@ -31,92 +31,96 @@ function saveAndReturnNewUnwetterFromDWD() {
         //
         let arrayOfUnwetters = [];
 
+        // AB HIER NEUER VERSUCH
+        new Promise((resolve, reject) => {
+          // TODO: umbenennen?
+          // this array will contain all the calls of the function ???
+          let arrayOfPromisesDBCheck = [];
 
-new Promise((resolve, reject) => {
-// async call is necessary here to use the await-functionality for checking the database for existing items
-(async () => {
+          // async call is necessary here to use the await-functionality for checking the database for existing items
+          (async () => {
 
+            //
+            for (let i = data.features.length - 1; i >= 0; i--) {
+
+              let currentFeature = data.features[i];
+
+              // TODO: DWD-timestamps in UTC oder MEZ?
+
+              // ONSET is the timestamp that gives the time when the Unwetter-warning begins - it is NOT the timestamp for the moment when the warning was published
+              // make an Epoch-milliseconds-timestamp (out of the ONSET-timestamp given by the DWD)
+              let onset = Date.parse(currentFeature.properties.ONSET);
+              // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
+
+              // EXPIRES is the timestamp that gives the time when the Unwetter-warning ends
+              // make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
+              let expires = Date.parse(currentFeature.properties.EXPIRES);
+              // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
+
+              // the current timestamp in Epoch-milliseconds
+              let currentTimestamp = Date.now();
+
+
+              // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
+              // ANSONSTEN CERTAINTY FILTER WEGLASSEN, DAMIT OBSERVED UND LIKELY DRIN SIND
+              // use only the notifications that are actual reports and not just tests
+              if ((currentFeature.properties.STATUS === "Actual") && (onset <= currentTimestamp) && (expires >= currentTimestamp)) {
+
+                // TODO: WEITERE MÖGLICHE FILTER
+                // TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
+                //      allUnwetter[i].properties.RESPONSETYPE
+                //      allUnwetter[i].properties.URGENCY === "Immediate"
+                // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
+
+                // if the notification of this Unwetter is new and not an existing but only updated one ...
+                if (currentFeature.properties.MSGTYPE === "Alert"){
+
+                  // ... check whether exactly this item is already stored in the database and do only insert it if not
+                  arrayOfPromisesDBCheck.push(checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters));
+                }
+
+                // if the notification of this Unwetter is an existing and only updated one ...
+                else {
+                  // TODO
+
+                }
+              }
+            }
+
+            // TODO
+            try {
+              // wait for all ???
+              await Promise.all(arrayOfPromisesDBCheck);
+              // return the promise to ???
+              console.log(arrayOfPromisesDBCheck);
+              console.log(arrayOfUnwetters);
+              resolve();
+            } catch(e) {
+              console.log(e);
+              reject("hmmm");
+            }
+
+          })();
+        })
+        .catch(console.error)
         //
-        for (let i = data.features.length - 1; i >= 0; i--) {
+        .then(function(result) {
 
-          let currentFeature = data.features[i];
+          console.log(result);
 
-          // TODO: DWD-timestamps in UTC oder MEZ?
-
-          // ONSET is the timestamp that gives the time when the Unwetter-warning begins - it is NOT the timestamp for the moment when the warning was published
-          // make an Epoch-milliseconds-timestamp (out of the ONSET-timestamp given by the DWD)
-          let onset = Date.parse(currentFeature.properties.ONSET);
-          // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
-
-          // EXPIRES is the timestamp that gives the time when the Unwetter-warning ends
-          // make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
-          let expires = Date.parse(currentFeature.properties.EXPIRES);
-          // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
-
-          // the current timestamp in Epoch-milliseconds
-          let currentTimestamp = Date.now();
-
-
-
-          // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
-          // ANSONSTEN CERTAINTY FILTER WEGLASSEN, DAMIT OBSERVED UND LIKELY DRIN SIND
-          // use only the notifications that are actual reports and not just tests
-          if ((currentFeature.properties.STATUS === "Actual") && (onset <= currentTimestamp) && (expires >= currentTimestamp)) {
-
-
-
-            // TODO: WEITERE MÖGLICHE FILTER
-            // TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
-            //      allUnwetter[i].properties.RESPONSETYPE
-            //      allUnwetter[i].properties.URGENCY === "Immediate"
-
-
-            // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
-
-            // if the notification of this Unwetter is new and not an existing but only updated one ...
-            if (currentFeature.properties.MSGTYPE === "Alert"){
-              // ... check whether exactly this item is already stored in the database and do only insert it if not
-              checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters);
-            }
-
-            // if the notification of this Unwetter is an existing and only updated one ...
-            else {
-              // TODO
-
-            }
-          }
-        }
-
-// TODO: await, promise etc.
-try {
-  // wait for all ???
-  await Promise.all(arrayOfUnwetters);
-  // return the promise to ???
-  resolve();
-} catch(e) {
-  reject("hmmm");
-}
-
-})();
-})
-.catch(console.error)
-//
-.then(function(result) {
+          // TODO:
+          // hier Gruppierung und DB-POST ausführen?
 
 
 
 
+        }, function(err) {
+          console.log(err);
+        });
 
 
 
-
-}, function(err) {
-  console.log(err);
-});
-
-
-
-// ***** formatting the Unwetter which will be inserted into the database: *****
+        // ***** formatting the Unwetter which will be inserted into the database: *****
 
         console.log(arrayOfUnwetters);
         //debugger;
@@ -143,6 +147,7 @@ try {
           // return the promise to get all Items
           resolve(promiseToGetAllItems({type: "Unwetter"}));
         } catch(e) {
+          console.log(e);
           reject("couldnt post all Unwetter");
         }
       })();
@@ -167,52 +172,58 @@ function checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters){
     dwd_id: currentFeature.properties.IDENTIFIER
   };
 
-  // check whether exactly this item is already stored in the database to prevent from inserting it again
-  $.ajax({
-    // use a http POST request
-    type: "POST",
-    // URL to send the request to
-    url: "/db/readItem",
-    // type of the data that is sent to the server
-    contentType: "application/json; charset=utf-8",
-    // data to send to the server, send as String for independence of server-side programming language
-    data: JSON.stringify(iD),
-    // timeout set to 10 seconds
-    timeout: 10000
-  })
+  return new Promise((resolve, reject) => {
+    // check whether exactly this item is already stored in the database to prevent from inserting it again
+    $.ajax({
+      // use a http POST request
+      type: "POST",
+      // URL to send the request to
+      url: "/db/readItem",
+      // type of the data that is sent to the server
+      contentType: "application/json; charset=utf-8",
+      // data to send to the server, send as String for independence of server-side programming language
+      data: JSON.stringify(iD),
+      // timeout set to 10 seconds
+      timeout: 10000
+    })
 
-  // if the request is done successfully, ...
-  .done (function (response) {
+    // if the request is done successfully, ...
+    .done (function (response) {
 
-    // if the current item already exists in the database ...
-    if (response !== "") {
-      // ... do not insert it again
+      // if the current item already exists in the database ...
+      if (response !== "") {
+        // ... do not insert it again
 
-      // if this item does not exist in the database ...
-    } else {
+        // if this item does not exist in the database ...
+      } else {
 
-      // TODO: console-print löschen
-      console.log("item currently not in database, insert it now");
+        // TODO: console-print löschen
+        console.log("item currently not in database, insert it now");
 
-      // ... insert it by first formatting the Unwetters JSON and ...
-      let currentUnwetter = createUnwetterForDB(currentFeature);
-      // ... add it to the arrayOfUnwetters
-      // this array will be used for subsequent processing before adding the Unwetter to the
-      // Promise (in function saveAndReturnNewUnwetterFromDWD) for inserting all new Unwetter into database
-      arrayOfUnwetters.push(currentUnwetter);
-    }
-  })
+        // ... insert it by first formatting the Unwetters JSON and ...
+        let currentUnwetter = createUnwetterForDB(currentFeature);
+        // ... add it to the arrayOfUnwetters
+        // this array will be used for subsequent processing before adding the Unwetter to the
+        // Promise (in function saveAndReturnNewUnwetterFromDWD) for inserting all new Unwetter into database
+        arrayOfUnwetters.push(currentUnwetter);
+      }
 
-  // if the AJAX-request has failed, ...
-  .fail (function (xhr, status, error) {
+      // TODO: was in resolve übergeben?
+      resolve(response);
+    })
 
-    // ... give a notice that the AJAX request for finding one item has failed and show the error on the console
-    console.log("AJAX request (reading one item) has failed.", error);
+    // if the AJAX-request has failed, ...
+    .fail (function (xhr, status, error) {
 
-    // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-    //  if (error === "timeout") {
-    //    JL("ajaxReadingOneItemTimeout").fatalException("ajax: '/routes/readItem' timeout");
-    //  }
+      // ... give a notice that the AJAX request for finding one item has failed and show the error on the console
+      console.log("AJAX request (reading one item) has failed.", error);
+
+      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+      //  if (error === "timeout") {
+      //    JL("ajaxReadingOneItemTimeout").fatalException("ajax: '/routes/readItem' timeout");
+      //  }
+      reject("AJAX request (reading one item) has failed.");
+    });
   });
 }
 
@@ -259,7 +270,7 @@ function createUnwetterForDB(currentFeature){
 }
 
 
-
+// TODO: Quelle in JSDoc einfügen
 /**
 *
 *
