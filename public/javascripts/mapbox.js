@@ -132,9 +132,7 @@ function showMap(style) {
 
         let twitterSearchQuery = {
           geometry: currentUnwetterEvent.geometry,
-          searchWords: [],
-          fromTimestamp: "201911200000",
-          toTimestamp: "201911220000"
+          searchWords: []
         };
         // TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
         // FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)

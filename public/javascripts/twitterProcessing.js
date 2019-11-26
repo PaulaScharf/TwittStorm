@@ -33,7 +33,6 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
       });
     });
     let enclosingCircle = calculateEnclosingCircle(arrayOfAllCoordinates);
-    console.dir(enclosingCircle);
     /* this could be used to make a bbox out of the coordinates instead of the enclosing circle:
     let multilineString = turf.multilinestring(twitterSearchQuery.geometry[0].coordinates[0]);
     let bbox = turf.bbox(multiLineString);
@@ -61,7 +60,6 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
     // if the request is done successfully, ...
     .done(function (response) {
       (async () => {
-        console.dir(response);
         if (response.statuses) {
           for (let i = response.statuses.length - 1; i >= 0; i--) {
             let currentFeature = response.statuses[i];

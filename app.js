@@ -36,7 +36,6 @@ const R = require('r-script');
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
 var twitterRouter = require('./routes/twitter');
-var premiumTwitterRouter = require('./routes/premiumTwitter');
 var rasterRouter = require('./routes/raster');
 
 var app = express();
@@ -220,8 +219,6 @@ app.use('/db', dbRouter);
 app.use('/twitter', twitterRouter);
 //
 app.use('/raster', rasterRouter);
-//
-app.use('/premium_twitter', premiumTwitterRouter);
 
 
 // catch 404 and forward to error handler
