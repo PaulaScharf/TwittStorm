@@ -82,6 +82,7 @@ app.use("/bootstrap", express.static(path.join(__dirname, 'node_modules', 'boots
 app.use("/popper", express.static(path.join(__dirname, 'node_modules', 'popper.js', 'dist')));
 app.use("/mapbox", express.static(path.join(__dirname, 'node_modules', 'mapbox-gl', 'dist')));
 app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@mapbox', 'mapbox-gl-draw', 'dist')));
+app.use("/turf", express.static(path.join(__dirname, 'node_modules', '@turf')));
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
 app.use("/R", express.static(path.join(__dirname, 'node_modules', 'r-script', )));
 
