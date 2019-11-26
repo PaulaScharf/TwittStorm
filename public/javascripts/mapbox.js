@@ -152,6 +152,7 @@ function showMap(style) {
                   "geometry": currentPolygon,
                   "properties": currentUnwetterEvent.properties
                 };
+
                 // ... add its GeoJSON Feature to the rainFeatures-array
                 rainFeatures.push(unwetterFeature);
               });
@@ -213,6 +214,7 @@ function showMap(style) {
                   "geometry": currentPolygon,
                   "properties": currentUnwetterEvent.properties
                 };
+                displayUnwetterEvents(map, "other", unwetterFeature, tweetEvents);
                 // ... add its GeoJSON Feature to the allOtherFeatures-array
                 allOtherFeatures.push(unwetterFeature);
               });
@@ -773,12 +775,9 @@ function switchLayer(layer) {
     });
 
     savedLayers.forEach((layer) => {
-
-      if(((layerId === "satellite") ? (layer.id !== "streets") : (layer.id !== "satellite"))) {
         if (typeof map.getLayer(layer.id) === 'undefined') {
           map.addLayer(layer);
         }
-      }
     });
   }, 1000);
 }
