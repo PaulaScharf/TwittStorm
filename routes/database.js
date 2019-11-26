@@ -117,7 +117,7 @@ router.delete("/delete", (req, res) => {
   db.collection('item').deleteOne({_id:objectId}, (error, result) => {
     if(error){
       // give a notice, that the deleting has failed and show the error on the console
-      console.log("Failure while deleting an encounter from 'routeDB'.", error);
+      console.log("Failure while deleting an item from 'item'.", error);
       // in case of an error while deleting, do routing to "error.ejs"
       res.render('error');
       // if no error occurs ...

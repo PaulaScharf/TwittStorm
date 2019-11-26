@@ -34,10 +34,15 @@ var layers = document.getElementById('menu');
 */
 function showMap(style) {
 
+  //
+  removeOldUnwetterFromDB();
+
+
   // an Array containing all supergroups of events, they will be used as layerIDs for the map
   let unwetterEvents = ["rain", "snowfall", "thunderstorm", "blackIce", "other"]; // have to be a Strings because addSource() needs a String for the layerID
   let tweetEvents = ["tweet"];
-  //Checks if the layer menu DOM is empty and if not flushes the dom
+
+  // Checks if the layer menu DOM is empty and if not flushes the dom
   while (layers.firstChild) {
     layers.removeChild(layers.firstChild);
   }
@@ -65,11 +70,13 @@ function showMap(style) {
     }
   });
 
+
   // ************************ adding the functionality for toggeling the map styles *************************
 
-  //Takes the map styles from the selection on the index page
+  // Takes the map styles from the selection on the index page
   var layerList = document.getElementById('styleMenu');
   var inputs = layerList.getElementsByTagName('input');
+
 
   /**
   * @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
@@ -88,7 +95,7 @@ function showMap(style) {
     inputs[i].onclick = switchLayer;
   }
 
-// **********************************************************************************************************
+  // **********************************************************************************************************
 
   // add zoom and rotation controls to the map
   map.addControl(new mapboxgl.NavigationControl());
@@ -746,12 +753,12 @@ function drawForAOI(map) {
   });
 }
 
+
 /**
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X
 * @param button Links the button to the function for the animation
 * @author Benjamin Rieke
 */
-
 function openMenu(button) {
 
   button.classList.toggle("change");

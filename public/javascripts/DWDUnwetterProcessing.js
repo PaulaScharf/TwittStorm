@@ -31,6 +31,8 @@ function saveAndReturnNewUnwetterFromDWD() {
         //
         let arrayOfUnwetters = [];
 
+
+new Promise((resolve, reject) => {
 // async call is necessary here to use the await-functionality for checking the database for existing items
 (async () => {
 
@@ -39,15 +41,14 @@ function saveAndReturnNewUnwetterFromDWD() {
 
           let currentFeature = data.features[i];
 
-
           // TODO: DWD-timestamps in UTC oder MEZ?
 
-          // ONSET is the timestamp of the beginning of the Unwetter-warning - NOT the timestamp for the moment when the warning was published
+          // ONSET is the timestamp that gives the time when the Unwetter-warning begins - it is NOT the timestamp for the moment when the warning was published
           // make an Epoch-milliseconds-timestamp (out of the ONSET-timestamp given by the DWD)
           let onset = Date.parse(currentFeature.properties.ONSET);
           // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
 
-          // EXPIRES is the timestamp of the end of the Unwetter-warning
+          // EXPIRES is the timestamp that gives the time when the Unwetter-warning ends
           // make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
           let expires = Date.parse(currentFeature.properties.EXPIRES);
           // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
@@ -87,9 +88,32 @@ function saveAndReturnNewUnwetterFromDWD() {
         }
 
 // TODO: await, promise etc.
+try {
+  // wait for all ???
+  await Promise.all(arrayOfUnwetters);
+  // return the promise to ???
+  resolve();
+} catch(e) {
+  reject("hmmm");
+}
+
+})();
+})
+.catch(console.error)
+//
+.then(function(result) {
 
 
-  })();
+
+
+
+
+
+
+}, function(err) {
+  console.log(err);
+});
+
 
 
 // ***** formatting the Unwetter which will be inserted into the database: *****
