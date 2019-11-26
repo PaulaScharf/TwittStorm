@@ -49,7 +49,7 @@ function deleteRoute(event) {
 
     $.ajax({
       type: 'DELETE',
-      url: '/users/deleteroute/' + $(this).attr('rel')
+      url: '/db/delete' + $(this).attr('rel')
     }).done(function(response) {
       if(response.msg === '') {
         alert('done!');

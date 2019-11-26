@@ -1,4 +1,4 @@
-// jshint esversion: 6
+// jshint esversion: 8
 // jshint maxerr: 1000
 
 "use strict";  // JavaScript code is executed in "strict mode"
@@ -107,264 +107,15 @@ function showMap(style) {
     // init tweetLayer
     displayTweets(map, tweetEvents[0]);
 
-    // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
-    saveAndReturnNewUnwetterFromDWD()
     //
-    .catch(console.error)
+    requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
+
+
+
+    // TODO: VARIABLEN VORHER DEFINIEREN, DAMIT Error: There is already a source with this ID VERMIEDEN WIRD!!
     //
-    .then(function(result) {
+    //window.setInterval(requestNewAndDisplayAllUnwetter, 30000, map, unwetterEvents, tweetEvents);
 
-      // all Unwetter that are stored in the database
-      let allUnwetter = result;
-      console.log(result);
-
-      // one feature for a Unwetter (could be heavy rain, light snowfall, ...)
-      let unwetterFeature;
-
-      // one array for each event-supergroup, will be filled with its corresponding Unwetter-features
-      let rainFeatures = [];
-      let snowfallFeatures = [];
-      let thunderstormFeatures = [];
-      let blackIceFeatures = [];
-      // TODO: allOther später löschen, da nur zum Ausprobieren
-      let allOtherFeatures = [];
-
-      let tweetFeatures = [];
-
-
-      // *************************************************************************************************************
-
-      // iteration over all Unwetter in the database
-      for (let i = 0; i < allUnwetter.length; i++) {
-
-        let currentUnwetterEvent = allUnwetter[i];
-
-        // TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
-
-        //
-        let twitterSearchQuery = {
-          geometry: currentUnwetterEvent.geometry,
-          searchWords: []
-        };
-        // TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
-        // FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
-        // FALLS JA, DANN FARBEN IN fill-color ANPASSEN
-
-        // if the current Unwetter is of supergroup RAIN ...
-        if ((currentUnwetterEvent.properties.ec_ii >= 61) && (currentUnwetterEvent.properties.ec_ii <= 66)) {
-          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-            // make a GeoJSON Feature out of the current Unwetter
-            unwetterFeature = {
-              "type": "Feature",
-              "geometry": currentPolygon,
-              "properties": currentUnwetterEvent.properties
-            };
-            // ... add its GeoJSON Feature to the rainFeatures-array
-            rainFeatures.push(unwetterFeature);
-          });
-          twitterSearchQuery.searchWords.push("Starkregen");
-        }
-
-        // if the current Unwetter is of supergroup SNOWFALL ...
-        else if ((currentUnwetterEvent.properties.ec_ii >= 70) && (currentUnwetterEvent.properties.ec_ii <= 78)) {
-          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-            // make a GeoJSON Feature out of the current Unwetter
-            unwetterFeature = {
-              "type": "Feature",
-              "geometry": currentPolygon,
-              "properties": currentUnwetterEvent.properties
-            };
-            // ... add its GeoJSON Feature to the snowfallFeatures-array
-            snowfallFeatures.push(unwetterFeature);
-          });
-          twitterSearchQuery.searchWords.push("Schneefall");
-        }
-
-        // if the current Unwetter is of supergroup THUNDERSTORM ..
-        else if (((currentUnwetterEvent.properties.ec_ii >= 31) && (currentUnwetterEvent.properties.ec_ii <= 49)) || ((currentUnwetterEvent.properties.ec_ii >= 90) && (currentUnwetterEvent.properties.ec_ii <= 96))) {
-          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-            // make a GeoJSON Feature out of the current Unwetter
-            unwetterFeature = {
-              "type": "Feature",
-              "geometry": currentPolygon,
-              "properties": currentUnwetterEvent.properties
-            };
-            // ... add its GeoJSON Feature to the thunderstormFeatures-array
-            thunderstormFeatures.push(unwetterFeature);
-          });
-          twitterSearchQuery.searchWords.push("Gewitter");
-        }
-
-        // if the current Unwetter is of supergroup BLACKICE ..
-        else if ((currentUnwetterEvent.properties.ec_ii === 24) || ((currentUnwetterEvent.properties.ec_ii >= 84) && (currentUnwetterEvent.properties.ec_ii <= 87))) {
-          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-            // make a GeoJSON Feature out of the current Unwetter
-            unwetterFeature = {
-              "type": "Feature",
-              "geometry": currentPolygon,
-              "properties": currentUnwetterEvent.properties
-            };
-            // ... add its GeoJSON Feature to the blackIceFeatures-array
-            blackIceFeatures.push(unwetterFeature);
-          });
-          twitterSearchQuery.searchWords.push("Blitzeis");
-        }
-
-        // TODO: später löschen, da nur zum Ausprobieren
-        // alle anderen Unwetter-Event-Typen:
-        else {
-          currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-            // make a GeoJSON Feature out of the current Unwetter
-            unwetterFeature = {
-              "type": "Feature",
-              "geometry": currentPolygon,
-              "properties": currentUnwetterEvent.properties
-            };
-            // ... add its GeoJSON Feature to the allOtherFeatures-array
-            allOtherFeatures.push(unwetterFeature);
-          });
-          twitterSearchQuery.searchWords.push("Unwetter");
-        }
-
-/*
-        //
-        saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id)
-        //
-        .catch(console.error)
-        //
-        .then(function (result) {
-          try {
-            result.forEach(function (item) {
-              if (item.location_actual !== null) {
-                let tweetFeature = {
-                  "type": "Feature",
-                  "geometry": item.location_actual,
-                  "properties": item
-                };
-                tweetFeatures.push(tweetFeature);
-              }
-            });
-            if (tweetFeatures.length > 0) {
-              let tweetFeaturesGeoJSON = {
-                "type": "FeatureCollection",
-                "features": tweetFeatures
-              };
-              map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
-            }
-          } catch {
-            console.log("there was an error while processing the tweets from the database");
-            // TODO: error catchen und dann hier auch den error ausgeben?
-          }
-        }, function (reason) {
-          console.dir(reason);
-        });
-*/
-
-      }
-
-
-      // ************************ adding the functionality for toggeling the different layers *************************
-      // For creating the layermenu
-      //Change the layers, that are supposed to be toggleable
-      var toggleableLayerIds = [ "rain", "snowfall", "thunderstorm", "blackIce", "other", 'tweet' ];
-
-      // for every mentioned layer
-      for (var i = 0; i < toggleableLayerIds.length; i++) {
-        var id = toggleableLayerIds[i];
-
-        // create an element for the menu
-        var link = document.createElement('a');
-        link.href = '#';
-        link.className = 'active';
-        link.textContent = id;
-
-        // on click show the menu if it is not visible and hide it if it is visible
-        link.onclick = function (e) {
-          var clickedLayer = this.textContent;
-          e.preventDefault();
-          e.stopPropagation();
-
-          // set visibility
-          var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-
-          // if the layer is visible hide it
-          if (visibility === 'visible') {
-            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-            this.className = '';
-          }
-          // if not show it
-          else {
-            this.className = 'active';
-            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-          }
-        };
-
-        // add the layers to the menu
-        layers.appendChild(link);
-      }
-
-
-      // *************************************************************************************************************
-      // TODO: folgendes evtl. auch modularisieren
-      // make one GeoJSON-FeatureCollection for every supergroup-event-type and display its Unwetter-events in the map:
-      //
-      if (rainFeatures.length !== 0) {
-        //
-        var rainFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": rainFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[0], rainFeaturesGeoJSON, tweetEvents);
-      }
-
-      //
-      if (snowfallFeatures.length !== 0) {
-        //
-        var snowfallFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": snowfallFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[1], snowfallFeaturesGeoJSON, tweetEvents);
-      }
-
-      //
-      if (thunderstormFeatures.length !== 0) {
-        //
-        var thunderstormFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": thunderstormFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[2], thunderstormFeaturesGeoJSON, tweetEvents);
-      }
-
-      //
-      if (blackIceFeatures.length !== 0) {
-        //
-        var blackIceFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": blackIceFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[3], blackIceFeaturesGeoJSON, tweetEvents);
-      }
-
-      // TODO: später löschen, da nur zum Ausprobieren
-      //
-      if (allOtherFeatures.length !== 0) {
-        //
-        var allOtherFeaturesGeoJSON = {
-          "type": "FeatureCollection",
-          "features": allOtherFeatures
-        };
-        displayUnwetterEvents(map, unwetterEvents[4], allOtherFeaturesGeoJSON, tweetEvents);
-      }
-
-      // *************************************************************************************************************
-
-
-      //
-    }, function(err) {
-      console.log(err);
-    });
 
 
     // TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -401,6 +152,276 @@ function showMap(style) {
     }
   });
 }
+
+
+/**
+* @desc
+*
+* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
+* @param map
+* @param {Array} unwetterEvents
+* @param {Array} tweetEvents
+*/
+function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
+
+  // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
+  saveAndReturnNewUnwetterFromDWD()
+  //
+  .catch(console.error)
+  //
+  .then(function(result) {
+
+    // all Unwetter that are stored in the database
+    let allUnwetter = result;
+
+    // one feature for a Unwetter (could be heavy rain, light snowfall, ...)
+    let unwetterFeature;
+
+    // one array for each event-supergroup, will be filled with its corresponding Unwetter-features
+    let rainFeatures = [];
+    let snowfallFeatures = [];
+    let thunderstormFeatures = [];
+    let blackIceFeatures = [];
+    // TODO: allOther später löschen, da nur zum Ausprobieren
+    let allOtherFeatures = [];
+
+    let tweetFeatures = [];
+
+
+    // *************************************************************************************************************
+
+    // iteration over all Unwetter in the database
+    for (let i = 0; i < allUnwetter.length; i++) {
+
+      let currentUnwetterEvent = allUnwetter[i];
+
+      // TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
+
+      //
+      let twitterSearchQuery = {
+        geometry: currentUnwetterEvent.geometry,
+        searchWords: []
+      };
+      // TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
+      // FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
+      // FALLS JA, DANN FARBEN IN fill-color ANPASSEN
+
+      // if the current Unwetter is of supergroup RAIN ...
+      if ((currentUnwetterEvent.properties.ec_ii >= 61) && (currentUnwetterEvent.properties.ec_ii <= 66)) {
+        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+          // make a GeoJSON Feature out of the current Unwetter
+          unwetterFeature = {
+            "type": "Feature",
+            "geometry": currentPolygon,
+            "properties": currentUnwetterEvent.properties
+          };
+          // ... add its GeoJSON Feature to the rainFeatures-array
+          rainFeatures.push(unwetterFeature);
+        });
+        twitterSearchQuery.searchWords.push("Starkregen");
+      }
+
+      // if the current Unwetter is of supergroup SNOWFALL ...
+      else if ((currentUnwetterEvent.properties.ec_ii >= 70) && (currentUnwetterEvent.properties.ec_ii <= 78)) {
+        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+          // make a GeoJSON Feature out of the current Unwetter
+          unwetterFeature = {
+            "type": "Feature",
+            "geometry": currentPolygon,
+            "properties": currentUnwetterEvent.properties
+          };
+          // ... add its GeoJSON Feature to the snowfallFeatures-array
+          snowfallFeatures.push(unwetterFeature);
+        });
+        twitterSearchQuery.searchWords.push("Schneefall");
+      }
+
+      // if the current Unwetter is of supergroup THUNDERSTORM ..
+      else if (((currentUnwetterEvent.properties.ec_ii >= 31) && (currentUnwetterEvent.properties.ec_ii <= 49)) || ((currentUnwetterEvent.properties.ec_ii >= 90) && (currentUnwetterEvent.properties.ec_ii <= 96))) {
+        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+          // make a GeoJSON Feature out of the current Unwetter
+          unwetterFeature = {
+            "type": "Feature",
+            "geometry": currentPolygon,
+            "properties": currentUnwetterEvent.properties
+          };
+          // ... add its GeoJSON Feature to the thunderstormFeatures-array
+          thunderstormFeatures.push(unwetterFeature);
+        });
+        twitterSearchQuery.searchWords.push("Gewitter");
+      }
+
+      // if the current Unwetter is of supergroup BLACKICE ..
+      else if ((currentUnwetterEvent.properties.ec_ii === 24) || ((currentUnwetterEvent.properties.ec_ii >= 84) && (currentUnwetterEvent.properties.ec_ii <= 87))) {
+        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+          // make a GeoJSON Feature out of the current Unwetter
+          unwetterFeature = {
+            "type": "Feature",
+            "geometry": currentPolygon,
+            "properties": currentUnwetterEvent.properties
+          };
+          // ... add its GeoJSON Feature to the blackIceFeatures-array
+          blackIceFeatures.push(unwetterFeature);
+        });
+        twitterSearchQuery.searchWords.push("Blitzeis");
+      }
+
+      // TODO: später löschen, da nur zum Ausprobieren
+      // alle anderen Unwetter-Event-Typen:
+      else {
+        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+          // make a GeoJSON Feature out of the current Unwetter
+          unwetterFeature = {
+            "type": "Feature",
+            "geometry": currentPolygon,
+            "properties": currentUnwetterEvent.properties
+          };
+          // ... add its GeoJSON Feature to the allOtherFeatures-array
+          allOtherFeatures.push(unwetterFeature);
+        });
+        twitterSearchQuery.searchWords.push("Unwetter");
+      }
+
+      /*
+      //
+      saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id)
+      //
+      .catch(console.error)
+      //
+      .then(function (result) {
+      try {
+      result.forEach(function (item) {
+      if (item.location_actual !== null) {
+      let tweetFeature = {
+      "type": "Feature",
+      "geometry": item.location_actual,
+      "properties": item
+    };
+    tweetFeatures.push(tweetFeature);
+  }
+});
+if (tweetFeatures.length > 0) {
+let tweetFeaturesGeoJSON = {
+"type": "FeatureCollection",
+"features": tweetFeatures
+};
+map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
+}
+} catch {
+console.log("there was an error while processing the tweets from the database");
+// TODO: error catchen und dann hier auch den error ausgeben?
+}
+}, function (reason) {
+console.dir(reason);
+});
+*/
+
+}
+
+
+// ************************ adding the functionality for toggeling the different layers *************************
+// For creating the layermenu
+//Change the layers, that are supposed to be toggleable
+var toggleableLayerIds = [ "rain", "snowfall", "thunderstorm", "blackIce", "other", 'tweet' ];
+
+// for every mentioned layer
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+  var id = toggleableLayerIds[i];
+
+  // create an element for the menu
+  var link = document.createElement('a');
+  link.href = '#';
+  link.className = 'active';
+  link.textContent = id;
+
+  // on click show the menu if it is not visible and hide it if it is visible
+  link.onclick = function (e) {
+    var clickedLayer = this.textContent;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // set visibility
+    var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+    // if the layer is visible hide it
+    if (visibility === 'visible') {
+      map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+      this.className = '';
+    }
+    // if not show it
+    else {
+      this.className = 'active';
+      map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+    }
+  };
+
+  // add the layers to the menu
+  layers.appendChild(link);
+}
+
+
+// *************************************************************************************************************
+// TODO: folgendes evtl. auch modularisieren
+// make one GeoJSON-FeatureCollection for every supergroup-event-type and display its Unwetter-events in the map:
+//
+if (rainFeatures.length !== 0) {
+  //
+  var rainFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": rainFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[0], rainFeaturesGeoJSON, tweetEvents);
+}
+
+//
+if (snowfallFeatures.length !== 0) {
+  //
+  var snowfallFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": snowfallFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[1], snowfallFeaturesGeoJSON, tweetEvents);
+}
+
+//
+if (thunderstormFeatures.length !== 0) {
+  //
+  var thunderstormFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": thunderstormFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[2], thunderstormFeaturesGeoJSON, tweetEvents);
+}
+
+//
+if (blackIceFeatures.length !== 0) {
+  //
+  var blackIceFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": blackIceFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[3], blackIceFeaturesGeoJSON, tweetEvents);
+}
+
+// TODO: später löschen, da nur zum Ausprobieren
+//
+if (allOtherFeatures.length !== 0) {
+  //
+  var allOtherFeaturesGeoJSON = {
+    "type": "FeatureCollection",
+    "features": allOtherFeatures
+  };
+  displayUnwetterEvents(map, unwetterEvents[4], allOtherFeaturesGeoJSON, tweetEvents);
+}
+
+// *************************************************************************************************************
+
+//
+}, function(err) {
+  console.log(err);
+});
+}
+
 
 
 /**
@@ -504,7 +525,7 @@ function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection, twe
         // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
         // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
       ],
-      "fill-opacity": 0.3
+      "fill-opacity": 0.4
     }
     //
   }, tweetEvents[0]);

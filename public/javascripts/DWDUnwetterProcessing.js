@@ -1,4 +1,4 @@
-// jshint esversion: 6
+// jshint esversion: 8
 // jshint maxerr: 1000
 
 "use strict";  // JavaScript code is executed in "strict mode"
@@ -27,11 +27,13 @@ function saveAndReturnNewUnwetterFromDWD() {
       // EPSG: 4326
 
       // an async call is necessary here to use the await-functionality for .............................
+      // TODO: ASYNC ENTFERNEN, DA KEIN AWAIT BENUTZT WIRD
+      // THEN ODER AWAIT, HIER THEN
       (async () => {
         //
         let arrayOfUnwetters = [];
 
-        // AB HIER NEUER VERSUCH
+        //
         new Promise((resolve, reject) => {
           // TODO: umbenennen?
           // this array will contain all the calls of the function ???
@@ -81,75 +83,76 @@ function saveAndReturnNewUnwetterFromDWD() {
 
                 // if the notification of this Unwetter is an existing and only updated one ...
                 else {
-                  // TODO
+
+                  // TODO: update this Unwetter in DB??
 
                 }
               }
             }
 
-            // TODO
+            //
             try {
-              // wait for all ???
+              // wait for finished check whether any of the requested Unwetter are already stored in the database
               await Promise.all(arrayOfPromisesDBCheck);
-              // return the promise to ???
-              console.log(arrayOfPromisesDBCheck);
-              console.log(arrayOfUnwetters);
+
+              // TODO: was hier im resolve zurückgeben??
               resolve();
+
             } catch(e) {
               console.log(e);
+              // TODO: was hier ins reject??
               reject("hmmm");
             }
-
           })();
         })
+        //
         .catch(console.error)
+
         //
         .then(function(result) {
 
-          console.log(result);
-
-          // TODO:
-          // hier Gruppierung und DB-POST ausführen?
+          console.log(result); // TODO: ist undefined, da resolve leer ist
 
 
+          // ***** formatting the Unwetter which will be inserted into the database afterwards: *****
 
+          // in groupedUnwetters sind nur die NEU HINZUGEFÜGTEN, NICHT ALLE IN DER DB ENTHALTENEN Unwetter drin
+          let groupedUnwetters = groupByArray(arrayOfUnwetters, 'dwd_id');
 
+          groupedUnwetters.forEach(function (item){
+            // TODO: parse und stringify müsste sich doch aufheben?
+            let currentUnwetter = JSON.parse(JSON.stringify(item.values[0]));
+            currentUnwetter.geometry = [];
+
+            for (let i = 0; i < item.values.length; i++) {
+              currentUnwetter.geometry.push(item.values[i].geometry);
+            }
+            arrayOfPromises.push(promiseToPostItem(currentUnwetter));
+          });
+
+          try {
+            // wait for all POSTs to the database to succeed and ...
+            Promise.all(arrayOfPromises)
+            // ... then read all Unwetter out of the database
+            .then(() => {
+              //
+              promiseToGetAllItems({type: "Unwetter"})
+              //
+              .then((result) => {
+                // result contains all Unwetter which are stored in the database, return them by resolving the promise
+                resolve(result);
+              });
+            });
+          } catch(e) {
+            console.log(e);
+            reject("couldnt post all Unwetter");
+          }
+
+          //
         }, function(err) {
           console.log(err);
         });
 
-
-
-        // ***** formatting the Unwetter which will be inserted into the database: *****
-
-        console.log(arrayOfUnwetters);
-        //debugger;
-        // TODO: IST DAS FOLGENDE HIER AN DER RICHTIGEN STELLE IM CODE??
-        // in groupedUnwetters sind nur die NEU HINZUGEFÜGTEN, NICHT ALLE IN DER DB ENTHALTENEN Unwetter drin
-        let groupedUnwetters = groupByArray(arrayOfUnwetters, 'dwd_id');
-        console.log(groupedUnwetters);
-        groupedUnwetters.forEach(function (item){
-          // TODO: parse und stringify müsste sich doch aufheben?
-          let currentUnwetter = JSON.parse(JSON.stringify(item.values[0]));
-          currentUnwetter.geometry = [];
-
-          for (let i = 0; i < item.values.length; i++) {
-            currentUnwetter.geometry.push(item.values[i].geometry);
-          }
-          console.log("arrayOfPromises.push(promiseToPostItem(currentUnwetter)");
-          arrayOfPromises.push(promiseToPostItem(currentUnwetter));
-        });
-
-        console.log(arrayOfPromises);
-        try {
-          // wait for all the posts to the database to succeed
-          await Promise.all(arrayOfPromises);
-          // return the promise to get all Items
-          resolve(promiseToGetAllItems({type: "Unwetter"}));
-        } catch(e) {
-          console.log(e);
-          reject("couldnt post all Unwetter");
-        }
       })();
     });
   });
@@ -172,6 +175,7 @@ function checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters){
     dwd_id: currentFeature.properties.IDENTIFIER
   };
 
+  //
   return new Promise((resolve, reject) => {
     // check whether exactly this item is already stored in the database to prevent from inserting it again
     $.ajax({
@@ -197,7 +201,7 @@ function checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters){
         // if this item does not exist in the database ...
       } else {
 
-        // TODO: console-print löschen
+        // TODO: evtl. console-print löschen?
         console.log("item currently not in database, insert it now");
 
         // ... insert it by first formatting the Unwetters JSON and ...
@@ -208,7 +212,7 @@ function checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters){
         arrayOfUnwetters.push(currentUnwetter);
       }
 
-      // TODO: was in resolve übergeben?
+      //
       resolve(response);
     })
 
@@ -233,6 +237,7 @@ function checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters){
 *
 *
 * FORM WIRD VOR DEM INSERTEN GGFS NOCH VERÄNDERT DURCH GRUPPIERUNG NACH DWD_ID
+* @author Paula Scharf, Katharina Poppinga
 */
 function createUnwetterForDB(currentFeature){
 
