@@ -85,6 +85,7 @@ app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@ma
 app.use("/turf", express.static(path.join(__dirname, 'node_modules', '@turf')));
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
 app.use("/R", express.static(path.join(__dirname, 'node_modules', 'r-script', )));
+app.use("/leaflet", express.static(path.join(__dirname, 'node_modules', 'leaflet', 'dist')));
 
 
 // ***************************** mongo-database *******************************
