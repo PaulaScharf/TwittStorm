@@ -117,7 +117,6 @@ function showMap(style) {
     requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
 
 
-
     // TODO: VARIABLEN VORHER DEFINIEREN, DAMIT Error: There is already a source with this ID VERMIEDEN WIRD!!
     //
     //window.setInterval(requestNewAndDisplayAllUnwetter, 30000, map, unwetterEvents, tweetEvents);
@@ -244,7 +243,6 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
       });
 
 
-
       //
       saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id)
       //
@@ -276,7 +274,6 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
           }, function (reason) {
             console.dir(reason);
           });
-
 
 
     }
@@ -328,7 +325,6 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
   // add the layers to the menu
   layers.appendChild(link);
 }
-
 
 
 

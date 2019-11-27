@@ -57,7 +57,6 @@ function saveAndReturnNewUnwetterFromDWD() {
             let currentTimestamp = Date.now();
 
 
-
             // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
             // ANSONSTEN CERTAINTY FILTER WEGLASSEN, DAMIT OBSERVED UND LIKELY DRIN SIND
             // use only the notifications that are actual reports and not just tests
@@ -89,7 +88,6 @@ function saveAndReturnNewUnwetterFromDWD() {
           try {
             // wait for finished check whether any of the requested Unwetter are already stored in the database
             await Promise.all(arrayOfPromisesDBCheck);
-
             //
             resolve();
 

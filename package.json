@@ -7,7 +7,6 @@
     "test": "mocha ./test/test.js"
   },
   "dependencies": {
-    "@fridgerator/r-script": "^0.1.7",
     "@mapbox/mapbox-gl-draw": "^1.1.2",
     "@turf/turf": "^5.1.6",
     "body-parser": "^1.19.0",
@@ -25,7 +24,7 @@
     "mocha": "^6.1.4",
     "mongodb": "^3.2.7",
     "morgan": "~1.9.1",
-    "nodemon": "^1.19.1",
+    "nodemon": "^2.0.1",
     "oauth": "^0.9.15",
     "popper": "^1.0.1",
     "popper.js": "^1.15.0",
