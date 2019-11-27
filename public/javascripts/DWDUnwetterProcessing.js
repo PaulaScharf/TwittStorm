@@ -26,10 +26,6 @@ function saveAndReturnNewUnwetterFromDWD() {
     $.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson', function (data) {
       // EPSG: 4326
 
-      // an async call is necessary here to use the await-functionality for .............................
-      // TODO: ASYNC ENTFERNEN, DA KEIN AWAIT BENUTZT WIRD
-      // THEN ODER AWAIT, HIER THEN
-      (async () => {
         //
         let arrayOfUnwetters = [];
 
@@ -95,7 +91,7 @@ function saveAndReturnNewUnwetterFromDWD() {
               // wait for finished check whether any of the requested Unwetter are already stored in the database
               await Promise.all(arrayOfPromisesDBCheck);
 
-              // TODO: was hier im resolve zurückgeben??
+              //
               resolve();
 
             } catch(e) {
@@ -109,10 +105,7 @@ function saveAndReturnNewUnwetterFromDWD() {
         .catch(console.error)
 
         //
-        .then(function(result) {
-
-          console.log(result); // TODO: ist undefined, da resolve leer ist
-
+        .then(function() {
 
           // ***** formatting the Unwetter which will be inserted into the database afterwards: *****
 
@@ -152,8 +145,6 @@ function saveAndReturnNewUnwetterFromDWD() {
         }, function(err) {
           console.log(err);
         });
-
-      })();
     });
   });
 }
