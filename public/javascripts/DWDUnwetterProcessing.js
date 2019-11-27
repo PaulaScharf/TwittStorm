@@ -22,6 +22,7 @@ function saveAndReturnNewUnwetterFromDWD() {
             // EPSG: 4326
             // an async call is necessary here to use the await-functionality
             (async () => {
+                let arrayOfUnwetters = [];
                 for (let i = data.features.length - 1; i >= 0; i--) {
                     let currentFeature = data.features[i];
                     // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
@@ -43,6 +44,7 @@ function saveAndReturnNewUnwetterFromDWD() {
                         let color = rgbToHex(area_color[0], area_color[1], area_color[2]);
                         let currentUnwetter = {
                             type: "Unwetter",
+                            dwd_id: currentFeature.properties.IDENTIFIER,
                             geometry: currentFeature.geometry,
                             properties: {
                               // TODO: am Ende überprüfen, ob alle Attribute hier benötigt werden, ansonsten unbenötigte löschen
@@ -66,9 +68,18 @@ function saveAndReturnNewUnwetterFromDWD() {
                                 ceiling: currentFeature.properties.CEILING
                             }
                         };
-                        arrayOfPromises.push(promiseToPostItem(currentUnwetter));
+                        arrayOfUnwetters.push(currentUnwetter);
                     }
                 }
+                let groupedUnwetters = groupByArray(arrayOfUnwetters, 'dwd_id');
+                groupedUnwetters.forEach( function (item) {
+                    let currentUnwetter = JSON.parse(JSON.stringify(item.values[0]));
+                    currentUnwetter.geometry = [];
+                    for (let i = 0; i < item.values.length; i++) {
+                        currentUnwetter.geometry.push(item.values[i].geometry);
+                    }
+                    arrayOfPromises.push(promiseToPostItem(currentUnwetter));
+                });
                 try {
                     // wait for all the posts to the database to succeed
                     await Promise.all(arrayOfPromises);
@@ -82,7 +93,25 @@ function saveAndReturnNewUnwetterFromDWD() {
     });
 }
 
-
+/**
+ * Groups an array of objects by a given key (attribute)
+ * @param xs - array which is to be grouped
+ * @param key - attribute by which the objects are grouped
+ * @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
+ * @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
+ */
+function groupByArray(xs, key) {
+    return xs.reduce(function (rv, x) {
+        let v = key instanceof Function ? key(x) : x[key];
+        let el = rv.find((r) => r && r.key === v);
+        if (el) {
+            el.values.push(x);
+        } else {
+            rv.push({key: v, values: [x]});
+        }
+        return rv;
+    }, []);
+}
 
 /**
  * This function calls 'add' with AJAX, to save a given item in the database.
@@ -132,13 +161,10 @@ function promiseToPostItem(item) {
  * This function calls 'db/' with AJAX, to retrieve all items that comply to the given query in the database.
  * The logic is wrapped in a promise to make it possible to await it (see saveAndReturnNewUnwetterFromDWD for an example
  * of await).
- * ATTENTION: currently this function does not support the query, but will instead just return all items of the type
- * "Unwetter".
  * @author Paula Scharf, matr.: 450334
  * @param {Object} query
  * @example getAllItems({type: "Unwetter"})
  */
-// TODO: implement the query
 function promiseToGetAllItems(query) {
     return new Promise((resolve, reject) => {
         $.ajax({

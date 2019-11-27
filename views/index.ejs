@@ -4,34 +4,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>TwittStorm</title>
-  <link rel="stylesheet" type="text/css" href="/css/project.css">
-  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/mapbox/mapbox-gl.css"/>
-  <link rel="stylesheet" href="/mapbox-draw/mapbox-gl-draw.css"/>
+    <title>TwittStorm</title>
+    <link rel="stylesheet" type="text/css" href="/css/project.css">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/mapbox/mapbox-gl.css"/>
+    <link rel="stylesheet" href="/mapbox-draw/mapbox-gl-draw.css"/>
 </head>
 
-<body onload = "showMap()">
+<body onload = "showMap('mapbox://styles/mapbox/satellite-v9')">
 
-  <!-- navbar -->
-  <%- include('partial/navbar', {active: "home"}); %>
+<!-- navbar -->
+<%- include('partial/navbar', {active: "home"}); %>
 
-  <main>
+<main>
+    <!-- layer selection menu -->
+
+    <div id="menu" style="display:none"></div>
+
+    <!-- button to open up the menu -->
+
+    <nav id="menuButton" class="container" onclick="openMenu(this)" title="Change Layers">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+    </nav>
+
     <!-- map -->
-    <div class="container-fluid">
-      <div id="map" style="width: 100%; height: 700px;"></div>
-    </div>
 
     <div class="container-fluid">
-      <input type="text" id="Twittwall"> Name of Route</input>
+        <div id="map" style="width: 100%; height: 700px;"></div>
     </div>
-  </main>
 
-  <!-- footer -->
-  <%- include('partial/footer'); %>
+    <div id='map'></div>
+
+    <!-- Style Selector -->
+    <div class="switch-field" id='styleMenu'>
+        <input id='satellite-v9' type='radio' name='switch-two' value='satellite' checked='checked'>
+        <label for='satellite-v9'>Satellite</label>
+        <br>
+        <input id='navigation-guidance-day-v4' type='radio' name='switch-two' value='streets'>
+        <label for='navigation-guidance-day-v4'>Streets</label>
+    </div>
+
+</main>
+
+<!-- footer -->
+<%- include('partial/footer'); %>
 
 </body>
 </html>
@@ -41,7 +62,9 @@
 <script src="/bootstrap/js/bootstrap.js"></script>
 <script src="/mapbox/mapbox-gl.js"></script>
 <script src="/mapbox-draw/mapbox-gl-draw.js"></script>
+<script src="/turf/turf/turf.min.js"></script>
 
+<script src="/javascripts/smallest-enclosing-circle.js"></script>
 <script src="/javascripts/DWDUnwetterProcessing.js"></script>
 <script src="/javascripts/twitterProcessing.js"></script>
 <script src="/javascripts/mapbox.js"></script>
