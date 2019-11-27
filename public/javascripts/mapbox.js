@@ -4,9 +4,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 // please put in your own tokens at ???
 
@@ -25,16 +25,20 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxb
 // refers to the layer menu
 var layers = document.getElementById('menu');
 
+let map;
+
+let customLayerIds = [];
+
 // ******************************** functions **********************************
 
 /**
-* @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
-* and all Unwetter that are stored in the database. For each Unwetter, it provides an onclick-popup with a
-* description and its period of validity. Uses mapbox-gl-draw to enable drawing polygons in this map.
-* ...... TWEETS-AUFRUF ERWÄHNEN ......
-* This function is called, when "index.ejs" is loaded.
-* @author Katharina Poppinga
-*/
+ * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
+ * and all Unwetter that are stored in the database. For each Unwetter, it provides an onclick-popup with a
+ * description and its period of validity. Uses mapbox-gl-draw to enable drawing polygons in this map.
+ * ...... TWEETS-AUFRUF ERWÄHNEN ......
+ * This function is called, when "index.ejs" is loaded.
+ * @author Katharina Poppinga
+ */
 function showMap(style) {
 
   //
@@ -50,7 +54,7 @@ function showMap(style) {
   }
 
   // create a new map in the "map"-div
-  const map = new mapboxgl.Map({
+  map = new mapboxgl.Map({
     container: 'map',
     style: style,
     // TODO: basemap durch Nutzer änderbar machen: https://docs.mapbox.com/mapbox-gl-js/example/setstyle/
@@ -99,6 +103,7 @@ function showMap(style) {
         'line-width': 1
       }
     });
+    customLayerIds.push('boundaryGermany');
     // *****************************************************************************
 
     // enable drawing the area-of-interest-polygons
@@ -107,6 +112,7 @@ function showMap(style) {
     // init tweetLayer
     displayTweets(map, tweetEvents[0]);
 
+    // TODO: es dürfen nicht alle Unwetter aus DB angezeigt werden
     //
     requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
 
@@ -164,7 +170,7 @@ function showMap(style) {
 */
 function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
 
-  // ".then" is used here, to ensure that the asynchronos call has finished and a result is available
+  // ".then" is used here, to ensure that the .......... has finished and a result is available
   saveAndReturnNewUnwetterFromDWD()
   //
   .catch(console.error)
@@ -173,17 +179,10 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
 
     // all Unwetter that are stored in the database
     let allUnwetter = result;
+    console.log(result);
 
     // one feature for a Unwetter (could be heavy rain, light snowfall, ...)
     let unwetterFeature;
-
-    // one array for each event-supergroup, will be filled with its corresponding Unwetter-features
-    let rainFeatures = [];
-    let snowfallFeatures = [];
-    let thunderstormFeatures = [];
-    let blackIceFeatures = [];
-    // TODO: allOther später löschen, da nur zum Ausprobieren
-    let allOtherFeatures = [];
 
     let tweetFeatures = [];
 
@@ -197,7 +196,6 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
 
       // TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
 
-      //
       let twitterSearchQuery = {
         geometry: currentUnwetterEvent.geometry,
         searchWords: []
@@ -206,118 +204,85 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
       // FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
       // FALLS JA, DANN FARBEN IN fill-color ANPASSEN
 
-      // if the current Unwetter is of supergroup RAIN ...
-      if ((currentUnwetterEvent.properties.ec_ii >= 61) && (currentUnwetterEvent.properties.ec_ii <= 66)) {
-        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-          // make a GeoJSON Feature out of the current Unwetter
-          unwetterFeature = {
+      let layerID = "undefined";
+      let ii = currentUnwetterEvent.properties.ec_ii;
+      switch(ii) {
+        case (ii >= 61) && (ii <= 66):
+          layerID = "rain";
+          twitterSearchQuery.searchWords.push("Starkregen");
+          break;
+        case (ii >= 70) && (ii <= 78):
+          layerID = "snowfall";
+          twitterSearchQuery.searchWords.push("Schneefall");
+          break;
+        case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
+          layerID = "thunderstorm";
+          twitterSearchQuery.searchWords.push("Gewitter");
+          break;
+        case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
+          layerID = "blackice";
+          twitterSearchQuery.searchWords.push("Blitzeis");
+          break;
+        default:
+          layerID = "other";
+          twitterSearchQuery.searchWords.push("Unwetter");
+          break;
+      }
+      currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+        // make a GeoJSON Feature out of the current Unwetter
+        unwetterFeature = {
+          "type": "FeatureCollection",
+          "features": [{
             "type": "Feature",
             "geometry": currentPolygon,
             "properties": currentUnwetterEvent.properties
-          };
-          // ... add its GeoJSON Feature to the rainFeatures-array
-          rainFeatures.push(unwetterFeature);
-        });
-        twitterSearchQuery.searchWords.push("Starkregen");
-      }
+          }]
+        };
+        displayUnwetterEvents(map, layerID, unwetterFeature, tweetEvents);
+      });
 
-      // if the current Unwetter is of supergroup SNOWFALL ...
-      else if ((currentUnwetterEvent.properties.ec_ii >= 70) && (currentUnwetterEvent.properties.ec_ii <= 78)) {
-        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-          // make a GeoJSON Feature out of the current Unwetter
-          unwetterFeature = {
-            "type": "Feature",
-            "geometry": currentPolygon,
-            "properties": currentUnwetterEvent.properties
-          };
-          // ... add its GeoJSON Feature to the snowfallFeatures-array
-          snowfallFeatures.push(unwetterFeature);
-        });
-        twitterSearchQuery.searchWords.push("Schneefall");
-      }
 
-      // if the current Unwetter is of supergroup THUNDERSTORM ..
-      else if (((currentUnwetterEvent.properties.ec_ii >= 31) && (currentUnwetterEvent.properties.ec_ii <= 49)) || ((currentUnwetterEvent.properties.ec_ii >= 90) && (currentUnwetterEvent.properties.ec_ii <= 96))) {
-        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-          // make a GeoJSON Feature out of the current Unwetter
-          unwetterFeature = {
-            "type": "Feature",
-            "geometry": currentPolygon,
-            "properties": currentUnwetterEvent.properties
-          };
-          // ... add its GeoJSON Feature to the thunderstormFeatures-array
-          thunderstormFeatures.push(unwetterFeature);
-        });
-        twitterSearchQuery.searchWords.push("Gewitter");
-      }
-
-      // if the current Unwetter is of supergroup BLACKICE ..
-      else if ((currentUnwetterEvent.properties.ec_ii === 24) || ((currentUnwetterEvent.properties.ec_ii >= 84) && (currentUnwetterEvent.properties.ec_ii <= 87))) {
-        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-          // make a GeoJSON Feature out of the current Unwetter
-          unwetterFeature = {
-            "type": "Feature",
-            "geometry": currentPolygon,
-            "properties": currentUnwetterEvent.properties
-          };
-          // ... add its GeoJSON Feature to the blackIceFeatures-array
-          blackIceFeatures.push(unwetterFeature);
-        });
-        twitterSearchQuery.searchWords.push("Blitzeis");
-      }
-
-      // TODO: später löschen, da nur zum Ausprobieren
-      // alle anderen Unwetter-Event-Typen:
-      else {
-        currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-          // make a GeoJSON Feature out of the current Unwetter
-          unwetterFeature = {
-            "type": "Feature",
-            "geometry": currentPolygon,
-            "properties": currentUnwetterEvent.properties
-          };
-          // ... add its GeoJSON Feature to the allOtherFeatures-array
-          allOtherFeatures.push(unwetterFeature);
-        });
-        twitterSearchQuery.searchWords.push("Unwetter");
-      }
-
-      /*
       //
       saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id)
       //
-      .catch(console.error)
-      //
-      .then(function (result) {
-      try {
-      result.forEach(function (item) {
-      if (item.location_actual !== null) {
-      let tweetFeature = {
-      "type": "Feature",
-      "geometry": item.location_actual,
-      "properties": item
-    };
-    tweetFeatures.push(tweetFeature);
-  }
-});
-if (tweetFeatures.length > 0) {
-let tweetFeaturesGeoJSON = {
-"type": "FeatureCollection",
-"features": tweetFeatures
-};
-map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
-}
-} catch {
-console.log("there was an error while processing the tweets from the database");
-// TODO: error catchen und dann hier auch den error ausgeben?
-}
-}, function (reason) {
-console.dir(reason);
-});
-*/
+          .catch(console.error)
+          //
+          .then(function (result) {
+            try {
+              result.forEach(function (item) {
+                if (item.location_actual !== null) {
+                  let tweetFeature = {
+                    "type": "Feature",
+                    "geometry": item.location_actual,
+                    "properties": item
+                  };
+                  tweetFeatures.push(tweetFeature);
+                }
+              });
+              if (tweetFeatures.length > 0) {
+                let tweetFeaturesGeoJSON = {
+                  "type": "FeatureCollection",
+                  "features": tweetFeatures
+                };
+                map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
+              }
+            } catch {
+              console.log("there was an error while processing the tweets from the database");
+              // TODO: error catchen und dann hier auch den error ausgeben?
+            }
+          }, function (reason) {
+            console.dir(reason);
+          });
+    }
 
+    //
+  }, function(err) {
+    console.log(err);
+  });
 }
 
+
+// TODO: folgendes in einer Funktion unterbringen:
 
 // ************************ adding the functionality for toggeling the different layers *************************
 // For creating the layermenu
@@ -360,67 +325,6 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
 }
 
 
-// *************************************************************************************************************
-// TODO: folgendes evtl. auch modularisieren
-// make one GeoJSON-FeatureCollection for every supergroup-event-type and display its Unwetter-events in the map:
-//
-if (rainFeatures.length !== 0) {
-  //
-  var rainFeaturesGeoJSON = {
-    "type": "FeatureCollection",
-    "features": rainFeatures
-  };
-  displayUnwetterEvents(map, unwetterEvents[0], rainFeaturesGeoJSON, tweetEvents);
-}
-
-//
-if (snowfallFeatures.length !== 0) {
-  //
-  var snowfallFeaturesGeoJSON = {
-    "type": "FeatureCollection",
-    "features": snowfallFeatures
-  };
-  displayUnwetterEvents(map, unwetterEvents[1], snowfallFeaturesGeoJSON, tweetEvents);
-}
-
-//
-if (thunderstormFeatures.length !== 0) {
-  //
-  var thunderstormFeaturesGeoJSON = {
-    "type": "FeatureCollection",
-    "features": thunderstormFeatures
-  };
-  displayUnwetterEvents(map, unwetterEvents[2], thunderstormFeaturesGeoJSON, tweetEvents);
-}
-
-//
-if (blackIceFeatures.length !== 0) {
-  //
-  var blackIceFeaturesGeoJSON = {
-    "type": "FeatureCollection",
-    "features": blackIceFeatures
-  };
-  displayUnwetterEvents(map, unwetterEvents[3], blackIceFeaturesGeoJSON, tweetEvents);
-}
-
-// TODO: später löschen, da nur zum Ausprobieren
-//
-if (allOtherFeatures.length !== 0) {
-  //
-  var allOtherFeaturesGeoJSON = {
-    "type": "FeatureCollection",
-    "features": allOtherFeatures
-  };
-  displayUnwetterEvents(map, unwetterEvents[4], allOtherFeaturesGeoJSON, tweetEvents);
-}
-
-// *************************************************************************************************************
-
-//
-}, function(err) {
-  console.log(err);
-});
-}
 
 
 
@@ -436,99 +340,108 @@ if (allOtherFeatures.length !== 0) {
 */
 function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection, tweetEvents) {
 
-  // add the given Unwetter-event as a source to the map
-  map.addSource(layerID, {
-    type: 'geojson',
-    data: unwetterEventFeatureCollection
-  });
+//
+  let source = map.getSource(layerID);
+  if (typeof source !== 'undefined') {
+    let data = JSON.parse(JSON.stringify(source._data));
+    data.features = data.features.concat(unwetterEventFeatureCollection.features);
+    source.setData(data);
+  } else {
+    // add the given Unwetter-event as a source to the map
+    map.addSource(layerID, {
+      type: 'geojson',
+      data: unwetterEventFeatureCollection
+    });
 
-  // TODO: Farben anpassen und stattdessen über ec_ii mit Ziffern unterscheiden?
-  // TODO: Farbdarstellungs- und -unterscheidungsprobleme, wenn mehrere Polygone sich überlagern
-  // add the given Unwetter-event as a layer to the map
-  map.addLayer({
-    "id": layerID,
-    "type": "fill",
-    "source": layerID,
-    "layout": {"visibility" :"visible"},
-    "paint": {
-      "fill-color": [
-        "match", ["string", ["get", "event"]],
-        "FROST",
-        "grey",
-        "GLÄTTE",
-        "white",
-        "GLATTEIS",
-        "white",
-        "NEBEL",
-        "grey",
-        "WINDBÖEN",
-        "light blue",
-        "GEWITTER",
-        "red",
-        "STARKES GEWITTER",
-        "red",
-        "SCHWERES GEWITTER",
-        "red",
-        "SCHWERES GEWITTER mit ORKANBÖEN",
-        "red",
-        "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
-        "red",
-        "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
-        "red",
-        "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
-        "red",
-        "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
-        "red",
-        "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
-        "red",
-        "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-        "red",
-        "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-        "red",
-        "EXTREMES GEWITTER",
-        "red",
-        "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
-        "red",
-        "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
-        "red",
-        "STARKREGEN",
-        "blue",
-        "HEFTIGER STARKREGEN",
-        "blue",
-        "DAUERREGEN",
-        "blue",
-        "ERGIEBIGER DAUERREGEN",
-        "blue",
-        "EXTREM ERGIEBIGER DAUERREGEN",
-        "blue",
-        "EXTREM HEFTIGER STARKREGEN",
-        "blue",
-        "LEICHTER SCHNEEFALL",
-        "yellow",
-        "SCHNEEFALL",
-        "yellow",
-        "STARKER SCHNEEFALL",
-        "yellow",
-        "EXTREM STARKER SCHNEEFALL",
-        "yellow",
-        "SCHNEEVERWEHUNG",
-        "yellow",
-        "STARKE SCHNEEVERWEHUNG",
-        "yellow",
-        "SCHNEEFALL und SCHNEEVERWEHUNG",
-        "yellow",
-        "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-        "yellow",
-        "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-        "yellow",
-        "black" // sonstiges Event
-        // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
-        // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
-      ],
-      "fill-opacity": 0.4
-    }
+    // TODO: Farben anpassen und stattdessen über ec_ii mit Ziffern unterscheiden?
+    // TODO: Farbdarstellungs- und -unterscheidungsprobleme, wenn mehrere Polygone sich überlagern
+    // add the given Unwetter-event as a layer to the map
+    map.addLayer({
+      "id": layerID,
+      "type": "fill",
+      "source": layerID,
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-color": [
+          "match", ["string", ["get", "event"]],
+          "FROST",
+          "grey",
+          "GLÄTTE",
+          "white",
+          "GLATTEIS",
+          "white",
+          "NEBEL",
+          "grey",
+          "WINDBÖEN",
+          "light blue",
+          "GEWITTER",
+          "red",
+          "STARKES GEWITTER",
+          "red",
+          "SCHWERES GEWITTER",
+          "red",
+          "SCHWERES GEWITTER mit ORKANBÖEN",
+          "red",
+          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
+          "red",
+          "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
+          "red",
+          "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
+          "red",
+          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
+          "red",
+          "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "EXTREMES GEWITTER",
+          "red",
+          "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "STARKREGEN",
+          "blue",
+          "HEFTIGER STARKREGEN",
+          "blue",
+          "DAUERREGEN",
+          "blue",
+          "ERGIEBIGER DAUERREGEN",
+          "blue",
+          "EXTREM ERGIEBIGER DAUERREGEN",
+          "blue",
+          "EXTREM HEFTIGER STARKREGEN",
+          "blue",
+          "LEICHTER SCHNEEFALL",
+          "yellow",
+          "SCHNEEFALL",
+          "yellow",
+          "STARKER SCHNEEFALL",
+          "yellow",
+          "EXTREM STARKER SCHNEEFALL",
+          "yellow",
+          "SCHNEEVERWEHUNG",
+          "yellow",
+          "STARKE SCHNEEVERWEHUNG",
+          "yellow",
+          "SCHNEEFALL und SCHNEEVERWEHUNG",
+          "yellow",
+          "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+          "yellow",
+          "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+          "yellow",
+          "black" // sonstiges Event
+          // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
+          // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
+        ],
+        "fill-opacity": 0.3
+      }
+    }, tweetEvents[0]);
     //
-  }, tweetEvents[0]);
+    customLayerIds.push(layerID);
+  }
   // https://github.com/mapbox/mapbox-gl-js/issues/908#issuecomment-254577133
   // https://docs.mapbox.com/help/how-mapbox-works/map-design/#data-driven-styles
   // https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/
@@ -573,17 +486,18 @@ function displayTweets(map, layerID) {
       "visibility" : "visible"
     }
   });
+  customLayerIds.push(layerID);
 }
 
 
 /**
-* WIP
-* This function could be used to assign colors to different types of weather events. It is currently not used.
-* @author Paula Scharf, matr.: 450334
-* @param group - name of the ec_group of Unwetter
-* @returns {string}
-* @example assignColor("FROST")
-*/
+ * WIP
+ * This function could be used to assign colors to different types of weather events. It is currently not used.
+ * @author Paula Scharf, matr.: 450334
+ * @param group - name of the ec_group of Unwetter
+ * @returns {string}
+ * @example assignColor("FROST")
+ */
 /*function assignColor(group) {
 switch (group) {
 case "THUNDERSTORM":
@@ -635,13 +549,13 @@ break;
 
 
 /**
-* @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
-* The popup gives information about the period of validity and a description of the warning.
-* @author Katharina Poppinga
-* @private
-* @param {mapbox-map} map map in which the Unwetter-features are in
-* @param {Object} e ...
-*/
+ * @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
+ * The popup gives information about the period of validity and a description of the warning.
+ * @author Katharina Poppinga
+ * @private
+ * @param {mapbox-map} map map in which the Unwetter-features are in
+ * @param {Object} e ...
+ */
 function showUnwetterPopup(map, e) {
 
   // get information about the feature on which it was clicked
@@ -651,17 +565,17 @@ function showUnwetterPopup(map, e) {
   if (pickedUnwetter[0].properties.instruction !== "null") {
     // ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
     new mapboxgl.Popup()
-    .setLngLat(e.lngLat)
-    .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + pickedUnwetter[0].properties.onset + "<br><b>expires: </b>" + pickedUnwetter[0].properties.expires + "<br>" + pickedUnwetter[0].properties.instruction)
-    .addTo(map);
+        .setLngLat(e.lngLat)
+        .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + pickedUnwetter[0].properties.onset + "<br><b>expires: </b>" + pickedUnwetter[0].properties.expires + "<br>" + pickedUnwetter[0].properties.instruction)
+        .addTo(map);
   }
   // if a instruction is not given by the DWD ...
   else {
     // ... create a popup with above information without an instruction
     new mapboxgl.Popup()
-    .setLngLat(e.lngLat)
-    .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + pickedUnwetter[0].properties.onset + "<br><b>expires: </b>" + pickedUnwetter[0].properties.expires)
-    .addTo(map);
+        .setLngLat(e.lngLat)
+        .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + pickedUnwetter[0].properties.onset + "<br><b>expires: </b>" + pickedUnwetter[0].properties.expires)
+        .addTo(map);
   }
 }
 
@@ -691,13 +605,13 @@ function showTweetPopup(map, e) {
 
 
 /**
-* @desc Enables drawing polygons in a map, using mapbox-gl-draw.
-* Drawn polygons can be edited and deleted.
-* ...... TWITTERWEITERVERARBEITUNG ......
-*
-* @author Katharina Poppinga
-* @param {mapbox-map} map map in which the polygons shall be drawn
-*/
+ * @desc Enables drawing polygons in a map, using mapbox-gl-draw.
+ * Drawn polygons can be edited and deleted.
+ * ...... TWITTERWEITERVERARBEITUNG ......
+ *
+ * @author Katharina Poppinga
+ * @param {mapbox-map} map map in which the polygons shall be drawn
+ */
 function drawForAOI(map) {
 
   // specify and add a control for DRAWING A POLYGON into the map
@@ -769,6 +683,7 @@ function drawForAOI(map) {
 function openMenu(button) {
 
   button.classList.toggle("change");
+  // TODO: warum wird hier button neu definiert?
   button = document.getElementById("menu");
   if (button.style.display === "none") {
     button.style.display = "block";
@@ -786,17 +701,54 @@ var inputs = layerList.getElementsByTagName('input');
 
 
 /**
-* @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
-* @param layer The chosen maplayer style
-* @author Benjamin Rieke
-*/
+ * @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
+ * @param layer - The chosen maplayer style
+ * @author Benjamin Rieke
+ */
 function switchLayer(layer) {
+  const savedLayers = [];
+  const savedSources = {};
+  forEachLayer((layer) => {
+      savedSources[layer.source] = map.getSource(layer.source).serialize();
+      savedLayers.push(layer);
+  });
 
-  // takes the id from the layer and calls the showMap function
+//Takes the id from the layer and calls the showMap function
   var layerId = layer.target.id;
-  showMap('mapbox://styles/mapbox/' + layerId);
+  map.setStyle('mapbox://styles/mapbox/' + layerId);
+
+  setTimeout(() => {
+    Object.entries(savedSources).forEach(([id, source]) => {
+      if (typeof map.getSource(id) === 'undefined') {
+        map.addSource(id, source);
+      }
+    });
+
+    savedLayers.forEach((layer) => {
+        if (typeof map.getLayer(layer.id) === 'undefined') {
+          map.addLayer(layer);
+        }
+    });
+  }, 1000);
 }
 
+
+
+// TODO: folgendes in eine Funktion schreiben:
 for (var i = 0; i < inputs.length; i++) {
   inputs[i].onclick = switchLayer;
+}
+
+
+/**
+ * Calls a given function (cb) for all layers of the map.
+ * @author Paula Scharf
+ * @param cb - function to perform for each layer
+ */
+function forEachLayer(cb) {
+  map.getStyle().layers.forEach((layer) => {
+    if (!customLayerIds.includes(layer.id)) return;
+
+    cb(layer);
+  });
 }

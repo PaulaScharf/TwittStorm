@@ -26,125 +26,125 @@ function saveAndReturnNewUnwetterFromDWD() {
     $.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson', function (data) {
       // EPSG: 4326
 
-        //
-        let arrayOfUnwetters = [];
+      //
+      let arrayOfUnwetters = [];
 
-        //
-        new Promise((resolve, reject) => {
-          // TODO: umbenennen?
-          // this array will contain all the calls of the function ???
-          let arrayOfPromisesDBCheck = [];
+      //
+      new Promise((resolve, reject) => {
+        // TODO: umbenennen?
+        // this array will contain all the calls of the function ???
+        let arrayOfPromisesDBCheck = [];
 
-          // async call is necessary here to use the await-functionality for checking the database for existing items
-          (async () => {
+        // async call is necessary here to use the await-functionality for checking the database for existing items
+        (async () => {
 
-            //
-            for (let i = data.features.length - 1; i >= 0; i--) {
+          //
+          for (let i = data.features.length - 1; i >= 0; i--) {
 
-              let currentFeature = data.features[i];
+            let currentFeature = data.features[i];
 
-              // TODO: DWD-timestamps in UTC oder MEZ?
+            // TODO: DWD-timestamps in UTC oder MEZ?
 
-              // ONSET is the timestamp that gives the time when the Unwetter-warning begins - it is NOT the timestamp for the moment when the warning was published
-              // make an Epoch-milliseconds-timestamp (out of the ONSET-timestamp given by the DWD)
-              let onset = Date.parse(currentFeature.properties.ONSET);
-              // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
+            // ONSET is the timestamp that gives the time when the Unwetter-warning begins - it is NOT the timestamp for the moment when the warning was published
+            // make an Epoch-milliseconds-timestamp (out of the ONSET-timestamp given by the DWD)
+            let onset = Date.parse(currentFeature.properties.ONSET);
+            // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
 
-              // EXPIRES is the timestamp that gives the time when the Unwetter-warning ends
-              // make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
-              let expires = Date.parse(currentFeature.properties.EXPIRES);
-              // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
+            // EXPIRES is the timestamp that gives the time when the Unwetter-warning ends
+            // make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
+            let expires = Date.parse(currentFeature.properties.EXPIRES);
+            // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
 
-              // the current timestamp in Epoch-milliseconds
-              let currentTimestamp = Date.now();
+            // the current timestamp in Epoch-milliseconds
+            let currentTimestamp = Date.now();
 
 
-              // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
-              // ANSONSTEN CERTAINTY FILTER WEGLASSEN, DAMIT OBSERVED UND LIKELY DRIN SIND
-              // use only the notifications that are actual reports and not just tests
-              if ((currentFeature.properties.STATUS === "Actual") && (onset <= currentTimestamp) && (expires >= currentTimestamp)) {
+            // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
+            // ANSONSTEN CERTAINTY FILTER WEGLASSEN, DAMIT OBSERVED UND LIKELY DRIN SIND
+            // use only the notifications that are actual reports and not just tests
+            if ((currentFeature.properties.STATUS === "Actual") && (onset <= currentTimestamp) && (expires >= currentTimestamp)) {
 
-                // TODO: WEITERE MÖGLICHE FILTER
-                // TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
-                //      allUnwetter[i].properties.RESPONSETYPE
-                //      allUnwetter[i].properties.URGENCY === "Immediate"
-                // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
+              // TODO: WEITERE MÖGLICHE FILTER
+              // TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
+              //      allUnwetter[i].properties.RESPONSETYPE
+              //      allUnwetter[i].properties.URGENCY === "Immediate"
+              // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
 
-                // if the notification of this Unwetter is new and not an existing but only updated one ...
-                if (currentFeature.properties.MSGTYPE === "Alert"){
+              // if the notification of this Unwetter is new and not an existing but only updated one ...
+              if (currentFeature.properties.MSGTYPE === "Alert"){
 
-                  // ... check whether exactly this item is already stored in the database and do only insert it if not
-                  arrayOfPromisesDBCheck.push(checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters));
-                }
+                // ... check whether exactly this item is already stored in the database and do only insert it if not
+                arrayOfPromisesDBCheck.push(checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters));
+              }
 
-                // if the notification of this Unwetter is an existing and only updated one ...
-                else {
+              // if the notification of this Unwetter is an existing and only updated one ...
+              else {
 
-                  // TODO: update this Unwetter in DB??
+                // TODO: update this Unwetter in DB??
 
-                }
               }
             }
-
-            //
-            try {
-              // wait for finished check whether any of the requested Unwetter are already stored in the database
-              await Promise.all(arrayOfPromisesDBCheck);
-
-              //
-              resolve();
-
-            } catch(e) {
-              console.log(e);
-              // TODO: was hier ins reject??
-              reject("hmmm");
-            }
-          })();
-        })
-        //
-        .catch(console.error)
-
-        //
-        .then(function() {
-
-          // ***** formatting the Unwetter which will be inserted into the database afterwards: *****
-
-          // in groupedUnwetters sind nur die NEU HINZUGEFÜGTEN, NICHT ALLE IN DER DB ENTHALTENEN Unwetter drin
-          let groupedUnwetters = groupByArray(arrayOfUnwetters, 'dwd_id');
-
-          groupedUnwetters.forEach(function (item){
-            // TODO: parse und stringify müsste sich doch aufheben?
-            let currentUnwetter = JSON.parse(JSON.stringify(item.values[0]));
-            currentUnwetter.geometry = [];
-
-            for (let i = 0; i < item.values.length; i++) {
-              currentUnwetter.geometry.push(item.values[i].geometry);
-            }
-            arrayOfPromises.push(promiseToPostItem(currentUnwetter));
-          });
-
-          try {
-            // wait for all POSTs to the database to succeed and ...
-            Promise.all(arrayOfPromises)
-            // ... then read all Unwetter out of the database
-            .then(() => {
-              //
-              promiseToGetAllItems({type: "Unwetter"})
-              //
-              .then((result) => {
-                // result contains all Unwetter which are stored in the database, return them by resolving the promise
-                resolve(result);
-              });
-            });
-          } catch(e) {
-            console.log(e);
-            reject("couldnt post all Unwetter");
           }
 
           //
-        }, function(err) {
-          console.log(err);
+          try {
+            // wait for finished check whether any of the requested Unwetter are already stored in the database
+            await Promise.all(arrayOfPromisesDBCheck);
+
+            //
+            resolve();
+
+          } catch(e) {
+            console.log(e);
+            // TODO: was hier ins reject??
+            reject("hmmm");
+          }
+        })();
+      })
+      //
+      .catch(console.error)
+
+      //
+      .then(function() {
+
+        // ***** formatting the Unwetter which will be inserted into the database afterwards: *****
+
+        // in groupedUnwetters sind nur die NEU HINZUGEFÜGTEN, NICHT ALLE IN DER DB ENTHALTENEN Unwetter drin
+        let groupedUnwetters = groupByArray(arrayOfUnwetters, 'dwd_id');
+
+        groupedUnwetters.forEach(function (item){
+          // TODO: parse und stringify müsste sich doch aufheben?
+          let currentUnwetter = JSON.parse(JSON.stringify(item.values[0]));
+          currentUnwetter.geometry = [];
+
+          for (let i = 0; i < item.values.length; i++) {
+            currentUnwetter.geometry.push(item.values[i].geometry);
+          }
+          arrayOfPromises.push(promiseToPostItem(currentUnwetter));
         });
+
+        try {
+          // wait for all POSTs to the database to succeed and ...
+          Promise.all(arrayOfPromises)
+          // ... then read all Unwetter out of the database
+          .then(() => {
+            //
+            promiseToGetAllItems({type: "Unwetter"})
+            //
+            .then((result) => {
+              // result contains all Unwetter which are stored in the database, return them by resolving the promise
+              resolve(result);
+            });
+          });
+        } catch(e) {
+          console.log(e);
+          reject("couldnt post all Unwetter");
+        }
+
+        //
+      }, function(err) {
+        console.log(err);
+      });
     });
   });
 }
@@ -266,10 +266,12 @@ function createUnwetterForDB(currentFeature){
 }
 
 
-// TODO: Quelle in JSDoc einfügen
 /**
-*
-*
+* Groups an array of objects by a given key (attribute)
+* @param xs - array which is to be grouped
+* @param key - attribute by which the objects are grouped
+* @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
+* @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
 */
 function groupByArray(xs, key) {
   return xs.reduce(function (rv, x) {
@@ -337,14 +339,14 @@ function groupByArray(xs, key) {
     * @param {Object} query
     * @example getAllItems({type: "Unwetter"})
     */
-    // TODO: implement the query
     function promiseToGetAllItems(query) {
       return new Promise((resolve, reject) => {
         $.ajax({
           // use a http POST request
           type: "POST",
           // URL to send the request to
-          url: "/db/",
+          url: "db/",
+          //
           data: query,
           // timeout set to 15 seconds
           timeout: 20000

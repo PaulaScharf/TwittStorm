@@ -86,7 +86,6 @@ app.use("/turf", express.static(path.join(__dirname, 'node_modules', '@turf')));
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
 app.use("/R", express.static(path.join(__dirname, 'node_modules', 'r-script', )));
 
-
 // ***************************** mongo-database *******************************
 
 // middleware for making the db connection available via the request object

@@ -36,6 +36,7 @@ router.get("/routes", (req, res) => {
 /* GET items */
 router.post("/", function(req, res) {
   var db = req.db;
+  console.dir(db);
   let query = {};
   for (let key in req.body) {
     if (req.body.hasOwnProperty(key)) {
