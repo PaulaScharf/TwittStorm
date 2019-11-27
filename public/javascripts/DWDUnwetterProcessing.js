@@ -93,7 +93,13 @@ function saveAndReturnNewUnwetterFromDWD() {
     });
 }
 
-
+/**
+ * Groups an array of objects by a given key (attribute)
+ * @param xs - array which is to be grouped
+ * @param key - attribute by which the objects are grouped
+ * @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
+ * @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
+ */
 function groupByArray(xs, key) {
     return xs.reduce(function (rv, x) {
         let v = key instanceof Function ? key(x) : x[key];
@@ -155,13 +161,10 @@ function promiseToPostItem(item) {
  * This function calls 'db/' with AJAX, to retrieve all items that comply to the given query in the database.
  * The logic is wrapped in a promise to make it possible to await it (see saveAndReturnNewUnwetterFromDWD for an example
  * of await).
- * ATTENTION: currently this function does not support the query, but will instead just return all items of the type
- * "Unwetter".
  * @author Paula Scharf, matr.: 450334
  * @param {Object} query
  * @example getAllItems({type: "Unwetter"})
  */
-// TODO: implement the query
 function promiseToGetAllItems(query) {
     return new Promise((resolve, reject) => {
         $.ajax({
