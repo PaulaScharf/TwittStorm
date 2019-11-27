@@ -14,6 +14,25 @@ var express = require('express');
 var router = express.Router();
 const mongodb = require('mongodb');
 
+
+
+// TODO: später löschen!!!
+/* GET routes */
+router.get("/routes", (req, res) => {
+  var db = req.db;
+  // find all
+  db.collection('item').find({}).toArray((error, result) => {
+    if(error){
+      console.dir(error);
+    }
+    res.json(result);
+  });
+});
+
+
+
+
+
 /* GET items */
 router.post("/", function(req, res) {
   var db = req.db;
@@ -40,6 +59,32 @@ router.post("/", function(req, res) {
     }
   });
 });
+
+
+/* GET one item */
+router.post("/readItem", function(req, res) {
+
+  // find item with given ID
+  req.db.collection('item').findOne({
+    "dwd_id" : req.body.dwd_id,
+  }, (error, result) => {
+
+    if (error){
+      // give a notice, that reading all items has failed and show the error on the console
+      console.log("Failure in reading one item from 'item'.", error);
+      // in case of an error while reading, do routing to "error.ejs"
+      res.render('error');
+      // if no error occurs ...
+    } else {
+      // ... give a notice, that the reading has succeeded and show the result on the console
+      console.log("Successfully read one item from 'item'.");
+      // ... and send the result to the ajax request
+      res.send(result);
+    }
+  });
+});
+
+
 
 
 /* POST to add items. */
@@ -73,7 +118,7 @@ router.delete("/delete", (req, res) => {
   db.collection('item').deleteOne({_id:objectId}, (error, result) => {
     if(error){
       // give a notice, that the deleting has failed and show the error on the console
-      console.log("Failure while deleting an encounter from 'routeDB'.", error);
+      console.log("Failure while deleting an item from 'item'.", error);
       // in case of an error while deleting, do routing to "error.ejs"
       res.render('error');
       // if no error occurs ...
@@ -84,6 +129,7 @@ router.delete("/delete", (req, res) => {
     }
   });
 });
+
 
 /* PUT item */
 router.put("/update", (req, res) => {

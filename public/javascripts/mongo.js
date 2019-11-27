@@ -8,15 +8,15 @@ R("ex-async.R")
   if (err) throw err;
   console.log(d);
 });
-
-
+*/
+/*
 $.get("https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.1.0&request=GetMap&layers=dwd%3AFX-Produkt&bbox=-523.462%2C-4658.645%2C376.538%2C-3758.645&width=767&height=768&srs=EPSG%3A1000001&format=image%2Fpng", function(data) {
   console.log("got wms png");
   //TODO move to users.js
   var buf = Buffer.from(data);
   console.log(buf);
 });
-
+*/
 // ############ show content of local instance of mongoDB #########
 // on DOM ready
 $(document).ready(function() {
@@ -28,7 +28,7 @@ function showRoutes() {
   var tableContent = "";
 
   //get JSON
-  $.getJSON('/users/routes', function(data) {
+  $.getJSON('/db/routes', function(data) {
     routesArray = data;
     console.log(data);
     $.each(data, function(index) {
@@ -49,7 +49,7 @@ function deleteRoute(event) {
 
     $.ajax({
       type: 'DELETE',
-      url: '/users/deleteroute/' + $(this).attr('rel')
+      url: '/db/delete' + $(this).attr('rel')
     }).done(function(response) {
       if(response.msg === '') {
         alert('done!');
@@ -90,4 +90,3 @@ function createRouteButton() {
     }
   });
 }
-*/

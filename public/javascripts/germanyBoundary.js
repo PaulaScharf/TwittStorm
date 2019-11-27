@@ -1,4 +1,4 @@
-// jshint esversion: 6
+// jshint esversion: 8
 // jshint maxerr: 1000
 
 "use strict";  // JavaScript code is executed in "strict mode"
