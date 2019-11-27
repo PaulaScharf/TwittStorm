@@ -43,20 +43,19 @@ function saveAndReturnNewUnwetterFromDWD() {
 
             let currentFeature = data.features[i];
 
-            // TODO: DWD-timestamps in UTC oder MEZ?
+            // timestamps are given by DWD as UTC
 
             // ONSET is the timestamp that gives the time when the Unwetter-warning begins - it is NOT the timestamp for the moment when the warning was published
             // make an Epoch-milliseconds-timestamp (out of the ONSET-timestamp given by the DWD)
             let onset = Date.parse(currentFeature.properties.ONSET);
-            // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
 
             // EXPIRES is the timestamp that gives the time when the Unwetter-warning ends
             // make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
             let expires = Date.parse(currentFeature.properties.EXPIRES);
-            // TODO: Umrechnung in Zeitzone von Date.now fehlt noch!!
 
-            // the current timestamp in Epoch-milliseconds
+            // the current timestamp in Epoch-milliseconds (Greenwich - UTC, therefore compatible with DWD-timestamps)
             let currentTimestamp = Date.now();
+
 
 
             // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
@@ -96,8 +95,8 @@ function saveAndReturnNewUnwetterFromDWD() {
 
           } catch(e) {
             console.log(e);
-            // TODO: was hier ins reject??
-            reject("hmmm");
+            // TODO: e im reject möglich?
+            reject(e);
           }
         })();
       })
@@ -226,6 +225,7 @@ function checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters){
 
 /**
 *
+* timestamps will be inserted in Epoch milliseconds (UTC)
 *
 * FORM WIRD VOR DEM INSERTEN GGFS NOCH VERÄNDERT DURCH GRUPPIERUNG NACH DWD_ID
 * @author Paula Scharf, Katharina Poppinga
@@ -235,6 +235,18 @@ function createUnwetterForDB(currentFeature){
   //
   let area_color = (currentFeature.properties.EC_AREA_COLOR).split(' ').map(Number);
   let color = rgbToHex(area_color[0], area_color[1], area_color[2]);
+
+  // convert the DWD-timestamps to Epoch milliseconds (UTC)
+  let sent = Date.parse(currentFeature.properties.SENT);
+  let onset = Date.parse(currentFeature.properties.ONSET);
+  let effective = Date.parse(currentFeature.properties.EFFECTIVE);
+  let expires = Date.parse(currentFeature.properties.EXPIRES);
+  //let sent = Date.parse(currentFeature.properties.SENT) + 3600000;
+  //let onset = Date.parse(currentFeature.properties.ONSET) + 3600000;
+  //let effective = Date.parse(currentFeature.properties.EFFECTIVE) + 3600000;
+  //let expires = Date.parse(currentFeature.properties.EXPIRES) + 3600000;
+
+  //
   let currentUnwetter = {
     type: "Unwetter",
     dwd_id: currentFeature.properties.IDENTIFIER,
@@ -244,19 +256,19 @@ function createUnwetterForDB(currentFeature){
       ec_Group: currentFeature.properties.EC_GROUP,
       event: currentFeature.properties.EVENT,
       ec_ii: currentFeature.properties.EC_II,
-      name: currentFeature.properties.EVENT,
       responseType: currentFeature.properties.RESPONSETYPE,
       urgency: currentFeature.properties.URGENCY,
       severity: currentFeature.properties.SEVERITY,
+      // TODO: was ist Parameter? Wozu?
       parameter: currentFeature.properties.Parameter,
       certainty: currentFeature.properties.CERTAINTY,
       description: currentFeature.properties.DESCRIPTION,
       instruction: currentFeature.properties.INSTRUCTION,
       color: color,
-      sent: currentFeature.properties.SENT,
-      onset: currentFeature.properties.ONSET,
-      effective: currentFeature.properties.EFFECTIVE,
-      expires: currentFeature.properties.EXPIRES,
+      sent: sent,
+      onset: onset,
+      effective: effective,
+      expires: expires,
       altitude: currentFeature.properties.ALTITUDE,
       ceiling: currentFeature.properties.CEILING
     }

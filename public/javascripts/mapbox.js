@@ -209,7 +209,7 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
       switch(ii) {
         case (ii >= 61) && (ii <= 66):
           layerID = "rain";
-          twitterSearchQuery.searchWords.push("Starkregen");
+          twitterSearchQuery.searchWords.push("Starkregen", "Dauerregen");
           break;
         case (ii >= 70) && (ii <= 78):
           layerID = "snowfall";
@@ -221,11 +221,13 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
           break;
         case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
           layerID = "blackice";
-          twitterSearchQuery.searchWords.push("Blitzeis");
+          twitterSearchQuery.searchWords.push("Blitzeis", "Glätte", "Glatteis");
           break;
+          // TODO: alles für layer other später löschen
         default:
           layerID = "other";
-          twitterSearchQuery.searchWords.push("Unwetter");
+          // layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
+          twitterSearchQuery.searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
           break;
       }
       currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
@@ -240,6 +242,7 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
         };
         displayUnwetterEvents(map, layerID, unwetterFeature, tweetEvents);
       });
+
 
 
       //
@@ -273,8 +276,10 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
           }, function (reason) {
             console.dir(reason);
           });
-    }
 
+
+
+    }
     //
   }, function(err) {
     console.log(err);
@@ -547,6 +552,7 @@ break;
 */
 
 
+// TODO: Popups scrollbar machen oder enthaltenen Text kürzen??
 
 /**
  * @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
@@ -561,12 +567,14 @@ function showUnwetterPopup(map, e) {
   // get information about the feature on which it was clicked
   var pickedUnwetter = map.queryRenderedFeatures(e.point);
 
+  // TODO: Sommerzeit im Sommer??
+
   // if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
   if (pickedUnwetter[0].properties.instruction !== "null") {
-    // ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
+    // ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
     new mapboxgl.Popup()
         .setLngLat(e.lngLat)
-        .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + pickedUnwetter[0].properties.onset + "<br><b>expires: </b>" + pickedUnwetter[0].properties.expires + "<br>" + pickedUnwetter[0].properties.instruction)
+        .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + new Date(pickedUnwetter[0].properties.onset) + "<br><b>expires: </b>" + new Date(pickedUnwetter[0].properties.expires) + "<br>" + pickedUnwetter[0].properties.instruction)
         .addTo(map);
   }
   // if a instruction is not given by the DWD ...
@@ -574,7 +582,7 @@ function showUnwetterPopup(map, e) {
     // ... create a popup with above information without an instruction
     new mapboxgl.Popup()
         .setLngLat(e.lngLat)
-        .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + pickedUnwetter[0].properties.onset + "<br><b>expires: </b>" + pickedUnwetter[0].properties.expires)
+        .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + new Date(pickedUnwetter[0].properties.onset) + "<br><b>expires: </b>" + new Date(pickedUnwetter[0].properties.expires))
         .addTo(map);
   }
 }
