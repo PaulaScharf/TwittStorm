@@ -277,54 +277,52 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
 
 
     }
+    // TODO: folgendes in einer Funktion unterbringen:
+
+// ************************ adding the functionality for toggeling the different layers *************************
+// For creating the layermenu
+
+// for every mentioned layer
+    for (var i = 0; i < customLayerIds.length; i++) {
+      var id = customLayerIds[i];
+      debugger;
+
+      // create an element for the menu
+      var link = document.createElement('a');
+      link.href = '#';
+      link.className = 'active';
+      link.textContent = id;
+
+      // on click show the menu if it is not visible and hide it if it is visible
+      link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        // set visibility
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        // if the layer is visible hide it
+        if (visibility === 'visible') {
+          map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+          this.className = '';
+        }
+        // if not show it
+        else {
+          this.className = 'active';
+          map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+        }
+      };
+
+      // add the layers to the menu
+      layers.appendChild(link);
+    }
     //
   }, function(err) {
     console.log(err);
   });
 }
 
-
-// TODO: folgendes in einer Funktion unterbringen:
-
-// ************************ adding the functionality for toggeling the different layers *************************
-// For creating the layermenu
-//Change the layers, that are supposed to be toggleable
-var toggleableLayerIds = [ "rain", "snowfall", "thunderstorm", "blackIce", "other", 'tweet' ];
-
-// for every mentioned layer
-for (var i = 0; i < toggleableLayerIds.length; i++) {
-  var id = toggleableLayerIds[i];
-
-  // create an element for the menu
-  var link = document.createElement('a');
-  link.href = '#';
-  link.className = 'active';
-  link.textContent = id;
-
-  // on click show the menu if it is not visible and hide it if it is visible
-  link.onclick = function (e) {
-    var clickedLayer = this.textContent;
-    e.preventDefault();
-    e.stopPropagation();
-
-    // set visibility
-    var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-
-    // if the layer is visible hide it
-    if (visibility === 'visible') {
-      map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-      this.className = '';
-    }
-    // if not show it
-    else {
-      this.className = 'active';
-      map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-    }
-  };
-
-  // add the layers to the menu
-  layers.appendChild(link);
-}
 
 
 
