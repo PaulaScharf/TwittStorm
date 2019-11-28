@@ -95,9 +95,8 @@ function showMap(style) {
       },
       'layout': { // TODO: nachlesen, ob layout hier nötig: https://docs.mapbox.com/mapbox-gl-js/style-spec/#types-layout
         'line-join': 'round',
-        'line-cap': 'round'
+        'line-cap': 'round',
         'visibility': 'visible'
-
       },
       'paint': {
         // TODO: passende Farbe aussuchen und bei basemap-Änderung anpassen
