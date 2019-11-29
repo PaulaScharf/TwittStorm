@@ -16,7 +16,7 @@
  * @param {string} unwetterID
  * @returns {Promise<any>}
  */
-function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
+function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEvent) {
   return new Promise((resolve, reject) => {
     // this array will contain all the calls of the function "promiseToPostItem"
     let arrayOfPromises = [];
@@ -80,7 +80,10 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
                   },
                   timestamp: currentFeature.created_at,
                   location_actual: currentFeature.coordinates,
-                  unwetter: unwetterID
+                  unwetter: {
+                    id: unwetterID,
+                    event: unwetterEvent
+                  }
                 };
                 arrayOfPromises.push(promiseToPostItem(currentStatus));
               }
