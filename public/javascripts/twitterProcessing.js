@@ -37,7 +37,9 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
     let multilineString = turf.multilinestring(twitterSearchQuery.geometry[0].coordinates[0]);
     let bbox = turf.bbox(multiLineString);
     */
-    let enclosingCircleAsString = "" + enclosingCircle.x + "," + enclosingCircle.y + "," + enclosingCircle.r + "km";
+    let enclosingCircleAsString = "" + (Math.ceil(enclosingCircle.y * 10000000) / 10000000)
+        + "," + (Math.ceil(enclosingCircle.x * 10000000) / 10000000)
+        + "," + Math.ceil(enclosingCircle.r) + "km";
     let searchQuery = {
       q: searchTerm,
       geocode: enclosingCircleAsString,
@@ -65,8 +67,8 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID) {
             let currentFeature = response.statuses[i];
             if (currentFeature.coordinates) {
               let tweetLocation = turf.point(currentFeature.coordinates.coordinates);
-              let multiPolygon = turf.multiPolygon(twitterSearchQuery.geometry[0].coordinates[0]);
-              if (turf.booleanPointInPolygon(tweetLocation, multiPolygon)) {
+              let polygon = turf.polygon(twitterSearchQuery.geometry[0].coordinates[0]);
+              if (turf.booleanPointInPolygon(tweetLocation, polygon)) {
                 let currentStatus = {
                   type: "Tweet",
                   id: currentFeature.id,

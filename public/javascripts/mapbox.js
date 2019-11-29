@@ -44,10 +44,6 @@ function showMap(style) {
   //
   removeOldUnwetterFromDB();
 
-  // an Array containing all supergroups of events, they will be used as layerIDs for the map
-  let unwetterEvents = ["rain", "snowfall", "thunderstorm", "blackIce", "other"]; // have to be a Strings because addSource() needs a String for the layerID
-  let tweetEvents = ["tweet"];
-
   // Checks if the layer menu DOM is empty and if not flushes the dom
   while (layers.firstChild) {
     layers.removeChild(layers.firstChild);
@@ -110,12 +106,9 @@ function showMap(style) {
     // enable drawing the area-of-interest-polygons
     drawForAOI(map);
 
-    // init tweetLayer
-    displayTweets(map, tweetEvents[0]);
-
     // TODO: es dürfen nicht alle Unwetter aus DB angezeigt werden
     //
-    requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
+    requestNewAndDisplayAllUnwetter(map);
 
 
     // TODO: VARIABLEN VORHER DEFINIEREN, DAMIT Error: There is already a source with this ID VERMIEDEN WIRD!!
@@ -127,35 +120,6 @@ function showMap(style) {
     // TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 
 
-    // TODO: popups für tweets
-    let events = unwetterEvents.concat(tweetEvents);
-    // loop over all event-supergroups(names)
-    for (let i = 0; i < events.length; i++) {
-
-      // map.on: 2nd parameter is the layerID
-
-      // ************************ changing of curser style ***********************
-      // https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
-      // if hovering the layer, change the cursor to a pointer
-      map.on('mouseenter', events[i], function() {
-        map.getCanvas().style.cursor = 'pointer';
-      });
-      // if leaving the layer, change the cursor back to a hand
-      map.on('mouseleave', events[i], function() {
-        map.getCanvas().style.cursor = '';
-      });
-
-      // ************************ showing popups on click ************************
-      // TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
-      // TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
-      map.on('click', events[i], function(e){
-        if (events[i] === "tweet") {
-          showTweetPopup(map, e);
-        } else {
-          showUnwetterPopup(map, e);
-        }
-      });
-    }
   });
 }
 
@@ -168,7 +132,7 @@ function showMap(style) {
 * @param {Array} unwetterEvents
 * @param {Array} tweetEvents
 */
-function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
+function requestNewAndDisplayAllUnwetter(map){
 
   // ".then" is used here, to ensure that the .......... has finished and a result is available
   saveAndReturnNewUnwetterFromDWD()
@@ -191,7 +155,6 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
 
     // iteration over all Unwetter in the database
     for (let i = 0; i < allUnwetter.length; i++) {
-
       let currentUnwetterEvent = allUnwetter[i];
 
       // TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
@@ -227,7 +190,7 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
         default:
           layerID = "other";
           // layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-          twitterSearchQuery.searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
+          twitterSearchQuery.searchWords.push("Unwetter"/*, "Windboeen", "Nebel", "Sturm"*/);
           break;
       }
       currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
@@ -240,7 +203,7 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
             "properties": currentUnwetterEvent.properties
           }]
         };
-        displayUnwetterEvents(map, layerID, unwetterFeature, tweetEvents);
+        displayEvents(map, layerID, unwetterFeature);
       });
 
 
@@ -251,22 +214,22 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
           //
           .then(function (result) {
             try {
+              let tweetFeatureCollection = {
+                "type": "FeatureCollection",
+                "features": []
+              };
               result.forEach(function (item) {
                 if (item.location_actual !== null) {
-                  let tweetFeature = {
-                    "type": "Feature",
-                    "geometry": item.location_actual,
-                    "properties": item
-                  };
-                  tweetFeatures.push(tweetFeature);
+                   let tweetFeature = {
+                      "type": "Feature",
+                      "geometry": item.location_actual,
+                      "properties": item
+                    };
+                  tweetFeatureCollection.features.push(tweetFeature);
                 }
               });
-              if (tweetFeatures.length > 0) {
-                let tweetFeaturesGeoJSON = {
-                  "type": "FeatureCollection",
-                  "features": tweetFeatures
-                };
-                map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
+              if (tweetFeatureCollection.features.length > 0) {
+                displayEvents(map, layerID + "Tweet", tweetFeatureCollection);
               }
             } catch {
               console.log("there was an error while processing the tweets from the database");
@@ -280,52 +243,80 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
     }
     // TODO: folgendes in einer Funktion unterbringen:
 
-// ************************ adding the functionality for toggeling the different layers *************************
-// For creating the layermenu
-
-// for every mentioned layer
-    for (var i = 0; i < customLayerIds.length; i++) {
-      var id = customLayerIds[i];
-      debugger;
-
-      // create an element for the menu
-      var link = document.createElement('a');
-      link.href = '#';
-      link.className = 'active';
-      link.textContent = id;
-
-      // on click show the menu if it is not visible and hide it if it is visible
-      link.onclick = function (e) {
-        var clickedLayer = this.textContent;
-        e.preventDefault();
-        e.stopPropagation();
-
-        // set visibility
-        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-
-        // if the layer is visible hide it
-        if (visibility === 'visible') {
-          map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-          this.className = '';
-        }
-        // if not show it
-        else {
-          this.className = 'active';
-          map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-        }
-      };
-
-      // add the layers to the menu
-      layers.appendChild(link);
-    }
     //
   }, function(err) {
     console.log(err);
   });
 }
 
+/**
+ * This function adds a layer (identified by the given layerID) to the layer-menu.
+ * @author Benjamin Rieke
+ * @param {String} layerID - id of a layer
+ */
+function addLayerToMenu(layerID) {
+// ************************ adding the functionality for toggeling the different layers *************************
+// For creating the layermenu
 
+  // create an element for the menu
+  var link = document.createElement('a');
+  link.href = '#';
+  link.className = 'active';
+  link.textContent = layerID;
 
+  // on click show the menu if it is not visible and hide it if it is visible
+  link.onclick = function (e) {
+    var clickedLayer = this.textContent;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // set visibility
+    var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+    // if the layer is visible hide it
+    if (visibility === 'visible') {
+      map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+      this.className = '';
+    }
+    // if not show it
+    else {
+      this.className = 'active';
+      map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+    }
+  };
+
+  // add the layers to the menu
+  layers.appendChild(link);
+}
+
+/**
+ * This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
+ * @author Katharina Poppinga
+ * @param {String} layerID - id of a layer
+ */
+function makeLayerInteractive(layerID) {
+  // ************************ changing of curser style ***********************
+  // https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
+  // if hovering the layer, change the cursor to a pointer
+  map.on('mouseenter', layerID, function () {
+    map.getCanvas().style.cursor = 'pointer';
+  });
+  // if leaving the layer, change the cursor back to a hand
+  map.on('mouseleave', layerID, function () {
+    map.getCanvas().style.cursor = '';
+  });
+
+  // ************************ showing popups on click ************************
+  // TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
+  // TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
+  map.on('click', layerID, function (e) {
+    if (layerID.includes("Tweet")) {
+      showTweetPopup(map, e);
+    } else {
+      showUnwetterPopup(map, e);
+    }
+  });
+}
 
 
 /**
@@ -335,111 +326,124 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
 * @private
 * @param {mapbox-map} map map to which the Unwetter will be added
 * @param {String} layerID ID for the map-layer to be created, is equivalent to the Unwetter-event-supergroup
-* @param {Object} unwetterEventFeatureCollection GeoJSON-FeatureCollection of all Unwetter-events of the specific event-supergroup
-* @param {Array} tweetEvents the ids of the tweetlayers
+* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of all Unwetter-events of the specific event-supergroup
 */
-function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection, tweetEvents) {
+function displayEvents(map, layerID, eventFeatureCollection) {
 
 //
   let source = map.getSource(layerID);
   if (typeof source !== 'undefined') {
     let data = JSON.parse(JSON.stringify(source._data));
-    data.features = data.features.concat(unwetterEventFeatureCollection.features);
+    data.features = data.features.concat(eventFeatureCollection.features);
     source.setData(data);
   } else {
     // add the given Unwetter-event as a source to the map
     map.addSource(layerID, {
       type: 'geojson',
-      data: unwetterEventFeatureCollection
+      data: eventFeatureCollection
     });
 
-    // TODO: Farben anpassen und stattdessen über ec_ii mit Ziffern unterscheiden?
-    // TODO: Farbdarstellungs- und -unterscheidungsprobleme, wenn mehrere Polygone sich überlagern
-    // add the given Unwetter-event as a layer to the map
-    map.addLayer({
-      "id": layerID,
-      "type": "fill",
-      "source": layerID,
-      "layout": {"visibility": "visible"},
-      "paint": {
-        "fill-color": [
-          "match", ["string", ["get", "event"]],
-          "FROST",
-          "grey",
-          "GLÄTTE",
-          "white",
-          "GLATTEIS",
-          "white",
-          "NEBEL",
-          "grey",
-          "WINDBÖEN",
-          "light blue",
-          "GEWITTER",
-          "red",
-          "STARKES GEWITTER",
-          "red",
-          "SCHWERES GEWITTER",
-          "red",
-          "SCHWERES GEWITTER mit ORKANBÖEN",
-          "red",
-          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
-          "red",
-          "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
-          "red",
-          "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
-          "red",
-          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
-          "red",
-          "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "EXTREMES GEWITTER",
-          "red",
-          "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "STARKREGEN",
-          "blue",
-          "HEFTIGER STARKREGEN",
-          "blue",
-          "DAUERREGEN",
-          "blue",
-          "ERGIEBIGER DAUERREGEN",
-          "blue",
-          "EXTREM ERGIEBIGER DAUERREGEN",
-          "blue",
-          "EXTREM HEFTIGER STARKREGEN",
-          "blue",
-          "LEICHTER SCHNEEFALL",
-          "yellow",
-          "SCHNEEFALL",
-          "yellow",
-          "STARKER SCHNEEFALL",
-          "yellow",
-          "EXTREM STARKER SCHNEEFALL",
-          "yellow",
-          "SCHNEEVERWEHUNG",
-          "yellow",
-          "STARKE SCHNEEVERWEHUNG",
-          "yellow",
-          "SCHNEEFALL und SCHNEEVERWEHUNG",
-          "yellow",
-          "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-          "yellow",
-          "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-          "yellow",
-          "black" // sonstiges Event
-          // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
-          // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
-        ],
-        "fill-opacity": 0.3
-      }
-    }, tweetEvents[0]);
+    if (eventFeatureCollection.features[0].geometry.type === "Point") {
+      map.addLayer({
+        "id": layerID,
+        "type": "symbol",
+        "source": layerID,
+        "layout": {
+          "icon-image": ["concat", "circle", "-15"],
+          "visibility" : "visible"
+        }
+      });
+    } else {
+      // TODO: Farben anpassen und stattdessen über ec_ii mit Ziffern unterscheiden?
+      // TODO: Farbdarstellungs- und -unterscheidungsprobleme, wenn mehrere Polygone sich überlagern
+      // add the given Unwetter-event as a layer to the map
+      map.addLayer({
+        "id": layerID,
+        "type": "fill",
+        "source": layerID,
+        "layout": {"visibility": "visible"},
+        "paint": {
+          "fill-color": [
+            "match", ["string", ["get", "event"]],
+            "FROST",
+            "grey",
+            "GLÄTTE",
+            "white",
+            "GLATTEIS",
+            "white",
+            "NEBEL",
+            "grey",
+            "WINDBÖEN",
+            "light blue",
+            "GEWITTER",
+            "red",
+            "STARKES GEWITTER",
+            "red",
+            "SCHWERES GEWITTER",
+            "red",
+            "SCHWERES GEWITTER mit ORKANBÖEN",
+            "red",
+            "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
+            "red",
+            "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
+            "red",
+            "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
+            "red",
+            "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
+            "red",
+            "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "EXTREMES GEWITTER",
+            "red",
+            "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "STARKREGEN",
+            "blue",
+            "HEFTIGER STARKREGEN",
+            "blue",
+            "DAUERREGEN",
+            "blue",
+            "ERGIEBIGER DAUERREGEN",
+            "blue",
+            "EXTREM ERGIEBIGER DAUERREGEN",
+            "blue",
+            "EXTREM HEFTIGER STARKREGEN",
+            "blue",
+            "LEICHTER SCHNEEFALL",
+            "yellow",
+            "SCHNEEFALL",
+            "yellow",
+            "STARKER SCHNEEFALL",
+            "yellow",
+            "EXTREM STARKER SCHNEEFALL",
+            "yellow",
+            "SCHNEEVERWEHUNG",
+            "yellow",
+            "STARKE SCHNEEVERWEHUNG",
+            "yellow",
+            "SCHNEEFALL und SCHNEEVERWEHUNG",
+            "yellow",
+            "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+            "yellow",
+            "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+            "yellow",
+            "black" // sonstiges Event
+            // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
+            // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
+          ],
+          "fill-opacity": 0.3
+        }
+      });
+    }
     //
+    makeLayerInteractive(layerID);
+    addLayerToMenu(layerID);
     customLayerIds.push(layerID);
   }
   // https://github.com/mapbox/mapbox-gl-js/issues/908#issuecomment-254577133
@@ -461,90 +465,6 @@ function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection, twe
 */
 }
 
-
-/**
-* @desc Makes a mapbox-layer for all Tweets and adds it to the map.
-* The tweets are added to the layer afterwards.
-* @author Paula Scharf
-* @private
-* @param {mapbox-map} map map to which the Layer will be added
-* @param {String} layerID ID for the map-layer to be created
-*/
-function displayTweets(map, layerID) {
-
-  // add the given Unwetter-event as a source to the map
-  map.addSource(layerID, {
-    type: 'geojson',
-    data: null
-  });
-  map.addLayer({
-    "id": layerID,
-    "type": "symbol",
-    "source": layerID,
-    "layout": {
-      "icon-image": ["concat", "circle", "-15"],
-      "visibility" : "visible"
-    }
-  });
-  customLayerIds.push(layerID);
-}
-
-
-/**
- * WIP
- * This function could be used to assign colors to different types of weather events. It is currently not used.
- * @author Paula Scharf, matr.: 450334
- * @param group - name of the ec_group of Unwetter
- * @returns {string}
- * @example assignColor("FROST")
- */
-/*function assignColor(group) {
-switch (group) {
-case "THUNDERSTORM":
-return "#ff3333"; //red
-break;
-case "WIND":
-return "#ecff33"; //yellow
-break;
-case "TORNADO":
-return "#ffac33"; //orange
-break;
-case "RAIN":
-return "#3349ff"; //blue
-break;
-case "HAIL":
-return "#ff33f6"; //pink
-break;
-case "SNOWFALL":
-return "#33ffe6"; //light blue/green
-break;
-case "SNOWDRIFT":
-return "#33ff99"; //light green/blue
-break;
-case "FOG":
-return "#beff54"; //green/yellow
-break;
-case "FROST":
-return "#33d4ff"; //light blue
-break;
-case "GLAZE":
-return "#6e33ff"; //purple
-break;
-case "THAW":
-return "#00ff1f"; //green
-break;
-case "POWERLINEVIBRATION":
-return "#d654ff"; //purple/pink
-break;
-case "UV":
-return  "#ff547d"; //pink/red
-break;
-case "HEAT":
-return  "#ff8354"; //orange/red
-break;
-}
-}
-*/
 
 
 // TODO: Popups scrollbar machen oder enthaltenen Text kürzen??
