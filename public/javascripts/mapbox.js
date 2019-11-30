@@ -137,112 +137,120 @@ function requestNewAndDisplayAllUnwetter(map){
 		.catch(console.error)
 		//
 		.then(function(result) {
+			(async () => {
+				// all Unwetter that are stored in the database
+				let allUnwetter = result;
+				console.log(result);
 
-			// all Unwetter that are stored in the database
-			let allUnwetter = result;
-			console.log(result);
+				// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
+				let unwetterFeature;
 
-			// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
-			let unwetterFeature;
+				let tweetFeatures = [];
 
-			let tweetFeatures = [];
+				let arrayOfTweetPromises = [];
+				// *************************************************************************************************************
 
+				// iteration over all Unwetter in the database
+				for (let i = 0; i < allUnwetter.length; i++) {
+					let currentUnwetterEvent = allUnwetter[i];
 
-			// *************************************************************************************************************
+					// TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
 
-			// iteration over all Unwetter in the database
-			for (let i = 0; i < allUnwetter.length; i++) {
-				let currentUnwetterEvent = allUnwetter[i];
-
-				// TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
-
-				let twitterSearchQuery = {
-					geometry: currentUnwetterEvent.geometry,
-					searchWords: []
-				};
-				// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
-				// FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
-				// FALLS JA, DANN FARBEN IN fill-color ANPASSEN
-
-				let layerID = "undefined";
-				let ii = currentUnwetterEvent.properties.ec_ii;
-				switch(ii) {
-					case (ii >= 61) && (ii <= 66):
-						layerID = "rain";
-						twitterSearchQuery.searchWords.push("Starkregen", "Dauerregen");
-						break;
-					case (ii >= 70) && (ii <= 78):
-						layerID = "snowfall";
-						twitterSearchQuery.searchWords.push("Schneefall");
-						break;
-					case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
-						layerID = "thunderstorm";
-						twitterSearchQuery.searchWords.push("Gewitter");
-						break;
-					case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
-						layerID = "blackice";
-						twitterSearchQuery.searchWords.push("Blitzeis", "Glätte", "Glatteis");
-						break;
-					// TODO: alles für layer other später löschen
-					default:
-						layerID = "other";
-						// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-						twitterSearchQuery.searchWords.push("Unwetter", "Windboeen", "Nebel", "Sturm");
-						break;
-				}
-				layerID = i + " " + layerID;
-				currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
-					// make a GeoJSON Feature out of the current Unwetter
-					unwetterFeature = {
-						"type": "FeatureCollection",
-						"features": [{
-							"type": "Feature",
-							"geometry": currentPolygon,
-							"properties": currentUnwetterEvent.properties
-						}]
+					let twitterSearchQuery = {
+						geometry: currentUnwetterEvent.geometry,
+						searchWords: []
 					};
-					displayEvents(map, layerID, unwetterFeature);
-				});
+					// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
+					// FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
+					// FALLS JA, DANN FARBEN IN fill-color ANPASSEN
 
-				//
-				saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event)
-				//
-					.catch(console.error)
-					//
-					.then(function (result) {
-						try {
-							let tweetFeatureCollection = {
-								"type": "FeatureCollection",
-								"features": []
-							};
-							result.forEach(function (item) {
-								if (item.location_actual !== null) {
-									let tweetFeature = {
-										"type": "Feature",
-										"geometry": item.location_actual,
-										"properties": item
-									};
-									tweetFeatureCollection.features.push(tweetFeature);
-								}
-							});
-							if (tweetFeatureCollection.features.length > 0) {
-								displayEvents(map, layerID + "Tweet", tweetFeatureCollection);
-							}
-						} catch {
-							console.log("there was an error while processing the tweets from the database");
-							// TODO: error catchen und dann hier auch den error ausgeben?
-						}
-					}, function (reason) {
-						console.dir(reason);
+					let layerGroup = "undefined";
+					let ii = currentUnwetterEvent.properties.ec_ii;
+					switch (ii) {
+						case (ii >= 61) && (ii <= 66):
+							layerGroup = "rain";
+							twitterSearchQuery.searchWords.push("Starkregen", "Dauerregen");
+							break;
+						case (ii >= 70) && (ii <= 78):
+							layerGroup = "snowfall";
+							twitterSearchQuery.searchWords.push("Schneefall");
+							break;
+						case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
+							layerGroup = "thunderstorm";
+							twitterSearchQuery.searchWords.push("Gewitter");
+							break;
+						case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
+							layerGroup = "blackice";
+							twitterSearchQuery.searchWords.push("Blitzeis", "Glätte", "Glatteis");
+							break;
+						// TODO: alles für layer other später löschen
+						default:
+							layerGroup = "other";
+							// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
+							twitterSearchQuery.searchWords.push("Unwetter", "Windboeen", "Nebel", "Sturm");
+							break;
+					}
+					currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+						// make a GeoJSON Feature out of the current Unwetter
+						unwetterFeature = {
+							"type": "FeatureCollection",
+							"features": [{
+								"type": "Feature",
+								"geometry": currentPolygon,
+								"properties": currentUnwetterEvent.properties
+							}]
+						};
+						displayEvents(map, i + " " + layerGroup + " Unwetter", unwetterFeature);
 					});
 
-
-			}
-			// TODO: folgendes in einer Funktion unterbringen:
-
+					retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event);
+				}
+				// TODO: folgendes in einer Funktion unterbringen:
+			})();
 			//
 		}, function(err) {
 			console.log(err);
+		});
+}
+
+/**
+ * Retrieves tweets for a specific Unwetter from the twitter api, saves them in the database and displays them on the map.
+ * @author Paula Scharf
+ * @param twitterSearchQuery - object containing parameters for the search-request
+ * @param dwd_id - the id of the specific unwetter
+ * @param dwd_event - the event-name of the unwetter
+ */
+function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event) {
+	//
+	saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, dwd_id, dwd_event)
+	//
+		.catch(console.error)
+		//
+		.then(function (result) {
+			try {
+				let tweetFeatureCollection = {
+					"type": "FeatureCollection",
+					"features": []
+				};
+				result.forEach(function (item) {
+					if (item.location_actual !== null) {
+						let tweetFeature = {
+							"type": "Feature",
+							"geometry": item.location_actual,
+							"properties": item
+						};
+						tweetFeatureCollection.features.push(tweetFeature);
+					}
+				});
+				if (tweetFeatureCollection.features.length > 0) {
+					displayEvents(map, i + " " + layerGroup + " Tweet", tweetFeatureCollection);
+				}
+			} catch {
+				console.dir("there was an error while processing the tweets from the database");
+				// TODO: error catchen und dann hier auch den error ausgeben?
+			}
+		}, function (reason) {
+			console.dir(reason);
 		});
 }
 
@@ -254,43 +262,50 @@ function requestNewAndDisplayAllUnwetter(map){
 function addLayerToMenu(layerID) {
 // ************************ adding the functionality for toggeling the different layers *************************
 // For creating the layermenu
-	let layerGroup = input.split(/[ ]+/)[1];
-	let layerGroupAlreadyIncluded = false;
-	layers.childNodes.forEach(function(item) {
-		if (item.innerText === layerGroup) {
-			layerGroupAlreadyIncluded = true;
+	let layerParts = layerID.split(/[ ]+/);
+	if (layerParts[1]) {
+		let layerGroupAlreadyIncluded = false;
+		layers.childNodes.forEach(function (item) {
+			if (item.innerText === layerParts[1]) {
+				layerGroupAlreadyIncluded = true;
+			}
+		});
+		if (!layerGroupAlreadyIncluded) {
+			// create an element for the menu
+			var link = document.createElement('a');
+			link.href = '#';
+			link.className = 'active';
+			link.textContent = layerParts[1];
+
+			// on click show the menu if it is not visible and hide it if it is visible
+			link.onclick = function (e) {
+				let content = this.textContent;
+				if (this.className) {
+					this.className = '';
+				} else {
+					this.className = 'active';
+				}
+				let classname = this.className;
+				customLayerIds.forEach(function (item) {
+					if (item.includes(content)) {
+						e.preventDefault();
+						e.stopPropagation();
+
+						// if the menuitem is activated show the layer
+						if (classname) {
+							map.setLayoutProperty(item, 'visibility', 'visible');
+						}
+						// if not hide the layer
+						else {
+							map.setLayoutProperty(item, 'visibility', 'none');
+						}
+					}
+				});
+			};
+
+			// add the layers to the menu
+			layers.appendChild(link);
 		}
-	});
-	if (!layerGroupAlreadyIncluded) {
-		// create an element for the menu
-		var link = document.createElement('a');
-		link.href = '#';
-		link.className = 'active';
-		link.textContent = layerGroup;
-
-		// on click show the menu if it is not visible and hide it if it is visible
-		link.onclick = function (e) {
-			var clickedLayer = this.textContent;
-			e.preventDefault();
-			e.stopPropagation();
-
-			// set visibility
-			var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-
-			// if the layer is visible hide it
-			if (visibility === 'visible') {
-				map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-				this.className = '';
-			}
-			// if not show it
-			else {
-				this.className = 'active';
-				map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-			}
-		};
-
-		// add the layers to the menu
-		layers.appendChild(link);
 	}
 }
 
