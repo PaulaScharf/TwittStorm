@@ -20,73 +20,73 @@ $.get("https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.1.0&request=G
 // ############ show content of local instance of mongoDB #########
 // on DOM ready
 $(document).ready(function() {
-  showRoutes();
+	showRoutes();
 });
 
 //show routes
 function showRoutes() {
-  var tableContent = "";
+	var tableContent = "";
 
-  //get JSON
-  $.getJSON('/db/routes', function(data) {
-    routesArray = data;
-    console.log(data);
-    $.each(data, function(index) {
-      tableContent += '<tr>';
-      tableContent += '<td>' + JSON.stringify(this) + '</td>';
-      tableContent += '<td><a href="#" class="linkdeleteroute" rel="' + this._id + '">Delete</a></td>';
-      tableContent += '</tr>';
-    });
+	//get JSON
+	$.getJSON('/db/routes', function(data) {
+		routesArray = data;
+		console.log(data);
+		$.each(data, function(index) {
+			tableContent += '<tr>';
+			tableContent += '<td>' + JSON.stringify(this) + '</td>';
+			tableContent += '<td><a href="#" class="linkdeleteroute" rel="' + this._id + '">Delete</a></td>';
+			tableContent += '</tr>';
+		});
 
-    //put into html
-    $('#routeTable').html(tableContent);
-    $('#routeTable').on('click', 'td a.linkdeleteroute', deleteRoute);
-  });
+		//put into html
+		$('#routeTable').html(tableContent);
+		$('#routeTable').on('click', 'td a.linkdeleteroute', deleteRoute);
+	});
 }
 
 function deleteRoute(event) {
-  event.preventDefault();
+	event.preventDefault();
 
-    $.ajax({
-      type: 'DELETE',
-      url: '/db/delete' + $(this).attr('rel')
-    }).done(function(response) {
-      if(response.msg === '') {
-        alert('done!');
-      }
-      else {
-        //alert('Error: ' + response.msg);
-      }
+	$.ajax({
+		type: 'DELETE',
+		url: '/db/delete' + $(this).attr('rel')
+	}).done(function(response) {
+		if(response.msg === '') {
+			alert('done!');
+		}
+		else {
+			//alert('Error: ' + response.msg);
+		}
 
-      //update
-      showRoutes();
-    });
+		//update
+		showRoutes();
+	});
 }
 
 // ################# on button click, add element to DB for testing purposes ##################
 //create
 function createRouteButton() {
-  event.preventDefault();
+	event.preventDefault();
 
-  var newRouteString = '{"hello":"hello"}';
-  //newRouteString = JSON.parse(newRouteString);
-  //newRouteString = JSON.stringify(newRouteString);
-  console.log("createRouteButton with payload: " + newRouteString);
+	var newRouteString = '{"hello":"hello"}';
+	//newRouteString = JSON.parse(newRouteString);
+	//newRouteString = JSON.stringify(newRouteString);
+	console.log("createRouteButton with payload: " + newRouteString);
 
-  //post
-  $.ajax({
-    type: 'POST',
-    data: newRouteString,
-    url: '/users/addroute',
-    contentType:"application/json"
-  }).done(function(response) {
-    console.dir(response);
-    //successful
-    if(response.error === 0) {
-      alert('route added: ' + response.msg);
-    }
-    else {
-      alert('Error: ' + response.msg);
-    }
-  });
+	//post
+	$.ajax({
+		type: 'POST',
+		data: newRouteString,
+		url: '/users/addroute',
+		contentType:"application/json"
+	}).done(function(response) {
+		console.dir(response);
+		//successful
+		if(response.error === 0) {
+			alert('route added: ' + response.msg);
+		}
+		else {
+			alert('Error: ' + response.msg);
+		}
+	});
 }
