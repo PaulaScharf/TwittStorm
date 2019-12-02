@@ -117,14 +117,15 @@ function showMap(style) {
     saveRainRadar('rw', 'dwd')
       .catch(console.error)
       .then(function(result) {
-        console.log(result);
+        //result is array of rainRadar JSONs
+        //console.log(result[result.length - 1]);
       }, function(err) {
         console.log(err);
       });
 
     // TODO: es dürfen nicht alle Unwetter aus DB angezeigt werden
     //
-    requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
+    //requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
 
 
     // TODO: VARIABLEN VORHER DEFINIEREN, DAMIT Error: There is already a source with this ID VERMIEDEN WIRD!!
@@ -295,7 +296,7 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
 // for every mentioned layer
     for (var i = 0; i < customLayerIds.length; i++) {
       var id = customLayerIds[i];
-      debugger;
+      //debugger;
 
       // create an element for the menu
       var link = document.createElement('a');
