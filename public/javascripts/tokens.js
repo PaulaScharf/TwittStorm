@@ -21,8 +21,16 @@ if (typeof exports == "undefined"){
 
 // all needed tokens:
 exports.token = {
-	consumer_key: 'MrvR3iGRtOYWEHvyX1GQvbgbn',
-	consumer_secret: '8fDd8OEVcklCC4a0JdWa5P7dOC3J3p029jhFSITbwmDwnVN8CA',
-	access_token_key: '1186999137541283840-8t6BUIDVX9it9aZznjRX7QmIduO4dw',
-	access_token_secret: 'W9b9MvmH93UTbiTcEMr1h2IBqLc2lQfF3LtqphfdeReJK'
+	// twitter
+	twitter: {
+		consumer_key: 'MrvR3iGRtOYWEHvyX1GQvbgbn',
+		consumer_secret: '8fDd8OEVcklCC4a0JdWa5P7dOC3J3p029jhFSITbwmDwnVN8CA',
+		access_token_key: '1186999137541283840-8t6BUIDVX9it9aZznjRX7QmIduO4dw',
+		access_token_secret: 'W9b9MvmH93UTbiTcEMr1h2IBqLc2lQfF3LtqphfdeReJK'
+	},
+	// mapbox
+	mapbox: {
+		access_key: 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA'
+	}
+
 };

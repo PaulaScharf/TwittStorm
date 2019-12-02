@@ -8,13 +8,12 @@
  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
  */
 
-// please put in your own tokens at ???
+// please define your own tokens at tokens.js
 
 // TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
 
-// TODO: in tokens-Datei auslagern oder:
 // TODO: löschen, da nicht benötigt??
-mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA';
+mapboxgl.accessToken = token.mapbox.access_key;
 
 
 
@@ -25,8 +24,10 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxb
 // refers to the layer menu
 var layers = document.getElementById('menu');
 
+// refers to the mapbox map element
 let map;
 
+// referes to all the layers that are not defaults
 let customLayerIds = [];
 
 // ******************************** functions **********************************
@@ -166,6 +167,7 @@ function requestNewAndDisplayAllUnwetter(map){
 
 					let layerGroup = "undefined";
 					let ii = currentUnwetterEvent.properties.ec_ii;
+					// choose the correct group identifier for the Unwetter and set the searchwords for the tweetrequest accordingly
 					switch (ii) {
 						case (ii >= 61) && (ii <= 66):
 							layerGroup = "rain";
@@ -223,15 +225,17 @@ function requestNewAndDisplayAllUnwetter(map){
 function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event) {
 	//
 	saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, dwd_id, dwd_event)
-	//
+	// show errors in the console
 		.catch(console.error)
-		//
+		// process the result of the requests
 		.then(function (result) {
 			try {
+				// create an empty featurecollection for the tweets
 				let tweetFeatureCollection = {
 					"type": "FeatureCollection",
 					"features": []
 				};
+				// add the tweets in the result to the featurecollection
 				result.forEach(function (item) {
 					if (item.location_actual !== null) {
 						let tweetFeature = {
@@ -242,6 +246,7 @@ function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event) {
 						tweetFeatureCollection.features.push(tweetFeature);
 					}
 				});
+				// add the tweets to the map
 				if (tweetFeatureCollection.features.length > 0) {
 					displayEvents(map, i + " " + layerGroup + " Tweet", tweetFeatureCollection);
 				}
@@ -256,37 +261,43 @@ function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event) {
 
 /**
  * This function adds a layer (identified by the given layerID) to the layer-menu.
+ * The layer-menu makes it possible to toggle layers on and of.
  * @author Benjamin Rieke
  * @param {String} layerID - id of a layer
  */
 function addLayerToMenu(layerID) {
-// ************************ adding the functionality for toggeling the different layers *************************
-// For creating the layermenu
+	// split layerID on whitspace
 	let layerParts = layerID.split(/[ ]+/);
-	if (layerParts[1]) {
+	let groupName = layerParts[1];
+	// if the groupName is not 'undefined' do the following...
+	if (groupName) {
+		// check if there is already a menu element for the group
 		let layerGroupAlreadyIncluded = false;
 		layers.childNodes.forEach(function (item) {
-			if (item.innerText === layerParts[1]) {
+			if (item.innerText === groupName) {
 				layerGroupAlreadyIncluded = true;
 			}
 		});
+		// if the manu does not contain an element for the group do the following...
 		if (!layerGroupAlreadyIncluded) {
 			// create an element for the menu
 			var link = document.createElement('a');
 			link.href = '#';
 			link.className = 'active';
-			link.textContent = layerParts[1];
+			link.textContent = groupName;
 
 			// on click show the menu if it is not visible and hide it if it is visible
 			link.onclick = function (e) {
-				let content = this.textContent;
 				if (this.className) {
 					this.className = '';
 				} else {
 					this.className = 'active';
 				}
+				// 'this' changes scoop in the loop, so the contents of the link have to be outsourced
+				let content = this.textContent;
 				let classname = this.className;
 				customLayerIds.forEach(function (item) {
+					// if the current Id ('item') contains the name of the group do the following
 					if (item.includes(content)) {
 						e.preventDefault();
 						e.stopPropagation();
