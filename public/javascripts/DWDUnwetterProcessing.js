@@ -4,9 +4,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
- * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
- * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
- */
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
 
 
 
@@ -22,8 +22,13 @@
 function processUnwettersFromDWD(currentTimestamp) {
   //
   return new Promise((resolve, reject) => {
+
     // this array will contain all the calls of the function "promiseToPostItem"
     let arrayOfPromises = [];
+    //
+    let arrayOfGroupedUnwetters = [];
+    //
+    let arrayUnwettersToPost = [];
 
     // load the GeoJSON from the DWD Geoserver and display the current Unwetter-areas
     $.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson', function (data) {
@@ -31,11 +36,8 @@ function processUnwettersFromDWD(currentTimestamp) {
 
       // ***** formatting the Unwetter which will be inserted into the database afterwards: *****
 
-      // in groupedUnwetters sind nur die NEU HINZUGEFÜGTEN, NICHT ALLE IN DER DB ENTHALTENEN Unwetter drin
-      let groupedData = groupByArray(data.features, 'id');
-
       //
-      let arrayOfGroupedUnwetters = [];
+      let groupedData = groupByArray(data.features, 'id');
 
       //
       groupedData.forEach(function (item){
@@ -50,7 +52,6 @@ function processUnwettersFromDWD(currentTimestamp) {
         //
         arrayOfGroupedUnwetters.push(currentUnwetter);
       });
-
 
 
       //
@@ -92,7 +93,7 @@ function processUnwettersFromDWD(currentTimestamp) {
 
               // check whether exactly this Unwetter is already stored in the database
               // and, depending on its MSGTYPE (Alert, Update, Cancel), add, update or delete if to/from database
-              arrayOfPromisesDBCheck.push(checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, currentTimestamp));
+              arrayOfPromisesDBCheck.push(checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arrayUnwettersToPost, currentTimestamp));
             }
           }
 
@@ -117,7 +118,7 @@ function processUnwettersFromDWD(currentTimestamp) {
       .then(function() {
 
         // POST each new Unwetter into database
-        arrayOfGroupedUnwetters.forEach(function (item){
+        arrayUnwettersToPost.forEach(function (item){
           arrayOfPromises.push(promiseToPostItem(item));
         });
 
@@ -153,9 +154,10 @@ function processUnwettersFromDWD(currentTimestamp) {
 * @private
 * @param {Object} currentFeature - JSON of one specific Unwetter taken from DWD response
 * @param {Array} arrayOfGroupedUnwetters -
+* @param {Array} arrayUnwettersToPost -
 * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
 */
-function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, currentTimestamp){
+function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arrayUnwettersToPost, currentTimestamp){
 
   // TODO: auch auf einzelne vorhandene geometrys überprüfen
 
@@ -224,7 +226,7 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, cur
           // ... add it to the arrayOfGroupedUnwetters
           // this array will be used for subsequent processing before adding the Unwetter to the
           // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
-          arrayOfGroupedUnwetters.push(currentUnwetter);
+          arrayUnwettersToPost.push(currentUnwetter);
         }
 
         // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter
@@ -240,9 +242,9 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, cur
       console.log("AJAX request (reading one item) has failed.", error);
 
       // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-      //  if (error === "timeout") {
+        if (error === "timeout") {
       //    JL("ajaxReadingOneItemTimeout").fatalException("ajax: '/routes/readItem' timeout");
-      //  }
+        }
       reject("AJAX request (reading one item) has failed.");
     });
   });
@@ -261,11 +263,11 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, cur
 */
 function createUnwetterForDB(currentFeature, currentTimestamp){
 
-// TODO: wird "color" am Ende wirklich verwendet? sonst löschen und auch die Funktionen rgbToHex und componentToHex löschen!!
+  // TODO: wird "color" am Ende wirklich verwendet? sonst löschen und auch die Funktionen rgbToHex und componentToHex löschen!!
 
   //
   let area_color = (currentFeature.properties.EC_AREA_COLOR).split(' ').map(Number);
-  let color = rgbToHex(area_color[0], area_color[1], area_color[2]);
+  //let color = rgbToHex(area_color[0], area_color[1], area_color[2]);
 
   // FÜR ALLE TIMESTAMPS JEDEN REQUESTS (siehe Zettel mit Paula, Jonathan)
   let timestamps = [currentTimestamp];
@@ -288,24 +290,23 @@ function createUnwetterForDB(currentFeature, currentTimestamp){
     geometry: currentFeature.geometry,
     properties: {
       // TODO: am Ende überprüfen, ob alle Attribute hier benötigt werden, ansonsten unbenötigte löschen
-      ec_Group: currentFeature.properties.EC_GROUP,
       event: currentFeature.properties.EVENT,
       ec_ii: currentFeature.properties.EC_II,
       responseType: currentFeature.properties.RESPONSETYPE,
       urgency: currentFeature.properties.URGENCY,
       severity: currentFeature.properties.SEVERITY,
       // TODO: was ist Parameter? Wozu?
-      parameter: currentFeature.properties.Parameter,
+      //parameter: currentFeature.properties.Parameter,
       certainty: currentFeature.properties.CERTAINTY,
       description: currentFeature.properties.DESCRIPTION,
       instruction: currentFeature.properties.INSTRUCTION,
-      color: color,
+      //color: color,
       sent: sent,
       onset: onset,
       effective: effective,
       expires: expires,
-      altitude: currentFeature.properties.ALTITUDE,
-      ceiling: currentFeature.properties.CEILING
+      //altitude: currentFeature.properties.ALTITUDE,
+      //ceiling: currentFeature.properties.CEILING
     }
   };
   // return the formatted Unwetter
@@ -360,9 +361,9 @@ function updateTimestamp(_id, currentTimestamp) {
       console.log("AJAX request (updating one Unwetter) has failed.", error);
 
       // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-      //  if (error === "timeout") {
+        if (error === "timeout") {
       //    JL("ajaxUpdatingOneUnwetterItemTimeout").fatalException("ajax: '/db/updateUnwetter' timeout");
-      //  }
+        }
       reject("AJAX request (reading one item) has failed.");
     });
   });
@@ -371,23 +372,23 @@ function updateTimestamp(_id, currentTimestamp) {
 
 
 /**
- * Groups an array of objects by a given key (attribute)
- * @param xs - array which is to be grouped
- * @param key - attribute by which the objects are grouped
- * @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
- * @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
- */
+* Groups an array of objects by a given key (attribute)
+* @param xs - array which is to be grouped
+* @param key - attribute by which the objects are grouped
+* @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
+* @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
+*/
 function groupByArray(xs, key) {
-	return xs.reduce(function (rv, x) {
-		let v = key instanceof Function ? key(x) : x[key];
-		let el = rv.find((r) => r && r.key === v);
-		if (el) {
-			el.values.push(x);
-		} else {
-			rv.push({key: v, values: [x]});
-		}
-		return rv;
-	}, []);
+  return xs.reduce(function (rv, x) {
+    let v = key instanceof Function ? key(x) : x[key];
+    let el = rv.find((r) => r && r.key === v);
+    if (el) {
+      el.values.push(x);
+    } else {
+      rv.push({key: v, values: [x]});
+    }
+    return rv;
+  }, []);
 }
 
 
@@ -399,6 +400,7 @@ function groupByArray(xs, key) {
   * @param {Object} item - the item to be posted
   */
   function promiseToPostItem(item) {
+
     return new Promise((resolve, reject) => {
       $.ajax({
         // use a http POST request
@@ -435,54 +437,6 @@ function groupByArray(xs, key) {
   }
 
 
-  /**
-  * This function calls 'db/' with AJAX, to retrieve all items that comply to the given query in the database.
-  * The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example
-    * of await).
-    * @author Paula Scharf, matr.: 450334
-    * @param {Object} query
-    * @example getAllItems({type: "Unwetter"})
-    */
-    // TODO: example anpassen
-    /*
-    function promiseToGetItems(query) {
-    return new Promise((resolve, reject) => {
-    $.ajax({
-    // use a http POST request
-    type: "POST",
-    // URL to send the request to
-    url: "db/",
-    //
-    data: query,
-    // timeout set to 15 seconds
-    timeout: 20000
-  })
-
-  // if the request is done successfully, ...
-  .done(function (response) {
-  // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
-  console.log("AJAX request (reading all items) is done successfully.");
-  // "resolve" acts like "return" in this context
-  resolve(response);
-})
-
-// if the request has failed, ...
-.fail(function (xhr, status, error) {
-// ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
-console.log("AJAX request (reading all items) has failed.", error);
-console.dir(error);
-
-// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-if (error === "timeout") {
-//JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
-}
-reject("AJAX request (reading all items) has failed.");
-});
-
-});
-}
-*/
-
 
 /**
 * This function converts an input "c" to the hex-encoding
@@ -490,11 +444,12 @@ reject("AJAX request (reading all items) has failed.");
 * @param c
 * @returns {String}
 */
+/*
 function componentToHex(c) {
   var hex = c.toString(16);
   return hex.length == 1 ? "0" + hex : hex;
 }
-
+*/
 
 /**
 * This function converts an input of the color values (0 to 255) for red, green and blue to its hex-encoding
@@ -504,6 +459,8 @@ function componentToHex(c) {
 * @param b - blue
 * @returns {String}
 */
+/*
 function rgbToHex(r, g, b) {
   return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
+*/

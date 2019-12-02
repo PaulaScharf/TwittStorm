@@ -100,7 +100,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 						console.log("AJAX request (reading all tweets) is done successfully.");
 						// if await Promise.all(arrayOfPromises) fails:
 					} catch (e) {
-						reject("couldnt post all tweets");
+						reject("Could not POST all Tweets.");
 					}
 				})();
 			})
