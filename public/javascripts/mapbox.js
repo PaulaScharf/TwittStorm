@@ -113,6 +113,15 @@ function showMap(style) {
     // init tweetLayer
     displayTweets(map, tweetEvents[0]);
 
+    // Rain Radar Data
+    saveRainRadar('rw', 'dwd')
+      .catch(console.error)
+      .then(function(result) {
+        console.log(result);
+      }, function(err) {
+        console.log(err);
+      });
+
     // TODO: es dürfen nicht alle Unwetter aus DB angezeigt werden
     //
     requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
