@@ -113,7 +113,8 @@ function showMap(style) {
         saveRainRadar('rw', 'dwd')
             .catch(console.error)
             .then(function(result) {
-                console.log(result);
+                //result is array of rainRadar JSONs
+                //console.log(result[result.length - 1]);
             }, function(err) {
                 console.log(err);
             });
