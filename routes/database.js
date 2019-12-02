@@ -5,9 +5,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 
 var express = require('express');
@@ -21,14 +21,14 @@ const mongodb = require('mongodb');
 // TODO: später löschen!!!
 /* GET routes */
 router.get("/routes", (req, res) => {
-  var db = req.db;
-  // find all
-  db.collection('item').find({}).toArray((error, result) => {
-    if(error){
-      console.dir(error);
-    }
-    res.json(result);
-  });
+	var db = req.db;
+	// find all
+	db.collection('item').find({}).toArray((error, result) => {
+		if(error){
+			console.dir(error);
+		}
+		res.json(result);
+	});
 });
 
 
@@ -36,29 +36,28 @@ router.get("/routes", (req, res) => {
 
 /* GET items */
 router.post("/", function(req, res) {
-  var db = req.db;
-  console.dir(db);
-  let query = {};
-  for (let key in req.body) {
-    if (req.body.hasOwnProperty(key)) {
-      query[key] = req.body[key];
-    }
-  }
-  // find all
-  db.collection('item').find(query).toArray((error, result) => {
-    if(error){
-      // give a notice, that reading all items has failed and show the error on the console
-      console.log("Failure in reading all items from 'item'.", error);
-      // in case of an error while reading, do routing to "error.ejs"
-      res.render('error');
-      //       // if no error occurs ...
-    } else {
-      // ... give a notice, that the reading has succeeded and show the result on the console
-      console.log("Successfully read the items from 'item'.");
-      // ... and send the result to the ajax request
-      res.json(result);
-    }
-  });
+	var db = req.db;
+	let query = {};
+	for (let key in req.body) {
+		if (req.body.hasOwnProperty(key)) {
+			query[key] = req.body[key];
+		}
+	}
+	// find all
+	db.collection('item').find(query).toArray((error, result) => {
+		if(error){
+			// give a notice, that reading all items has failed and show the error on the console
+			console.log("Failure in reading all items from 'item'.", error);
+			// in case of an error while reading, do routing to "error.ejs"
+			res.render('error');
+			//       // if no error occurs ...
+		} else {
+			// ... give a notice, that the reading has succeeded and show the result on the console
+			console.log("Successfully read the items from 'item'.");
+			// ... and send the result to the ajax request
+			res.json(result);
+		}
+	});
 });
 
 
@@ -66,24 +65,24 @@ router.post("/", function(req, res) {
 /* GET one item */
 router.post("/readItem", function(req, res) {
 
-  // find item with given ID
-  req.db.collection('item').findOne({
-    "dwd_id" : req.body.dwd_id,
-  }, (error, result) => {
+	// find item with given ID
+	req.db.collection('item').findOne({
+		"dwd_id" : req.body.dwd_id,
+	}, (error, result) => {
 
-    if (error){
-      // give a notice, that reading all items has failed and show the error on the console
-      console.log("Failure in reading one item from 'item'.", error);
-      // in case of an error while reading, do routing to "error.ejs"
-      res.render('error');
-      // if no error occurs ...
-    } else {
-      // ... give a notice, that the reading has succeeded and show the result on the console
-      console.log("Successfully read one item from 'item'.");
-      // ... and send the result to the ajax request
-      res.send(result);
-    }
-  });
+		if (error){
+			// give a notice, that reading all items has failed and show the error on the console
+			console.log("Failure in reading one item from 'item'.", error);
+			// in case of an error while reading, do routing to "error.ejs"
+			res.render('error');
+			// if no error occurs ...
+		} else {
+			// ... give a notice, that the reading has succeeded and show the result on the console
+			console.log("Successfully read one item from 'item'.");
+			// ... and send the result to the ajax request
+			res.send(result);
+		}
+	});
 });
 
 
@@ -120,23 +119,23 @@ console.log(req.body.currentTimestamp);
 // *********************** inserting .........: ***********************
 /* POST to add items. */
 router.post('/add', function(req, res) {
-  var db = req.db;
+	var db = req.db;
 
-  db.collection('item').insertOne(req.body, (error, result) => {
-    if(error){
-      // give a notice, that the inserting has failed and show the error on the console
-      console.log("Failure while inserting an item into 'item'.", error);
-      // in case of an error while inserting, do routing to "error.ejs"
-      res.render('error');
-      // if no error occurs ...
-    } else {
-      // ... give a notice, that inserting the item has succeeded
-      res.json({
-        error: 0,
-        msg: "item mit der ID " + result.insertedId + " angelegt."
-      });
-    }
-  });
+	db.collection('item').insertOne(req.body, (error, result) => {
+		if(error){
+			// give a notice, that the inserting has failed and show the error on the console
+			console.log("Failure while inserting an item into 'item'.", error);
+			// in case of an error while inserting, do routing to "error.ejs"
+			res.render('error');
+			// if no error occurs ...
+		} else {
+			// ... give a notice, that inserting the item has succeeded
+			res.json({
+				error: 0,
+				msg: "item mit der ID " + result.insertedId + " angelegt."
+			});
+		}
+	});
 
 });
 
@@ -144,23 +143,23 @@ router.post('/add', function(req, res) {
 // *********************** deleting ...........: ***********************
 /* DELETE item */
 router.delete("/delete", (req, res) => {
-  var db = req.db;
-  // delete item
-  let objectId = new mongodb.ObjectID(req.query._id);
-  console.log("delete item " + objectId);
-  db.collection('item').deleteOne({_id:objectId}, (error, result) => {
-    if(error){
-      // give a notice, that the deleting has failed and show the error on the console
-      console.log("Failure while deleting an item from 'item'.", error);
-      // in case of an error while deleting, do routing to "error.ejs"
-      res.render('error');
-      // if no error occurs ...
-    } else {
-      // ... give a notice, that deleting the item has succeeded
-      console.log("Successfully deleted an item from 'item'.");
-      res.json(result);
-    }
-  });
+	var db = req.db;
+	// delete item
+	let objectId = new mongodb.ObjectID(req.query._id);
+	console.log("delete item " + objectId);
+	db.collection('item').deleteOne({_id:objectId}, (error, result) => {
+		if(error){
+			// give a notice, that the deleting has failed and show the error on the console
+			console.log("Failure while deleting an item from 'item'.", error);
+			// in case of an error while deleting, do routing to "error.ejs"
+			res.render('error');
+			// if no error occurs ...
+		} else {
+			// ... give a notice, that deleting the item has succeeded
+			console.log("Successfully deleted an item from 'item'.");
+			res.json(result);
+		}
+	});
 });
 
 

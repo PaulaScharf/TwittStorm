@@ -4,9 +4,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 
 
@@ -371,23 +371,23 @@ function updateTimestamp(_id, currentTimestamp) {
 
 
 /**
-* Groups an array of objects by a given key (attribute)
-* @param xs - array which is to be grouped
-* @param key - attribute by which the objects are grouped
-* @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
-* @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
-*/
+ * Groups an array of objects by a given key (attribute)
+ * @param xs - array which is to be grouped
+ * @param key - attribute by which the objects are grouped
+ * @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
+ * @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
+ */
 function groupByArray(xs, key) {
-  return xs.reduce(function (rv, x) {
-    let v = key instanceof Function ? key(x) : x[key];
-    let el = rv.find((r) => r && r.key === v);
-    if (el) {
-      el.values.push(x);
-    } else {
-      rv.push({key: v, values: [x]});
-    }
-    return rv;
-  }, []);
+	return xs.reduce(function (rv, x) {
+		let v = key instanceof Function ? key(x) : x[key];
+		let el = rv.find((r) => r && r.key === v);
+		if (el) {
+			el.values.push(x);
+		} else {
+			rv.push({key: v, values: [x]});
+		}
+		return rv;
+	}, []);
 }
 
 
