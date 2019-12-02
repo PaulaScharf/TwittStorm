@@ -110,15 +110,9 @@ function showMap(style) {
 		drawForAOI(map);
 
         // Rain Radar Data
-        saveRainRadar('rw', 'dwd')
-            .catch(console.error)
-            .then(function(result) {
-                //result is array of rainRadar JSONs
-                //console.log(result[result.length - 1]);
-            }, function(err) {
-                console.log(err);
-            });
-		//
+        //requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
+
+        //
 		requestNewAndDisplayCurrentUnwetters(map, 1575399600001 );
 		//
 		// TODO: Zeit auf 5 Minuten ändern!!!
@@ -130,6 +124,67 @@ function showMap(style) {
 	});
 }
 
+// ************************************* block about rain radar ****************************************
+//TODO understand how to post to layerstack
+/**
+  * @desc This function requests and displays Rain Radar data
+  * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
+  * @param map the map to display data in
+  * @param product the radarProduct, see API wiki on github
+  * @param classification classification method, see API wiki on github
+  */
+function requestAndDisplayAllRainRadar(map, product, classification) {
+  // Rain Radar Data
+  saveRainRadar('rw', 'dwd')
+    .catch(console.error)
+    .then(function(result) {
+      //result is array of rainRadar JSONs
+      //result[result.length - 1] is most recent one -- insert variable
+      //console.log(result[result.length - 1]);
+
+      //display of result[result.length - 1]
+      result = result[result.length - 1];
+      let layerID = "rainRadar";
+
+      let source = map.getSource(layerID);
+      if (typeof source !== 'undefined') {
+        let data = JSON.parse(JSON.stringify(source._data));
+        data.features = data.features.concat(result.geometry.features);
+        source.setData(data);
+      } else {
+        // add the given Unwetter-event as a source to the map
+        map.addSource(layerID, {
+          type: 'geojson',
+          data: result.geometry.features
+        });
+
+        map.addLayer({
+          "id": layerID,
+          "type": "fill",
+          "source": layerID,
+          "layout": {"visibility": "visible"},
+          "paint": {
+            "fill-color": [
+              "match", ["string", ["get", "class"]],
+              "1",
+              "grey",
+              "2",
+              "white",
+              "3",
+              "white",
+              "4",
+              "blue"
+            ],
+            "fill-opacity": 0.3
+          }
+        });
+        //
+        customLayerIds.push(layerID);
+        }
+    });
+}
+
+//***************************************************************************************************
 
 /**
 * @desc
