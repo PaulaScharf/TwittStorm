@@ -4,9 +4,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
- * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
- * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
- */
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
 
 // please put in your own tokens at ???
 
@@ -32,13 +32,13 @@ let customLayerIds = [];
 // ******************************** functions **********************************
 
 /**
- * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
- * and all Unwetter that are stored in the database. For each Unwetter, it provides an onclick-popup with a
- * description and its period of validity. Uses mapbox-gl-draw to enable drawing polygons in this map.
- * ...... TWEETS-AUFRUF ERWÄHNEN ......
- * This function is called, when "index.ejs" is loaded.
- * @author Katharina Poppinga
- */
+* @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
+* and all Unwetter that are stored in the database. For each Unwetter, it provides an onclick-popup with a
+* description and its period of validity. Uses mapbox-gl-draw to enable drawing polygons in this map.
+* ...... TWEETS-AUFRUF ERWÄHNEN ......
+* This function is called, when "index.ejs" is loaded.
+* @author Katharina Poppinga
+*/
 function showMap(style) {
 
   //
@@ -114,12 +114,11 @@ function showMap(style) {
 
     // TODO: es dürfen nicht alle Unwetter aus DB angezeigt werden
     //
-    requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
+    requestNewAndDisplayCurrentUnwetters(map, unwetterEvents, tweetEvents, Date.now());
 
-
-    // TODO: VARIABLEN VORHER DEFINIEREN, DAMIT Error: There is already a source with this ID VERMIEDEN WIRD!!
     //
-    //window.setInterval(requestNewAndDisplayAllUnwetter, 30000, map, unwetterEvents, tweetEvents);
+    // TODO: Zeit auf 5 Minuten ändern!!!
+    window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, unwetterEvents, tweetEvents, Date.now());
 
 
 
@@ -163,22 +162,77 @@ function showMap(style) {
 * @desc
 *
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
-* @param map
-* @param {Array} unwetterEvents
-* @param {Array} tweetEvents
+* @param map -
+* @param {Array} unwetterEvents -
+* @param {Array} tweetEvents -
+* @param {number} currentTimestamp - in Epoch milliseconds
 */
-function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
+function requestNewAndDisplayCurrentUnwetters(map, unwetterEvents, tweetEvents, currentTimestamp){
 
   // ".then" is used here, to ensure that the .......... has finished and a result is available
-  saveAndReturnNewUnwetterFromDWD()
+  // saves new requested Unwetter in database
+  processUnwettersFromDWD(currentTimestamp)
   //
   .catch(console.error)
   //
-  .then(function(result) {
+  .then(function() {
+
+//
+displayCurrentUnwetters(map, unwetterEvents, tweetEvents, currentTimestamp);
+
+
+// TODO: FALLS DISPLAY... SCHON EINMAL AUFGERUFEN WURDE, DANN NUR NOCH NEUE Unwetter den Map-Layern hinzufügen
+// dazu Paulas Layer-Änderung abwarten
+
+
+  }, function(err) {
+    console.log(err);
+  });
+}
+
+
+
+/**
+* @desc
+*
+* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
+* @param map -
+* @param {Array} unwetterEvents -
+* @param {Array} tweetEvents -
+* @param {number} currentTimestamp - in Epoch milliseconds
+*/
+function displayCurrentUnwetters(map, unwetterEvents, tweetEvents, currentTimestamp) {
+
+
+  // TODO: nur die Unwetter aus DB nehmen, die grad angezeigt werden sollen:
+
+  // JSON with ....... query
+  let query = {
+    currentTimestamp: currentTimestamp
+  };
+
+
+  // read all current Unwetter out of database to display them in map afterwards
+  $.ajax({
+    // use a http POST request
+    type: "POST",
+    // URL to send the request to
+    url: "/db/readCurrentUnwetters",
+    // type of the data that is sent to the server
+    contentType: "application/json; charset=utf-8",
+    // data to send to the server, send as String for independence of server-side programming language
+    data: JSON.stringify(query),
+    // timeout set to 10 seconds
+    timeout: 10000
+  })
+
+  // if the request is done successfully, ...
+  .done (function (response) {
+
+    console.log(response);
 
     // all Unwetter that are stored in the database
-    let allUnwetter = result;
-    console.log(result);
+    let currentUnwetters = response;
 
     // one feature for a Unwetter (could be heavy rain, light snowfall, ...)
     let unwetterFeature;
@@ -189,9 +243,9 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
     // *************************************************************************************************************
 
     // iteration over all Unwetter in the database
-    for (let i = 0; i < allUnwetter.length; i++) {
+    for (let i = 0; i < currentUnwetters.length; i++) {
 
-      let currentUnwetterEvent = allUnwetter[i];
+      let currentUnwetterEvent = currentUnwetters[i];
 
       // TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
 
@@ -207,28 +261,29 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
       let ii = currentUnwetterEvent.properties.ec_ii;
       switch(ii) {
         case (ii >= 61) && (ii <= 66):
-          layerID = "rain";
-          twitterSearchQuery.searchWords.push("Starkregen", "Dauerregen");
-          break;
+        layerID = "rain";
+        twitterSearchQuery.searchWords.push("Starkregen", "Dauerregen");
+        break;
         case (ii >= 70) && (ii <= 78):
-          layerID = "snowfall";
-          twitterSearchQuery.searchWords.push("Schneefall");
-          break;
+        layerID = "snowfall";
+        twitterSearchQuery.searchWords.push("Schneefall");
+        break;
         case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
-          layerID = "thunderstorm";
-          twitterSearchQuery.searchWords.push("Gewitter");
-          break;
+        layerID = "thunderstorm";
+        twitterSearchQuery.searchWords.push("Gewitter");
+        break;
         case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
-          layerID = "blackice";
-          twitterSearchQuery.searchWords.push("Blitzeis", "Glätte", "Glatteis");
-          break;
-          // TODO: alles für layer other später löschen
+        layerID = "blackice";
+        twitterSearchQuery.searchWords.push("Blitzeis", "Glätte", "Glatteis");
+        break;
+        // TODO: alles für layer other später löschen
         default:
-          layerID = "other";
-          // layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-          twitterSearchQuery.searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
-          break;
+        layerID = "other";
+        // layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
+        twitterSearchQuery.searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
+        break;
       }
+
       currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
         // make a GeoJSON Feature out of the current Unwetter
         unwetterFeature = {
@@ -242,46 +297,60 @@ function requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents){
         displayUnwetterEvents(map, layerID, unwetterFeature, tweetEvents);
       });
 
-
+      /*
       //
       saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, currentUnwetterEvent.dwd_id)
       //
-          .catch(console.error)
-          //
-          .then(function (result) {
-            try {
-              result.forEach(function (item) {
-                if (item.location_actual !== null) {
-                  let tweetFeature = {
-                    "type": "Feature",
-                    "geometry": item.location_actual,
-                    "properties": item
-                  };
-                  tweetFeatures.push(tweetFeature);
-                }
-              });
-              if (tweetFeatures.length > 0) {
-                let tweetFeaturesGeoJSON = {
-                  "type": "FeatureCollection",
-                  "features": tweetFeatures
-                };
-                map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
-              }
-            } catch {
-              console.log("there was an error while processing the tweets from the database");
-              // TODO: error catchen und dann hier auch den error ausgeben?
-            }
-          }, function (reason) {
-            console.dir(reason);
-          });
-
-
-    }
-    //
-  }, function(err) {
-    console.log(err);
-  });
+      .catch(console.error)
+      //
+      .then(function (result) {
+      try {
+      result.forEach(function (item) {
+      if (item.location_actual !== null) {
+      let tweetFeature = {
+      "type": "Feature",
+      "geometry": item.location_actual,
+      "properties": item
+    };
+    tweetFeatures.push(tweetFeature);
+  }
+});
+if (tweetFeatures.length > 0) {
+let tweetFeaturesGeoJSON = {
+"type": "FeatureCollection",
+"features": tweetFeatures
+};
+map.getSource(tweetEvents).setData(tweetFeaturesGeoJSON)
 }
+} catch {
+console.log("there was an error while processing the tweets from the database");
+// TODO: error catchen und dann hier auch den error ausgeben?
+}
+}, function (reason) {
+console.dir(reason);
+});
+*/
+
+}
+
+})
+
+// if the AJAX-request has failed, ...
+.fail (function (xhr, status, error) {
+
+  // ... give a notice that the AJAX request for reading all current Unwetter has failed and show the error on the console
+  console.log("AJAX request (reading all current Unwetter) has failed.", error);
+
+  // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+  //  if (error === "timeout") {
+  //    JL("ajaxReadingAllCurrentUnwetterTimeout").fatalException("ajax: '/db/readCurrentUnwetters' timeout");
+  //  }
+
+});
+
+}
+
+
 
 
 // TODO: folgendes in einer Funktion unterbringen:
@@ -341,7 +410,7 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
 */
 function displayUnwetterEvents(map, layerID, unwetterEventFeatureCollection, tweetEvents) {
 
-//
+  //
   let source = map.getSource(layerID);
   if (typeof source !== 'undefined') {
     let data = JSON.parse(JSON.stringify(source._data));
@@ -492,13 +561,13 @@ function displayTweets(map, layerID) {
 
 
 /**
- * WIP
- * This function could be used to assign colors to different types of weather events. It is currently not used.
- * @author Paula Scharf, matr.: 450334
- * @param group - name of the ec_group of Unwetter
- * @returns {string}
- * @example assignColor("FROST")
- */
+* WIP
+* This function could be used to assign colors to different types of weather events. It is currently not used.
+* @author Paula Scharf, matr.: 450334
+* @param group - name of the ec_group of Unwetter
+* @returns {string}
+* @example assignColor("FROST")
+*/
 /*function assignColor(group) {
 switch (group) {
 case "THUNDERSTORM":
@@ -551,13 +620,13 @@ break;
 // TODO: Popups scrollbar machen oder enthaltenen Text kürzen??
 
 /**
- * @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
- * The popup gives information about the period of validity and a description of the warning.
- * @author Katharina Poppinga
- * @private
- * @param {mapbox-map} map map in which the Unwetter-features are in
- * @param {Object} e ...
- */
+* @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
+* The popup gives information about the period of validity and a description of the warning.
+* @author Katharina Poppinga
+* @private
+* @param {mapbox-map} map map in which the Unwetter-features are in
+* @param {Object} e ...
+*/
 function showUnwetterPopup(map, e) {
 
   // get information about the feature on which it was clicked
@@ -569,17 +638,17 @@ function showUnwetterPopup(map, e) {
   if (pickedUnwetter[0].properties.instruction !== "null") {
     // ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
     new mapboxgl.Popup()
-        .setLngLat(e.lngLat)
-        .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + new Date(pickedUnwetter[0].properties.onset) + "<br><b>expires: </b>" + new Date(pickedUnwetter[0].properties.expires) + "<br>" + pickedUnwetter[0].properties.instruction)
-        .addTo(map);
+    .setLngLat(e.lngLat)
+    .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + new Date(pickedUnwetter[0].properties.onset) + "<br><b>expires: </b>" + new Date(pickedUnwetter[0].properties.expires) + "<br>" + pickedUnwetter[0].properties.instruction)
+    .addTo(map);
   }
   // if a instruction is not given by the DWD ...
   else {
     // ... create a popup with above information without an instruction
     new mapboxgl.Popup()
-        .setLngLat(e.lngLat)
-        .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + new Date(pickedUnwetter[0].properties.onset) + "<br><b>expires: </b>" + new Date(pickedUnwetter[0].properties.expires))
-        .addTo(map);
+    .setLngLat(e.lngLat)
+    .setHTML("<b>"+pickedUnwetter[0].properties.event+"</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + new Date(pickedUnwetter[0].properties.onset) + "<br><b>expires: </b>" + new Date(pickedUnwetter[0].properties.expires))
+    .addTo(map);
   }
 }
 
@@ -609,13 +678,13 @@ function showTweetPopup(map, e) {
 
 
 /**
- * @desc Enables drawing polygons in a map, using mapbox-gl-draw.
- * Drawn polygons can be edited and deleted.
- * ...... TWITTERWEITERVERARBEITUNG ......
- *
- * @author Katharina Poppinga
- * @param {mapbox-map} map map in which the polygons shall be drawn
- */
+* @desc Enables drawing polygons in a map, using mapbox-gl-draw.
+* Drawn polygons can be edited and deleted.
+* ...... TWITTERWEITERVERARBEITUNG ......
+*
+* @author Katharina Poppinga
+* @param {mapbox-map} map map in which the polygons shall be drawn
+*/
 function drawForAOI(map) {
 
   // specify and add a control for DRAWING A POLYGON into the map
@@ -705,19 +774,19 @@ var inputs = layerList.getElementsByTagName('input');
 
 
 /**
- * @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
- * @param layer - The chosen maplayer style
- * @author Benjamin Rieke
- */
+* @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
+* @param layer - The chosen maplayer style
+* @author Benjamin Rieke
+*/
 function switchLayer(layer) {
   const savedLayers = [];
   const savedSources = {};
   forEachLayer((layer) => {
-      savedSources[layer.source] = map.getSource(layer.source).serialize();
-      savedLayers.push(layer);
+    savedSources[layer.source] = map.getSource(layer.source).serialize();
+    savedLayers.push(layer);
   });
 
-//Takes the id from the layer and calls the showMap function
+  //Takes the id from the layer and calls the showMap function
   var layerId = layer.target.id;
   map.setStyle('mapbox://styles/mapbox/' + layerId);
 
@@ -729,9 +798,9 @@ function switchLayer(layer) {
     });
 
     savedLayers.forEach((layer) => {
-        if (typeof map.getLayer(layer.id) === 'undefined') {
-          map.addLayer(layer);
-        }
+      if (typeof map.getLayer(layer.id) === 'undefined') {
+        map.addLayer(layer);
+      }
     });
   }, 1000);
 }
@@ -745,10 +814,10 @@ for (var i = 0; i < inputs.length; i++) {
 
 
 /**
- * Calls a given function (cb) for all layers of the map.
- * @author Paula Scharf
- * @param cb - function to perform for each layer
- */
+* Calls a given function (cb) for all layers of the map.
+* @author Paula Scharf
+* @param cb - function to perform for each layer
+*/
 function forEachLayer(cb) {
   map.getStyle().layers.forEach((layer) => {
     if (!customLayerIds.includes(layer.id)) return;

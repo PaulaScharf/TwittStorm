@@ -19,7 +19,7 @@ function removeOldUnwetterFromDB(){
 
   // alles ältere als die letzten 10 zeitschritte aus DB löschen
 
-  // Zeitstempel in DB aktualisieren, falls Unwetter im neuen Request wieder vorkommt?
+
 
 
   // TODO: DELETE zu POST ändern?
