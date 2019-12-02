@@ -109,6 +109,14 @@ function showMap(style) {
 		// enable drawing the area-of-interest-polygons
 		drawForAOI(map);
 
+        // Rain Radar Data
+        saveRainRadar('rw', 'dwd')
+            .catch(console.error)
+            .then(function(result) {
+                console.log(result);
+            }, function(err) {
+                console.log(err);
+            });
 		//
 		requestNewAndDisplayCurrentUnwetters(map, 1575399600001 );
 		//
