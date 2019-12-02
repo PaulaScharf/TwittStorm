@@ -16,10 +16,10 @@ var router = express.Router();
 var Twitter = require('twitter');
 
 var client = new Twitter({
-	consumer_key: token.twitter.consumer_key,
-	consumer_secret: token.twitter.consumer_secret,
-	access_token_key: token.twitter.access_token_key,
-	access_token_secret: token.twitter.access_token_secret
+	consumer_key: require("../public/javascripts/tokens.js").token.twitter.consumer_key,
+	consumer_secret: require("../public/javascripts/tokens.js").token.twitter.consumer_secret,
+	access_token_key: require("../public/javascripts/tokens.js").token.twitter.access_token_key,
+	access_token_secret: require("../public/javascripts/tokens.js").token.twitter.access_token_secret
 });
 
 router.post("/search", (req, res) => {

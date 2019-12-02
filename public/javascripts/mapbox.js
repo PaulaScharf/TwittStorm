@@ -13,7 +13,7 @@
 // TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
 
 // TODO: löschen, da nicht benötigt??
-mapboxgl.accessToken = token.mapbox.access_key;
+mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA';
 
 
 
@@ -192,7 +192,8 @@ function requestNewAndDisplayAllUnwetter(map){
 							twitterSearchQuery.searchWords.push("Unwetter", "Windboeen", "Nebel", "Sturm");
 							break;
 					}
-					currentUnwetterEvent.geometry.forEach(function (currentPolygon) {
+					for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
+						let currentPolygon = currentUnwetterEvent.geometry[i];
 						// make a GeoJSON Feature out of the current Unwetter
 						unwetterFeature = {
 							"type": "FeatureCollection",
@@ -202,10 +203,10 @@ function requestNewAndDisplayAllUnwetter(map){
 								"properties": currentUnwetterEvent.properties
 							}]
 						};
-						displayEvents(map, i + " " + layerGroup + " Unwetter", unwetterFeature);
-					});
+						displayEvents(map,  "Unwetter "  + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
+					}
 
-					retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event);
+					retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, layerGroup);
 				}
 				// TODO: folgendes in einer Funktion unterbringen:
 			})();
@@ -222,7 +223,7 @@ function requestNewAndDisplayAllUnwetter(map){
  * @param dwd_id - the id of the specific unwetter
  * @param dwd_event - the event-name of the unwetter
  */
-function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event) {
+function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup) {
 	//
 	saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, dwd_id, dwd_event)
 	// show errors in the console
@@ -248,10 +249,10 @@ function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event) {
 				});
 				// add the tweets to the map
 				if (tweetFeatureCollection.features.length > 0) {
-					displayEvents(map, i + " " + layerGroup + " Tweet", tweetFeatureCollection);
+					displayEvents(map, "Tweet " + layerGroup + " " + result[0].unwetter_ID, tweetFeatureCollection);
 				}
-			} catch {
-				console.dir("there was an error while processing the tweets from the database");
+			} catch (e) {
+				console.dir("there was an error while processing the tweets from the database", e);
 				// TODO: error catchen und dann hier auch den error ausgeben?
 			}
 		}, function (reason) {
@@ -342,9 +343,9 @@ function makeLayerInteractive(layerID) {
 	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
 	map.on('click', layerID, function (e) {
 		if (layerID.includes("Tweet")) {
-			showTweetPopup(e);
+			showTweetPopup(map,e);
 		} else {
-			showUnwetterPopup(e);
+			showUnwetterPopup(map,e);
 		}
 	});
 }
@@ -360,7 +361,6 @@ function makeLayerInteractive(layerID) {
  * @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of all Unwetter-events of the specific event-supergroup
  */
 function displayEvents(map, layerID, eventFeatureCollection) {
-
 //
 	let source = map.getSource(layerID);
 	if (typeof source !== 'undefined') {
@@ -512,25 +512,27 @@ function showUnwetterPopup(map, e) {
 
 	if (e) {
 		// get information about the feature on which it was clicked
-		var pickedUnwetter = map.queryRenderedFeatures(e.point);
+		var picked = map.queryRenderedFeatures(e.point);
 
 		// TODO: Sommerzeit im Sommer??
 
-		// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
-		if (pickedUnwetter[0].properties.instruction !== "null") {
-			// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
-			new mapboxgl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML("<b>" + pickedUnwetter[0].properties.event + "</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + new Date(pickedUnwetter[0].properties.onset) + "<br><b>expires: </b>" + new Date(pickedUnwetter[0].properties.expires) + "<br>" + pickedUnwetter[0].properties.instruction)
-				.addTo(map);
-		}
-		// if a instruction is not given by the DWD ...
-		else {
-			// ... create a popup with above information without an instruction
-			new mapboxgl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML("<b>" + pickedUnwetter[0].properties.event + "</b>" + "<br>" + pickedUnwetter[0].properties.description + "<br><b>onset: </b>" + new Date(pickedUnwetter[0].properties.onset) + "<br><b>expires: </b>" + new Date(pickedUnwetter[0].properties.expires))
-				.addTo(map);
+		if (picked[0].source.includes("Unwetter")) {
+			// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
+			if (picked[0].properties.instruction !== "null") {
+				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
+				new mapboxgl.Popup()
+					.setLngLat(e.lngLat)
+					.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
+					.addTo(map);
+			}
+			// if a instruction is not given by the DWD ...
+			else {
+				// ... create a popup with above information without an instruction
+				new mapboxgl.Popup()
+					.setLngLat(e.lngLat)
+					.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
+					.addTo(map);
+			}
 		}
 	}
 }
@@ -548,14 +550,16 @@ function showTweetPopup(map, e) {
 	// get information about the feature on which it was clicked
 	var pickedTweet = map.queryRenderedFeatures(e.point);
 
-	// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
-	new mapboxgl.Popup()
-		.setLngLat(e.lngLat)
-		.setHTML("<b>"+JSON.parse(pickedTweet[0].properties.author).name+"</b>" +
-			"<br>" + pickedTweet[0].properties.statusmessage + "<br>" +
-			"<b>timestamp: </b>" + pickedTweet[0].properties.timestamp + "<br>" +
-			"<b>unwetter: </b>" + pickedTweet[0].properties.unwetter.event)
-		.addTo(map);
+	if (pickedTweet[0].source.includes("Tweet")) {
+		// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
+		new mapboxgl.Popup()
+			.setLngLat(e.lngLat)
+			.setHTML("<b>" + JSON.parse(pickedTweet[0].properties.author).name + "</b>" +
+				"<br>" + pickedTweet[0].properties.statusmessage + "<br>" +
+				"<b>timestamp: </b>" + pickedTweet[0].properties.timestamp + "<br>" +
+				"<b>unwetter: </b>" + pickedTweet[0].properties.unwetter_Event)
+			.addTo(map);
+	}
 }
 
 

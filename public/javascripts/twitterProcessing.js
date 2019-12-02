@@ -62,6 +62,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 		// if the request is done successfully, ...
 			.done(function (response) {
 				(async () => {
+
 					if (response.statuses) {
 						for (let i = response.statuses.length - 1; i >= 0; i--) {
 							let currentFeature = response.statuses[i];
@@ -80,10 +81,8 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 										},
 										timestamp: currentFeature.created_at,
 										location_actual: currentFeature.coordinates,
-										unwetter: {
-											id: unwetterID,
-											event: unwetterEvent
-										}
+										unwetter_ID: unwetterID,
+										unwetter_Event: unwetterEvent
 									};
 									arrayOfPromises.push(promiseToPostItem(currentStatus));
 								}
@@ -96,7 +95,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 						// wait for all the posts to the database to succeed
 						await Promise.all(arrayOfPromises);
 						// return the promise to get all Items
-						resolve(promiseToGetAllItems({type: "Tweet", unwetter: unwetterID}));
+						resolve(promiseToGetAllItems({type: "Tweet", unwetter_ID: unwetterID}));
 						// ... give a notice on the console that the AJAX request for reading all routes has succeeded
 						console.log("AJAX request (reading all tweets) is done successfully.");
 						// if await Promise.all(arrayOfPromises) fails:
