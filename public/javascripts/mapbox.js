@@ -110,10 +110,10 @@ function showMap(style) {
 		drawForAOI(map);
 
 		//
-		requestNewAndDisplayCurrentUnwetters(map, Date.now());
+		requestNewAndDisplayCurrentUnwetters(map, 1575399600001 );
 		//
 		// TODO: Zeit auf 5 Minuten ändern!!!
-		window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, Date.now());
+		//window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, 1575399600001);
 
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -168,15 +168,24 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 	// JSON with ....... query
 	let query = {
-		"properties.onset": {"$lt": currentTimestamp},
-		"properties.expires": {"$gt": currentTimestamp}
+		currentTimestamp: currentTimestamp
 	};
 
-	promiseToGetItems(query)
-		.catch(function(error) {
-			console.dir(error)
-		})
-		.then(function(response) {
+	$.ajax({
+		// use a http POST request
+		type: "POST",
+		// URL to send the request to
+		url: "/db/readCurrentUnwetters",
+		// type of the data that is sent to the server
+		contentType: "application/json; charset=utf-8",
+		// data to send to the server, send as String for independence of server-side programming language
+		data: JSON.stringify(query),
+		// timeout set to 10 seconds
+		timeout: 10000
+	})
+
+	// if the request is done successfully, ...
+		.done (function (response) {
 
 		console.log(response);
 
@@ -252,9 +261,17 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 			retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, layerGroup);
 		}
 
-	}, function(reason) {
-			console.dir(reason);
-		})
+	}).fail (function (xhr, status, error) {
+
+		// ... give a notice that the AJAX request for reading all current Unwetter has failed and show the error on the console
+		console.log("AJAX request (reading all current Unwetter) has failed.", error);
+
+		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+		//  if (error === "timeout") {
+		//    JL("ajaxReadingAllCurrentUnwetterTimeout").fatalException("ajax: '/db/readCurrentUnwetters' timeout");
+		//  }
+
+	});
 }
 
 
@@ -273,30 +290,32 @@ function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup) {
 	.catch(console.error)
 	// process the result of the requests
 	.then(function (result) {
-		try {
-			// create an empty featurecollection for the tweets
-			let tweetFeatureCollection = {
-				"type": "FeatureCollection",
-				"features": []
-			};
-			// add the tweets in the result to the featurecollection
-			result.forEach(function (item) {
-				if (item.location_actual !== null) {
-					let tweetFeature = {
-						"type": "Feature",
-						"geometry": item.location_actual,
-						"properties": item
-					};
-					tweetFeatureCollection.features.push(tweetFeature);
+		if(typeof result !== "undefined") {
+			try {
+				// create an empty featurecollection for the tweets
+				let tweetFeatureCollection = {
+					"type": "FeatureCollection",
+					"features": []
+				};
+				// add the tweets in the result to the featurecollection
+				result.forEach(function (item) {
+					if (item.location_actual !== null) {
+						let tweetFeature = {
+							"type": "Feature",
+							"geometry": item.location_actual,
+							"properties": item
+						};
+						tweetFeatureCollection.features.push(tweetFeature);
+					}
+				});
+				// add the tweets to the map
+				if (tweetFeatureCollection.features.length > 0) {
+					displayEvents(map, "Tweet " + layerGroup + " " + result[0].unwetter_ID, tweetFeatureCollection);
 				}
-			});
-			// add the tweets to the map
-			if (tweetFeatureCollection.features.length > 0) {
-				displayEvents(map, "Tweet " + layerGroup + " " + result[0].unwetter_ID, tweetFeatureCollection);
+			} catch (e) {
+				console.dir("there was an error while processing the tweets from the database", e);
+				// TODO: error catchen und dann hier auch den error ausgeben?
 			}
-		} catch (e) {
-			console.dir("there was an error while processing the tweets from the database", e);
-			// TODO: error catchen und dann hier auch den error ausgeben?
 		}
 	}, function (reason) {
 		console.dir(reason);
@@ -656,8 +675,7 @@ function drawForAOI(map) {
 		});
 		draw.delete(pids);
 
-		// TODO: mit Polygon in Funktion für die Tweet-Suche gehen
-		onlyShowUnwetterInPolygon(e.features.geometry);
+		onlyShowUnwetterInPolygon(turf.polygon(e.features[0].geometry.coordinates));
 	});
 
 
@@ -686,21 +704,55 @@ function drawForAOI(map) {
 }
 
 /**
-*
+* This function makes only Unwetters and its tweets visible, if the include a polygon that is fully contained by the given
+* polygon. Attention: Turf is very inaccurate.
 * @author Paula Scharf
-* @param polygon
+* @param polygon - a turf polygon (eg the aoi)
 */
 function onlyShowUnwetterInPolygon(polygon) {
+	customLayerIds.forEach(function(layerID) {
+		// make sure to only check layers which contain an Unwetter
+		if (layerID.includes("Unwetter")) {
+			let isInAOI = true;
+			let source = map.getSource(layerID);
+			// if any polygon of the layer is not contained by the given polygon, it is not inside the AOI
+			source._data.features[0].geometry.coordinates[0].forEach(function(item) {
+					let coordinateArray = [item];
+					let currentlayerPolygon = turf.polygon(coordinateArray);
+					if (!turf.booleanContains(polygon, currentlayerPolygon)) {
+						isInAOI = false;
+					}
+			});
+			let visibility;
+			// decide if the unwetter is gonna be visible or not
+			if (!isInAOI) {
+				visibility = 'none';
+			} else {
+				visibility = 'visible';
+			}
 
+			// change visibility of unwetter layer
+			map.setLayoutProperty(layerID, 'visibility', visibility);
+			// change visibility of corresponding tweet layer
+			let layerIDSplit = layerID.split(/[ ]+/);
+			let layerIDTweet = "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2];
+			let tweetLayer = map.getLayer(layerIDTweet);
+
+			if (typeof tweetLayer !== 'undefined') {
+				map.setLayoutProperty(layerIDTweet, 'visibility', visibility);
+			}
+		}
+	});
 }
 
 /**
-*
+* This function ensures, that all layers are visible.
 * @author Paula Scharf
-* @param polygon
 */
 function showAllUnwetter() {
-
+	customLayerIds.forEach(function(layerID) {
+		map.setLayoutProperty(layerID, 'visibility', 'visible');
+	});
 }
 /**
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X

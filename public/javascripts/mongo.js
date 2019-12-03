@@ -67,17 +67,70 @@ function deleteRoute(event) {
 //create
 function createRouteButton() {
 	event.preventDefault();
-
-	var newRouteString = '{"hello":"hello"}';
-	//newRouteString = JSON.parse(newRouteString);
-	//newRouteString = JSON.stringify(newRouteString);
-	console.log("createRouteButton with payload: " + newRouteString);
+	let item = JSON.stringify({//document.getElementById('GeoJson').value;
+		type: "Unwetter",
+		dwd_id: "1234",
+		timestamps: Date.now(),
+		geometry: {
+			"type": "Polygon",
+			"coordinates": [
+				[
+					[
+						10.08544921875,
+						49.196064000723794
+					],
+					[
+						9.84375,
+						47.66538735632654
+					],
+					[
+						12.06298828125,
+						47.62097541515849
+					],
+					[
+						12.37060546875,
+						48.90805939965008
+					],
+					[
+						11.162109375,
+						49.35375571830993
+					],
+					[
+						10.08544921875,
+						49.196064000723794
+					]
+				]
+			]
+		},
+		properties: {
+			ec_Group: "NEBEL",
+			event: "NEBEL",
+			ec_ii: "1",
+			name: "NEBEL",
+			responseType: "Prepare",
+			urgency: "Immediate",
+			severity: "Moderate",
+			parameter: null,
+			certainty: "Likely",
+			description: "description",
+			instruction: "instruction",
+			color: "#000000",
+			sent: Date.parse("2019-12-03T06:24:18+01:00"),
+			onset: Date.parse("2019-12-03T06:24:18+01:00"),
+			effective: Date.parse("2019-12-03T06:24:18+01:00"),
+			expires: Date.parse("2019-12-03T23:24:18+01:00"),
+			altitude: "1312.336",
+			ceiling: "2624.672"
+		}
+	});
+	console.dir(item);
+	console.dir(JSON.parse(JSON.stringify(item)));
 
 	//post
 	$.ajax({
 		type: 'POST',
-		data: newRouteString,
-		url: '/users/addroute',
+		data: item,
+		url: '/db/add',
 		contentType:"application/json"
 	}).done(function(response) {
 		console.dir(response);
@@ -88,5 +141,7 @@ function createRouteButton() {
 		else {
 			alert('Error: ' + response.msg);
 		}
+	}).fail(function(error) {
+		console.dir("ajax request (adding an item to the database) has failed", error.responseText)
 	});
 }

@@ -62,7 +62,6 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 		// if the request is done successfully, ...
 			.done(function (response) {
 				(async () => {
-
 					if (response.statuses) {
 						for (let i = response.statuses.length - 1; i >= 0; i--) {
 							let currentFeature = response.statuses[i];

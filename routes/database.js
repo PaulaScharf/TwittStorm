@@ -43,7 +43,6 @@ router.post("/", function(req, res) {
 			query[key] = req.body[key];
 		}
 	}
-	console.dir(query);
 	// find all
 	db.collection('item').find(query).toArray((error, result) => {
 		if(error){

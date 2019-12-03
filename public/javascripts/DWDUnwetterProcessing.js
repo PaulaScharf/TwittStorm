@@ -53,7 +53,6 @@ function processUnwettersFromDWD(currentTimestamp) {
         arrayOfGroupedUnwetters.push(currentUnwetter);
       });
 
-
       //
       new Promise((resolve, reject) => {
         // TODO: umbenennen?
@@ -174,7 +173,6 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
         reject(error)
       })
       .then(function(response) {
-        console.dir(response);
         // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
         if (typeof response !== "undefined" && response.length > 0) {
           let responseFirst = response[0];
