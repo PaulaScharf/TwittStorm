@@ -116,7 +116,7 @@ function showMap(style) {
     // TODO: es dürfen nicht alle Unwetter aus DB angezeigt werden
     //
     requestAndDisplayAllRainRadar(map, 'sf', 'dwd');
-    //requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
+    requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
 
 
     // TODO: VARIABLEN VORHER DEFINIEREN, DAMIT Error: There is already a source with this ID VERMIEDEN WIRD!!
