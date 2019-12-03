@@ -43,8 +43,11 @@ let customLayerIds = [];
 */
 function showMap(style) {
 
-	//
-	removeOldUnwetterFromDB();
+
+	// TODO: öfter aufrufen und Date.now() mit dem Date.now() für	requestNewAndDisplayCurrentUnwetters
+	// übereinstimmend machen (als Variable)
+	// !!!!!!!!!!!
+	removeOldUnwetterFromDB(Date.now());
 
 	// Checks if the layer menu DOM is empty and if not flushes the dom
 	while (layers.firstChild) {
@@ -110,10 +113,10 @@ function showMap(style) {
 		drawForAOI(map);
 
 		//
-		requestNewAndDisplayCurrentUnwetters(map, 1575399600001 );
+		requestNewAndDisplayCurrentUnwetters(map, Date.now());
 		//
 		// TODO: Zeit auf 5 Minuten ändern!!!
-		//window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, 1575399600001);
+		window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, Date.now());
 
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -185,7 +188,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 	})
 
 	// if the request is done successfully, ...
-		.done (function (response) {
+	.done (function (response) {
 
 		console.log(response);
 
@@ -717,11 +720,11 @@ function onlyShowUnwetterInPolygon(polygon) {
 			let source = map.getSource(layerID);
 			// if any polygon of the layer is not contained by the given polygon, it is not inside the AOI
 			source._data.features[0].geometry.coordinates[0].forEach(function(item) {
-					let coordinateArray = [item];
-					let currentlayerPolygon = turf.polygon(coordinateArray);
-					if (!turf.booleanContains(polygon, currentlayerPolygon)) {
-						isInAOI = false;
-					}
+				let coordinateArray = [item];
+				let currentlayerPolygon = turf.polygon(coordinateArray);
+				if (!turf.booleanContains(polygon, currentlayerPolygon)) {
+					isInAOI = false;
+				}
 			});
 			let visibility;
 			// decide if the unwetter is gonna be visible or not

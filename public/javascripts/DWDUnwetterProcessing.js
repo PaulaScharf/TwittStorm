@@ -160,7 +160,6 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
 
   // TODO: auch auf einzelne vorhandene geometrys überprüfen
 
-
   //
   return new Promise((resolve, reject) => {
     // JSON with the ID of the current Unwetter, needed for following database-check
@@ -168,59 +167,62 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
       type: "Unwetter",
       dwd_id: currentFeature.properties.IDENTIFIER
     };
+
+    //
     promiseToGetItems(query)
-      .catch(function(error) {
-        reject(error)
-      })
-      .then(function(response) {
-        // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
-        if (typeof response !== "undefined" && response.length > 0) {
-          let responseFirst = response[0];
-          // ... do not insert it again but:
+    .catch(function(error) {
+      reject(error)
+    })
+    .then(function(response) {
+
+      // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
+      if (typeof response !== "undefined" && response.length > 0) {
+        let responseFirst = response[0];
+        // ... do not insert it again but:
+
+        // TODO: evtl. console-print löschen?
+        console.log("item already in database, do not insert it again");
+
+        // TODO: FOLGEND IST ES DAVON ABHÄNGIG, OB EINE UPDATE MELDUNG EINE NEUE ODER DIE GLEICHE DWD_ID HAT WIE DIE ZUGEHÖRIGE ALERT MELDUNG!!!!!!!!!! (ÜBERPRÜFEN)
+        // ERSTMAL WIRD HIER DAVON AUSGEGANGEN, DASS DIE DWD_IDS DANN UNTERSCHIEDLICH SIND, siehe https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
+
+        // ... and if its MSGTYPE is "Alert" or "Update" ...
+        if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
+
+          // response._id is the Unwetter-item-ID from mongoDB
+          // if the array "timestamps" does not already contain the currentTimestamp, append it now:
+          if (!(responseFirst.timestamps.includes(currentTimestamp))) {
+            updateTimestamp(responseFirst._id, currentTimestamp);
+          }
+
+          // ... and if its MSGTYPE is "Cancel" ...
+        } else {
+
+          // TODO: delete this Unwetter from database?? (rückwirkend, da Meldung ein Irrtum ist??)
+        }
+
+
+        // if this Unwetter does NOT EXIST in the database ...
+      } else {
+        // ... and if its MSGTYPE is "Alert" or "Update" ...
+        if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
 
           // TODO: evtl. console-print löschen?
-          console.log("item already in database, do not insert it again");
+          console.log("item currently not in database, insert it now");
 
-          // TODO: FOLGEND IST ES DAVON ABHÄNGIG, OB EINE UPDATE MELDUNG EINE NEUE ODER DIE GLEICHE DWD_ID HAT WIE DIE ZUGEHÖRIGE ALERT MELDUNG!!!!!!!!!! (ÜBERPRÜFEN)
-          // ERSTMAL WIRD HIER DAVON AUSGEGANGEN, DASS DIE DWD_IDS DANN UNTERSCHIEDLICH SIND, siehe https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
-
-          // ... and if its MSGTYPE is "Alert" or "Update" ...
-          if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
-
-            // response._id is the Unwetter-item-ID from mongoDB
-            // if the array "timestamps" does not already contain the currentTimestamp, append it now:
-            if (!(responseFirst.timestamps.includes(currentTimestamp))) {
-              updateTimestamp(responseFirst._id, currentTimestamp);
-            }
-
-            // ... and if its MSGTYPE is "Cancel" ...
-          } else {
-
-            // TODO: delete this Unwetter from database?? (rückwirkend, da Meldung ein Irrtum ist??)
-          }
-
-
-          // if this Unwetter does NOT EXIST in the database ...
-        } else {
-          // ... and if its MSGTYPE is "Alert" or "Update" ...
-          if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
-
-            // TODO: evtl. console-print löschen?
-            console.log("item currently not in database, insert it now");
-
-            // ... insert it by first formatting the Unwetters JSON and ...
-            let currentUnwetter = createUnwetterForDB(currentFeature, currentTimestamp);
-            // ... add it to the arrayOfGroupedUnwetters
-            // this array will be used for subsequent processing before adding the Unwetter to the
-            // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
-            arrayUnwettersToPost.push(currentUnwetter);
-          }
-
-          // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter
+          // ... insert it by first formatting the Unwetters JSON and ...
+          let currentUnwetter = createUnwetterForDB(currentFeature, currentTimestamp);
+          // ... add it to the arrayOfGroupedUnwetters
+          // this array will be used for subsequent processing before adding the Unwetter to the
+          // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
+          arrayUnwettersToPost.push(currentUnwetter);
         }
-        //
-        resolve(response);
-      });
+
+        // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter
+      }
+      //
+      resolve(response);
+    });
   });
 }
 
@@ -304,14 +306,13 @@ function updateTimestamp(_id, currentTimestamp) {
     currentTimestamp: currentTimestamp
   };
 
-
   return new Promise((resolve, reject) => {
     //
     $.ajax({
       // use a http PUT request
       type: "PUT",
       // URL to send the request to
-      url: "/db/updateUnwetter",
+      url: "/db/addUnwetterTimestamp",
       // type of the data that is sent to the server
       contentType: "application/json; charset=utf-8",
       // data to send to the server, send as String for independence of server-side programming language
@@ -335,9 +336,9 @@ function updateTimestamp(_id, currentTimestamp) {
       console.log("AJAX request (updating one Unwetter) has failed.", error);
 
       // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-        if (error === "timeout") {
-      //    JL("ajaxUpdatingOneUnwetterItemTimeout").fatalException("ajax: '/db/updateUnwetter' timeout");
-        }
+      if (error === "timeout") {
+        //    JL("ajaxUpdatingOneUnwetterItemTimeout").fatalException("ajax: '/db/updateUnwetter' timeout");
+      }
       reject("AJAX request (reading one item) has failed.");
     });
   });
@@ -410,75 +411,76 @@ function groupByArray(xs, key) {
     });
   }
 
-/**
- * This function calls 'db/' with AJAX, to retrieve all items that comply to the given query in the database.
- * The logic is wrapped in a promise to make it possible to await it (see saveAndReturnNewUnwetterFromDWD for an example
- * of await).
- * @author Paula Scharf, matr.: 450334
- * @param {Object} query
- * @example promiseToGetItems({type: "Unwetter"})
- */
-function promiseToGetItems(query) {
-  return new Promise((resolve, reject) => {
-    $.ajax({
-      // use a http POST request
-      type: "POST",
-      // URL to send the request to
-      url: "db/",
-      //
-      data: query,
-      // timeout set to 15 seconds
-      timeout: 20000
-    })
 
-    // if the request is done successfully, ...
-      .done(function (response) {
-        // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
-        console.log("AJAX request (reading all items) is done successfully.");
-        // "resolve" acts like "return" in this context
-        resolve(response);
-      })
+  /**
+  * This function calls '/db/' with AJAX, to retrieve all items that comply to the given query in the database.
+  * The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example
+    * of await).
+    * @author Paula Scharf, matr.: 450334
+    * @param {Object} query
+    * @example promiseToGetItems({type: "Unwetter"})
+    */
+    function promiseToGetItems(query) {
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          // use a http POST request
+          type: "POST",
+          // URL to send the request to
+          url: "/db/",
+          //
+          data: query,
+          // timeout set to 15 seconds
+          timeout: 20000
+        })
 
-      // if the request has failed, ...
-      .fail(function (xhr, status, error) {
-        // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
-        console.log("AJAX request (reading all items) has failed.", error);
-        console.dir(error);
+        // if the request is done successfully, ...
+        .done(function (response) {
+          // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
+          console.log("AJAX request (reading all items) is done successfully.");
+          // "resolve" acts like "return" in this context
+          resolve(response);
+        })
 
-        // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-        if (error === "timeout") {
-          //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
-        }
-        reject("AJAX request (reading all items) has failed.");
+        // if the request has failed, ...
+        .fail(function (xhr, status, error) {
+          // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
+          console.log("AJAX request (reading all items) has failed.", error);
+          console.dir(error);
+
+          // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+          if (error === "timeout") {
+            //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
+          }
+          reject("AJAX request (reading all items) has failed.");
+        });
+
       });
-
-  });
-}
+    }
 
 
-/**
-* This function converts an input "c" to the hex-encoding
-* @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-* @param c
-* @returns {String}
-*/
-/*
-function componentToHex(c) {
-  var hex = c.toString(16);
-  return hex.length == 1 ? "0" + hex : hex;
-}
-*/
+    /**
+    * This function converts an input "c" to the hex-encoding
+    * @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+    * @param c
+    * @returns {String}
+    */
+    /*
+    function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+  }
+  */
 
-/**
-* This function converts an input of the color values (0 to 255) for red, green and blue to its hex-encoding
-* @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-* @param r - red
-* @param g - green
-* @param b - blue
-* @returns {String}
-*/
-/*
-function rgbToHex(r, g, b) {
+  /**
+  * This function converts an input of the color values (0 to 255) for red, green and blue to its hex-encoding
+  * @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+  * @param r - red
+  * @param g - green
+  * @param b - blue
+  * @returns {String}
+  */
+  /*
+  function rgbToHex(r, g, b) {
   return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 */
