@@ -110,7 +110,7 @@ function showMap(style) {
 		drawForAOI(map);
 
         // Rain Radar Data
-        requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
+        requestAndDisplayAllRainRadar(map, 'sf', 'dwd');
 
         //
 		requestNewAndDisplayCurrentUnwetters(map, 1575399600001 );
