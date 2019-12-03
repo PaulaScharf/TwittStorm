@@ -115,8 +115,8 @@ function showMap(style) {
 
     // TODO: es dürfen nicht alle Unwetter aus DB angezeigt werden
     //
-    //requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
-    requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
+    requestAndDisplayAllRainRadar(map, 'sf', 'dwd');
+    //requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
 
 
     // TODO: VARIABLEN VORHER DEFINIEREN, DAMIT Error: There is already a source with this ID VERMIEDEN WIRD!!
@@ -171,52 +171,37 @@ function showMap(style) {
   */
 function requestAndDisplayAllRainRadar(map, product, classification) {
   // Rain Radar Data
-  saveRainRadar('rw', 'dwd')
+  saveRainRadar(product, classification)
     .catch(console.error)
     .then(function(result) {
       //result is array of rainRadar JSONs
       //result[result.length - 1] is most recent one -- insert variable
       //console.log(result[result.length - 1]);
 
-      //display of result[result.length - 1]
       result = result[result.length - 1];
-      let layerID = "rainRadar";
-
-      let source = map.getSource(layerID);
-      if (typeof source !== 'undefined') {
-        let data = JSON.parse(JSON.stringify(source._data));
-        data.features = data.features.concat(result.geometry.features);
-        source.setData(data);
-      } else {
-        // add the given Unwetter-event as a source to the map
-        map.addSource(layerID, {
-          type: 'geojson',
-          data: result.geometry.features
-        });
-
-        map.addLayer({
-          "id": layerID,
-          "type": "fill",
-          "source": layerID,
-          "layout": {"visibility": "visible"},
-          "paint": {
-            "fill-color": [
-              "match", ["string", ["get", "class"]],
-              "1",
-              "grey",
-              "2",
-              "white",
-              "3",
-              "white",
-              "4",
-              "blue"
-            ],
-            "fill-opacity": 0.3
-          }
-        });
-        //
-        customLayerIds.push(layerID);
+      console.log(result.geometry);
+      map.addSource("rainRadar", {
+        "type": "geojson",
+        "data": result.geometry
+      });
+      map.addLayer({
+        "id": "rainRadar-1",
+        "type": "fill",
+        "source": "rainRadar",
+        "layout": {"visibility": "visible"},
+        "paint": {
+          "fill-color" : {
+            "property": "class",
+            "stops": [
+              [1, '#1733a8'],
+              [2, '#1733a8'],
+              [3, '#12167f'],
+              [4, '#1d1f66']
+            ]
+          },
+          "fill-opacity": 0.4
         }
+      });
     });
 }
 
