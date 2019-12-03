@@ -4,342 +4,411 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
- * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
- * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
- */
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
+
+
 
 /**
- * This function retrieves the current Unwetter-Polygons from the DWD and
- * NOCH ANPASSEN!!
- *
- * then posts all polygons to the database.
- * Once thats finished it retrieves all polygons from the database.
- * @author Paula Scharf, Katharina Poppinga
- */
-function saveAndReturnNewUnwetterFromDWD() {
-	//
-	return new Promise((resolve, reject) => {
-		// this array will contain all the calls of the function "promiseToPostItem"
-		let arrayOfPromises = [];
+* This function retrieves the current Unwetter-Polygons from the DWD and
+* NOCH ANPASSEN!!
+*
+* then posts all polygons to the database.
+*
+* @author Paula Scharf, Katharina Poppinga
+* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+*/
+function processUnwettersFromDWD(currentTimestamp) {
+  //
+  return new Promise((resolve, reject) => {
 
-		// load the GeoJSON from the DWD Geoserver and display the current Unwetter-areas
-		$.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson', function (data) {
-			// EPSG: 4326
+    // this array will contain all the calls of the function "promiseToPostItem"
+    let arrayOfPromises = [];
+    //
+    let arrayOfGroupedUnwetters = [];
+    //
+    let arrayUnwettersToPost = [];
 
-			//
-			let arrayOfUnwetters = [];
+    // load the GeoJSON from the DWD Geoserver and display the current Unwetter-areas
+    $.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson', function (data) {
+      // EPSG: 4326
 
-			//
-			new Promise((resolve, reject) => {
-				// TODO: umbenennen?
-				// this array will contain all the calls of the function ???
-				let arrayOfPromisesDBCheck = [];
+      // ***** formatting the Unwetter which will be inserted into the database afterwards: *****
 
-				// async call is necessary here to use the await-functionality for checking the database for existing items
-				(async () => {
+      //
+      let groupedData = groupByArray(data.features, 'id');
 
-					//
-					for (let i = data.features.length - 1; i >= 0; i--) {
+      //
+      groupedData.forEach(function (item){
+        // TODO: parse und stringify müsste sich doch aufheben?
+        let currentUnwetter = JSON.parse(JSON.stringify(item.values[0]));
+        currentUnwetter.geometry = [];
 
-						let currentFeature = data.features[i];
+        //
+        for (let i = 0; i < item.values.length; i++) {
+          currentUnwetter.geometry.push(item.values[i].geometry);
+        }
+        //
+        arrayOfGroupedUnwetters.push(currentUnwetter);
+      });
 
-						// timestamps are given by DWD as UTC
+      //
+      new Promise((resolve, reject) => {
+        // TODO: umbenennen?
+        // this array will contain all the calls of the function ???
+        let arrayOfPromisesDBCheck = [];
 
-						// ONSET is the timestamp that gives the time when the Unwetter-warning begins - it is NOT the timestamp for the moment when the warning was published
-						// make an Epoch-milliseconds-timestamp (out of the ONSET-timestamp given by the DWD)
-						let onset = Date.parse(currentFeature.properties.ONSET);
+        // async call is necessary here to use the await-functionality for checking the database for existing items
+        (async () => {
 
-						// EXPIRES is the timestamp that gives the time when the Unwetter-warning ends
-						// make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
-						let expires = Date.parse(currentFeature.properties.EXPIRES);
+          //
+          for (let i = arrayOfGroupedUnwetters.length - 1; i >= 0; i--) {
 
-						// the current timestamp in Epoch-milliseconds (Greenwich - UTC, therefore compatible with DWD-timestamps)
-						let currentTimestamp = Date.now();
+            let currentFeature = arrayOfGroupedUnwetters[i];
+
+            // timestamps are given by DWD as UTC
+
+            // ONSET is the timestamp that gives the time when the Unwetter-warning begins - it is NOT the timestamp for the moment when the warning was published
+            // make an Epoch-milliseconds-timestamp (out of the ONSET-timestamp given by the DWD)
+            let onset = Date.parse(currentFeature.properties.ONSET);
+
+            // EXPIRES is the timestamp that gives the time when the Unwetter-warning ends
+            // make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
+            let expires = Date.parse(currentFeature.properties.EXPIRES);
 
 
-						// TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
-						// ANSONSTEN CERTAINTY FILTER WEGLASSEN, DAMIT OBSERVED UND LIKELY DRIN SIND
-						// use only the notifications that are actual reports and not just tests
-						if ((currentFeature.properties.STATUS === "Actual") && (onset <= currentTimestamp) && (expires >= currentTimestamp)) {
+            // TODO: BEOBACHTEN, OB OBSERVED AUSREICHT und zu Observed ändern!!
+            // ANSONSTEN CERTAINTY FILTER WEGLASSEN, DAMIT OBSERVED UND LIKELY DRIN SIND
+            // use only the notifications that are actual reports and not just tests
+            if ((currentFeature.properties.STATUS === "Actual") && (onset <= currentTimestamp) && (expires >= currentTimestamp)) {
 
-							// TODO: WEITERE MÖGLICHE FILTER
-							// TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
-							//      allUnwetter[i].properties.RESPONSETYPE
-							//      allUnwetter[i].properties.URGENCY === "Immediate"
-							// weitere Parameter in CAP-Doc, zB Altitude und Ceiling
+              // TODO: WEITERE MÖGLICHE FILTER
+              // TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
+              //      allUnwetter[i].properties.RESPONSETYPE
+              //      allUnwetter[i].properties.URGENCY === "Immediate"
+              // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
 
-							// if the notification of this Unwetter is new and not an existing but only updated one ...
-							if (currentFeature.properties.MSGTYPE === "Alert"){
 
-								// ... check whether exactly this item is already stored in the database and do only insert it if not
-								arrayOfPromisesDBCheck.push(checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters));
-							}
+              // check whether exactly this Unwetter is already stored in the database
+              // and, depending on its MSGTYPE (Alert, Update, Cancel), add, update or delete if to/from database
+              arrayOfPromisesDBCheck.push(checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arrayUnwettersToPost, currentTimestamp));
+            }
+          }
 
-							// if the notification of this Unwetter is an existing and only updated one ...
-							else {
+          //
+          try {
+            // wait for finished check whether any of the requested Unwetter are already stored in the database
+            await Promise.all(arrayOfPromisesDBCheck);
+            //
+            resolve();
 
-								// TODO: update this Unwetter in DB??
+          } catch(e) {
+            console.log(e);
+            // TODO: e im reject möglich?
+            reject(e);
+          }
+        })();
+      })
+      //
+      .catch(console.error)
 
-							}
-						}
-					}
+      //
+      .then(function() {
 
-					//
-					try {
-						// wait for finished check whether any of the requested Unwetter are already stored in the database
-						await Promise.all(arrayOfPromisesDBCheck);
-						//
-						resolve();
+        // POST each new Unwetter into database
+        arrayUnwettersToPost.forEach(function (item){
+          arrayOfPromises.push(promiseToPostItem(item));
+        });
 
-					} catch(e) {
-						console.log(e);
-						// TODO: e im reject möglich?
-						reject(e);
-					}
-				})();
-			})
-			//
-				.catch(console.error)
+        try {
+          // wait for all POSTs to the database to succeed and ...
+          Promise.all(arrayOfPromises)
 
-				//
-				.then(function() {
+          // ... then end the function processUnwettersFromDWD to call displayCurrentUnwetters afterwards (this action is specified in requestNewAndDisplayCurrentUnwetters)
+          .then(() => {
 
-					// ***** formatting the Unwetter which will be inserted into the database afterwards: *****
+            resolve();
+          });
 
-					// in groupedUnwetters sind nur die NEU HINZUGEFÜGTEN, NICHT ALLE IN DER DB ENTHALTENEN Unwetter drin
-					let groupedUnwetters = groupByArray(arrayOfUnwetters, 'dwd_id');
+        } catch(e) {
+          console.log(e);
+          reject("Could not POST all Unwetters.");
+        }
 
-					groupedUnwetters.forEach(function (item){
-						// TODO: parse und stringify müsste sich doch aufheben?
-						let currentUnwetter = JSON.parse(JSON.stringify(item.values[0]));
-						currentUnwetter.geometry = [];
-
-						for (let i = 0; i < item.values.length; i++) {
-							currentUnwetter.geometry.push(item.values[i].geometry);
-						}
-						arrayOfPromises.push(promiseToPostItem(currentUnwetter));
-					});
-
-					try {
-						// wait for all POSTs to the database to succeed and ...
-						Promise.all(arrayOfPromises)
-						// ... then read all Unwetter out of the database
-							.then(() => {
-								//
-								promiseToGetAllItems({type: "Unwetter"})
-								//
-									.then((result) => {
-										// result contains all Unwetter which are stored in the database, return them by resolving the promise
-										resolve(result);
-									});
-							});
-					} catch(e) {
-						console.log(e);
-						reject("couldnt post all Unwetter");
-					}
-
-					//
-				}, function(err) {
-					console.log(err);
-				});
-		});
-	});
+        //
+      }, function(err) {
+        console.log(err);
+      });
+    });
+  });
 }
 
 
 
 /**
- * @desc
- *
- * @author Katharina Poppinga
- * @private
- * @param {Object} currentFeature - JSON of one specific Unwetter taken from DWD response
- * @param {Array} arrayOfUnwetters -
- */
-function checkDBForExisitingUnwetter(currentFeature, arrayOfUnwetters){
+* @desc
+*
+* @author Katharina Poppinga
+* @private
+* @param {Object} currentFeature - JSON of one specific Unwetter taken from DWD response
+* @param {Array} arrayOfGroupedUnwetters -
+* @param {Array} arrayUnwettersToPost -
+* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+*/
+function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arrayUnwettersToPost, currentTimestamp){
 
-	// JSON with the ID of the current Unwetter, needed for following database-check
-	let iD = {
-		dwd_id: currentFeature.properties.IDENTIFIER
-	};
+  // TODO: auch auf einzelne vorhandene geometrys überprüfen
 
-	//
-	return new Promise((resolve, reject) => {
-		// check whether exactly this item is already stored in the database to prevent from inserting it again
-		$.ajax({
-			// use a http POST request
-			type: "POST",
-			// URL to send the request to
-			url: "/db/readItem",
-			// type of the data that is sent to the server
-			contentType: "application/json; charset=utf-8",
-			// data to send to the server, send as String for independence of server-side programming language
-			data: JSON.stringify(iD),
-			// timeout set to 10 seconds
-			timeout: 10000
-		})
 
-		// if the request is done successfully, ...
-			.done (function (response) {
+  //
+  return new Promise((resolve, reject) => {
+    // JSON with the ID of the current Unwetter, needed for following database-check
+    let query = {
+      type: "Unwetter",
+      dwd_id: currentFeature.properties.IDENTIFIER
+    };
+    promiseToGetItems(query)
+      .catch(function(error) {
+        reject(error)
+      })
+      .then(function(response) {
+        // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
+        if (typeof response !== "undefined" && response.length > 0) {
+          let responseFirst = response[0];
+          // ... do not insert it again but:
 
-				// if the current item already exists in the database ...
-				if (response !== "") {
-					// ... do not insert it again
+          // TODO: evtl. console-print löschen?
+          console.log("item already in database, do not insert it again");
 
-					// if this item does not exist in the database ...
-				} else {
+          // TODO: FOLGEND IST ES DAVON ABHÄNGIG, OB EINE UPDATE MELDUNG EINE NEUE ODER DIE GLEICHE DWD_ID HAT WIE DIE ZUGEHÖRIGE ALERT MELDUNG!!!!!!!!!! (ÜBERPRÜFEN)
+          // ERSTMAL WIRD HIER DAVON AUSGEGANGEN, DASS DIE DWD_IDS DANN UNTERSCHIEDLICH SIND, siehe https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
 
-					// TODO: evtl. console-print löschen?
-					console.log("item currently not in database, insert it now");
+          // ... and if its MSGTYPE is "Alert" or "Update" ...
+          if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
 
-					// ... insert it by first formatting the Unwetters JSON and ...
-					let currentUnwetter = createUnwetterForDB(currentFeature);
-					// ... add it to the arrayOfUnwetters
-					// this array will be used for subsequent processing before adding the Unwetter to the
-					// Promise (in function saveAndReturnNewUnwetterFromDWD) for inserting all new Unwetter into database
-					arrayOfUnwetters.push(currentUnwetter);
-				}
+            // response._id is the Unwetter-item-ID from mongoDB
+            // if the array "timestamps" does not already contain the currentTimestamp, append it now:
+            if (!(responseFirst.timestamps.includes(currentTimestamp))) {
+              updateTimestamp(responseFirst._id, currentTimestamp);
+            }
 
-				//
-				resolve(response);
-			})
+            // ... and if its MSGTYPE is "Cancel" ...
+          } else {
 
-			// if the AJAX-request has failed, ...
-			.fail (function (xhr, status, error) {
+            // TODO: delete this Unwetter from database?? (rückwirkend, da Meldung ein Irrtum ist??)
+          }
 
-				// ... give a notice that the AJAX request for finding one item has failed and show the error on the console
-				console.log("AJAX request (reading one item) has failed.", error);
 
-				// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-				//  if (error === "timeout") {
-				//    JL("ajaxReadingOneItemTimeout").fatalException("ajax: '/routes/readItem' timeout");
-				//  }
-				reject("AJAX request (reading one item) has failed.");
-			});
-	});
+          // if this Unwetter does NOT EXIST in the database ...
+        } else {
+          // ... and if its MSGTYPE is "Alert" or "Update" ...
+          if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
+
+            // TODO: evtl. console-print löschen?
+            console.log("item currently not in database, insert it now");
+
+            // ... insert it by first formatting the Unwetters JSON and ...
+            let currentUnwetter = createUnwetterForDB(currentFeature, currentTimestamp);
+            // ... add it to the arrayOfGroupedUnwetters
+            // this array will be used for subsequent processing before adding the Unwetter to the
+            // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
+            arrayUnwettersToPost.push(currentUnwetter);
+          }
+
+          // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter
+        }
+        //
+        resolve(response);
+      });
+  });
 }
 
 
 
 /**
- *
- * timestamps will be inserted in Epoch milliseconds (UTC)
- *
- * FORM WIRD VOR DEM INSERTEN GGFS NOCH VERÄNDERT DURCH GRUPPIERUNG NACH DWD_ID
- * @author Paula Scharf, Katharina Poppinga
- */
-function createUnwetterForDB(currentFeature){
+*
+* timestamps will be inserted in Epoch milliseconds (UTC)
+*
+* FORM WIRD VOR DEM INSERTEN GGFS NOCH VERÄNDERT DURCH GRUPPIERUNG NACH DWD_ID
+* @author Paula Scharf, Katharina Poppinga
+* @param {Object} currentFeature -
+* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+*/
+function createUnwetterForDB(currentFeature, currentTimestamp){
 
-	//
-	let area_color = (currentFeature.properties.EC_AREA_COLOR).split(' ').map(Number);
-	let color = rgbToHex(area_color[0], area_color[1], area_color[2]);
+  // TODO: wird "color" am Ende wirklich verwendet? sonst löschen und auch die Funktionen rgbToHex und componentToHex löschen!!
 
-	// convert the DWD-timestamps to Epoch milliseconds (UTC)
-	let sent = Date.parse(currentFeature.properties.SENT);
-	let onset = Date.parse(currentFeature.properties.ONSET);
-	let effective = Date.parse(currentFeature.properties.EFFECTIVE);
-	let expires = Date.parse(currentFeature.properties.EXPIRES);
-	//let sent = Date.parse(currentFeature.properties.SENT) + 3600000;
-	//let onset = Date.parse(currentFeature.properties.ONSET) + 3600000;
-	//let effective = Date.parse(currentFeature.properties.EFFECTIVE) + 3600000;
-	//let expires = Date.parse(currentFeature.properties.EXPIRES) + 3600000;
+  //
+  let area_color = (currentFeature.properties.EC_AREA_COLOR).split(' ').map(Number);
+  //let color = rgbToHex(area_color[0], area_color[1], area_color[2]);
 
-	//
-	let currentUnwetter = {
-		type: "Unwetter",
-		dwd_id: currentFeature.properties.IDENTIFIER,
-		geometry: currentFeature.geometry,
-		properties: {
-			// TODO: am Ende überprüfen, ob alle Attribute hier benötigt werden, ansonsten unbenötigte löschen
-			ec_Group: currentFeature.properties.EC_GROUP,
-			event: currentFeature.properties.EVENT,
-			ec_ii: currentFeature.properties.EC_II,
-			responseType: currentFeature.properties.RESPONSETYPE,
-			urgency: currentFeature.properties.URGENCY,
-			severity: currentFeature.properties.SEVERITY,
-			// TODO: was ist Parameter? Wozu?
-			parameter: currentFeature.properties.Parameter,
-			certainty: currentFeature.properties.CERTAINTY,
-			description: currentFeature.properties.DESCRIPTION,
-			instruction: currentFeature.properties.INSTRUCTION,
-			color: color,
-			sent: sent,
-			onset: onset,
-			effective: effective,
-			expires: expires,
-			altitude: currentFeature.properties.ALTITUDE,
-			ceiling: currentFeature.properties.CEILING
-		}
-	};
-	// return the formatted Unwetter
-	return currentUnwetter;
+  // FÜR ALLE TIMESTAMPS JEDEN REQUESTS (siehe Zettel mit Paula, Jonathan)
+  let timestamps = [currentTimestamp];
+
+  // convert the DWD-timestamps to Epoch milliseconds (UTC)
+  let sent = Date.parse(currentFeature.properties.SENT);
+  let onset = Date.parse(currentFeature.properties.ONSET);
+  let effective = Date.parse(currentFeature.properties.EFFECTIVE);
+  let expires = Date.parse(currentFeature.properties.EXPIRES);
+  //let sent = Date.parse(currentFeature.properties.SENT) + 3600000;
+  //let onset = Date.parse(currentFeature.properties.ONSET) + 3600000;
+  //let effective = Date.parse(currentFeature.properties.EFFECTIVE) + 3600000;
+  //let expires = Date.parse(currentFeature.properties.EXPIRES) + 3600000;
+
+  //
+  let currentUnwetter = {
+    type: "Unwetter",
+    dwd_id: currentFeature.properties.IDENTIFIER,
+    timestamps: timestamps,
+    geometry: currentFeature.geometry,
+    properties: {
+      // TODO: am Ende überprüfen, ob alle Attribute hier benötigt werden, ansonsten unbenötigte löschen
+      event: currentFeature.properties.EVENT,
+      ec_ii: currentFeature.properties.EC_II,
+      responseType: currentFeature.properties.RESPONSETYPE,
+      urgency: currentFeature.properties.URGENCY,
+      severity: currentFeature.properties.SEVERITY,
+      // TODO: was ist Parameter? Wozu?
+      //parameter: currentFeature.properties.Parameter,
+      certainty: currentFeature.properties.CERTAINTY,
+      description: currentFeature.properties.DESCRIPTION,
+      instruction: currentFeature.properties.INSTRUCTION,
+      //color: color,
+      sent: sent,
+      onset: onset,
+      effective: effective,
+      expires: expires,
+      //altitude: currentFeature.properties.ALTITUDE,
+      //ceiling: currentFeature.properties.CEILING
+    }
+  };
+  // return the formatted Unwetter
+  return currentUnwetter;
 }
 
 
+
 /**
- * Groups an array of objects by a given key (attribute)
- * @param xs - array which is to be grouped
- * @param key - attribute by which the objects are grouped
- * @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
- * @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
- */
+*
+*
+* @author Katharina Poppinga
+* @param {String} _id -
+* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+*/
+function updateTimestamp(_id, currentTimestamp) {
+
+  // JSON with needed data for below called database-action
+  let data = {
+    _id: _id,
+    currentTimestamp: currentTimestamp
+  };
+
+
+  return new Promise((resolve, reject) => {
+    //
+    $.ajax({
+      // use a http PUT request
+      type: "PUT",
+      // URL to send the request to
+      url: "/db/updateUnwetter",
+      // type of the data that is sent to the server
+      contentType: "application/json; charset=utf-8",
+      // data to send to the server, send as String for independence of server-side programming language
+      data: JSON.stringify(data),
+      // timeout set to 10 seconds
+      timeout: 10000
+    })
+
+    // if the request is done successfully, ...
+    .done (function (response) {
+
+      //
+      resolve(response);
+
+    })
+
+    // if the AJAX-request has failed, ...
+    .fail (function (xhr, status, error) {
+
+      // ... give a notice that the AJAX request for updating one Unwetter-item has failed and show the error on the console
+      console.log("AJAX request (updating one Unwetter) has failed.", error);
+
+      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+        if (error === "timeout") {
+      //    JL("ajaxUpdatingOneUnwetterItemTimeout").fatalException("ajax: '/db/updateUnwetter' timeout");
+        }
+      reject("AJAX request (reading one item) has failed.");
+    });
+  });
+}
+
+
+
+/**
+* Groups an array of objects by a given key (attribute)
+* @param xs - array which is to be grouped
+* @param key - attribute by which the objects are grouped
+* @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
+* @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
+*/
 function groupByArray(xs, key) {
-	return xs.reduce(function (rv, x) {
-		let v = key instanceof Function ? key(x) : x[key];
-		let el = rv.find((r) => r && r.key === v);
-		if (el) {
-			el.values.push(x);
-		} else {
-			rv.push({key: v, values: [x]});
-		}
-		return rv;
-	}, []);
+  return xs.reduce(function (rv, x) {
+    let v = key instanceof Function ? key(x) : x[key];
+    let el = rv.find((r) => r && r.key === v);
+    if (el) {
+      el.values.push(x);
+    } else {
+      rv.push({key: v, values: [x]});
+    }
+    return rv;
+  }, []);
 }
 
 
 /**
- * This function calls 'add' with AJAX, to save a given item in the database.
- * The logic is wrapped in a promise to make it possible to await it (see saveAndReturnNewUnwetterFromDWD for an example
- * of await)
- * @author Paula Scharf, matr.: 450334
- * @param {Object} item - the item to be posted
- */
-function promiseToPostItem(item) {
-	return new Promise((resolve, reject) => {
-		$.ajax({
-			// use a http POST request
-			type: "POST",
-			// URL to send the request to
-			url: "/db/add",
-			// type of the data that is sent to the server
-			contentType: "application/json; charset=utf-8",
-			// data to send to the server
-			data: JSON.stringify(item),
-			// timeout set to 15 seconds
-			timeout: 15000
-		})
+* This function calls 'add' with AJAX, to save a given item in the database.
+* The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example
+  * of await)
+  * @author Paula Scharf, matr.: 450334
+  * @param {Object} item - the item to be posted
+  */
+  function promiseToPostItem(item) {
 
-		// if the request is done successfully, ...
-			.done(function (response) {
-				// ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
-				console.log("AJAX request (posting an item) is done successfully.");
-				resolve();
-			})
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        // use a http POST request
+        type: "POST",
+        // URL to send the request to
+        url: "/db/add",
+        // type of the data that is sent to the server
+        contentType: "application/json; charset=utf-8",
+        // data to send to the server
+        data: JSON.stringify(item),
+        // timeout set to 15 seconds
+        timeout: 15000
+      })
 
-			// if the request has failed, ...
-			.fail(function (xhr, status, error) {
-				// ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
-				console.log("AJAX request (posting an item) has failed.", error);
+      // if the request is done successfully, ...
+      .done(function (response) {
+        // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
+        console.log("AJAX request (posting an item) is done successfully.");
+        resolve();
+      })
 
-				// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-				if (error === "timeout") {
-					//JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
-				}
-				reject("AJAX request (posting an item) has failed.");
-			});
-	});
-}
+      // if the request has failed, ...
+      .fail(function (xhr, status, error) {
+        // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
+        console.log("AJAX request (posting an item) has failed.", error);
 
+        // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+        if (error === "timeout") {
+          //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
+        }
+        reject("AJAX request (posting an item) has failed.");
+      });
+    });
+  }
 
 /**
  * This function calls 'db/' with AJAX, to retrieve all items that comply to the given query in the database.
@@ -347,66 +416,69 @@ function promiseToPostItem(item) {
  * of await).
  * @author Paula Scharf, matr.: 450334
  * @param {Object} query
- * @example getAllItems({type: "Unwetter"})
+ * @example promiseToGetItems({type: "Unwetter"})
  */
-function promiseToGetAllItems(query) {
-	return new Promise((resolve, reject) => {
-		$.ajax({
-			// use a http POST request
-			type: "POST",
-			// URL to send the request to
-			url: "db/",
-			//
-			data: query,
-			// timeout set to 15 seconds
-			timeout: 20000
-		})
+function promiseToGetItems(query) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      // use a http POST request
+      type: "POST",
+      // URL to send the request to
+      url: "db/",
+      //
+      data: query,
+      // timeout set to 15 seconds
+      timeout: 20000
+    })
 
-		// if the request is done successfully, ...
-			.done(function (response) {
-				// ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
-				console.log("AJAX request (reading all items) is done successfully.");
-				// "resolve" acts like "return" in this context
-				resolve(response);
-			})
+    // if the request is done successfully, ...
+      .done(function (response) {
+        // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
+        console.log("AJAX request (reading all items) is done successfully.");
+        // "resolve" acts like "return" in this context
+        resolve(response);
+      })
 
-			// if the request has failed, ...
-			.fail(function (xhr, status, error) {
-				// ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
-				console.log("AJAX request (reading all items) has failed.", error);
-				console.dir(error);
+      // if the request has failed, ...
+      .fail(function (xhr, status, error) {
+        // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
+        console.log("AJAX request (reading all items) has failed.", error);
+        console.dir(error);
 
-				// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-				if (error === "timeout") {
-					//JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
-				}
-				reject("AJAX request (reading all items) has failed.");
-			});
+        // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+        if (error === "timeout") {
+          //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
+        }
+        reject("AJAX request (reading all items) has failed.");
+      });
 
-	});
+  });
 }
 
 
 /**
- * This function converts an input "c" to the hex-encoding
- * @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
- * @param c
- * @returns {string}
- */
+* This function converts an input "c" to the hex-encoding
+* @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+* @param c
+* @returns {String}
+*/
+/*
 function componentToHex(c) {
-	var hex = c.toString(16);
-	return hex.length == 1 ? "0" + hex : hex;
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
 }
-
+*/
 
 /**
- * This function converts an input of the color values (0 to 255) for red, green and blue to its hex-encoding
- * @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
- * @param r - red
- * @param g - green
- * @param b - blue
- * @returns {string}
- */
+* This function converts an input of the color values (0 to 255) for red, green and blue to its hex-encoding
+* @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+* @param r - red
+* @param g - green
+* @param b - blue
+* @returns {String}
+*/
+/*
 function rgbToHex(r, g, b) {
-	return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
+*/

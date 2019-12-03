@@ -36,7 +36,7 @@ router.post("/search", (req, res) => {
 			res.json(JSON.parse(response.body));
 		} else {
 			console.dir(error);
-			res.render('error');
+			res.json(error);
 		}
 	});
 });

@@ -62,7 +62,6 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 		// if the request is done successfully, ...
 			.done(function (response) {
 				(async () => {
-
 					if (response.statuses) {
 						for (let i = response.statuses.length - 1; i >= 0; i--) {
 							let currentFeature = response.statuses[i];
@@ -95,12 +94,12 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 						// wait for all the posts to the database to succeed
 						await Promise.all(arrayOfPromises);
 						// return the promise to get all Items
-						resolve(promiseToGetAllItems({type: "Tweet", unwetter_ID: unwetterID}));
+						resolve(promiseToGetItems({type: "Tweet", unwetter_ID: unwetterID}));
 						// ... give a notice on the console that the AJAX request for reading all routes has succeeded
 						console.log("AJAX request (reading all tweets) is done successfully.");
 						// if await Promise.all(arrayOfPromises) fails:
 					} catch (e) {
-						reject("couldnt post all tweets");
+						reject("Could not POST all Tweets.");
 					}
 				})();
 			})

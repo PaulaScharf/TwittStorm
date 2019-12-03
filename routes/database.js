@@ -15,6 +15,8 @@ var router = express.Router();
 const mongodb = require('mongodb');
 
 
+// TODO: alle nicht benötigten Routen löschen!!
+
 
 // TODO: später löschen!!!
 /* GET routes */
@@ -28,7 +30,6 @@ router.get("/routes", (req, res) => {
 		res.json(result);
 	});
 });
-
 
 
 
@@ -60,32 +61,36 @@ router.post("/", function(req, res) {
 });
 
 
-/* GET one item */
-router.post("/readItem", function(req, res) {
+// *********************** reading all current Unwetters: ***********************
+router.post("/readCurrentUnwetters", function(req, res) {
+  var db = req.db;
 
-	// find item with given ID
-	req.db.collection('item').findOne({
-		"dwd_id" : req.body.dwd_id,
-	}, (error, result) => {
+console.log(req.body.currentTimestamp);
 
-		if (error){
-			// give a notice, that reading all items has failed and show the error on the console
-			console.log("Failure in reading one item from 'item'.", error);
-			// in case of an error while reading, do routing to "error.ejs"
-			res.render('error');
-			// if no error occurs ...
-		} else {
-			// ... give a notice, that the reading has succeeded and show the result on the console
-			console.log("Successfully read one item from 'item'.");
-			// ... and send the result to the ajax request
-			res.send(result);
-		}
-	});
+  //
+  db.collection('item').find({
+    "properties.onset": {"$lt": req.body.currentTimestamp},
+    "properties.expires": {"$gt": req.body.currentTimestamp},
+   }).toArray((error, result) => {
+
+    if (error){
+      // give a notice, that reading all current Unwetter has failed and show the error on the console
+      console.log("Failure in reading all current Unwetter from 'item'.", error);
+      // in case of an error while reading, do routing to "error.ejs"
+      res.render('error');
+      // if no error occurs ...
+    } else {
+      // ... give a notice, that the reading has succeeded and show the result on the console
+      console.log("Successfully read all current Unwetter from 'item'.");
+      // ... and send the result to the ajax request
+      res.json(result);
+    }
+  });
 });
 
 
 
-
+// *********************** inserting .........: ***********************
 /* POST to add items. */
 router.post('/add', function(req, res) {
 	var db = req.db;
@@ -108,6 +113,8 @@ router.post('/add', function(req, res) {
 
 });
 
+
+// *********************** deleting ...........: ***********************
 /* DELETE item */
 router.delete("/delete", (req, res) => {
 	var db = req.db;
@@ -130,27 +137,34 @@ router.delete("/delete", (req, res) => {
 });
 
 
-/* PUT item */
-router.put("/update", (req, res) => {
-	var db = req.db;
-	// update item
-	console.log("update item " + req.body._id);
-	let id = req.body._id;
-	delete req.body._id;
-	console.log(req.body); // => { name:req.body.name, description:req.body.description }
-	db.collection('item').updateOne({_id:new mongodb.ObjectID(id)}, {$set: req.body}, (error, result) => {
-		if(error){
-			// give a notice, that the updating has failed and show the error on the console
-			console.log("Failure while updating an item in 'item'.", error);
-			// in case of an error while updating, do routing to "error.ejs"
-			res.render('error');
-			// if no error occurs ...
-		} else {
-			// ... give a notice, that updating the item has succeeded
-			console.log("Successfully updated an item in 'item'.");
-			res.json(result);
-		}
-	});
+
+
+/* update Unwetter */
+router.put("/updateUnwetter", (req, res) => {
+
+  var db = req.db;
+
+  let id = req.body._id;
+  console.log("update Unwetter " + id);
+console.log(req.body.currentTimestamp);
+
+  delete req.body._id;
+
+  //
+  db.collection('item').updateOne({_id: new mongodb.ObjectID(id)}, {$push: {timestamps: req.body.currentTimestamp}}, (error, result) => {
+
+    if (error) {
+      // give a notice, that the updating has failed and show the error on the console
+      console.log("Failure while updating an item in 'item'.", error);
+      // in case of an error while updating, do routing to "error.ejs"
+      res.render('error');
+      // if no error occurs ...
+    } else {
+      // ... give a notice, that updating the item has succeeded
+      console.log("Successfully updated an item in 'item'.");
+      res.json(result);
+    }
+  });
 });
 
 module.exports = router;
