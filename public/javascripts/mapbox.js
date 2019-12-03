@@ -158,7 +158,7 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
             "property": "class",
             "stops": [
               [1, '#1733a8'],
-              [2, '#1733a8'],
+              [2, '#192990'],
               [3, '#12167f'],
               [4, '#1d1f66']
             ]
