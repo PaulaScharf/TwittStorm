@@ -168,25 +168,15 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 	// JSON with ....... query
 	let query = {
-		currentTimestamp: currentTimestamp
+		"properties.onset": {"$lt": currentTimestamp},
+		"properties.expires": {"$gt": currentTimestamp}
 	};
 
-	// read all current Unwetter out of database to display them in map afterwards
-	$.ajax({
-		// use a http POST request
-		type: "POST",
-		// URL to send the request to
-		url: "/db/readCurrentUnwetters",
-		// type of the data that is sent to the server
-		contentType: "application/json; charset=utf-8",
-		// data to send to the server, send as String for independence of server-side programming language
-		data: JSON.stringify(query),
-		// timeout set to 10 seconds
-		timeout: 10000
-	})
-
-	// if the request is done successfully, ...
-	.done(function (response) {
+	promiseToGetItems(query)
+		.catch(function(error) {
+			console.dir(error)
+		})
+		.then(function(response) {
 
 		console.log(response);
 
@@ -262,20 +252,9 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 			retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, layerGroup);
 		}
 
-	})
-
-	// if the AJAX-request has failed, ...
-	.fail(function (xhr, status, error) {
-
-		// ... give a notice that the AJAX request for reading all current Unwetter has failed and show the error on the console
-		console.log("AJAX request (reading all current Unwetter) has failed.", error);
-
-		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-		  if (error === "timeout") {
-		//    JL("ajaxReadingAllCurrentUnwetterTimeout").fatalException("ajax: '/db/readCurrentUnwetters' timeout");
-		  }
-
-	});
+	}, function(reason) {
+			console.dir(reason);
+		})
 }
 
 
@@ -285,6 +264,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 * @param twitterSearchQuery - object containing parameters for the search-request
 * @param dwd_id - the id of the specific unwetter
 * @param dwd_event - the event-name of the unwetter
+* @param layerGroup - the name of the layergroup of the tweet and unwetter
 */
 function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup) {
 	//
@@ -431,7 +411,7 @@ function displayEvents(map, layerID, eventFeatureCollection) {
 
 	if (typeof source !== 'undefined') {
 		let data = JSON.parse(JSON.stringify(source._data));
-		data.features = data.features.concat(eventFeatureCollection.features);
+		data.features = eventFeatureCollection.features;
 		source.setData(data);
 
 	} else {

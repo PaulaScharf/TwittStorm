@@ -43,6 +43,7 @@ router.post("/", function(req, res) {
 			query[key] = req.body[key];
 		}
 	}
+	console.dir(query);
 	// find all
 	db.collection('item').find(query).toArray((error, result) => {
 		if(error){
@@ -59,32 +60,6 @@ router.post("/", function(req, res) {
 		}
 	});
 });
-
-
-// *********************** reading .......... : ***********************
-/* GET one item */
-router.post("/readItem", function(req, res) {
-
-	// find item with given ID
-	req.db.collection('item').findOne({
-		"dwd_id" : req.body.dwd_id,
-	}, (error, result) => {
-
-		if (error){
-			// give a notice, that reading all items has failed and show the error on the console
-			console.log("Failure in reading one item from 'item'.", error);
-			// in case of an error while reading, do routing to "error.ejs"
-			res.render('error');
-			// if no error occurs ...
-		} else {
-			// ... give a notice, that the reading has succeeded and show the result on the console
-			console.log("Successfully read one item from 'item'.");
-			// ... and send the result to the ajax request
-			res.send(result);
-		}
-	});
-});
-
 
 
 // *********************** reading all current Unwetters: ***********************

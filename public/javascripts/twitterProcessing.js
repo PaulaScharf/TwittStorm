@@ -95,7 +95,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 						// wait for all the posts to the database to succeed
 						await Promise.all(arrayOfPromises);
 						// return the promise to get all Items
-						resolve(promiseToGetAllItems({type: "Tweet", unwetter_ID: unwetterID}));
+						resolve(promiseToGetItems({type: "Tweet", unwetter_ID: unwetterID}));
 						// ... give a notice on the console that the AJAX request for reading all routes has succeeded
 						console.log("AJAX request (reading all tweets) is done successfully.");
 						// if await Promise.all(arrayOfPromises) fails:

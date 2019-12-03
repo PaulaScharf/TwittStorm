@@ -162,91 +162,67 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
   // TODO: auch auf einzelne vorhandene geometrys überprüfen
 
 
-  // JSON with the ID of the current Unwetter, needed for following database-check
-  let iD = {
-    dwd_id: currentFeature.properties.IDENTIFIER
-  };
-
   //
   return new Promise((resolve, reject) => {
-    // check whether exactly this item is already stored in the database to prevent from inserting it again
-    $.ajax({
-      // use a http POST request
-      type: "POST",
-      // URL to send the request to
-      url: "/db/readItem",
-      // type of the data that is sent to the server
-      contentType: "application/json; charset=utf-8",
-      // data to send to the server, send as String for independence of server-side programming language
-      data: JSON.stringify(iD),
-      // timeout set to 10 seconds
-      timeout: 10000
-    })
-
-    // if the request is done successfully, ...
-    .done (function (response) {
-
-      // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
-      if (response !== "") {
-
-        // ... do not insert it again but:
-
-        // TODO: evtl. console-print löschen?
-        console.log("item already in database, do not insert it again");
-
-        // TODO: FOLGEND IST ES DAVON ABHÄNGIG, OB EINE UPDATE MELDUNG EINE NEUE ODER DIE GLEICHE DWD_ID HAT WIE DIE ZUGEHÖRIGE ALERT MELDUNG!!!!!!!!!! (ÜBERPRÜFEN)
-        // ERSTMAL WIRD HIER DAVON AUSGEGANGEN, DASS DIE DWD_IDS DANN UNTERSCHIEDLICH SIND, siehe https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
-
-        // ... and if its MSGTYPE is "Alert" or "Update" ...
-        if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
-
-          // response._id is the Unwetter-item-ID from mongoDB
-          // if the array "timestamps" does not already contain the currentTimestamp, append it now:
-          if (!(response.timestamps.includes(currentTimestamp))) {
-            updateTimestamp(response._id, currentTimestamp);
-          }
-
-          // ... and if its MSGTYPE is "Cancel" ...
-        } else {
-
-          // TODO: delete this Unwetter from database?? (rückwirkend, da Meldung ein Irrtum ist??)
-        }
-
-
-        // if this Unwetter does NOT EXIST in the database ...
-      } else {
-        // ... and if its MSGTYPE is "Alert" or "Update" ...
-        if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
+    // JSON with the ID of the current Unwetter, needed for following database-check
+    let query = {
+      type: "Unwetter",
+      dwd_id: currentFeature.properties.IDENTIFIER
+    };
+    promiseToGetItems(query)
+      .catch(function(error) {
+        reject(error)
+      })
+      .then(function(response) {
+        console.dir(response);
+        // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
+        if (typeof response !== "undefined" && response.length > 0) {
+          let responseFirst = response[0];
+          // ... do not insert it again but:
 
           // TODO: evtl. console-print löschen?
-          console.log("item currently not in database, insert it now");
+          console.log("item already in database, do not insert it again");
 
-          // ... insert it by first formatting the Unwetters JSON and ...
-          let currentUnwetter = createUnwetterForDB(currentFeature, currentTimestamp);
-          // ... add it to the arrayOfGroupedUnwetters
-          // this array will be used for subsequent processing before adding the Unwetter to the
-          // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
-          arrayUnwettersToPost.push(currentUnwetter);
+          // TODO: FOLGEND IST ES DAVON ABHÄNGIG, OB EINE UPDATE MELDUNG EINE NEUE ODER DIE GLEICHE DWD_ID HAT WIE DIE ZUGEHÖRIGE ALERT MELDUNG!!!!!!!!!! (ÜBERPRÜFEN)
+          // ERSTMAL WIRD HIER DAVON AUSGEGANGEN, DASS DIE DWD_IDS DANN UNTERSCHIEDLICH SIND, siehe https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
+
+          // ... and if its MSGTYPE is "Alert" or "Update" ...
+          if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
+
+            // response._id is the Unwetter-item-ID from mongoDB
+            // if the array "timestamps" does not already contain the currentTimestamp, append it now:
+            if (!(responseFirst.timestamps.includes(currentTimestamp))) {
+              updateTimestamp(responseFirst._id, currentTimestamp);
+            }
+
+            // ... and if its MSGTYPE is "Cancel" ...
+          } else {
+
+            // TODO: delete this Unwetter from database?? (rückwirkend, da Meldung ein Irrtum ist??)
+          }
+
+
+          // if this Unwetter does NOT EXIST in the database ...
+        } else {
+          // ... and if its MSGTYPE is "Alert" or "Update" ...
+          if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
+
+            // TODO: evtl. console-print löschen?
+            console.log("item currently not in database, insert it now");
+
+            // ... insert it by first formatting the Unwetters JSON and ...
+            let currentUnwetter = createUnwetterForDB(currentFeature, currentTimestamp);
+            // ... add it to the arrayOfGroupedUnwetters
+            // this array will be used for subsequent processing before adding the Unwetter to the
+            // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
+            arrayUnwettersToPost.push(currentUnwetter);
+          }
+
+          // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter
         }
-
-        // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter
-      }
-      //
-      resolve(response);
-    })
-
-    // if the AJAX-request has failed, ...
-    .fail (function (xhr, status, error) {
-
-      // ... give a notice that the AJAX request for finding one item has failed and show the error on the console
-      console.log("AJAX request (reading one item) has failed.", error);
-
-      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-        if (error === "timeout") {
-      //    JL("ajaxReadingOneItemTimeout").fatalException("ajax: '/routes/readItem' timeout");
-        }
-      reject("AJAX request (reading one item) has failed.");
-    });
+        //
+        resolve(response);
+      });
   });
 }
 
@@ -436,6 +412,50 @@ function groupByArray(xs, key) {
     });
   }
 
+/**
+ * This function calls 'db/' with AJAX, to retrieve all items that comply to the given query in the database.
+ * The logic is wrapped in a promise to make it possible to await it (see saveAndReturnNewUnwetterFromDWD for an example
+ * of await).
+ * @author Paula Scharf, matr.: 450334
+ * @param {Object} query
+ * @example promiseToGetItems({type: "Unwetter"})
+ */
+function promiseToGetItems(query) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      // use a http POST request
+      type: "POST",
+      // URL to send the request to
+      url: "db/",
+      //
+      data: query,
+      // timeout set to 15 seconds
+      timeout: 20000
+    })
+
+    // if the request is done successfully, ...
+      .done(function (response) {
+        // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
+        console.log("AJAX request (reading all items) is done successfully.");
+        // "resolve" acts like "return" in this context
+        resolve(response);
+      })
+
+      // if the request has failed, ...
+      .fail(function (xhr, status, error) {
+        // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
+        console.log("AJAX request (reading all items) has failed.", error);
+        console.dir(error);
+
+        // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+        if (error === "timeout") {
+          //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
+        }
+        reject("AJAX request (reading all items) has failed.");
+      });
+
+  });
+}
 
 
 /**
