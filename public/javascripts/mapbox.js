@@ -115,8 +115,8 @@ function showMap(style) {
 
     // TODO: es dürfen nicht alle Unwetter aus DB angezeigt werden
     //
-    requestAndDisplayAllRainRadar(map, 'sf', 'dwd');
-    requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
+    requestAndDisplayAllRainRadar(map, 'sf', 'quartiles');
+    //requestNewAndDisplayAllUnwetter(map, unwetterEvents, tweetEvents);
 
 
     // TODO: VARIABLEN VORHER DEFINIEREN, DAMIT Error: There is already a source with this ID VERMIEDEN WIRD!!
@@ -179,13 +179,12 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
       //console.log(result[result.length - 1]);
 
       result = result[result.length - 1];
-      console.log(result.geometry);
       map.addSource("rainRadar", {
         "type": "geojson",
         "data": result.geometry
       });
       map.addLayer({
-        "id": "rainRadar-1",
+        "id": "rainRadar",
         "type": "fill",
         "source": "rainRadar",
         "layout": {"visibility": "visible"},
@@ -193,15 +192,16 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
           "fill-color" : {
             "property": "class",
             "stops": [
-              [1, '#1733a8'],
-              [2, '#192990'],
-              [3, '#12167f'],
-              [4, '#1d1f66']
+              [1, '#b3cde0'],
+              [2, '#6497b1'],
+              [3, '#03396c'],
+              [4, '#011f4b']
             ]
           },
           "fill-opacity": 0.4
         }
       });
+      customLayerIds.push('rainRadar');
     });
 }
 
