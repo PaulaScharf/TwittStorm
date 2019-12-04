@@ -128,6 +128,10 @@ function showMap(style) {
 		if(paramArray.wtype == "unwetter") {
 			requestNewAndDisplayCurrentUnwetters(map, Date.now());
 		}
+		//to be able to still use localhost:3000/
+		if(paramArray.wtype == undefined) {
+			requestNewAndDisplayCurrentUnwetters(map, Date.now());
+		}
     //requestAndDisplayAllRainRadar(map, 'sf', 'dwd');
 		//requestNewAndDisplayCurrentUnwetters(map, Date.now());
 		//
