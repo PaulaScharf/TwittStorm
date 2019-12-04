@@ -113,10 +113,10 @@ function showMap(style) {
         requestAndDisplayAllRainRadar(map, 'sf', 'dwd');
 
         //
-		requestNewAndDisplayCurrentUnwetters(map, 1575399600001 );
+		requestNewAndDisplayCurrentUnwetters(map, Date.now());
 		//
 		// TODO: Zeit auf 5 Minuten ändern!!!
-		//window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, 1575399600001);
+		window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, Date.now());
 
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -166,6 +166,51 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
           "fill-opacity": 0.4
         }
       });
+    });
+}
+
+// ************************************* block about rain radar ****************************************
+//TODO understand how to post to layerstack
+/**
+  * @desc This function requests and displays Rain Radar data
+  * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
+  * @param map the map to display data in
+  * @param product the radarProduct, see API wiki on github
+  * @param classification classification method, see API wiki on github
+  */
+function requestAndDisplayAllRainRadar(map, product, classification) {
+  // Rain Radar Data
+  saveRainRadar(product, classification)
+    .catch(console.error)
+    .then(function(result) {
+      //result is array of rainRadar JSONs
+      //result[result.length - 1] is most recent one -- insert variable
+      //console.log(result[result.length - 1]);
+
+      result = result[result.length - 1];
+      map.addSource("rainRadar", {
+        "type": "geojson",
+        "data": result.geometry
+      });
+      map.addLayer({
+        "id": "rainRadar",
+        "type": "fill",
+        "source": "rainRadar",
+        "layout": {"visibility": "visible"},
+        "paint": {
+          "fill-color" : {
+            "property": "class",
+            "stops": [
+              [1, '#b3cde0'],
+              [2, '#6497b1'],
+              [3, '#03396c'],
+              [4, '#011f4b']
+            ]
+          },
+          "fill-opacity": 0.4
+        }
+      });
+      customLayerIds.push('rainRadar');
     });
 }
 
