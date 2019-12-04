@@ -122,6 +122,8 @@ function showMap(style) {
 					*/
 			} else {
 				requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
+				console.log(window.location.href);
+				history.pushState({}, '', '&radProd=rw&radClass=dwd');
 			}
 		}
 
