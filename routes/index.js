@@ -22,7 +22,9 @@ router.get('/', function(req, res, next) {
     "wtype": req.query.wtype,
     "rasterProduct": req.query.radProd,
     "rasterClassification": req.query.radClass,
-    "base": req.query.base
+    "base": req.query.base,
+    "mapZoom": req.query.mapZoom,
+    "mapCenter": req.query.mapCenter
   };
 
   res.render('index', {

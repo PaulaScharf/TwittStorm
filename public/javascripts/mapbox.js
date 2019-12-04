@@ -49,27 +49,23 @@ function showMap(style) {
 		layers.removeChild(layers.firstChild);
 	}
 
-	// create a new map in the "map"-div
 	map = new mapboxgl.Map({
 		container: 'map',
 		style: style,
 		// TODO: basemap durch Nutzer änderbar machen: https://docs.mapbox.com/mapbox-gl-js/example/setstyle/
 		// style: 'mapbox://styles/mapbox/satellite-v9',
 		// style: 'mapbox://styles/mapbox/streets-v11',
-		zoom: 5, // TODO: überprüfen, ob diese Zoomstufe auf allen gängigen Bildschirmgrößen Deutschland passend zeigt
-		center: [10.5, 51.2], // starting position [lng, lat]: center of germany
+			zoom: 5,
+			center: [10.5, 51.2]
+	});
 
-		// TODO: wozu folgendes genau?
-		"overlay": {
-			"type": "image",
-			"url": "https://maps.dwd.de/geoserver/dwd/wms?service=WMS&version=1.1.0&request=GetMap&layers=dwd%3ARADOLAN-RY&bbox=-523.462%2C-4658.645%2C376.538%2C-3758.645&width=767&height=768&srs=EPSG%3A1000001&format=image%2Fpng",
-			"coordinates": [
-				[51, 7],
-				[53, 9],
-				[53, 7],
-				[51, 9]
-			]
-		}
+	// event to update URL
+	//TODO get initial map postion also from url
+	map.on('moveend', function() {
+		updateURL('mapZoom', map.getZoom());
+		let center = map.getCenter();
+		let centerString = center.lng + "," + center.lat;
+		updateURL('mapCenter', center);
 	});
 
 	// add zoom and rotation controls to the map
@@ -114,16 +110,8 @@ function showMap(style) {
 			}
 			if(paramArray.rasterProduct != undefined) {
 					requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.rasterClassification);
-					/* example
-					let state = { };
-					let title = '';
-					let url = '?hello=hi';
-					history.pushState(state, title, url);
-					*/
 			} else {
 				requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
-				console.log(window.location.href);
-				history.pushState({}, '', '&radProd=rw&radClass=dwd');
 			}
 		}
 
@@ -134,12 +122,9 @@ function showMap(style) {
 		if(paramArray.wtype == undefined) {
 			requestNewAndDisplayCurrentUnwetters(map, Date.now());
 		}
-    //requestAndDisplayAllRainRadar(map, 'sf', 'dwd');
-		//requestNewAndDisplayCurrentUnwetters(map, Date.now());
 		//
 		// TODO: Zeit auf 5 Minuten ändern!!!
 		window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, Date.now());
-
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 
@@ -147,52 +132,6 @@ function showMap(style) {
 }
 
 // ************************************* block about rain radar ****************************************
-//TODO understand how to post to layerstack
-/**
-  * @desc This function requests and displays Rain Radar data
-  * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
-  * @param map the map to display data in
-  * @param product the radarProduct, see API wiki on github
-  * @param classification classification method, see API wiki on github
-  */
-function requestAndDisplayAllRainRadar(map, product, classification) {
-  // Rain Radar Data
-  saveRainRadar(product, classification)
-    .catch(console.error)
-    .then(function(result) {
-      //result is array of rainRadar JSONs
-      //result[result.length - 1] is most recent one -- insert variable
-      //console.log(result[result.length - 1]);
-
-      result = result[result.length - 1];
-      console.log(result.geometry);
-      map.addSource("rainRadar", {
-        "type": "geojson",
-        "data": result.geometry
-      });
-      map.addLayer({
-        "id": "rainRadar-1",
-        "type": "fill",
-        "source": "rainRadar",
-        "layout": {"visibility": "visible"},
-        "paint": {
-          "fill-color" : {
-            "property": "class",
-            "stops": [
-              [1, '#1733a8'],
-              [2, '#192990'],
-              [3, '#12167f'],
-              [4, '#1d1f66']
-            ]
-          },
-          "fill-opacity": 0.4
-        }
-      });
-    });
-}
-
-// ************************************* block about rain radar ****************************************
-//TODO understand how to post to layerstack
 /**
   * @desc This function requests and displays Rain Radar data
   * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
