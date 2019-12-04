@@ -15,8 +15,6 @@
 // TODO: löschen, da nicht benötigt??
 mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA';
 
-
-
 // ****************************** global variables *****************************
 
 // TODO: JSDoc für globale Variablen
@@ -109,11 +107,33 @@ function showMap(style) {
 		// enable drawing the area-of-interest-polygons
 		drawForAOI(map);
 
-        // Rain Radar Data
-        requestAndDisplayAllRainRadar(map, 'sf', 'dwd');
+  	// Rain Radar Data
+		if(paramArray.wtype == "radar") {
+			if(paramArray.rasterClassification == undefined) {
+				paramArray.rasterClassification = 'dwd';
+			}
+			if(paramArray.rasterProduct != undefined) {
+					requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.rasterClassification);
+					/* example
+					let state = { };
+					let title = '';
+					let url = '?hello=hi';
+					history.pushState(state, title, url);
+					*/
+			} else {
+				requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
+			}
+		}
 
-        //
-		requestNewAndDisplayCurrentUnwetters(map, Date.now());
+		if(paramArray.wtype == "unwetter") {
+			requestNewAndDisplayCurrentUnwetters(map, Date.now());
+		}
+		//to be able to still use localhost:3000/
+		if(paramArray.wtype == undefined) {
+			requestNewAndDisplayCurrentUnwetters(map, Date.now());
+		}
+    //requestAndDisplayAllRainRadar(map, 'sf', 'dwd');
+		//requestNewAndDisplayCurrentUnwetters(map, Date.now());
 		//
 		// TODO: Zeit auf 5 Minuten ändern!!!
 		window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, Date.now());
