@@ -45,13 +45,6 @@ router.get("/:radarProduct/:classification", function(req, res) {
 
   //TODO check if this is already available
   //db search with current timestamp, depending on availability of radarProduct
-  if(radarProduct == "quatsch") {
-    let answerJSON = {
-      "hello": "you",
-      "quatsch": "yes, please"
-    };
-    res.send(answerJSON);
-  } else {
   //call R script
   R("./node.R")
     .data({ "radarProduct": radarProduct, "classification": classification})
@@ -81,7 +74,6 @@ router.get("/:radarProduct/:classification", function(req, res) {
       //send response, response is db-object like JSON
       res.send(answerJSON);
     });
-}
 });
 
 //TODO connect to db get/post functionality
