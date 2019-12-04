@@ -16,7 +16,7 @@
  * @param {string} unwetterID
  * @returns {Promise<any>}
  */
-function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEvent) {
+function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEvent, unwetter_geometry) {
 	return new Promise((resolve, reject) => {
 		// this array will contain all the calls of the function "promiseToPostItem"
 		let arrayOfPromises = [];
@@ -63,12 +63,14 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 			.done(function (response) {
 				(async () => {
 					if (response.statuses) {
+                        let polygon1 = turf.polygon(twitterSearchQuery.geometry[0].coordinates[0]);
+                        let polygon2 = turf.polygon(unwetter_geometry);
 						for (let i = response.statuses.length - 1; i >= 0; i--) {
 							let currentFeature = response.statuses[i];
 							if (currentFeature.coordinates) {
 								let tweetLocation = turf.point(currentFeature.coordinates.coordinates);
-								let polygon = turf.polygon(twitterSearchQuery.geometry[0].coordinates[0]);
-								if (turf.booleanPointInPolygon(tweetLocation, polygon)) {
+								if (turf.booleanPointInPolygon(tweetLocation, polygon1) &&
+                                    turf.booleanPointInPolygon(tweetLocation, polygon2)) {
 									let currentStatus = {
 										type: "Tweet",
 										id: currentFeature.id,
