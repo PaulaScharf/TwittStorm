@@ -31,7 +31,6 @@ var logger = require('morgan');
 
 // R
 const R = require('r-script');
-const fetch = require('node-fetch');
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
