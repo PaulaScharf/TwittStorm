@@ -63,7 +63,6 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 			.done(function (response) {
 				(async () => {
 					if (response.statuses) {
-						console.log(response.statuses);
 						let polygon1 = turf.polygon(twitterSearchQuery.geometry);
 						let polygon2 = turf.polygon(unwetter_geometry);
 						for (let i = response.statuses.length - 1; i >= 0; i--) {

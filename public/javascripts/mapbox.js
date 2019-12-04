@@ -323,62 +323,59 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 			// TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
 
+			let twitterSearchQuery = {
+				geometry: currentUnwetterEvent.geometry,
+				searchWords: []
+			};
+			// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
+			// FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
+			// FALLS JA, DANN FARBEN IN fill-color ANPASSEN
 
-				let searchWords = [];
-				// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
-				// FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
-				// FALLS JA, DANN FARBEN IN fill-color ANPASSEN
-
-				//
-				let layerGroup = "undefined";
-				let ii = currentUnwetterEvent.properties.ec_ii;
-				// choose the correct group identifier for the Unwetter and set the searchwords for the tweetrequest accordingly
-				switch (ii) {
-					case (ii >= 61) && (ii <= 66):
-						layerGroup = "rain";
-						searchWords.push("Starkregen", "Dauerregen");
-						break;
-					case (ii >= 70) && (ii <= 78):
-						layerGroup = "snowfall";
-						searchWords.push("Schneefall");
-						break;
-					case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
-						layerGroup = "thunderstorm";
-						searchWords.push("Gewitter");
-						break;
-					case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
-						layerGroup = "blackice";
-						twitterSearchQuery.searchWords.push("Blitzeis", "Glätte", "Glatteis");
-						break;
-					// TODO: alles für layer other später löschen
-					default:
-						layerGroup = "other";
-						// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-						searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
-						break;
-				}
-
-				//
-				for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
-					let currentPolygon = currentUnwetterEvent.geometry[i];
-					// make a GeoJSON Feature out of the current Unwetter
-					unwetterFeature = {
-						"type": "FeatureCollection",
-						"features": [{
-							"type": "Feature",
-							"geometry": currentPolygon,
-							"properties": {
-								unwetterProperties: currentUnwetterEvent.properties,
-								twitterSearchQuery: {
-									searchWords: searchWords
-								}
-							}
-						}]
-					};
-					displayEvents(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
-				}
-				//retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, layerGroup);
+			//
+			let layerGroup = "undefined";
+			let ii = currentUnwetterEvent.properties.ec_ii;
+			// choose the correct group identifier for the Unwetter and set the searchwords for the tweetrequest accordingly
+			switch (ii) {
+				case (ii >= 61) && (ii <= 66):
+				layerGroup = "rain";
+				twitterSearchQuery.searchWords.push("Starkregen", "Dauerregen");
+				break;
+				case (ii >= 70) && (ii <= 78):
+				layerGroup = "snowfall";
+				twitterSearchQuery.searchWords.push("Schneefall");
+				break;
+				case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
+				layerGroup = "thunderstorm";
+				twitterSearchQuery.searchWords.push("Gewitter");
+				break;
+				case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
+				layerGroup = "blackice";
+				twitterSearchQuery.searchWords.push("Blitzeis", "Glätte", "Glatteis");
+				break;
+				// TODO: alles für layer other später löschen
+				default:
+				layerGroup = "other";
+				// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
+				twitterSearchQuery.searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
+				break;
 			}
+
+			//
+			for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
+				let currentPolygon = currentUnwetterEvent.geometry[i];
+				// make a GeoJSON Feature out of the current Unwetter
+				unwetterFeature = {
+					"type": "FeatureCollection",
+					"features": [{
+						"type": "Feature",
+						"geometry": currentPolygon,
+						"properties": currentUnwetterEvent.properties
+					}]
+				};
+				displayEvents(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
+			}
+			retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, layerGroup);
+		}
 
 		}).fail (function (xhr, status, error) {
 
@@ -395,15 +392,14 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 
 /**
- * Retrieves tweets for a specific Unwetter from the twitter api, saves them in the database and displays them on the map.
- * @author Paula Scharf
- * @param twitterSearchQuery - object containing parameters for the search-request
- * @param dwd_id - the id of the specific unwetter
- * @param dwd_event - the event-name of the unwetter
- * @param layerGroup - the name of the layergroup of the tweet and unwetter
- * @param unwetter_geometry
- */
-function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup, unwetter_geometry) {
+* Retrieves tweets for a specific Unwetter from the twitter api, saves them in the database and displays them on the map.
+* @author Paula Scharf
+* @param twitterSearchQuery - object containing parameters for the search-request
+* @param dwd_id - the id of the specific unwetter
+* @param dwd_event - the event-name of the unwetter
+* @param layerGroup - the name of the layergroup of the tweet and unwetter
+*/
+function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup) {
 	//
 	saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, dwd_id, dwd_event, unwetter_geometry)
 	// show errors in the console
@@ -875,6 +871,20 @@ function onlyShowUnwetterInPolygon(polygon) {
 			// decide if the unwetter is gonna be visible or not
 			if (!isInAOI) {
 				visibility = 'none';
+				let layerProperties = source._data.features[0].properties;
+				let twitterSearchQuery = {
+					geometry: polygon,
+					searchWords: layerProperties.twitterSearchQuery.searchWords
+				};
+				retrieveTweets(twitterSearchQuery,
+					// dwd_id
+					layerIDSplit[2],
+					// event (eg "Frost")
+					layerProperties.unwetterProperties.event,
+					// layerGroup (eg "other")
+					layerIDSplit[1],
+					// geometry of the unwetter
+					source._data.features[0].geometry);
 			} else {
 				visibility = 'visible';
 				let layerProperties = source._data.features[0].properties;
@@ -980,10 +990,10 @@ for (var i = 0; i < inputs.length; i++) {
 
 
 /**
- * Calls a given function (cb) for all layers of the map.
- * @author Paula Scharf
- * @param cb - function to perform for each layer
- */
+* Calls a given function (cb) for all layers of the map.
+* @author Paula Scharf
+* @param cb - function to perform for each layer
+*/
 function forEachLayer(cb) {
 	map.getStyle().layers.forEach((layer) => {
 		if (!customLayerIds.includes(layer.id)) return;
