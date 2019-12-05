@@ -14,6 +14,8 @@
  * @author Paula Scharf, matr.: 450334
  * @param {object} twitterSearchQuery
  * @param {string} unwetterID
+ * @param {string} unwetterEvent
+ * @param unwetter_geometry
  * @returns {Promise<any>}
  */
 function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEvent, unwetter_geometry) {
@@ -28,9 +30,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 
 		let arrayOfAllCoordinates = [];
 		twitterSearchQuery.geometry.forEach(function (item) {
-			item.coordinates[0].forEach(function (coordinates) {
-				arrayOfAllCoordinates = arrayOfAllCoordinates.concat(coordinates);
-			});
+				arrayOfAllCoordinates = arrayOfAllCoordinates.concat(item);
 		});
 		let enclosingCircle = calculateEnclosingCircle(arrayOfAllCoordinates);
 		/* this could be used to make a bbox out of the coordinates instead of the enclosing circle:
@@ -63,8 +63,9 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 			.done(function (response) {
 				(async () => {
 					if (response.statuses) {
-                        let polygon1 = turf.polygon(twitterSearchQuery.geometry[0].coordinates[0]);
-                        let polygon2 = turf.polygon(unwetter_geometry);
+						console.log(response.statuses);
+						let polygon1 = turf.polygon(twitterSearchQuery.geometry);
+						let polygon2 = turf.polygon(unwetter_geometry);
 						for (let i = response.statuses.length - 1; i >= 0; i--) {
 							let currentFeature = response.statuses[i];
 							if (currentFeature.coordinates) {
