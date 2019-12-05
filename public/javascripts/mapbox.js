@@ -395,14 +395,15 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 
 /**
-* Retrieves tweets for a specific Unwetter from the twitter api, saves them in the database and displays them on the map.
-* @author Paula Scharf
-* @param twitterSearchQuery - object containing parameters for the search-request
-* @param dwd_id - the id of the specific unwetter
-* @param dwd_event - the event-name of the unwetter
-* @param layerGroup - the name of the layergroup of the tweet and unwetter
-*/
-function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup) {
+ * Retrieves tweets for a specific Unwetter from the twitter api, saves them in the database and displays them on the map.
+ * @author Paula Scharf
+ * @param twitterSearchQuery - object containing parameters for the search-request
+ * @param dwd_id - the id of the specific unwetter
+ * @param dwd_event - the event-name of the unwetter
+ * @param layerGroup - the name of the layergroup of the tweet and unwetter
+ * @param unwetter_geometry
+ */
+function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup, unwetter_geometry) {
 	//
 	saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, dwd_id, dwd_event, unwetter_geometry)
 	// show errors in the console
@@ -874,9 +875,11 @@ function onlyShowUnwetterInPolygon(polygon) {
 			// decide if the unwetter is gonna be visible or not
 			if (!isInAOI) {
 				visibility = 'none';
+			} else {
+				visibility = 'visible';
 				let layerProperties = source._data.features[0].properties;
 				let twitterSearchQuery = {
-					geometry: polygon,
+					geometry: polygon.geometry.coordinates,
 					searchWords: layerProperties.twitterSearchQuery.searchWords
 				};
 				retrieveTweets(twitterSearchQuery,
@@ -888,8 +891,6 @@ function onlyShowUnwetterInPolygon(polygon) {
 					layerIDSplit[1],
 					// geometry of the unwetter
 					source._data.features[0].geometry);
-			} else {
-				visibility = 'visible';
 			}
 			// change visibility of unwetter layer
 			map.setLayoutProperty(layerID, 'visibility', visibility);
