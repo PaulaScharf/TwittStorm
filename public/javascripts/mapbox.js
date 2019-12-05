@@ -232,7 +232,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 						break;
 					case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
 						layerGroup = "blackice";
-						searchWords.push("Blitzeis", "Glätte", "Glatteis");
+						twitterSearchQuery.searchWords.push("Blitzeis", "Glätte", "Glatteis");
 						break;
 					// TODO: alles für layer other später löschen
 					default:
@@ -285,6 +285,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
  * @param dwd_id - the id of the specific unwetter
  * @param dwd_event - the event-name of the unwetter
  * @param layerGroup - the name of the layergroup of the tweet and unwetter
+ * @param unwetter_geometry
  */
 function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup, unwetter_geometry) {
 	//
@@ -758,9 +759,11 @@ function onlyShowUnwetterInPolygon(polygon) {
 			// decide if the unwetter is gonna be visible or not
 			if (!isInAOI) {
 				visibility = 'none';
+			} else {
+				visibility = 'visible';
 				let layerProperties = source._data.features[0].properties;
 				let twitterSearchQuery = {
-					geometry: polygon,
+					geometry: polygon.geometry.coordinates,
 					searchWords: layerProperties.twitterSearchQuery.searchWords
 				};
 				retrieveTweets(twitterSearchQuery,
@@ -772,8 +775,6 @@ function onlyShowUnwetterInPolygon(polygon) {
 					layerIDSplit[1],
 					// geometry of the unwetter
 					source._data.features[0].geometry);
-			} else {
-				visibility = 'visible';
 			}
 			// change visibility of unwetter layer
 			map.setLayoutProperty(layerID, 'visibility', visibility);
