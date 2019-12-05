@@ -122,7 +122,11 @@ gdal_polygonizeR <- function(x, outshape=NULL, gdalformat = 'ESRI Shapefile',
   return(NULL)
 }
 
-# polygon conversation, python, almost no calculation effort
+if(is.na(sum[1])) {
+# if no data, return 0,0 to signal no data
+result <- cbind(0,0)
+} else {
+# polygon conversion, python, almost no calculation effort
 pol <- gdal_polygonizeR(rw_proj_class)
 
 # transfer into list for JSON readability
@@ -147,3 +151,4 @@ for(i in 1:for_length) {
 }
 
 result <- all_pol
+}

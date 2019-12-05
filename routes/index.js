@@ -15,7 +15,22 @@ var router = express.Router();
 
 /* GET home page.*/
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Twittstorm' });
+
+  let paramArray = {
+    "timestamp": req.query.timestamp,
+    "aoi": req.query.aoi,
+    "wtype": req.query.wtype,
+    "rasterProduct": req.query.radProd,
+    "rasterClassification": req.query.radClass,
+    "base": req.query.base,
+    "mapZoom": req.query.mapZoom,
+    "mapCenter": req.query.mapCenter
+  };
+
+  res.render('index', {
+    title: 'TwittStorm',
+    paramArray: paramArray
+  });
 });
 
 /* GET author site */
