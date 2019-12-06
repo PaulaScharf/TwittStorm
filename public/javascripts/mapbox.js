@@ -43,7 +43,6 @@ function showMap(style) {
 
 	//
 	removeOldUnwetterFromDB();
-	console.log("Help me!!!");
 
 	// Checks if the layer menu DOM is empty and if not flushes the dom
 	while (layers.firstChild) {
@@ -296,7 +295,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 				default:
 				layerGroup = "other";
 				// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-				twitterSearchQuery.searchWords.push("Berlin", "Germany", "Jesus", "Liebe");
+				twitterSearchQuery.searchWords.push("Berlin", "Germany", "Jesus", "Sturm");
 				break;
 			}
 
