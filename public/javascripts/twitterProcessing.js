@@ -10,7 +10,7 @@
 
 
 /**
- *
+ * Makes a request for new tweets to twitter and saves them in the database.
  * @author Paula Scharf, matr.: 450334
  * @param {object} twitterSearchQuery
  * @param {string} unwetterID
@@ -18,10 +18,10 @@
  * @param unwetter_geometry
  * @returns {Promise<any>}
  */
-function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEvent, unwetter_geometry) {
+function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEvent, currentTime) {
 	return new Promise((resolve, reject) => {
 		// this array will contain all the calls of the function "promiseToPostItem"
-		let arrayOfPromises = [];
+		let arrayOfTweets = [];
 		let searchTerm = "";
 		twitterSearchQuery.searchWords.forEach(function (item) {
 			searchTerm += item + " OR ";
@@ -29,8 +29,10 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 		searchTerm = searchTerm.substring(0,searchTerm.length - 4);
 
 		let arrayOfAllCoordinates = [];
-		twitterSearchQuery.geometry.forEach(function (item) {
+		twitterSearchQuery.geometry.forEach(function (feature) {
+			feature.coordinates[0].forEach(function (item) {
 				arrayOfAllCoordinates = arrayOfAllCoordinates.concat(item);
+			})
 		});
 		let enclosingCircle = calculateEnclosingCircle(arrayOfAllCoordinates);
 		/* this could be used to make a bbox out of the coordinates instead of the enclosing circle:
@@ -63,14 +65,17 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 			.done(function (response) {
 				(async () => {
 					if (response.statuses) {
-						let polygon1 = turf.polygon(twitterSearchQuery.geometry);
-						let polygon2 = turf.polygon(unwetter_geometry);
+						console.log(response.statuses);
+						let arrayOfPolygons = [];
+						twitterSearchQuery.geometry.forEach(function (item) {
+							arrayOfPolygons.push(item.coordinates[0][0])
+						});
+						let polygon = turf.polygon(arrayOfPolygons);
 						for (let i = response.statuses.length - 1; i >= 0; i--) {
 							let currentFeature = response.statuses[i];
 							if (currentFeature.coordinates) {
 								let tweetLocation = turf.point(currentFeature.coordinates.coordinates);
-								if (turf.booleanPointInPolygon(tweetLocation, polygon1) &&
-                                    turf.booleanPointInPolygon(tweetLocation, polygon2)) {
+								if (turf.booleanPointInPolygon(tweetLocation, polygon)) {
 									let currentStatus = {
 										type: "Tweet",
 										id: currentFeature.id,
@@ -83,20 +88,35 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 										timestamp: currentFeature.created_at,
 										location_actual: currentFeature.coordinates,
 										unwetter_ID: unwetterID,
-										unwetter_Event: unwetterEvent
+										unwetter_Event: unwetterEvent,
+										requestTime: currentTime
 									};
-									arrayOfPromises.push(promiseToPostItem(currentStatus));
+									arrayOfTweets.push(currentStatus);
 								}
 							}
 						}
 					} else {
-						reject(response);
+						reject(response[0]);
 					}
 					try {
-						// wait for all the posts to the database to succeed
-						await Promise.all(arrayOfPromises);
-						// return the promise to get all Items
-						resolve(promiseToGetItems({type: "Tweet", unwetter_ID: unwetterID}));
+						if (arrayOfTweets.length > 0) {
+							promiseToPostMany(arrayOfTweets)
+								.catch(console.error)
+								.then(function() {
+									resolve()
+								});
+						} else {
+							let emptyTweet = {
+								type: "Tweet",
+								unwetter_ID: unwetterID,
+								requestTime: currentTime
+							};
+							promiseToPostItem(emptyTweet)
+								.catch(console.error)
+								.then(function() {
+									resolve()
+								});
+						}
 						// ... give a notice on the console that the AJAX request for reading all routes has succeeded
 						console.log("AJAX request (reading all tweets) is done successfully.");
 						// if await Promise.all(arrayOfPromises) fails:
@@ -114,6 +134,36 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 				// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 				if (error === "timeout") {
 					//JL("ajaxReadingAllRoutesTimeout").fatalException("ajax: '/routes/readAll' timeout");
+				}
+			});
+	});
+}
+
+/**
+ * Checks if there are already tweets for a certain unwetter at a certain time inside the database.
+ * @author Paula Scharf
+ * @param dwd_id
+ * @param currentTime
+ */
+function checkForExistingTweets(dwd_id, currentTime) {
+	//
+	return new Promise((resolve, reject) => {
+		// JSON with the ID of the current Unwetter, needed for following database-check
+		let query = {
+			type: "Tweet",
+			unwetter_ID: dwd_id,
+			$and: '[{"requestTime": {"$gt": ' + (currentTime - 299000) + '}}, {"requestTime": {"$lt": ' + (currentTime + 299000) + '}}]'
+		};
+		promiseToGetItems(query)
+			.catch(function(error) {
+				reject(error)
+			})
+			.then(function(response) {
+				// if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
+				if (typeof response !== "undefined" && response.length > 0) {
+					resolve(true);
+				} else {
+					resolve(false);
 				}
 			});
 	});

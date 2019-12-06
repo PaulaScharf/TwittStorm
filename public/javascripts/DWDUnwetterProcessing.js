@@ -4,21 +4,21 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 
 
 /**
-* This function retrieves the current Unwetter-Polygons from the DWD and
-* NOCH ANPASSEN!!
-*
-* then posts all polygons to the database.
-*
-* @author Paula Scharf, Katharina Poppinga
-* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
-*/
+ * This function retrieves the current Unwetter-Polygons from the DWD and
+ * NOCH ANPASSEN!!
+ *
+ * then posts all polygons to the database.
+ *
+ * @author Paula Scharf, Katharina Poppinga
+ * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+ */
 function processUnwettersFromDWD(currentTimestamp) {
   //
   return new Promise((resolve, reject) => {
@@ -111,35 +111,35 @@ function processUnwettersFromDWD(currentTimestamp) {
         })();
       })
       //
-      .catch(console.error)
-
-      //
-      .then(function() {
-
-        // POST each new Unwetter into database
-        arrayUnwettersToPost.forEach(function (item){
-          arrayOfPromises.push(promiseToPostItem(item));
-        });
-
-        try {
-          // wait for all POSTs to the database to succeed and ...
-          Promise.all(arrayOfPromises)
-
-          // ... then end the function processUnwettersFromDWD to call displayCurrentUnwetters afterwards (this action is specified in requestNewAndDisplayCurrentUnwetters)
-          .then(() => {
-
-            resolve();
-          });
-
-        } catch(e) {
-          console.log(e);
-          reject("Could not POST all Unwetters.");
-        }
+        .catch(console.error)
 
         //
-      }, function(err) {
-        console.log(err);
-      });
+        .then(function() {
+
+          // POST each new Unwetter into database
+          arrayUnwettersToPost.forEach(function (item){
+            arrayOfPromises.push(promiseToPostItem(item));
+          });
+
+          try {
+            // wait for all POSTs to the database to succeed and ...
+            Promise.all(arrayOfPromises)
+
+            // ... then end the function processUnwettersFromDWD to call displayCurrentUnwetters afterwards (this action is specified in requestNewAndDisplayCurrentUnwetters)
+              .then(() => {
+
+                resolve();
+              });
+
+          } catch(e) {
+            console.log(e);
+            reject("Could not POST all Unwetters.");
+          }
+
+          //
+        }, function(err) {
+          console.log(err);
+        });
     });
   });
 }
@@ -147,15 +147,15 @@ function processUnwettersFromDWD(currentTimestamp) {
 
 
 /**
-* @desc
-*
-* @author Katharina Poppinga
-* @private
-* @param {Object} currentFeature - JSON of one specific Unwetter taken from DWD response
-* @param {Array} arrayOfGroupedUnwetters -
-* @param {Array} arrayUnwettersToPost -
-* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
-*/
+ * @desc
+ *
+ * @author Katharina Poppinga
+ * @private
+ * @param {Object} currentFeature - JSON of one specific Unwetter taken from DWD response
+ * @param {Array} arrayOfGroupedUnwetters -
+ * @param {Array} arrayUnwettersToPost -
+ * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+ */
 function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arrayUnwettersToPost, currentTimestamp){
 
   // TODO: auch auf einzelne vorhandene geometrys überprüfen
@@ -227,14 +227,14 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
 
 
 /**
-*
-* timestamps will be inserted in Epoch milliseconds (UTC)
-*
-* FORM WIRD VOR DEM INSERTEN GGFS NOCH VERÄNDERT DURCH GRUPPIERUNG NACH DWD_ID
-* @author Paula Scharf, Katharina Poppinga
-* @param {Object} currentFeature -
-* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
-*/
+ *
+ * timestamps will be inserted in Epoch milliseconds (UTC)
+ *
+ * FORM WIRD VOR DEM INSERTEN GGFS NOCH VERÄNDERT DURCH GRUPPIERUNG NACH DWD_ID
+ * @author Paula Scharf, Katharina Poppinga
+ * @param {Object} currentFeature -
+ * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+ */
 function createUnwetterForDB(currentFeature, currentTimestamp){
 
   // TODO: wird "color" am Ende wirklich verwendet? sonst löschen und auch die Funktionen rgbToHex und componentToHex löschen!!
@@ -290,12 +290,12 @@ function createUnwetterForDB(currentFeature, currentTimestamp){
 
 
 /**
-*
-*
-* @author Katharina Poppinga
-* @param {String} _id -
-* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
-*/
+ *
+ *
+ * @author Katharina Poppinga
+ * @param {String} _id -
+ * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+ */
 function updateTimestamp(_id, currentTimestamp) {
 
   // JSON with needed data for below called database-action
@@ -321,37 +321,37 @@ function updateTimestamp(_id, currentTimestamp) {
     })
 
     // if the request is done successfully, ...
-    .done (function (response) {
+      .done (function (response) {
 
-      //
-      resolve(response);
+        //
+        resolve(response);
 
-    })
+      })
 
-    // if the AJAX-request has failed, ...
-    .fail (function (xhr, status, error) {
+      // if the AJAX-request has failed, ...
+      .fail (function (xhr, status, error) {
 
-      // ... give a notice that the AJAX request for updating one Unwetter-item has failed and show the error on the console
-      console.log("AJAX request (updating one Unwetter) has failed.", error);
+        // ... give a notice that the AJAX request for updating one Unwetter-item has failed and show the error on the console
+        console.log("AJAX request (updating one Unwetter) has failed.", error);
 
-      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+        // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
         if (error === "timeout") {
-      //    JL("ajaxUpdatingOneUnwetterItemTimeout").fatalException("ajax: '/db/updateUnwetter' timeout");
+          //    JL("ajaxUpdatingOneUnwetterItemTimeout").fatalException("ajax: '/db/updateUnwetter' timeout");
         }
-      reject("AJAX request (reading one item) has failed.");
-    });
+        reject("AJAX request (reading one item) has failed.");
+      });
   });
 }
 
 
 
 /**
-* Groups an array of objects by a given key (attribute)
-* @param xs - array which is to be grouped
-* @param key - attribute by which the objects are grouped
-* @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
-* @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
-*/
+ * Groups an array of objects by a given key (attribute)
+ * @param xs - array which is to be grouped
+ * @param key - attribute by which the objects are grouped
+ * @returns {Array} - An array in which all the grouped objects are separate (sub-)arrays
+ * @author https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects#comment64856953_34890276
+ */
 function groupByArray(xs, key) {
   return xs.reduce(function (rv, x) {
     let v = key instanceof Function ? key(x) : x[key];
@@ -367,29 +367,29 @@ function groupByArray(xs, key) {
 
 
 /**
-* This function calls 'add' with AJAX, to save a given item in the database.
-* The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example
-  * of await)
-  * @author Paula Scharf, matr.: 450334
-  * @param {Object} item - the item to be posted
-  */
-  function promiseToPostItem(item) {
+ * This function calls 'add' with AJAX, to save a given item in the database.
+ * The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example
+ * of await)
+ * @author Paula Scharf, matr.: 450334
+ * @param {Object} item - the item to be posted
+ */
+function promiseToPostItem(item) {
 
-    return new Promise((resolve, reject) => {
-      $.ajax({
-        // use a http POST request
-        type: "POST",
-        // URL to send the request to
-        url: "/db/add",
-        // type of the data that is sent to the server
-        contentType: "application/json; charset=utf-8",
-        // data to send to the server
-        data: JSON.stringify(item),
-        // timeout set to 15 seconds
-        timeout: 15000
-      })
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      // use a http POST request
+      type: "POST",
+      // URL to send the request to
+      url: "/db/add",
+      // type of the data that is sent to the server
+      contentType: "application/json; charset=utf-8",
+      // data to send to the server
+      data: JSON.stringify(item),
+      // timeout set to 15 seconds
+      timeout: 15000
+    })
 
-      // if the request is done successfully, ...
+    // if the request is done successfully, ...
       .done(function (response) {
         // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
         console.log("AJAX request (posting an item) is done successfully.");
@@ -407,8 +407,48 @@ function groupByArray(xs, key) {
         }
         reject("AJAX request (posting an item) has failed.");
       });
+  });
+}
+
+/**
+ * This function calls 'add' with AJAX, to save the given items in the database.
+ * @author Paula Scharf
+ * @param arrayOfItems - array which contains the items
+ */
+function promiseToPostMany(arrayOfItems) {
+  return new Promise((resolve, reject) => {
+  $.ajax({
+    // use a http POST request
+    type: "POST",
+    // URL to send the request to
+    url: "/db/addMany",
+    // type of the data that is sent to the server
+    contentType: "application/json; charset=utf-8",
+    // data to send to the server
+    data: JSON.stringify(arrayOfItems),
+    // timeout set to 15 seconds
+    timeout: 15000
+  })
+  // if the request is done successfully, ...
+    .done(function () {
+      // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
+      console.log("AJAX request (posting an item) is done successfully.");
+    })
+
+    // if the request has failed, ...
+    .fail(function (xhr, status, error) {
+      // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
+      console.log("AJAX request (posting many items) has failed.", error);
+      resolve();
+
+      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+      if (error === "timeout") {
+        //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'addMany' timeout");
+      }
+      reject("AJAX request (posting an item) has failed.");
     });
-  }
+  });
+}
 
 /**
  * This function calls 'db/' with AJAX, to retrieve all items that comply to the given query in the database.
@@ -454,31 +494,3 @@ function promiseToGetItems(query) {
 
   });
 }
-
-
-/**
-* This function converts an input "c" to the hex-encoding
-* @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-* @param c
-* @returns {String}
-*/
-/*
-function componentToHex(c) {
-  var hex = c.toString(16);
-  return hex.length == 1 ? "0" + hex : hex;
-}
-*/
-
-/**
-* This function converts an input of the color values (0 to 255) for red, green and blue to its hex-encoding
-* @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-* @param r - red
-* @param g - green
-* @param b - blue
-* @returns {String}
-*/
-/*
-function rgbToHex(r, g, b) {
-  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-}
-*/
