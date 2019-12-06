@@ -138,7 +138,7 @@ function showMap(style) {
 		//requestNewAndDisplayCurrentUnwetters(map, Date.now());
 		//
 		// TODO: Zeit auf 5 Minuten ändern!!!
-		window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, Date.now());
+		window.setInterval(requestNewAndDisplayCurrentUnwetters, 300000, map, Date.now());
 
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -284,25 +284,14 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 	// JSON with ....... query
 	let query = {
-		currentTimestamp: currentTimestamp
+		"properties.onset": '{"$lt": ' + currentTimestamp + '}',
+		"properties.expires": '{"$gt":  ' + currentTimestamp + '}'
 	};
-
-	$.ajax({
-		// use a http POST request
-		type: "POST",
-		// URL to send the request to
-		url: "/db/readCurrentUnwetters",
-		// type of the data that is sent to the server
-		contentType: "application/json; charset=utf-8",
-		// data to send to the server, send as String for independence of server-side programming language
-		data: JSON.stringify(query),
-		// timeout set to 10 seconds
-		timeout: 10000
-	})
-
-	// if the request is done successfully, ...
-		.done (function (response) {
-
+	promiseToGetItems(query)
+		.catch(function(error) {
+			reject(error)
+		})
+		.then(function(response) {
 		console.log(response);
 
 		// all Unwetter that are stored in the database
@@ -324,7 +313,10 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 			// TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
 
 
-				let searchWords = [];
+			let twitterSearchQuery = {
+				geometry: currentUnwetterEvent.geometry,
+				searchWords: []
+			};
 				// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
 				// FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
 				// FALLS JA, DANN FARBEN IN fill-color ANPASSEN
@@ -336,51 +328,53 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 				switch (ii) {
 					case (ii >= 61) && (ii <= 66):
 						layerGroup = "rain";
-						searchWords.push("Starkregen", "Dauerregen");
+						twitterSearchQuery.searchWords.push("Starkregen", "Dauerregen");
 						break;
 					case (ii >= 70) && (ii <= 78):
 						layerGroup = "snowfall";
-						searchWords.push("Schneefall");
+						twitterSearchQuery.searchWords.push("Schneefall");
 						break;
 					case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
 						layerGroup = "thunderstorm";
-						searchWords.push("Gewitter");
+						twitterSearchQuery.searchWords.push("Gewitter");
 						break;
 					case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
 						layerGroup = "blackice";
-						searchWords.push("Blitzeis", "Glätte", "Glatteis");
+						twitterSearchQuery.searchWords.push("Blitzeis", "Glätte", "Glatteis");
 						break;
 					// TODO: alles für layer other später löschen
 					default:
 						layerGroup = "other";
 						// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-						searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
+						twitterSearchQuery.searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
 						break;
 				}
 
 				//
-				for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
-					let currentPolygon = currentUnwetterEvent.geometry[i];
-					// make a GeoJSON Feature out of the current Unwetter
-					unwetterFeature = {
-						"type": "FeatureCollection",
-						"features": [{
-							"type": "Feature",
-							"geometry": currentPolygon,
-							"properties": {
-								unwetterProperties: currentUnwetterEvent.properties,
-								twitterSearchQuery: {
-									searchWords: searchWords
-								}
-							}
-						}]
-					};
-					displayEvents(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
-				}
-				//retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, layerGroup);
+			for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
+				let currentPolygon = currentUnwetterEvent.geometry[i];
+				// make a GeoJSON Feature out of the current Unwetter
+				unwetterFeature = {
+					"type": "FeatureCollection",
+					"features": [{
+						"type": "Feature",
+						"geometry": currentPolygon,
+						"properties": currentUnwetterEvent.properties
+					}]
+				};
+				displayEvents(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
 			}
+			checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
+				.catch(console.error)
+				.then(function (result) {
+					if (!result) {
+						retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
+					}
+				})
+		}
 
-	}).fail (function (xhr, status, error) {
+
+	},function (xhr, status, error) {
 
 		// ... give a notice that the AJAX request for reading all current Unwetter has failed and show the error on the console
 		console.log("AJAX request (reading all current Unwetter) has failed.", error);
@@ -400,43 +394,15 @@ function displayCurrentUnwetters(map, currentTimestamp) {
  * @param twitterSearchQuery - object containing parameters for the search-request
  * @param dwd_id - the id of the specific unwetter
  * @param dwd_event - the event-name of the unwetter
- * @param layerGroup - the name of the layergroup of the tweet and unwetter
- * @param unwetter_geometry
+ * @param currentTime
  */
-function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup, unwetter_geometry) {
+function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, currentTime) {
 	//
-	saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, dwd_id, dwd_event, unwetter_geometry)
+	saveNewTweetsThroughSearch(twitterSearchQuery, dwd_id, dwd_event, currentTime)
 	// show errors in the console
 	.catch(console.error)
 	// process the result of the requests
-	.then(function (result) {
-		if(typeof result !== "undefined") {
-			try {
-				// create an empty featurecollection for the tweets
-				let tweetFeatureCollection = {
-					"type": "FeatureCollection",
-					"features": []
-				};
-				// add the tweets in the result to the featurecollection
-				result.forEach(function (item) {
-					if (item.location_actual !== null) {
-						let tweetFeature = {
-							"type": "Feature",
-							"geometry": item.location_actual,
-							"properties": item
-						};
-						tweetFeatureCollection.features.push(tweetFeature);
-					}
-				});
-				// add the tweets to the map
-				if (tweetFeatureCollection.features.length > 0) {
-					displayEvents(map, "Tweet " + layerGroup + " " + result[0].unwetter_ID, tweetFeatureCollection);
-				}
-			} catch (e) {
-				console.dir("there was an error while processing the tweets from the database", e);
-				// TODO: error catchen und dann hier auch den error ausgeben?
-			}
-		}
+	.then(function () {
 	}, function (reason) {
 		console.dir(reason);
 	});
@@ -778,8 +744,6 @@ function drawForAOI(map) {
 
 	// if a polygon is drawn ...
 	map.on('draw.create', function (e) {
-		console.log("drawnPolygons-created:");
-		console.log(e.features);
 		// all currently drawn polygons
 		let data = draw.getAll();
 
@@ -795,8 +759,8 @@ function drawForAOI(map) {
 		});
 		draw.delete(pids);
 
-		changeBBox(e.features[0].geometry.coordinates[0]);
-		onlyShowUnwetterInPolygon(turf.polygon(e.features[0].geometry.coordinates));
+		zoomToCoordinates(e.features[0].geometry.coordinates[0]);
+		onlyShowUnwetterAndTweetsInPolygon(turf.polygon(e.features[0].geometry.coordinates));
 	});
 
 
@@ -804,18 +768,14 @@ function drawForAOI(map) {
 
 	// if a polygon is deleted ...
 	map.on('draw.delete', function (e) {
-		console.log("drawnPolygons-deleted:");
-		console.log(e.features);
-		showAllUnwetter();
+		showAllUnwetterAndNoTweets();
 	});
 
 
 	// if a polygon is edited/updated ...
 	map.on('draw.update', function (e) {
-		console.log("drawnPolygons-updated:");
-		console.log(e.features);
-		changeBBox(e.features[0].geometry.coordinates[0]);
-		onlyShowUnwetterInPolygon(turf.polygon(e.features[0].geometry.coordinates));
+		zoomToCoordinates(e.features[0].geometry.coordinates[0]);
+		onlyShowUnwetterAndTweetsInPolygon(turf.polygon(e.features[0].geometry.coordinates));
 	});
 
 
@@ -827,11 +787,11 @@ function drawForAOI(map) {
 }
 
 /**
- *
+ * Zoom to the given Coordinates.
  * @author https://gist.github.com/aerispaha/826a9f2fbbdf37983dc01e6074ce7cd7
  * @param coordinates
  */
-function changeBBox(coordinates) {
+function zoomToCoordinates(coordinates) {
 	// Pass the first coordinates in the Polygon to `lngLatBounds` &
 	// wrap each coordinate pair in `extend` to include them in the bounds
 	// result. A variation of this technique could be applied to zooming
@@ -852,7 +812,7 @@ function changeBBox(coordinates) {
 * @author Paula Scharf
 * @param polygon - a turf polygon (eg the aoi)
 */
-function onlyShowUnwetterInPolygon(polygon) {
+function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 	customLayerIds.forEach(function(layerID) {
 		// make sure to only check layers which contain an Unwetter
 		if (layerID.includes("Unwetter")) {
@@ -877,20 +837,47 @@ function onlyShowUnwetterInPolygon(polygon) {
 				visibility = 'none';
 			} else {
 				visibility = 'visible';
-				let layerProperties = source._data.features[0].properties;
-				let twitterSearchQuery = {
-					geometry: polygon.geometry.coordinates,
-					searchWords: layerProperties.twitterSearchQuery.searchWords
-				};
-				retrieveTweets(twitterSearchQuery,
-					// dwd_id
-					layerIDSplit[2],
-					// event (eg "Frost")
-					layerProperties.unwetterProperties.event,
-					// layerGroup (eg "other")
-					layerIDSplit[1],
-					// geometry of the unwetter
-					source._data.features[0].geometry);
+
+				//let layerProperties = source._data.features[0].properties;
+				promiseToGetItems({type: "Tweet", unwetter_ID: layerIDSplit[2]})
+				// show errors in the console
+					.catch(console.error)
+					// process the result of the requests
+					.then(function (result) {
+						if(typeof result !== "undefined") {
+							try {
+								let turfPolygon = turf.polygon(polygon.geometry.coordinates);
+								// create an empty featurecollection for the tweets
+								let tweetFeatureCollection = {
+									"type": "FeatureCollection",
+									"features": []
+								};
+								// add the tweets in the result to the featurecollection
+								result.forEach(function (item) {
+									if (item.id && item.location_actual !== null) {
+										let tweetLocation = turf.point(item.location_actual.coordinates);
+										if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
+											let tweetFeature = {
+												"type": "Feature",
+												"geometry": item.location_actual,
+												"properties": item
+											};
+											tweetFeatureCollection.features.push(tweetFeature);
+										}
+									}
+								});
+								// add the tweets to the map
+								if (tweetFeatureCollection.features.length > 0) {
+									displayEvents(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
+								}
+							} catch (e) {
+								console.dir("there was an error while processing the tweets from the database", e);
+								// TODO: error catchen und dann hier auch den error ausgeben?
+							}
+						}
+					}, function (reason) {
+						console.dir(reason);
+					});
 			}
 			// change visibility of unwetter layer
 			map.setLayoutProperty(layerID, 'visibility', visibility);
@@ -906,12 +893,16 @@ function onlyShowUnwetterInPolygon(polygon) {
 }
 
 /**
-* This function ensures, that all layers are visible.
+* This function ensures, that all unwetters but no tweets are visible.
 * @author Paula Scharf
 */
-function showAllUnwetter() {
+function showAllUnwetterAndNoTweets() {
 	customLayerIds.forEach(function(layerID) {
-		map.setLayoutProperty(layerID, 'visibility', 'visible');
+		if(layerID.includes("Tweet")) {
+			map.setLayoutProperty(layerID, 'visibility', 'none');
+		} else {
+			map.setLayoutProperty(layerID, 'visibility', 'visible');
+		}
 	});
 }
 /**
