@@ -47,7 +47,8 @@ function showMap(style) {
 	// !!!!!!!!!!!
 	removeOldUnwetterFromDB(Date.now());
 
-	// Checks if the layer menu DOM is empty and if not flushes the dom
+
+	// Checks whether the layer menu DOM is empty and if not flushes the dom
 	while (layers.firstChild) {
 		layers.removeChild(layers.firstChild);
 	}
@@ -58,8 +59,8 @@ function showMap(style) {
 		// TODO: basemap durch Nutzer änderbar machen: https://docs.mapbox.com/mapbox-gl-js/example/setstyle/
 		// style: 'mapbox://styles/mapbox/satellite-v9',
 		// style: 'mapbox://styles/mapbox/streets-v11',
-			zoom: 5,
-			center: [10.5, 51.2]
+		zoom: 5,
+		center: [10.5, 51.2]
 	});
 
 	// event to update URL
@@ -107,14 +108,13 @@ function showMap(style) {
 		drawForAOI(map);
 
 
-
-  	// Rain Radar Data
+		// Rain Radar Data
 		if (paramArray.wtype == "radar") {
 			if(paramArray.rasterClassification == undefined) {
 				paramArray.rasterClassification = 'dwd';
 			}
 			if (paramArray.rasterProduct != undefined) {
-					requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.rasterClassification);
+				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.rasterClassification);
 			} else {
 				requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
 			}
@@ -128,58 +128,59 @@ function showMap(style) {
 			requestNewAndDisplayCurrentUnwetters(map, Date.now());
 		}
 
-		
+
 		//
-		// TODO: Zeit auf 5 Minuten ändern!!!
-		window.setInterval(requestNewAndDisplayCurrentUnwetters, 30000, map, Date.now());
+		// 300000 milliseconds = 5 minutes
+		window.setInterval(requestNewAndDisplayCurrentUnwetters, 300000, map, Date.now());
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 
 	});
 }
 
+
 // ************************************* block about rain radar ****************************************
 /**
-  * @desc This function requests and displays Rain Radar data
-  * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
-  * @param map the map to display data in
-  * @param product the radarProduct, see API wiki on github
-  * @param classification classification method, see API wiki on github
-  */
+* @desc This function requests and displays Rain Radar data
+* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
+* @param map the map to display data in
+* @param product the radarProduct, see API wiki on github
+* @param classification classification method, see API wiki on GitHub
+*/
 function requestAndDisplayAllRainRadar(map, product, classification) {
-  // Rain Radar Data
-  saveRainRadar(product, classification)
-    .catch(console.error)
-    .then(function(result) {
-      //result is array of rainRadar JSONs
-      //result[result.length - 1] is most recent one -- insert variable
-      //console.log(result[result.length - 1]);
+	// Rain Radar Data
+	saveRainRadar(product, classification)
+	.catch(console.error)
+	.then(function(result) {
+		//result is array of rainRadar JSONs
+		//result[result.length - 1] is most recent one -- insert variable
+		//console.log(result[result.length - 1]);
 
-      result = result[result.length - 1];
-      map.addSource("rainRadar", {
-        "type": "geojson",
-        "data": result.geometry
-      });
-      map.addLayer({
-        "id": "rainRadar",
-        "type": "fill",
-        "source": "rainRadar",
-        "layout": {"visibility": "visible"},
-        "paint": {
-          "fill-color" : {
-            "property": "class",
-            "stops": [
-              [1, '#b3cde0'],
-              [2, '#6497b1'],
-              [3, '#03396c'],
-              [4, '#011f4b']
-            ]
-          },
-          "fill-opacity": 0.4
-        }
-      });
-      customLayerIds.push('rainRadar');
-    });
+		result = result[result.length - 1];
+		map.addSource("rainRadar", {
+			"type": "geojson",
+			"data": result.geometry
+		});
+		map.addLayer({
+			"id": "rainRadar",
+			"type": "fill",
+			"source": "rainRadar",
+			"layout": {"visibility": "visible"},
+			"paint": {
+				"fill-color" : {
+					"property": "class",
+					"stops": [
+						[1, '#b3cde0'],
+						[2, '#6497b1'],
+						[3, '#03396c'],
+						[4, '#011f4b']
+					]
+				},
+				"fill-opacity": 0.4
+			}
+		});
+		customLayerIds.push('rainRadar');
+	});
 }
 
 //***************************************************************************************************
@@ -193,6 +194,9 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
 */
 function requestNewAndDisplayCurrentUnwetters(map, currentTimestamp){
 
+// TODO: funktioniert hier auch nicht?!?
+	removeOldUnwetterFromDB(currentTimestamp);
+
 	// ".then" is used here, to ensure that the .......... has finished and a result is available
 	// saves new requested Unwetter in database
 	processUnwettersFromDWD(currentTimestamp)
@@ -203,11 +207,6 @@ function requestNewAndDisplayCurrentUnwetters(map, currentTimestamp){
 
 		//
 		displayCurrentUnwetters(map, currentTimestamp);
-
-
-		// TODO: FALLS DISPLAY... SCHON EINMAL AUFGERUFEN WURDE, DANN NUR NOCH NEUE Unwetter als Map-Layer hinzufügen
-		// dazu Paulas Layer-Änderung abwarten
-
 
 	}, function(err) {
 		console.log(err);
@@ -249,18 +248,17 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 	// if the request is done successfully, ...
 	.done (function (response) {
 
-		console.log(response);
-
-		// all Unwetter that are stored in the database
+		// all Unwetter that are stored in the database for which the following is true: the currentTimestamp lies between the Unwetters onset- and expires-timestamp
 		let currentUnwetters = response;
 
 		// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
 		let unwetterFeature;
 
-		let tweetFeatures = [];
-
-
 		// *************************************************************************************************************
+
+		// remove layer and source of those Unwetter which are expired from map and remove its layerID from customLayerIds
+		findAndRemoveOldLayerIDs(currentUnwetters);
+
 
 		// iteration over all Unwetter in the database
 		for (let i = 0; i < currentUnwetters.length; i++) {
@@ -318,12 +316,13 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 						"properties": currentUnwetterEvent.properties
 					}]
 				};
-				displayEvents(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
+				displayEvent(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
 			}
 			retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, layerGroup);
 		}
+	})
 
-	}).fail (function (xhr, status, error) {
+	.fail (function (xhr, status, error) {
 
 		// ... give a notice that the AJAX request for reading all current Unwetter has failed and show the error on the console
 		console.log("AJAX request (reading all current Unwetter) has failed.", error);
@@ -332,16 +331,80 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 		//  if (error === "timeout") {
 		//    JL("ajaxReadingAllCurrentUnwetterTimeout").fatalException("ajax: '/db/readCurrentUnwetters' timeout");
 		//  }
-
 	});
 }
+
+
+
+/**
+* @desc findAndRemoveOldLayerIDs from customLayerIds and remove jeweiligen layer und source aus map
+* ...............................
+*
+* @author Katharina Poppinga
+* @private
+* @param {Array} currentUnwetters -
+*/
+function findAndRemoveOldLayerIDs(currentUnwetters){
+
+
+// TODO: DIESE FUNKTION TUT NICHT DAS GEWÜNSCHTE
+
+
+	// Array in which the layerIDs of the Unwetter which shall not longer be displayed in the map will be collected (for deleting them from Array customLayerIds afterwards)
+	let layerIDsToRemove = [];
+
+	// iteration over all elements (all layerIDs) in Array customLayerIds
+	for (let i = 0; i < customLayerIds.length; i++) {
+
+console.log(i);
+console.log(customLayerIds.length);
+
+		let layerID = customLayerIds[i];
+
+		// split the String of the layerID by space for getting the type Unwetter and the dwd_ids as isolated elements
+		let layerIdParts = layerID.split(/[ ]+/);
+
+		// layerIdParts[0] contains the type of layer-element
+		if (layerIdParts[0] === "Unwetter") {
+
+			// default false stands for: layer-Unwetter is not (no longer) a current Unwetter
+			let isCurrent = false;
+			//
+			for (let j = 0; j < currentUnwetters.length; j++) {
+
+				// layerIdParts[2] contains the id (here: dwd_id for Unwetters)
+				// if the layer-Unwetter is still a current Unwetter, set "isCurrent" to true
+				if (layerIdParts[2] === currentUnwetters[j].dwd_id) {
+					isCurrent = true;
+				}
+			}
+
+			// if the layer-Unwetter is not (no longer) a current Unwetter, remove its ID from customLayerIds
+			if (isCurrent === false) {
+
+				// remove the corresponding layer and source from map for not displaying this Unwetter any longer
+				map.removeLayer(layerID);
+				map.removeSource(layerID);
+
+				// removes 1 element at index i from Array customLayerIds
+				customLayerIds.splice(i, 1);
+
+				// for not omitting one layerID in this for-loop after removing one
+				i--;
+			}
+		}
+	}
+
+	console.log(customLayerIds);
+}
+
 
 
 /**
 * Retrieves tweets for a specific Unwetter from the twitter api, saves them in the database and displays them on the map.
 * @author Paula Scharf
 * @param twitterSearchQuery - object containing parameters for the search-request
-* @param dwd_id - the id of the specific unwetter
+* @param dwd_id - the ID of the specific unwetter
 * @param dwd_event - the event-name of the unwetter
 * @param layerGroup - the name of the layergroup of the tweet and unwetter
 */
@@ -372,11 +435,11 @@ function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup) {
 				});
 				// add the tweets to the map
 				if (tweetFeatureCollection.features.length > 0) {
-					displayEvents(map, "Tweet " + layerGroup + " " + result[0].unwetter_ID, tweetFeatureCollection);
+					displayEvent(map, "Tweet " + layerGroup + " " + result[0].unwetter_ID, tweetFeatureCollection);
 				}
 			} catch (e) {
-				console.dir("there was an error while processing the tweets from the database", e);
-				// TODO: error catchen und dann hier auch den error ausgeben?
+				// TODO: wird der Error so mit ausgegeben, trotz vorherigen Strings?
+				console.dir("There was an error while processing the tweets from the database", e);
 			}
 		}
 	}, function (reason) {
@@ -387,9 +450,9 @@ function retrieveTweets(twitterSearchQuery, dwd_id, dwd_event, layerGroup) {
 
 /**
 * This function adds a layer (identified by the given layerID) to the layer-menu.
-* The layer-menu makes it possible to toggle layers on and of.
+* The layer-menu makes it possible to toggle layers on and off.
 * @author Benjamin Rieke
-* @param {String} layerID - id of a layer
+* @param {String} layerID - ID of a layer
 */
 function addLayerToMenu(layerID) {
 	// split layerID on whitspace
@@ -453,6 +516,7 @@ function addLayerToMenu(layerID) {
 * @param {String} layerID - ID of a layer
 */
 function makeLayerInteractive(layerID) {
+
 	// ************************ changing of curser style ***********************
 	// https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
 	// if hovering the layer, change the cursor to a pointer
@@ -478,30 +542,37 @@ function makeLayerInteractive(layerID) {
 
 
 /**
-* @desc Makes a mapbox-layer out of all Unwetter of a specific event-supergroup (rain, snowfall, ...)
+* @desc Makes a mapbox-layer out of all Unwetter/Tweets...
 * and display it in the map. Colors the created layer by event-type.
-* @author Katharina Poppinga, Benjamin Rieke
+*
+* @author Katharina Poppinga, Benjamin Rieke, Paula Scharf
 * @private
-* @param {mapbox-map} map map to which the Unwetter will be added
-* @param {String} layerID ID for the map-layer to be created, is equivalent to the Unwetter-event-supergroup
-* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of all Unwetter-events of the specific event-supergroup
+* @param {mapbox-map} map map to which the Unwetter/Tweet... will be added
+* @param {String} layerID ID for the map-layer to be created
+* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of ......
 */
-function displayEvents(map, layerID, eventFeatureCollection) {
+function displayEvent(map, layerID, eventFeatureCollection) {
+	// TODO: falls diese Funktion auch für Radardaten verwendet wird, dann Kommentare anpassen
 	//
-	let source = map.getSource(layerID);
+	let sourceObject = map.getSource(layerID);
 
-	if (typeof source !== 'undefined') {
-		let data = JSON.parse(JSON.stringify(source._data));
+	// if there is already an existing Source of this map with the given layerID ...
+	if (typeof sourceObject !== 'undefined') {
+		// ... set the data neu
+		// TODO: warum folgendes nötig? warum nicht einfach alte source unverändert lassen, da dwd-id die gleiche ist und damit auch keine updates des Unwetters vorhanden sind?
+		let data = JSON.parse(JSON.stringify(sourceObject._data));
 		data.features = eventFeatureCollection.features;
-		source.setData(data);
+		sourceObject.setData(data);
 
+		// if there is no Source of this map with the given layerID ...
 	} else {
-		// add the given Unwetter-event as a source to the map
+		// ... add the given eventFeatureCollection withits given layerID as a Source to the map (and add it afterwards as a Layer to the map)
 		map.addSource(layerID, {
 			type: 'geojson',
 			data: eventFeatureCollection
 		});
 
+		// Layer-adding for a Tweet with a point-geometry
 		if (eventFeatureCollection.features[0].geometry.type === "Point") {
 			map.addLayer({
 				"id": layerID,
@@ -513,6 +584,7 @@ function displayEvents(map, layerID, eventFeatureCollection) {
 				}
 			});
 
+			// Layer-adding for an Unwetter with a polygon-geometry
 		} else {
 			// TODO: Farben anpassen und stattdessen über ec_ii mit Ziffern unterscheiden?
 			// TODO: Farbdarstellungs- und -unterscheidungsprobleme, wenn mehrere Polygone sich überlagern
@@ -604,7 +676,7 @@ function displayEvents(map, layerID, eventFeatureCollection) {
 
 		//
 		makeLayerInteractive(layerID);
-		addLayerToMenu(layerID);
+		addLayerToMenu(layerID); // TODO: auch hier alte entfernen, oder passiert das eh automatisch?
 		customLayerIds.push(layerID);
 	}
 
@@ -644,7 +716,11 @@ function showUnwetterPopup(map, e) {
 		// get information about the feature on which it was clicked
 		var picked = map.queryRenderedFeatures(e.point);
 
+console.log(picked);
+
 		// TODO: Sommerzeit im Sommer??
+
+		// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
 
 		if (picked[0].source.includes("Unwetter")) {
 			// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
@@ -652,7 +728,7 @@ function showUnwetterPopup(map, e) {
 				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
 				new mapboxgl.Popup()
 				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
+				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction + "<br><b>mapSource: </b>" + picked[0].source)
 				.addTo(map);
 			}
 			// if a instruction is not given by the DWD ...
@@ -660,7 +736,7 @@ function showUnwetterPopup(map, e) {
 				// ... create a popup with above information without an instruction
 				new mapboxgl.Popup()
 				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
+				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br><b>mapSource: </b>" + picked[0].source)
 				.addTo(map);
 			}
 		}

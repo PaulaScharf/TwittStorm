@@ -68,7 +68,12 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 							if (currentFeature.coordinates) {
 								let tweetLocation = turf.point(currentFeature.coordinates.coordinates);
 								let polygon = turf.polygon(twitterSearchQuery.geometry[0].coordinates[0]);
+
+								//
 								if (turf.booleanPointInPolygon(tweetLocation, polygon)) {
+
+									// TODO: hier prüfen, ob tweet schon in DB vorhanden ist
+
 									let currentStatus = {
 										type: "Tweet",
 										id: currentFeature.id,
@@ -80,7 +85,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 										},
 										timestamp: currentFeature.created_at,
 										location_actual: currentFeature.coordinates,
-										unwetter_ID: unwetterID,
+										unwetter_ID: unwetterID, // contains the dwd_id
 										unwetter_Event: unwetterEvent
 									};
 									arrayOfPromises.push(promiseToPostItem(currentStatus));
@@ -96,7 +101,7 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 						// return the promise to get all Items
 						resolve(promiseToGetItems({type: "Tweet", unwetter_ID: unwetterID}));
 						// ... give a notice on the console that the AJAX request for reading all routes has succeeded
-						console.log("AJAX request (reading all tweets) is done successfully.");
+						console.log("AJAX request (reading all Tweets) is done successfully.");
 						// if await Promise.all(arrayOfPromises) fails:
 					} catch (e) {
 						reject("Could not POST all Tweets.");
@@ -116,6 +121,89 @@ function saveAndReturnNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unw
 			});
 	});
 }
+
+
+
+
+
+/**
+* @desc
+*
+* @author Katharina Poppinga
+* @private
+* @param {Object} currentFeature - JSON of one specific Tweet taken from DWD response
+* @param {Array} arrayOfGroupedUnwetters -
+* @param {Array} arrayUnwettersToPost -
+* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+*/
+function checkDBForExistingTweet(currentFeature, arrayOfGroupedUnwetters, arrayUnwettersToPost, currentTimestamp){
+
+  // TODO: auch auf einzelne vorhandene geometrys überprüfen
+
+  //
+  return new Promise((resolve, reject) => {
+    // JSON with the ID of the current Unwetter, needed for following database-check
+    let query = {
+      type: "Tweet",
+      id: currentFeature.id
+    };
+
+    //
+    promiseToGetItems(query)
+    .catch(function(error) {
+      reject(error);
+    })
+    .then(function(response) {
+
+      // if the current Tweet (with given id) ALREADY EXISTS in the database ...
+      if (typeof response !== "undefined" && response.length > 0) {
+        let responseFirst = response[0];
+        // ... do not insert it again but:
+
+        // TODO: evtl. console-print löschen?
+        console.log("item already in database, do not insert it again");
+
+
+        // if this Tweet does NOT EXIST in the database ...
+      } else {
+
+          // TODO: evtl. console-print löschen?
+          console.log("item currently not in database, insert it now");
+
+          // ... insert it by first formatting the Unwetters JSON and ...
+          let currentUnwetter = createUnwetterForDB(currentFeature, currentTimestamp);
+          // ... add it to the arrayOfGroupedUnwetters
+          // this array will be used for subsequent processing before adding the Unwetter to the
+          // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
+          arrayUnwettersToPost.push(currentUnwetter);
+        }
+
+      //
+      resolve(response);
+    });
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Calculates the smallest enclosing circle around an array of coordinates.

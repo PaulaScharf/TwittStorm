@@ -14,7 +14,7 @@
 function saveRainRadar(product, classification) {
   let url = '/raster/' + product + '/' + classification;
   return new Promise((resolve, reject) => {
-      // This array will contain all the the calls of the function "promiseToPostItem"
+      // This array will contain all the calls of the function "promiseToPostItem"
       let arrayOfPromises = [];
       // load the GeoJSON from the DWD Geoserver and display the current Unwetter-areas
       $.getJSON(url, function (data) {
@@ -44,7 +44,7 @@ function saveRainRadar(product, classification) {
   });
 }
 
-/*
+/**
  * This function calls 'add' with AJAX, to save a given item in the database.
  * The logic is wrapped in a promise to make it possible to await it (see saveAndReturnNewUnwetterFromDWD for an example
  * of await)
@@ -88,7 +88,7 @@ function promiseToPostItem(item) {
 }
 
 /**
- * This function calls 'db/' with AJAX, to retrieve all items that comply to the given query in the database.
+ * This function calls '/db/' with AJAX, to retrieve all items that comply to the given query in the database.
  * The logic is wrapped in a promise to make it possible to await it (see saveAndReturnNewUnwetterFromDWD for an example
  * of await).
  * @author Paula Scharf, matr.: 450334
@@ -101,7 +101,7 @@ function promiseToGetAllItems(query) {
             // use a http POST request
             type: "POST",
             // URL to send the request to
-            url: "db/",
+            url: "/db/",
             data: query,
             // timeout set to 15 seconds
             timeout: 20000

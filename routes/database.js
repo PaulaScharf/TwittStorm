@@ -137,13 +137,13 @@ router.put("/addUnwetterTimestamp", (req, res) => {
 
 		if (error) {
 			// give a notice, that the updating has failed and show the error on the console
-			console.log("Failure while updating an item in 'item'.", error);
+			console.log("Failure while adding Unwetter-timestamp in 'item'.", error);
 			// in case of an error while updating, do routing to "error.ejs"
 			res.render('error');
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that updating the item has succeeded
-			console.log("Successfully updated an item in 'item'.");
+			console.log("Successfully added Unwetter-timestamp in 'item'.");
 			res.json(result);
 		}
 	});
@@ -172,13 +172,13 @@ router.put("/removeUnwetterTimestamps", (req, res) => {
 
 		if (error) {
 			// give a notice, that the updating has failed and show the error on the console
-			console.log("Failure while updating an Unwetter in 'item'.", error);
+			console.log("Failure while removing Unwetter-timestamps in 'item'.", error);
 			// in case of an error while updating, do routing to "error.ejs"
 			res.render('error');
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that updating the Unwetter has succeeded
-			console.log("Successfully updated an Unwetter in 'item'.");
+			console.log("Successfully removed Unwetter-timestamps in 'item'.");
 			res.json(result);
 		}
 	});
@@ -196,7 +196,6 @@ router.delete("/deleteOldUnwetter", (req, res) => {
 	console.log("delete Unwetter " + req.query._id);
 
 	// TODO:
-
 
 	// filter database for Unwetters and ...
 	db.collection('item').deleteMany( {type:"Unwetter"},
@@ -218,6 +217,37 @@ router.delete("/deleteOldUnwetter", (req, res) => {
 	});
 });
 
+
+
+
+// TODO:
+// *********************** deleting ...........: ***********************
+/* DELETE old Tweets */
+router.delete("/delete", (req, res) => {
+
+	var db = req.db;
+
+	console.log("delete ... " + req.query._id);
+
+	// filter database for Unwetters and ...
+	db.collection('item').deleteOne( {type:"Tweet"},
+
+	// TODO: query
+		{  } , (error, result) => {
+
+		if (error){
+			// give a notice, that the deleting has failed and show the error on the console
+			console.log("Failure while deleting a Tweet from 'item'.", error);
+			// in case of an error while deleting, do routing to "error.ejs"
+			res.render('error');
+			// if no error occurs ...
+		} else {
+			// ... give a notice, that deleting the Unwetter has succeeded
+			console.log("Successfully deleted a Tweet from 'item'.");
+			res.json(result);
+		}
+	});
+});
 
 
 module.exports = router;

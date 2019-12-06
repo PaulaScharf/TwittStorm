@@ -93,8 +93,17 @@ function removeOldUnwetterFromDB2(){
   // if the request is done successfully, ...
   .done (function (response) {
 
-  })
+    // response hilft nicht weiter fürs tweet löschen
 
+    // ... give a notice on the console that the AJAX request for deleting old Unwetter has succeeded
+    console.log("AJAX request (deleting old Unwetter) is done successfully.");
+
+
+    // TODO: wie hier an IDs der zu löschenden Tweets kommen oder diese vorher abfragen?
+
+    // after deleting old Unwetter, delete their corresponding tweets, too
+    removeOldTweetsFromDB();
+  })
 
   // if the AJAX-request has failed, ...
   .fail (function (xhr, status, error) {
@@ -105,6 +114,60 @@ function removeOldUnwetterFromDB2(){
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
       //    JL("ajaxDeletingOneItemTimeout").fatalException("ajax: '/db/deleteOldUnwetter' timeout");
+    }
+  });
+}
+
+
+
+
+/**
+* @desc Deletes .....
+* ANPASSEN
+*
+* @author Katharina Poppinga
+* @param
+*/
+function removeOldTweetsFromDB(){
+
+  // alle Tweets aus DB löschen, deren zugehörigen Unwetter gelöscht wurden
+
+  let tweetID = {
+
+  };
+
+  // TODO: evtl. hier neuen Funktionsaufruf zu einer Funktion fürs deleten allgemein machen (Modularisierung)
+  // TODO: tweetID zu iD machen, um code allgemeiner nutzen zu können
+
+  $.ajax({
+    // use a http DELETE request
+    type: "DELETE",
+    // URL to send the request to
+    url: "/db/delete",
+    // type of the data that is sent to the server
+    contentType: "application/json; charset=utf-8",
+    // data to send to the server, send as String for independence of server-side programming language
+    data: JSON.stringify(tweetID),
+    // timeout set to 10 seconds
+    timeout: 10000
+  })
+
+  // if the request is done successfully, ...
+  .done (function (response) {
+
+    // ... give a notice on the console that the AJAX request for deleting ....... has succeeded
+    console.log("AJAX request (deleting ..........) is done successfully. NOCH NICHT IMPLEMENTIERT");
+  })
+
+  // if the AJAX-request has failed, ...
+  .fail (function (xhr, status, error) {
+
+    // ... give a notice that the AJAX request for finding one item has failed and show the error on the console
+    console.log("AJAX request (deleting one (???????) item) has failed.", error);
+
+    // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+    if (error === "timeout") {
+      //    JL("ajaxDeletingOneItem??????Timeout").fatalException("ajax: '/db/delete' timeout");
     }
   });
 }
