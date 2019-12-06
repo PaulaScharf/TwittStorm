@@ -529,7 +529,7 @@ function makeLayerInteractive(layerID) {
 	});
 
 	// ************************ showing popups on click ************************
-	// TODO: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
+	// TODO: Problem: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
 	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
 	map.on('click', layerID, function (e) {
 		if (layerID.includes("Tweet")) {
@@ -840,6 +840,7 @@ function drawForAOI(map) {
 		console.log(e.features);
 	});
 }
+
 
 /**
 * This function makes only Unwetters and its tweets visible, if the include a polygon that is fully contained by the given
