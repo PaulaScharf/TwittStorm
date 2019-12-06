@@ -21,16 +21,31 @@
 <%- include('partial/navbar', {active: "home"}); %>
 
 <main>
-    <!-- layer selection menu -->
+    <!-- DWD selection menu -->
 
     <div id="menu" style="display:none"></div>
 
+    <!-- Product selection menu -->
+
+    <div id="productMenu" style="display:none">
+      <a href="#" class="selector" onclick="openMenu(this, rasterMenu)">Raster </a>
+      <a href="#" class="selector" onclick="openMenu(this, menu)">DWD-Unwetter</a>
+    </div>
+
+    <!-- Raster selection menu -->
+    <!-- Add functions for raster display here -->
+
+    <div id="rasterMenu" style="display:none">
+      <a href="#" class="selector" onclick>5 Minutes </a>
+      <a href="#" class="selector" onclick>60 Minutes</a>
+      <a href="#" class="selector" onclick>24 Hours</a>
+
+    </div>
+
     <!-- button to open up the menu -->
 
-    <nav id="menuButton" class="container" onclick="openMenu(this)" title="Change Layers">
-        <div class="bar1"></div>
-        <div class="bar2"></div>
-        <div class="bar3"></div>
+    <nav id="menuButton" class="container" onclick="openMenu(this, productMenu)" title="Change Layers">
+
     </nav>
 
     <!-- map -->
@@ -69,6 +84,7 @@
 <script>
 var paramArray = <%- JSON.stringify(paramArray) %>;
 </script>
+<script src="/javascripts/urlNaming.js"></script>
 <script src="/javascripts/database.js"></script>
 <script src="/javascripts/smallest-enclosing-circle.js"></script>
 <script src="/javascripts/DWDUnwetterProcessing.js"></script>
