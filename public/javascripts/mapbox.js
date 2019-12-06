@@ -43,6 +43,7 @@ function showMap(style) {
 
 	//
 	removeOldUnwetterFromDB();
+	console.log("Help me!!!");
 
 	// Checks if the layer menu DOM is empty and if not flushes the dom
 	while (layers.firstChild) {
@@ -295,7 +296,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 				default:
 				layerGroup = "other";
 				// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-				twitterSearchQuery.searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
+				twitterSearchQuery.searchWords.push("Berlin", "Germany", "Jesus", "Liebe");
 				break;
 			}
 
@@ -812,13 +813,13 @@ function showAllUnwetter() {
 /**
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X
 * @param button Links the button to the function for the animation
+* @param menu Id of the menu that is supposed to open/close
 * @author Benjamin Rieke
 */
-function openMenu(button) {
+function openMenu(button, menu) {
 
-	button.classList.toggle("change");
 	// TODO: warum wird hier button neu definiert?
-	button = document.getElementById("menu");
+	button = document.getElementById(menu.id);
 	if (button.style.display === "none") {
 		button.style.display = "block";
 	} else {
@@ -886,3 +887,16 @@ function forEachLayer(cb) {
 		cb(layer);
 	});
 }
+
+/**
+* Changes the style of a menu selector to active on klick
+* @author Benjamon Rieke
+*/
+
+$(function () {
+    //var $lists = $('.list-group li').click(function(e) {
+
+    $(".selector").click(function () {
+        $(this).toggleClass("active");
+    });
+	})
