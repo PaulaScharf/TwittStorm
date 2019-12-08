@@ -367,120 +367,132 @@ function groupByArray(xs, key) {
 }
 
 
+
 /**
 * This function calls 'add' with AJAX, to save a given item in the database.
-* The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example
-  * of await)
-  * @author Paula Scharf, matr.: 450334
-  * @param {Object} item - the item to be posted
-  */
-  function promiseToPostItem(item) {
-
-    return new Promise((resolve, reject) => {
-      $.ajax({
-        // use a http POST request
-        type: "POST",
-        // URL to send the request to
-        url: "/db/add",
-        // type of the data that is sent to the server
-        contentType: "application/json; charset=utf-8",
-        // data to send to the server
-        data: JSON.stringify(item),
-        // timeout set to 15 seconds
-        timeout: 15000
-      })
-
-      // if the request is done successfully, ...
-      .done(function (response) {
-        // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
-        console.log("AJAX request (posting an item) is done successfully.");
-        resolve();
-      })
-
-      // if the request has failed, ...
-      .fail(function (xhr, status, error) {
-        // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
-        console.log("AJAX request (posting an item) has failed.", error);
-
-        // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-        if (error === "timeout") {
-          //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
-        }
-        reject("AJAX request (posting an item) has failed.");
-      });
-    });
-  }
-
-
-  /**
-  * This function calls '/db/' with AJAX, to retrieve all items that comply to the given query in the database.
-  * The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example
-    * of await).
-    * @author Paula Scharf, matr.: 450334
-    * @param {Object} query
-    * @example promiseToGetItems({type: "Unwetter"})
-    */
-    function promiseToGetItems(query) {
-      return new Promise((resolve, reject) => {
-        $.ajax({
-          // use a http POST request
-          type: "POST",
-          // URL to send the request to
-          url: "/db/",
-          //
-          data: query,
-          // timeout set to 15 seconds
-          timeout: 20000
-        })
-
-        // if the request is done successfully, ...
-        .done(function (response) {
-          // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
-          console.log("AJAX request (reading all items) is done successfully.");
-          // "resolve" acts like "return" in this context
-          resolve(response);
-        })
-
-        // if the request has failed, ...
-        .fail(function (xhr, status, error) {
-          // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
-          console.log("AJAX request (reading all items) has failed.", error);
-          console.dir(error);
-
-          // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-          if (error === "timeout") {
-            //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
-          }
-          reject("AJAX request (reading all items) has failed.");
-        });
-
-      });
-    }
-
-
-    /**
-    * This function converts an input "c" to the hex-encoding
-    * @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-    * @param c
-    * @returns {String}
-    */
-    /*
-    function componentToHex(c) {
-    var hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-  }
-  */
-
-  /**
-  * This function converts an input of the color values (0 to 255) for red, green and blue to its hex-encoding
-  * @author https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-  * @param r - red
-  * @param g - green
-  * @param b - blue
-  * @returns {String}
-  */
-  /*
-  function rgbToHex(r, g, b) {
-  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-}
+* The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example of await)
+* @author Paula Scharf, matr.: 450334
+* @param {Object} item - the item to be posted
 */
+function promiseToPostItem(item) {
+
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      // use a http POST request
+      type: "POST",
+      // URL to send the request to
+      url: "/db/add",
+      // type of the data that is sent to the server
+      contentType: "application/json; charset=utf-8",
+      // data to send to the server
+      data: JSON.stringify(item),
+      // timeout set to 15 seconds
+      timeout: 15000
+    })
+
+    // if the request is done successfully, ...
+    .done(function (response) {
+      // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
+      console.log("AJAX request (posting an item) is done successfully.");
+      resolve();
+    })
+
+    // if the request has failed, ...
+    .fail(function (xhr, status, error) {
+      // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
+      console.log("AJAX request (posting an item) has failed.", error);
+
+      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+      if (error === "timeout") {
+        //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
+      }
+      reject("AJAX request (posting an item) has failed.");
+    });
+  });
+}
+
+
+/**
+* This function calls 'add' with AJAX, to save the given items in the database.
+* @author Paula Scharf
+* @param arrayOfItems - array which contains the items
+*/
+function promiseToPostMany(arrayOfItems) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      // use a http POST request
+      type: "POST",
+      // URL to send the request to
+      url: "/db/addMany",
+      // type of the data that is sent to the server
+      contentType: "application/json; charset=utf-8",
+      // data to send to the server
+      data: JSON.stringify(arrayOfItems),
+      // timeout set to 15 seconds
+      timeout: 15000
+    })
+    // if the request is done successfully, ...
+    .done(function () {
+      // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
+      console.log("AJAX request (posting an item) is done successfully.");
+    })
+
+    // if the request has failed, ...
+    .fail(function (xhr, status, error) {
+      // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
+      console.log("AJAX request (posting many items) has failed.", error);
+      resolve();
+
+      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+      if (error === "timeout") {
+        //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'addMany' timeout");
+      }
+      reject("AJAX request (posting an item) has failed.");
+    });
+  });
+}
+
+
+/**
+* This function calls '/db/' with AJAX, to retrieve all items that comply to the given query in the database.
+* The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example of await).
+* @author Paula Scharf, matr.: 450334
+* @param {Object} query
+* @example promiseToGetItems({type: "Unwetter"})
+*/
+function promiseToGetItems(query) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      // use a http POST request
+      type: "POST",
+      // URL to send the request to
+      url: "/db/",
+      //
+      data: query,
+      // timeout set to 15 seconds
+      timeout: 20000
+    })
+
+    // if the request is done successfully, ...
+    .done(function (response) {
+      // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
+      console.log("AJAX request (reading all items) is done successfully.");
+      // "resolve" acts like "return" in this context
+      resolve(response);
+    })
+
+    // if the request has failed, ...
+    .fail(function (xhr, status, error) {
+      // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
+      console.log("AJAX request (reading all items) has failed.", error);
+      console.dir(error);
+
+      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+      if (error === "timeout") {
+        //JL("ajaxCreatingEncounterTimeout").fatalException("ajax: 'add' timeout");
+      }
+      reject("AJAX request (reading all items) has failed.");
+    });
+
+  });
+}

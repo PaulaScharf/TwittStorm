@@ -14,7 +14,7 @@
 background: #fff;
 position: fixed;
 z-index: 1;
-top: 60px;
+top: 320px;
 right: 80px;
 border-radius: 3px;
 width: 120px;
@@ -52,12 +52,104 @@ color: black;
 background: grey;
 }
 
+
+#productMenu {
+background: #fff;
+position: fixed;
+z-index: 1;
+top: 230px;
+right: 80px;
+border-radius: 3px;
+width: 120px;
+border: 1px solid rgba(0,0,0,0.4);
+font-family: 'Open Sans', sans-serif;
+}
+
+#productMenu a {
+font-size: 13px;
+color: black;
+display: block;
+margin: 0;
+padding: 0;
+padding: 10px;
+text-decoration: none;
+border-bottom: 1px solid rgba(0,0,0,0.25);
+text-align: center;
+}
+
+#productMenu a:last-child {
+border: none;
+}
+
+#productMenu a:hover {
+background-color: grey;
+color: black;
+}
+
+#productMenu a.active {
+background-color: lightgrey;
+color: black;
+}
+
+#productMenu a.active:hover {
+background: grey;
+}
+
+#rasterMenu {
+background: #fff;
+position: fixed;
+z-index: 1;
+top: 100px;
+right: 80px;
+border-radius: 3px;
+width: 120px;
+border: 1px solid rgba(0,0,0,0.4);
+font-family: 'Open Sans', sans-serif;
+}
+
+#rasterMenu a {
+font-size: 13px;
+color: black;
+display: block;
+margin: 0;
+padding: 0;
+padding: 10px;
+text-decoration: none;
+border-bottom: 1px solid rgba(0,0,0,0.25);
+text-align: center;
+}
+
+#rasterMenu a:last-child {
+border: none;
+}
+
+#rasterMenu a:hover {
+background-color: grey;
+color: black;
+}
+
+#rasterMenu a.active {
+background-color: lightgrey;
+color: black;
+}
+
+#rasterMenu a.active:hover {
+background: grey;
+}
+
 #menuButton{
   position: absolute;
   z-index: 1;
-  top: 10px;
-  right: 10px;
-  width: 120px;
+  display: block;
+  top: 230px;
+  right: 25px;
+  width: 5px;
+  height: 25px;
+  background-color: white;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.4);
+
+
 
 }
 
@@ -66,31 +158,13 @@ background: grey;
   cursor: pointer;
 }
 
-.bar1, .bar2, .bar3 {
-  width: 35px;
-  height: 5px;
-  background-color: #333;
-  margin: 6px 0;
-  transition: 0.4s;
-}
 
-.change .bar1 {
-  -webkit-transform: rotate(-45deg) translate(-9px, 6px);
-  transform: rotate(-45deg) translate(-9px, 6px);
-}
-
-.change .bar2 {opacity: 0;}
-
-.change .bar3 {
-  -webkit-transform: rotate(45deg) translate(-8px, -8px);
-  transform: rotate(45deg) translate(-8px, -8px);
-}
 
 #styleMenu {
   position: absolute;
   z-index: 1;
-  top: 14px;
-  right: 180px;
+  top: 60px;
+  right: 120px;
   width: 120px;
   display: flex;
 }
