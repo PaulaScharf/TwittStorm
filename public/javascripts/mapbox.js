@@ -33,9 +33,13 @@ let customLayerIds = [];
 
 /**
 * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
-* and all Unwetter that are stored in the database. For each Unwetter, it provides an onclick-popup with a
-* description and its period of validity. Uses mapbox-gl-draw to enable drawing polygons in this map.
+* and all current Unwetter ................ and ................
+* For each Unwetter, it provides an onclick-popup with a description and its period of validity.
+* Uses mapbox-gl-draw to enable drawing polygons in this map.
+*
 * ...... TWEETS-AUFRUF ERWÄHNEN ......
+*
+*
 * This function is called, when "index.ejs" is loaded.
 * @author Katharina Poppinga
 */
@@ -122,12 +126,13 @@ function showMap(style) {
 		}
 
 
-		//
-		// 300000 milliseconds = 5 minutes
+		// requestNewAndDisplayCurrentUnwetters(map, Date.now()) is called each 5 minutes (300000 milliseconds = 5 minutes)
 		window.setInterval(requestNewAndDisplayCurrentUnwetters, 300000, map, Date.now());
 
-		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
+// TODO: beim setInterval Unwetter-Request werden nicht alle timestamps geupdated !!! (beim Seite manuell neu laden schon?)
 
+
+		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 	});
 }
 
@@ -221,18 +226,18 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 	// TODO: überprüfen, ob die query richtig funktioniert (nur die Unwetter aus DB nehmen, die grad aktuell sind)
 
-	// JSON with ....... query
+	// JSON with the query for getting only all current Unwetter out of database
 	let query = {
 		"properties.onset": '{"$lt": ' + currentTimestamp + '}',
 		"properties.expires": '{"$gt":  ' + currentTimestamp + '}'
 	};
 
+//
 	promiseToGetItems(query, "all current Unwetter")
 	.catch(function(error) {
 		reject(error)
 	})
 	.then(function(response) {
-		console.log(response);
 
 		// all Unwetter that are stored in the database
 		let currentUnwetters = response;
@@ -330,6 +335,167 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 
 /**
+* @desc Makes a mapbox-layer out of all Unwetter/Tweets...
+* and display it in the map. Colors the created layer by event-type.
+*
+* @author Katharina Poppinga, Benjamin Rieke, Paula Scharf
+* @private
+* @param {mapbox-map} map map to which the Unwetter/Tweet... will be added
+* @param {String} layerID ID for the map-layer to be created
+* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of ......
+*/
+function displayEvent(map, layerID, eventFeatureCollection) {
+
+	// TODO: falls diese Funktion auch für Radardaten verwendet wird, dann Kommentare anpassen
+	//
+	let sourceObject = map.getSource(layerID);
+
+	// if there is already an existing Source of this map with the given layerID ...
+	if (typeof sourceObject !== 'undefined') {
+		// ... set the data neu
+		// TODO: warum folgendes nötig? warum nicht einfach alte source unverändert lassen, da dwd-id die gleiche ist und damit auch keine updates des Unwetters vorhanden sind?
+		let data = JSON.parse(JSON.stringify(sourceObject._data));
+		data.features = eventFeatureCollection.features;
+		sourceObject.setData(data);
+
+		// if there is no Source of this map with the given layerID ...
+	} else {
+		// ... add the given eventFeatureCollection withits given layerID as a Source to the map (and add it afterwards as a Layer to the map)
+		map.addSource(layerID, {
+			type: 'geojson',
+			data: eventFeatureCollection
+		});
+
+		// Layer-adding for a Tweet with a point-geometry
+		if (eventFeatureCollection.features[0].geometry.type === "Point") {
+			map.addLayer({
+				"id": layerID,
+				"type": "symbol",
+				"source": layerID,
+				"layout": {
+					"icon-image": ["concat", "circle", "-15"],
+					"visibility" : "visible"
+				}
+			});
+
+			// Layer-adding for an Unwetter with a polygon-geometry
+		} else {
+			// TODO: Farben anpassen und stattdessen über ec_ii mit Ziffern unterscheiden?
+			// TODO: Farbdarstellungs- und -unterscheidungsprobleme, wenn mehrere Polygone sich überlagern
+			// add the given Unwetter-event as a layer to the map
+			map.addLayer({
+				"id": layerID,
+				"type": "fill",
+				"source": layerID,
+				"layout": {"visibility": "visible"},
+				"paint": {
+					"fill-color": [
+						"match", ["string", ["get", "event"]],
+						"FROST",
+						"grey",
+						"GLÄTTE",
+						"white",
+						"GLATTEIS",
+						"white",
+						"NEBEL",
+						"grey",
+						"WINDBÖEN",
+						"light blue",
+						"GEWITTER",
+						"red",
+						"STARKES GEWITTER",
+						"red",
+						"SCHWERES GEWITTER",
+						"red",
+						"SCHWERES GEWITTER mit ORKANBÖEN",
+						"red",
+						"SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
+						"red",
+						"SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
+						"red",
+						"SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
+						"red",
+						"SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
+						"red",
+						"SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
+						"red",
+						"SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+						"red",
+						"SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+						"red",
+						"EXTREMES GEWITTER",
+						"red",
+						"SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
+						"red",
+						"EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
+						"red",
+						"STARKREGEN",
+						"blue",
+						"HEFTIGER STARKREGEN",
+						"blue",
+						"DAUERREGEN",
+						"blue",
+						"ERGIEBIGER DAUERREGEN",
+						"blue",
+						"EXTREM ERGIEBIGER DAUERREGEN",
+						"blue",
+						"EXTREM HEFTIGER STARKREGEN",
+						"blue",
+						"LEICHTER SCHNEEFALL",
+						"yellow",
+						"SCHNEEFALL",
+						"yellow",
+						"STARKER SCHNEEFALL",
+						"yellow",
+						"EXTREM STARKER SCHNEEFALL",
+						"yellow",
+						"SCHNEEVERWEHUNG",
+						"yellow",
+						"STARKE SCHNEEVERWEHUNG",
+						"yellow",
+						"SCHNEEFALL und SCHNEEVERWEHUNG",
+						"yellow",
+						"STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+						"yellow",
+						"EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+						"yellow",
+						"black" // sonstiges Event
+						// TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
+						// wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
+					],
+					"fill-opacity": 0.3
+				}
+			});
+		}
+
+		//
+		makeLayerInteractive(layerID);
+		addLayerToMenu(layerID); // TODO: auch hier alte entfernen, oder passiert das eh automatisch?
+		customLayerIds.push(layerID);
+	}
+
+	// https://github.com/mapbox/mapbox-gl-js/issues/908#issuecomment-254577133
+	// https://docs.mapbox.com/help/how-mapbox-works/map-design/#data-driven-styles
+	// https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/
+
+
+	// TODO: oder wie folgt die Farben verwenden, die vom DWD direkt mitgegeben werden, aber diese passen vermutlich nicht zu unserem Rest?
+	/*
+	map.addLayer({
+	"id": layerID,
+	"type": "fill",
+	"source": layerID,
+	"paint": {
+	"fill-color": ["get", "color"],
+	"fill-opacity": 0.3
+}
+});
+*/
+}
+
+
+
+/**
 * @desc findAndRemoveOldLayerIDs from customLayerIds and remove jeweiligen layer und source aus map
 * ...............................
 *
@@ -340,7 +506,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 function findAndRemoveOldLayerIDs(currentUnwetters){
 
 
-	// TODO: DIESE FUNKTION TUT NICHT DAS GEWÜNSCHTE
+	// TODO: DIESE FUNKTION TUT NICHT DAS GEWÜNSCHTE??
 
 	// Array in which the layerIDs of the Unwetter which shall not longer be displayed in the map will be collected (for deleting them from Array customLayerIds afterwards)
 	let layerIDsToRemove = [];
@@ -508,166 +674,6 @@ function makeLayerInteractive(layerID) {
 
 
 
-/**
-* @desc Makes a mapbox-layer out of all Unwetter/Tweets...
-* and display it in the map. Colors the created layer by event-type.
-*
-* @author Katharina Poppinga, Benjamin Rieke, Paula Scharf
-* @private
-* @param {mapbox-map} map map to which the Unwetter/Tweet... will be added
-* @param {String} layerID ID for the map-layer to be created
-* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of ......
-*/
-function displayEvent(map, layerID, eventFeatureCollection) {
-
-	// TODO: falls diese Funktion auch für Radardaten verwendet wird, dann Kommentare anpassen
-	//
-	let sourceObject = map.getSource(layerID);
-
-	// if there is already an existing Source of this map with the given layerID ...
-	if (typeof sourceObject !== 'undefined') {
-		// ... set the data neu
-		// TODO: warum folgendes nötig? warum nicht einfach alte source unverändert lassen, da dwd-id die gleiche ist und damit auch keine updates des Unwetters vorhanden sind?
-		let data = JSON.parse(JSON.stringify(sourceObject._data));
-		data.features = eventFeatureCollection.features;
-		sourceObject.setData(data);
-
-		// if there is no Source of this map with the given layerID ...
-	} else {
-		// ... add the given eventFeatureCollection withits given layerID as a Source to the map (and add it afterwards as a Layer to the map)
-		map.addSource(layerID, {
-			type: 'geojson',
-			data: eventFeatureCollection
-		});
-
-		// Layer-adding for a Tweet with a point-geometry
-		if (eventFeatureCollection.features[0].geometry.type === "Point") {
-			map.addLayer({
-				"id": layerID,
-				"type": "symbol",
-				"source": layerID,
-				"layout": {
-					"icon-image": ["concat", "circle", "-15"],
-					"visibility" : "visible"
-				}
-			});
-
-			// Layer-adding for an Unwetter with a polygon-geometry
-		} else {
-			// TODO: Farben anpassen und stattdessen über ec_ii mit Ziffern unterscheiden?
-			// TODO: Farbdarstellungs- und -unterscheidungsprobleme, wenn mehrere Polygone sich überlagern
-			// add the given Unwetter-event as a layer to the map
-			map.addLayer({
-				"id": layerID,
-				"type": "fill",
-				"source": layerID,
-				"layout": {"visibility": "visible"},
-				"paint": {
-					"fill-color": [
-						"match", ["string", ["get", "event"]],
-						"FROST",
-						"grey",
-						"GLÄTTE",
-						"white",
-						"GLATTEIS",
-						"white",
-						"NEBEL",
-						"grey",
-						"WINDBÖEN",
-						"light blue",
-						"GEWITTER",
-						"red",
-						"STARKES GEWITTER",
-						"red",
-						"SCHWERES GEWITTER",
-						"red",
-						"SCHWERES GEWITTER mit ORKANBÖEN",
-						"red",
-						"SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
-						"red",
-						"SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
-						"red",
-						"SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
-						"red",
-						"SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
-						"red",
-						"SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
-						"red",
-						"SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-						"red",
-						"SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-						"red",
-						"EXTREMES GEWITTER",
-						"red",
-						"SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
-						"red",
-						"EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
-						"red",
-						"STARKREGEN",
-						"blue",
-						"HEFTIGER STARKREGEN",
-						"blue",
-						"DAUERREGEN",
-						"blue",
-						"ERGIEBIGER DAUERREGEN",
-						"blue",
-						"EXTREM ERGIEBIGER DAUERREGEN",
-						"blue",
-						"EXTREM HEFTIGER STARKREGEN",
-						"blue",
-						"LEICHTER SCHNEEFALL",
-						"yellow",
-						"SCHNEEFALL",
-						"yellow",
-						"STARKER SCHNEEFALL",
-						"yellow",
-						"EXTREM STARKER SCHNEEFALL",
-						"yellow",
-						"SCHNEEVERWEHUNG",
-						"yellow",
-						"STARKE SCHNEEVERWEHUNG",
-						"yellow",
-						"SCHNEEFALL und SCHNEEVERWEHUNG",
-						"yellow",
-						"STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-						"yellow",
-						"EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-						"yellow",
-						"black" // sonstiges Event
-						// TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
-						// wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
-					],
-					"fill-opacity": 0.3
-				}
-			});
-		}
-
-		//
-		makeLayerInteractive(layerID);
-		addLayerToMenu(layerID); // TODO: auch hier alte entfernen, oder passiert das eh automatisch?
-		customLayerIds.push(layerID);
-	}
-
-	// https://github.com/mapbox/mapbox-gl-js/issues/908#issuecomment-254577133
-	// https://docs.mapbox.com/help/how-mapbox-works/map-design/#data-driven-styles
-	// https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/
-
-
-	// TODO: oder wie folgt die Farben verwenden, die vom DWD direkt mitgegeben werden, aber diese passen vermutlich nicht zu unserem Rest?
-	/*
-	map.addLayer({
-	"id": layerID,
-	"type": "fill",
-	"source": layerID,
-	"paint": {
-	"fill-color": ["get", "color"],
-	"fill-opacity": 0.3
-}
-});
-*/
-}
-
-
 // TODO: Popups scrollbar machen oder enthaltenen Text kürzen??
 
 /**
@@ -683,8 +689,6 @@ function showUnwetterPopup(map, e) {
 	if (e) {
 		// get information about the feature on which it was clicked
 		var picked = map.queryRenderedFeatures(e.point);
-
-		console.log(picked);
 
 		// TODO: Sommerzeit im Sommer??
 

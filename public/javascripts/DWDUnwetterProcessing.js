@@ -176,9 +176,11 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
     })
     .then(function(response) {
 
+      // response[0] contains the one and only Unwetter that was read out of database with promiseToGetItems
+
       // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
       if (typeof response !== "undefined" && response.length > 0) {
-        let responseFirst = response[0];
+
         // ... do not insert it again but:
 
         // TODO: evtl. console-print löschen?
@@ -192,8 +194,8 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
 
           // response._id is the Unwetter-item-ID from mongoDB
           // if the array "timestamps" does not already contain the currentTimestamp, append it now:
-          if (!(responseFirst.timestamps.includes(currentTimestamp))) {
-            updateTimestamp(responseFirst._id, currentTimestamp);
+          if (!(response[0].timestamps.includes(currentTimestamp))) {
+            updateTimestamp(response[0]._id, currentTimestamp);
           }
 
           // ... and if its MSGTYPE is "Cancel" ...
