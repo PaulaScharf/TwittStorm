@@ -1,0 +1,7 @@
+---
+# Data ----------------------------------------------
+data_path: ~/data
+
+# Process -------------------------------------------
+# refrech rate in milliseconds
+refrech _rate: 300000
