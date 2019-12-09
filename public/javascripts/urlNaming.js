@@ -17,7 +17,6 @@ function updateURL(param, newString) {
 	let indexOfPath = oldURL.indexOf("?");
 	let url = oldURL.slice(indexOfPath, oldURL.length);
 	let newURL;
-
 	// index of parameter desc
 	let index = url.search(param);
  	// if param is found, change it
@@ -44,6 +43,13 @@ function updateURL(param, newString) {
 	else {
 		newURL = oldURL + "&" + toInsert;
 	}
+
+	// if "?" is not found
+	if(indexOfPath < 0) {
+		// override newURL with "?" + the new param + description
+		newURL = "?".concat(param, "=", newString);
+	}
+
 	//write this to url
 	history.pushState({}, '', newURL);
 }
