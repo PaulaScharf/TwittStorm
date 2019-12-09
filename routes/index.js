@@ -9,12 +9,16 @@
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 */
 
+// list of parameters, possibly for input checking
+let paramList = "wtype, radProd, radClass, mapZoom, mapCenter, timestamp, aoi, base";
+
 
 var express = require('express');
 var router = express.Router();
 
 /* GET home page.*/
 router.get('/', function(req, res, next) {
+
 
   let paramArray = {
     "timestamp": req.query.timestamp,
