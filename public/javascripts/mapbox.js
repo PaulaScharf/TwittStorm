@@ -189,7 +189,7 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
 */
 function requestNewAndDisplayCurrentUnwetters(map, currentTimestamp){
 
-	//
+	// just keep those Unwetter in database that are included in the last 10 timesteps (last 50 minutes)
 	removeOldUnwetterFromDB(currentTimestamp);
 
 	// ".then" is used here, to ensure that the .......... has finished and a result is available
@@ -227,7 +227,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 		"properties.expires": '{"$gt":  ' + currentTimestamp + '}'
 	};
 
-	promiseToGetItems(query)
+	promiseToGetItems(query, "all current Unwetter")
 	.catch(function(error) {
 		reject(error)
 	})
@@ -863,7 +863,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 				visibility = 'visible';
 
 				//let layerProperties = source._data.features[0].properties;
-				promiseToGetItems({type: "Tweet", unwetter_ID: layerIDSplit[2]})
+				promiseToGetItems({type: "Tweet", unwetter_ID: layerIDSplit[2]}, "Tweet/s")
 				// show errors in the console
 				.catch(console.error)
 				// process the result of the requests

@@ -19,6 +19,7 @@
 * @returns {Promise<any>}
 */
 function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEvent, currentTime) {
+
 	return new Promise((resolve, reject) => {
 			// this array will contain all the calls of the function "promiseToPostItem"
 			let arrayOfTweets = [];
@@ -48,6 +49,7 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 				result_type: "recent",
 				count: 20
 			};
+
 			$.ajax({
 				// use a http GET request
 				type: "POST",
@@ -100,7 +102,7 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 						}
 						try {
 							if (arrayOfTweets.length > 0) {
-								promiseToPostMany(arrayOfTweets)
+								promiseToPostMany(arrayOfTweets, "Tweets")
 									.catch(console.error)
 									.then(function() {
 										resolve()
@@ -111,14 +113,14 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 									unwetter_ID: unwetterID,
 									requestTime: currentTime
 								};
-								promiseToPostItem(emptyTweet)
+								promiseToPostItem(emptyTweet, "Tweet")
 									.catch(console.error)
 									.then(function() {
 										resolve()
 									});
 							}
-							// ... give a notice on the console that the AJAX request for reading all routes has succeeded
-							console.log("AJAX request (reading all tweets) is done successfully.");
+							// ... give a notice on the console that the AJAX request for receiving all tweets from Twitter has succeeded
+							console.log("AJAX request (receiving all tweets from Twitter Search API) is done successfully.");
 							// if await Promise.all(arrayOfPromises) fails:
 						} catch (e) {
 							reject("Could not POST all Tweets.");
@@ -128,76 +130,16 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 
 				// if the request has failed, ...
 				.fail(function (xhr, status, error) {
-					// ... give a notice that the AJAX request for reading all routes has failed and show the error on the console
-					console.log("AJAX request (reading all tweets) has failed.", error);
+					// ... give a notice that the AJAX request for receiving all tweets from Twitter has failed and show the error on the console
+					console.log("AJAX request (receiving all tweets from Twitter Search API) has failed.", error);
 
 					// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 					if (error === "timeout") {
-						//JL("ajaxReadingAllRoutesTimeout").fatalException("ajax: '/routes/readAll' timeout");
+						//JL("ajaxReceivingAllTweetsFromTwitterTimeout").fatalException("ajax: '/twitter/search' timeout");
 					}
 				});
 		});
 	}
-
-
-
-/**
-* @desc
-*
-* @author Katharina Poppinga
-* @private
-* @param {Object} currentFeature - JSON of one specific Tweet taken from DWD response
-* @param {Array} arrayOfGroupedUnwetters -
-* @param {Array} arrayUnwettersToPost -
-* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
-*/
-function checkDBForExistingTweet(currentFeature, arrayOfGroupedUnwetters, arrayUnwettersToPost, currentTimestamp){
-
-	// TODO: auch auf einzelne vorhandene geometrys überprüfen
-
-	//
-	return new Promise((resolve, reject) => {
-		// JSON with the ID of the current Unwetter, needed for following database-check
-		let query = {
-			type: "Tweet",
-			id: currentFeature.id
-		};
-
-		//
-		promiseToGetItems(query)
-		.catch(function(error) {
-			reject(error);
-		})
-		.then(function(response) {
-
-			// if the current Tweet (with given id) ALREADY EXISTS in the database ...
-			if (typeof response !== "undefined" && response.length > 0) {
-				let responseFirst = response[0];
-				// ... do not insert it again but:
-
-				// TODO: evtl. console-print löschen?
-				console.log("item already in database, do not insert it again");
-
-
-				// if this Tweet does NOT EXIST in the database ...
-			} else {
-
-				// TODO: evtl. console-print löschen?
-				console.log("item currently not in database, insert it now");
-
-				// ... insert it by first formatting the Unwetters JSON and ...
-				let currentUnwetter = createUnwetterForDB(currentFeature, currentTimestamp);
-				// ... add it to the arrayOfGroupedUnwetters
-				// this array will be used for subsequent processing before adding the Unwetter to the
-				// Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
-				arrayUnwettersToPost.push(currentUnwetter);
-			}
-
-			//
-			resolve(response);
-		});
-	});
-}
 
 
 
@@ -216,7 +158,7 @@ function checkForExistingTweets(dwd_id, currentTime) {
 			unwetter_ID: dwd_id,
 			$and: '[{"requestTime": {"$gt": ' + (currentTime - 299000) + '}}, {"requestTime": {"$lt": ' + (currentTime + 299000) + '}}]'
 		};
-		promiseToGetItems(query)
+		promiseToGetItems(query, "Tweets")
 		.catch(function(error) {
 			reject(error)
 		})

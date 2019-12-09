@@ -174,7 +174,7 @@ function removeOldTweetFromDB(){
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajaxDeletingOneItem??????Timeout").fatalException("ajax: '/db/delete' timeout");
+      //    JL("ajaxDeletingOneTweetTimeout").fatalException("ajax: '/db/delete' timeout");
     }
   });
 }
