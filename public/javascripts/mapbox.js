@@ -890,7 +890,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 							});
 							// add the tweets to the map
 							if (tweetFeatureCollection.features.length > 0) {
-								displayEvents(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
+								displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
 							}
 						} catch (e) {
 							console.dir("there was an error while processing the tweets from the database", e);
