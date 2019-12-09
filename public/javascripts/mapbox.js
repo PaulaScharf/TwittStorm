@@ -98,6 +98,33 @@ function showMap(style) {
 			}
 		});
 		customLayerIds.push('boundaryGermany');
+
+		// ************************ adding boundary of Germany to the menu *************************
+		var gerBoundary = document.createElement('a');
+		gerBoundary.href = '#';
+		gerBoundary.className = 'active';
+		gerBoundary.textContent = 'boundaryGermany';
+
+		gerBoundary.onclick = function (e) {
+			var clickedLayer = this.textContent;
+			e.preventDefault();
+			e.stopPropagation();
+
+		var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+		if (visibility === 'visible') {
+			map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+			this.className = '';
+		}
+		else {
+			this.className = 'active';
+			map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+		}
+		};
+
+		var layers = document.getElementById('productMenu');
+		layers.insertBefore(gerBoundary, severeWeather);
+
 		// *****************************************************************************
 
 		// enable drawing the area-of-interest-polygons
@@ -375,7 +402,7 @@ function addLayerToMenu(layerID) {
 			link.className = 'active';
 			link.textContent = groupName;
 
-			// on click show the menu if it is not visible and hide it if it is visible
+			// on click change style to active
 			link.onclick = function (e) {
 				if (this.className) {
 					this.className = '';
@@ -854,10 +881,17 @@ function openMenu(button, menu) {
 
 	// TODO: warum wird hier button neu definiert?
 	button = document.getElementById(menu.id);
+	var	subMenuOne = document.getElementById('menu');
+	var	subMenuTwo = document.getElementById('rasterMenu');
+	var	subMenuThree = document.getElementById('productMenu');
+
+
 	if (button.style.display === "none") {
 		button.style.display = "block";
 	} else {
 		button.style.display = "none";
+		subMenuOne.style.display = "none";
+		subMenuTwo.style.display = "none";
 	}
 }
 
@@ -922,10 +956,11 @@ function forEachLayer(cb) {
 	});
 }
 
+// TODO: Deactivating the field after window is closed
 /**
-* Changes the style of a menu selector to active on klick
+* Changes the style of a menu selector to active on click
 * @author Benjamon Rieke
-*/
+
 
 $(function () {
     //var $lists = $('.list-group li').click(function(e) {
@@ -934,3 +969,4 @@ $(function () {
         $(this).toggleClass("active");
     });
 	})
+*/
