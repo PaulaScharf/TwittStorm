@@ -175,6 +175,8 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
     })
     .then(function(response) {
 
+console.log(response);
+
       // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
       if (typeof response !== "undefined" && response.length > 0) {
         let responseFirst = response[0];
@@ -215,7 +217,11 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
           // ... add it to the arrayOfGroupedUnwetters
           // this array will be used for subsequent processing before adding the Unwetter to the
           // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
+
           arrayUnwettersToPost.push(currentUnwetter);
+
+    //  promiseToPostItem(currentUnwetter);
+
         }
 
         // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter

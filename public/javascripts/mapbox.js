@@ -41,13 +41,6 @@ let customLayerIds = [];
 */
 function showMap(style) {
 
-
-	// TODO: öfter aufrufen und Date.now() mit dem Date.now() für	requestNewAndDisplayCurrentUnwetters
-	// übereinstimmend machen (als Variable)
-	// !!!!!!!!!!!
-	removeOldUnwetterFromDB(Date.now());
-
-
 	// Checks whether the layer menu DOM is empty and if not flushes the dom
 	while (layers.firstChild) {
 		layers.removeChild(layers.firstChild);
