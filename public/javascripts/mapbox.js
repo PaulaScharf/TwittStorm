@@ -91,7 +91,7 @@ function showMap(style) {
 
 	// add zoom and rotation controls to the map
 	map.addControl(new mapboxgl.NavigationControl());
-	
+
 	// TODO: pan-Button fehlt noch
 
 
@@ -120,6 +120,33 @@ function showMap(style) {
 			}
 		});
 		customLayerIds.push('boundaryGermany');
+
+		// ************************ adding boundary of Germany to the menu *************************
+		var gerBoundary = document.createElement('a');
+		gerBoundary.href = '#';
+		gerBoundary.className = 'active';
+		gerBoundary.textContent = 'boundaryGermany';
+
+		gerBoundary.onclick = function (e) {
+			var clickedLayer = this.textContent;
+			e.preventDefault();
+			e.stopPropagation();
+
+		var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+		if (visibility === 'visible') {
+			map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+			this.className = '';
+		}
+		else {
+			this.className = 'active';
+			map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+		}
+		};
+
+		var layers = document.getElementById('productMenu');
+		layers.insertBefore(gerBoundary, severeWeather);
+
 		// *****************************************************************************
 
 		// enable drawing the area-of-interest-polygons
@@ -1040,14 +1067,17 @@ function forEachLayer(cb) {
 
 
 
+// TODO: Deactivating the field after window is closed
 /**
-* Changes the style of a menu selector to active on klick
+* Changes the style of a menu selector to active on click
 * @author Benjamon Rieke
-*/
-$(function () {
-	//var $lists = $('.list-group li').click(function(e) {
 
-	$(".selector").click(function () {
-		$(this).toggleClass("active");
-	});
-});
+
+$(function () {
+    //var $lists = $('.list-group li').click(function(e) {
+
+    $(".selector").click(function () {
+        $(this).toggleClass("active");
+    });
+	})
+*/

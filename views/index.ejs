@@ -28,8 +28,8 @@
     <!-- Product selection menu -->
 
     <div id="productMenu" style="display:none">
-      <a href="#" class="selector" onclick="openMenu(this, rasterMenu)">Raster </a>
-      <a href="#" class="selector" onclick="openMenu(this, menu)">DWD-Unwetter</a>
+      <a href="#" class="selector" onclick="openMenu(this, rasterMenu)">Radar </a>
+      <a href="#" id="severeWeather" class="selector" onclick="openMenu(this, menu)">Severe Weather</a>
     </div>
 
     <!-- Raster selection menu -->
@@ -42,11 +42,15 @@
 
     </div>
 
-    <!-- button to open up the menu -->
+    <!-- button to open up the menu. Image taken from https://freeicons.io/user-interface-and-electronics/layer-up-down-screen-multiple-interface-ui-d-cd-icon-892#-->
 
-    <nav id="menuButton" class="container" onclick="openMenu(this, productMenu)" title="Change Layers">
-
+    <nav id="menuButton" class="container" onclick="openMenu(this, productMenu)" title="Change Layers" >
+      <div id="buttonIcon">
+        <img src="/css/Layer-Icon.png"/>
+      </div>
     </nav>
+
+
 
     <!-- map -->
 
@@ -58,11 +62,11 @@
 
     <!-- Style Selector -->
     <div class="switch-field" id='styleMenu'>
-        <input id='satellite-v9' type='radio' name='switch-two' value='satellite' checked='checked'>
-        <label for='satellite-v9'>Satellite</label>
-        <br>
-        <input id='navigation-guidance-day-v4' type='radio' name='switch-two' value='streets'>
+        <input id='navigation-guidance-day-v4' type='radio' name='switch-two' value='streets' checked='checked'>
         <label for='navigation-guidance-day-v4'>Streets</label>
+        <br>
+        <input id='satellite-v9' type='radio' name='switch-two' value='satellite'>
+        <label for='satellite-v9'>Satellite</label>
     </div>
 
 </main>
