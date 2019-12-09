@@ -37,6 +37,8 @@ var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
 var twitterRouter = require('./routes/twitter');
 var rasterRouter = require('./routes/raster');
+var twitterOemRouter = require('./routes/twitterOem');
+
 
 var app = express();
 const Twitter = require("twitter");
@@ -219,6 +221,9 @@ app.use('/db', dbRouter);
 app.use('/twitter', twitterRouter);
 //
 app.use('/raster', rasterRouter);
+//
+app.use('/twitterOem', twitterOemRouter);
+
 
 
 // catch 404 and forward to error handler

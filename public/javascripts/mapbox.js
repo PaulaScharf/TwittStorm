@@ -342,7 +342,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 				default:
 				layerGroup = "other";
 				// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-				twitterSearchQuery.searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
+				twitterSearchQuery.searchWords.push("Germany", "Christmas", "Weihnachten", "Jesus");
 				break;
 			}
 
@@ -785,7 +785,24 @@ function showTweetPopup(map, e) {
 		"<b>timestamp: </b>" + pickedTweet[0].properties.timestamp + "<br>" +
 		"<b>unwetter: </b>" + pickedTweet[0].properties.unwetter_Event)
 		.addTo(map);
+		var tweetId = pickedTweet[0].properties.idStr
+
+		loadOembed(tweetId);
+
+
 	}
+}
+
+function loadOembed(tweetId) {
+
+	$.ajax({
+			url: "/twitterOem/search",
+			type: 'POST',
+			data: tweetId,
+			success: function(res) {
+					console.log(res);
+			}
+	});
 }
 
 
