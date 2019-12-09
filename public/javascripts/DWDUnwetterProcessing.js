@@ -117,6 +117,7 @@ function processUnwettersFromDWD(currentTimestamp) {
       .then(function() {
 
         // POST each new Unwetter into database
+        // TODO: nicht am Ende (nach DBcheck) alle auf einmal posten, sondern schon zwischendurch jedes Unwetter nach DBcheck direkt posten
         arrayUnwettersToPost.forEach(function (item){
           arrayOfPromises.push(promiseToPostItem(item));
         });
@@ -171,11 +172,9 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
     //
     promiseToGetItems(query)
     .catch(function(error) {
-      reject(error)
+      reject(error);
     })
     .then(function(response) {
-
-console.log(response);
 
       // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
       if (typeof response !== "undefined" && response.length > 0) {
@@ -219,9 +218,8 @@ console.log(response);
           // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
 
           arrayUnwettersToPost.push(currentUnwetter);
-
+          // TODO: nicht am Ende (nach DBcheck) alle auf einmal posten, sondern schon zwischendurch jedes Unwetter nach DBcheck direkt posten
     //  promiseToPostItem(currentUnwetter);
-
         }
 
         // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter
@@ -439,13 +437,13 @@ function promiseToPostMany(arrayOfItems) {
     })
     // if the request is done successfully, ...
     .done(function () {
-      // ... give a notice on the console that the AJAX request for pushing an encounter has succeeded
-      console.log("AJAX request (posting an item) is done successfully.");
+      // ... give a notice on the console that the AJAX request for ........ has succeeded
+      console.log("AJAX request (posting many items) is done successfully.");
     })
 
     // if the request has failed, ...
     .fail(function (xhr, status, error) {
-      // ... give a notice that the AJAX request for posting an encounter has failed and show the error on the console
+      // ... give a notice that the AJAX request for ......has failed and show the error on the console
       console.log("AJAX request (posting many items) has failed.", error);
       resolve();
 

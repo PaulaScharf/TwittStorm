@@ -57,7 +57,7 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 				data: searchQuery,
 				// data type of the response
 				dataType: "json",
-				// timeout set to 20 seconds
+				// timeout set to 30 seconds
 				timeout: 30000
 			})
 

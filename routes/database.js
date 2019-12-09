@@ -154,9 +154,8 @@ router.put("/removeUnwetterTimestamps", (req, res) => {
 
 	var db = req.db;
 
-	let id = req.body._id;
-
-	console.log("update Unwetter " + id);
+	console.log("remove Unwetter-timestamps");
+	console.log(req.body);
 
 	//delete req.body._id;
 
@@ -172,6 +171,7 @@ router.put("/removeUnwetterTimestamps", (req, res) => {
 			console.log("Failure while removing Unwetter-timestamps in 'item'.", error);
 			// in case of an error while updating, do routing to "error.ejs"
 			res.render('error');
+
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that updating the Unwetter has succeeded
@@ -182,6 +182,7 @@ router.put("/removeUnwetterTimestamps", (req, res) => {
 });
 
 
+
 // TODO: ausprobieren, ob es funktioniert:
 
 // *********************** deleting ...........: ***********************
@@ -190,25 +191,24 @@ router.delete("/deleteOldUnwetter", (req, res) => {
 
 	var db = req.db;
 
-	console.log("delete Unwetter " + req.query._id);
+	console.log("deleting all old Unwetter");
 
-	// TODO:
+	// filter database for Unwetters whose timestamps-Array is empty
+	db.collection('item').deleteMany(
+		{ $and: [ { type:"Unwetter" },  { timestamps: { $size: 0 } } ]
 
-	// filter database for Unwetters and ...
-	db.collection('item').deleteMany( {type:"Unwetter"},
-
-	// delete Unwetter whose timestamps-Array is empty
-	{ timestamps: { $size: 0 } } , (error, result) => {
+	}, (error, result) => {
 
 		if (error){
 			// give a notice, that the deleting has failed and show the error on the console
-			console.log("Failure while deleting an Unwetter from 'item'.", error);
+			console.log("Failure while deleting all old Unwetter from 'item'.", error);
 			// in case of an error while deleting, do routing to "error.ejs"
 			res.render('error');
+
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that deleting the Unwetter has succeeded
-			console.log("Successfully deleted an Unwetter from 'item'.");
+			console.log("Successfully deleted all old Unwetter from 'item'.");
 			res.json(result);
 		}
 	});
@@ -230,7 +230,7 @@ router.delete("/delete", (req, res) => {
 	db.collection('item').deleteOne( {type:"Tweet"},
 
 	// TODO: query
-		{  } , (error, result) => {
+	{  } , (error, result) => {
 
 		if (error){
 			// give a notice, that the deleting has failed and show the error on the console

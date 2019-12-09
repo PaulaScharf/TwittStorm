@@ -10,10 +10,10 @@
 
 
 /**
-* @desc First removes all timestamps of Array .......
-* Afterwards, deletes .....
-* ANPASSEN
-* alles ältere als die letzten 10 zeitschritte aus DB löschen
+* @desc First, for all Unwetter in database, respectively removes all timestamps of Array "timestamps" that
+* are older than 50 minutes.
+* Afterwards, deletes those Unwetter which then have an empty Array "timestamps".
+* TODO: AUCH ZUGEHÖRIGE TWEETS-LÖSCHUNG!!
 *
 * @author Katharina Poppinga
 * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
@@ -30,7 +30,7 @@ function removeOldUnwetterFromDB(currentTimestamp){
   };
 
 
-  // array-update: alle timestamps aus array in DB löschen, die älter als timestampDeleting sind
+  // array-update for all DB-items with type "Unwetter" do: for each array "timestamps" remove all timestamps that are older than timestampDeleting
   $.ajax({
     // use a http PUT request
     type: "PUT",
@@ -47,7 +47,10 @@ function removeOldUnwetterFromDB(currentTimestamp){
   // if the request is done successfully, ...
   .done (function (response) {
 
-    //
+    // ... give a notice on the console that the AJAX request for removing old Unwetter timestamps has succeeded
+    console.log("AJAX request (removing old Unwetter timestamps) is done successfully.");
+
+    // delete each Unwetter from database that has an empty timestamp-array
     removeOldUnwetterFromDB2();
   })
 
@@ -55,8 +58,8 @@ function removeOldUnwetterFromDB(currentTimestamp){
   // if the AJAX-request has failed, ...
   .fail (function (xhr, status, error) {
 
-    // ... give a notice that the AJAX request for ............ has failed and show the error on the console
-    console.log("AJAX request (........) has failed.", error);
+    // ... give a notice that the AJAX request for removing old Unwetter timestamps has failed and show the error on the console
+    console.log("AJAX request (removing old Unwetter timestamps) has failed.", error);
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
@@ -68,15 +71,14 @@ function removeOldUnwetterFromDB(currentTimestamp){
 
 
 /**
-* @desc Deletes .....
-* ANPASSEN
+* @desc Deletes all Unwetter from database which have an empty Array "timestamps".
+* TODO: AUCH ZUGEHÖRIGE TWEETS-LÖSCHUNG!!
 *
 * @author Katharina Poppinga
 */
 function removeOldUnwetterFromDB2(){
 
-  // alle Unwetter aus DB löschen, deren timestamp-array nun leer ist:
-
+  //
   $.ajax({
     // use a http DELETE request
     type: "DELETE",
@@ -84,8 +86,9 @@ function removeOldUnwetterFromDB2(){
     url: "/db/deleteOldUnwetter",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
+    // TODO: NO DATA NEEDED TO SENT, da alles in routes passiert, SO OKAY??
     // data to send to the server, send as String for independence of server-side programming language
-    data: JSON.stringify(),
+    //data: JSON.stringify(),
     // timeout set to 10 seconds
     timeout: 10000
   })
@@ -95,25 +98,29 @@ function removeOldUnwetterFromDB2(){
 
     // response hilft nicht weiter fürs tweet löschen
 
-    // ... give a notice on the console that the AJAX request for deleting old Unwetter has succeeded
-    console.log("AJAX request (deleting old Unwetter) is done successfully.");
+    // ... give a notice on the console that the AJAX request for deleting all old Unwetter has succeeded
+    console.log("AJAX request (deleting all old Unwetter) is done successfully.");
 
 
-    // TODO: wie hier an IDs der zu löschenden Tweets kommen oder diese vorher abfragen?
+    // TODO: bei Erstellung der Tweets deren DB-ID auch in zugehörigem Unwetter in DB speichern ??
+    // aber dann sind IDs direkt weg, wenn Unwetter gelöscht und wie zwischenspeichern?
 
     // after deleting old Unwetter, delete their corresponding tweets, too
-    removeOldTweetsFromDB();
+    // Aufruf für jeden Tweet einzeln nötig
+    //    removeOldTweetFromDB();
+
+
   })
 
   // if the AJAX-request has failed, ...
   .fail (function (xhr, status, error) {
 
-    // ... give a notice that the AJAX request for finding one item has failed and show the error on the console
-    console.log("AJAX request (deleting one (???????) item) has failed.", error);
+    // ... give a notice that the AJAX request for for deleting all old Unwetter has failed and show the error on the console
+    console.log("AJAX request (deleting all old Unwetter) has failed.", error);
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajaxDeletingOneItemTimeout").fatalException("ajax: '/db/deleteOldUnwetter' timeout");
+      //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/db/deleteOldUnwetter' timeout");
     }
   });
 }
@@ -122,13 +129,13 @@ function removeOldUnwetterFromDB2(){
 
 
 /**
-* @desc Deletes .....
+* @desc Deletes a tweet given given ID (???) from database.
 * ANPASSEN
 *
 * @author Katharina Poppinga
 * @param
 */
-function removeOldTweetsFromDB(){
+function removeOldTweetFromDB(){
 
   // alle Tweets aus DB löschen, deren zugehörigen Unwetter gelöscht wurden
 
@@ -136,7 +143,7 @@ function removeOldTweetsFromDB(){
 
   };
 
-  // TODO: evtl. hier neuen Funktionsaufruf zu einer Funktion fürs deleten allgemein machen (Modularisierung)
+  // TODO: evtl. neuen Funktionsaufruf zu einer Funktion fürs deleten allgemein machen (Modularisierung, nur falls überhaupt auch andere items gelöscht werden müssen)
   // TODO: tweetID zu iD machen, um code allgemeiner nutzen zu können
 
   $.ajax({
@@ -156,14 +163,14 @@ function removeOldTweetsFromDB(){
   .done (function (response) {
 
     // ... give a notice on the console that the AJAX request for deleting ....... has succeeded
-    console.log("AJAX request (deleting ..........) is done successfully. NOCH NICHT IMPLEMENTIERT");
+    console.log("AJAX request (deleting one Tweet) is done successfully. NOCH NICHT IMPLEMENTIERT");
   })
 
   // if the AJAX-request has failed, ...
   .fail (function (xhr, status, error) {
 
     // ... give a notice that the AJAX request for finding one item has failed and show the error on the console
-    console.log("AJAX request (deleting one (???????) item) has failed.", error);
+    console.log("AJAX request (deleting one Tweet) has failed.", error);
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {

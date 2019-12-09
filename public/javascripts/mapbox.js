@@ -189,7 +189,7 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
 */
 function requestNewAndDisplayCurrentUnwetters(map, currentTimestamp){
 
-	// TODO: funktioniert hier auch nicht?!?
+	//
 	removeOldUnwetterFromDB(currentTimestamp);
 
 	// ".then" is used here, to ensure that the .......... has finished and a result is available
@@ -308,6 +308,8 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 				//
 				displayEvent(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
 			}
+
+			// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST
 			//
 			checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
 			.catch(console.error)
@@ -1023,4 +1025,4 @@ $(function () {
 	$(".selector").click(function () {
 		$(this).toggleClass("active");
 	});
-})
+});
