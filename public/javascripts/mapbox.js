@@ -789,7 +789,6 @@ function showTweetPopup(map, e) {
 
 		loadOembed(tweetId);
 
-
 	}
 }
 
