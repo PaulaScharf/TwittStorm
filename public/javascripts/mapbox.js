@@ -49,14 +49,32 @@ function showMap(style) {
 		layers.removeChild(layers.firstChild);
 	}
 
+	// declare var
+	let zoomURL;
+	let centerURL;
+	// if not yet in URL, use standard
+	if(paramArray.mapZoom == undefined) {
+		zoomURL = 5;
+		// otherwise use value from URL
+	} else {
+		zoomURL = paramArray.mapZoom;
+	}
+	// see above
+	if(paramArray.mapCenter == undefined) {
+		centerURL = [10.5, 51.2];
+	} else {
+		centerURL = paramArray.mapCenter;
+		centerURL = JSON.parse(centerURL);
+	}
+	// create new map with variable zoom and center
 	map = new mapboxgl.Map({
 		container: 'map',
 		style: style,
 		// TODO: basemap durch Nutzer änderbar machen: https://docs.mapbox.com/mapbox-gl-js/example/setstyle/
 		// style: 'mapbox://styles/mapbox/satellite-v9',
 		// style: 'mapbox://styles/mapbox/streets-v11',
-			zoom: 5,
-			center: [10.5, 51.2]
+		zoom: zoomURL,
+		center: centerURL
 	});
 
 	// event to update URL
@@ -64,8 +82,8 @@ function showMap(style) {
 	map.on('moveend', function() {
 		updateURL('mapZoom', map.getZoom());
 		let center = map.getCenter();
-		let centerString = center.lng + "," + center.lat;
-		updateURL('mapCenter', center);
+		let centerString = "[" + center.lng + ", " + center.lat + "]";
+		updateURL('mapCenter', centerString);
 	});
 
 	// add zoom and rotation controls to the map
