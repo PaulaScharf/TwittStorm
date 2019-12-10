@@ -43,6 +43,7 @@ var dbRouter = require('./routes/database');
 var twitterRouter = require('./routes/twitter');
 var rasterRouter = require('./routes/raster');
 
+
 var app = express();
 
 // view engine setup
@@ -182,6 +183,7 @@ app.use('/db', dbRouter);
 app.use('/twitter', twitterRouter);
 //
 app.use('/raster', rasterRouter);
+
 
 
 // catch 404 and forward to error handler

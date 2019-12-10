@@ -218,3 +218,8 @@ background: grey;
 .switch-field label:last-of-type {
 	border-radius: 0 4px 4px 0;
 }
+
+.mapboxgl-popup {
+    min-width: 500px;
+    max-height: 800px;
+}

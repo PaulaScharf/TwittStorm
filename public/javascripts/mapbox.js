@@ -28,6 +28,22 @@ let map;
 // referes to all the layers that are not defaults
 let customLayerIds = [];
 
+window.twttr = (function(d, s, id) {
+	var js, fjs = d.getElementsByTagName(s)[0],
+		t = window.twttr || {};
+	if (d.getElementById(id)) return t;
+	js = d.createElement(s);
+	js.id = id;
+	js.src = "https://platform.twitter.com/widgets.js";
+	fjs.parentNode.insertBefore(js, fjs);
+
+	t._e = [];
+	t.ready = function(f) {
+		t._e.push(f);
+	};
+
+	return t;
+}(document, "script", "twitter-wjs"));
 
 // ******************************** functions **********************************
 
@@ -777,17 +793,22 @@ function showTweetPopup(map, e) {
 	var pickedTweet = map.queryRenderedFeatures(e.point);
 
 	if (pickedTweet[0].source.includes("Tweet")) {
+		let idAsString = JSON.stringify(pickedTweet[0].properties.id);
 		// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
 		new mapboxgl.Popup()
-		.setLngLat(e.lngLat)
-		.setHTML("<b>" + JSON.parse(pickedTweet[0].properties.author).name + "</b>" +
-		"<br>" + pickedTweet[0].properties.statusmessage + "<br>" +
-		"<b>timestamp: </b>" + pickedTweet[0].properties.timestamp + "<br>" +
-		"<b>unwetter: </b>" + pickedTweet[0].properties.unwetter_Event)
-		.addTo(map);
+			.setLngLat(e.lngLat)
+			.setHTML("<div id='" + idAsString + "'></div>")
+			.addTo(map);
+		twttr.widgets.createTweet(
+			idAsString,
+			document.getElementById(idAsString),
+			{
+				width: 1000,
+				dnt: true
+			}
+		);
 	}
 }
-
 
 
 /**
