@@ -32,6 +32,11 @@ var logger = require('morgan');
 // R
 const R = require('r-script');
 
+// yaml configuration
+const fs = require('fs');
+const yaml = require('js-yaml');
+const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+
 // set the routers-paths
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
@@ -39,19 +44,6 @@ var twitterRouter = require('./routes/twitter');
 var rasterRouter = require('./routes/raster');
 
 var app = express();
-const Twitter = require("twitter");
-const dotenv = require("dotenv");
-
-dotenv.config({ path: "./config.env" });
-
-
-var client = new Twitter({
-  consumer_key: process.env.CONSUMER_KEY,
-  consumer_secret: process.env.CONSUMER_SECRET,
-  access_token_key: process.env.ACCESS_TOKEN_KEY,
-  access_token_secret: process.env.ACCESS_TOKEN_SECRET
-});
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -109,15 +101,14 @@ function connectMongoDb() {
       // await blocks and waits for connection, because here synchronous execution is desired
       app.locals.dbConnection = await mongodb.MongoClient.connect(
         // connectionString / connection URL:
-        "mongodb://localhost:27017",
+        "mongodb://" + config.mongodb.host + ":" + config.mongodb.port,
         {
           useNewUrlParser: true,
-          autoReconnect: true,
           useUnifiedTopology: true
         }
       );
       // connect to and use database "itemdb" (create this database, if it does not exist)
-      app.locals.db = await app.locals.dbConnection.db("itemdb");
+      app.locals.db = await app.locals.dbConnection.db(config.mongodb.db_name);
       // tell the user that the connection is established and database "itemdb" will be used for following operations
       console.log("Using Database " + app.locals.db.databaseName);
 
@@ -133,10 +124,9 @@ function connectMongoDb() {
         // await blocks and waits for connection, because here synchronous execution is desired
         app.locals.dbConnection = await mongodb.MongoClient.connect(
           // connectionString / connection URL: docker container "mongodbservice"
-          "mongodb://mongodbservice:27017",
+          "mongodb://mongodbservice:"  + config.mongodb.port,
           {
             useNewUrlParser: true,
-            autoReconnect: true,
             useUnifiedTopology: true
           }
         );
@@ -181,33 +171,6 @@ app.post("/jsnlog.logger", function (req, res) {
   res.send('');
 });
 
-
-
-
-// ********************************** Twitter ***********************************
-
-// activates the stream in the console when localhost:3000/tweets is called. Uses the twitter libary https://github.com/desmondmorris/node-twitter
-app.get("/tweets", function(req, res) {
-  console.log(client);
-  var params = {
-    screen_name: "Twittstormy",
-    trim_user: true,
-    exclude_replies: true,
-    include_rts: false,
-    count: 1
-  };
-
-  client.stream('statuses/filter', {track: 'weather'}, function(stream) {
-    stream.on('data', function(event) {
-      console.log(event && event.text);
-    });
-
-    stream.on('error', function(error) {
-      throw error;
-    });
-  });
-
-});
 
 // *****************************************************************************
 

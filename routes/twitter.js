@@ -15,11 +15,16 @@ var router = express.Router();
 
 var Twitter = require('twitter');
 
+// yaml configuration
+const fs = require('fs');
+const yaml = require('js-yaml');
+const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+
 var client = new Twitter({
-	consumer_key: require("../public/javascripts/tokens.js").token.twitter.consumer_key,
-	consumer_secret: require("../public/javascripts/tokens.js").token.twitter.consumer_secret,
-	access_token_key: require("../public/javascripts/tokens.js").token.twitter.access_token_key,
-	access_token_secret: require("../public/javascripts/tokens.js").token.twitter.access_token_secret
+	consumer_key: config.keys.twitter.consumer_key,
+	consumer_secret: config.keys.twitter.consumer_secret,
+	access_token_key: config.keys.twitter.access_token_key,
+	access_token_secret: config.keys.twitter.access_token_secret
 });
 
 router.post("/search", (req, res) => {
