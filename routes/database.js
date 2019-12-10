@@ -15,11 +15,11 @@ var router = express.Router();
 const mongodb = require('mongodb');
 
 // yaml configuration
-//const fs = require('fs');
-//const yaml = require('js-yaml');
-//const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+const fs = require('fs');
+const yaml = require('js-yaml');
+const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
-let collectionName = 'item';//config.mongodb.collection_name;
+let collectionName = config.mongodb.collection_name;
 // TODO: alle nicht benötigten Routen löschen!!
 
 
