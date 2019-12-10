@@ -119,7 +119,7 @@ function processUnwettersFromDWD(currentTimestamp) {
         // POST each new Unwetter into database
         // TODO: nicht am Ende (nach DBcheck) alle auf einmal posten, sondern schon zwischendurch jedes Unwetter nach DBcheck direkt posten
         arrayUnwettersToPost.forEach(function (item){
-          arrayOfPromises.push(promiseToPostItem(item, "Unwetter"));
+          arrayOfPromises.push(promiseToPostItems([item], "Unwetter"));
         });
 
         try {
@@ -312,8 +312,14 @@ function updateTimestamp(_id, currentTimestamp) {
 
   // JSON with needed data for below called database-action
   let data = {
-    _id: _id,
-    currentTimestamp: currentTimestamp
+    query:
+      {
+        _id: _id
+      },
+    update:
+      {
+        "$push": '{"timestamps": ' + currentTimestamp + '}'
+      }
   };
 
   return new Promise((resolve, reject) => {
@@ -322,7 +328,7 @@ function updateTimestamp(_id, currentTimestamp) {
       // use a http PUT request
       type: "PUT",
       // URL to send the request to
-      url: "/db/addUnwetterTimestamp",
+      url: "/db/update",
       // type of the data that is sent to the server
       contentType: "application/json; charset=utf-8",
       // data to send to the server, send as String for independence of server-side programming language
