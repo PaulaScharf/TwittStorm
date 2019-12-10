@@ -37,7 +37,6 @@ var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
 var twitterRouter = require('./routes/twitter');
 var rasterRouter = require('./routes/raster');
-var twitterOemRouter = require('./routes/twitterOem');
 
 
 var app = express();
@@ -221,8 +220,6 @@ app.use('/db', dbRouter);
 app.use('/twitter', twitterRouter);
 //
 app.use('/raster', rasterRouter);
-//
-app.use('/twitterOem', twitterOemRouter);
 
 
 

@@ -65,9 +65,9 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 
 			// if the request is done successfully, ...
 				.done(function (response) {
-					console.log(response.statuses);
 					(async () => {
 						if (response.statuses) {
+							console.log(response.statuses);
 							let arrayOfPolygons = [];
 							twitterSearchQuery.geometry.forEach(function (item) {
 								arrayOfPolygons.push(item.coordinates[0][0])
@@ -81,7 +81,6 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 										let currentStatus = {
 											type: "Tweet",
 											id: currentFeature.id,
-											idStr: currentFeature.id_str,
 											statusmessage: currentFeature.text,
 											author: {
 												id: currentFeature.user.id,
