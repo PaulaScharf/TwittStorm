@@ -13,7 +13,7 @@
 // TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
 
 // TODO: löschen, da nicht benötigt??
-mapboxgl.accessToken = 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA';
+mapboxgl.accessToken = paramArray.config.keys.mapbox.access_key;
 
 // ****************************** global variables *****************************
 
@@ -175,7 +175,7 @@ function showMap(style) {
 
 
 		// requestNewAndDisplayCurrentUnwetters(map, Date.now()) is called each 5 minutes (300000 milliseconds = 5 minutes)
-		window.setInterval(requestNewAndDisplayCurrentUnwetters, 300000, map, Date.now());
+		window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map, Date.now());
 
 // TODO: beim setInterval Unwetter-Request werden nicht alle timestamps geupdated !!! (beim Seite manuell neu laden schon?)
 

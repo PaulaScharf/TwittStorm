@@ -16,6 +16,11 @@ let paramList = "wtype, radProd, radClass, mapZoom, mapCenter, timestamp, aoi, b
 var express = require('express');
 var router = express.Router();
 
+// yaml configuration
+const fs = require('fs');
+const yaml = require('js-yaml');
+const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+
 /* GET home page.*/
 router.get('/', function(req, res, next) {
 
@@ -28,7 +33,8 @@ router.get('/', function(req, res, next) {
     "rasterClassification": req.query.radClass,
     "base": req.query.base,
     "mapZoom": req.query.mapZoom,
-    "mapCenter": req.query.mapCenter
+    "mapCenter": req.query.mapCenter,
+    "config": config
   };
 
   res.render('index', {

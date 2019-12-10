@@ -14,7 +14,12 @@ var express = require('express');
 var router = express.Router();
 const mongodb = require('mongodb');
 
+// yaml configuration
+//const fs = require('fs');
+//const yaml = require('js-yaml');
+//const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
+let collectionName = 'item';//config.mongodb.collection_name;
 // TODO: alle nicht benötigten Routen löschen!!
 
 
@@ -23,7 +28,7 @@ const mongodb = require('mongodb');
 router.get("/routes", (req, res) => {
 	var db = req.db;
 	// find all
-	db.collection('item').find({}).toArray((error, result) => {
+	db.collection(collectionName).find({}).toArray((error, result) => {
 		if(error){
 			console.dir(error);
 		}
@@ -48,16 +53,16 @@ router.post("/", function(req, res) {
 		}
 	}
 	// find all
-	db.collection('item').find(query).toArray((error, result) => {
+	db.collection(collectionName).find(query).toArray((error, result) => {
 		if(error){
 			// give a notice, that reading all items has failed and show the error on the console
-			console.log("Failure in reading all items from 'item'.", error);
+			console.log("Failure in reading all items from '" + collectionName + "'.", error);
 			// in case of an error while reading, do routing to "error.ejs"
 			res.render('error');
 			//       // if no error occurs ...
 		} else {
 			// ... give a notice, that the reading has succeeded and show the result on the console
-			console.log("Successfully read the items from 'item'.");
+			console.log("Successfully read the items from '" + collectionName + "'.");
 			// ... and send the result to the ajax request
 			res.json(result);
 		}
@@ -70,10 +75,10 @@ router.post("/", function(req, res) {
 router.post('/add', function(req, res) {
 	var db = req.db;
 
-	db.collection('item').insertOne(req.body, (error, result) => {
+	db.collection(collectionName).insertOne(req.body, (error, result) => {
 		if(error){
 			// give a notice, that the inserting has failed and show the error on the console
-			console.log("Failure while inserting an item into 'item'.", error);
+			console.log("Failure while inserting an item into '" + collectionName + "'.", error);
 			// in case of an error while inserting, do routing to "error.ejs"
 			res.render('error');
 			// if no error occurs ...
@@ -94,10 +99,10 @@ router.post('/add', function(req, res) {
 router.post('/addMany', function(req, res) {
 	var db = req.db;
 
-	db.collection('item').insertMany(req.body, (error, result) => {
+	db.collection(collectionName).insertMany(req.body, (error, result) => {
 		if(error){
 			// give a notice, that the inserting has failed and show the error on the console
-			console.log("Failure while inserting an item into 'item'.", error);
+			console.log("Failure while inserting an item into '" + collectionName + "'.", error);
 			// in case of an error while inserting, do routing to "error.ejs"
 			res.render('error');
 			// if no error occurs ...
@@ -128,19 +133,19 @@ router.put("/addUnwetterTimestamp", (req, res) => {
 	delete req.body._id;
 
 	//
-	db.collection('item').updateOne({_id: new mongodb.ObjectID(id)},
+	db.collection(collectionName).updateOne({_id: new mongodb.ObjectID(id)},
 
 	{$push: {timestamps: req.body.currentTimestamp}}, (error, result) => {
 
 		if (error) {
 			// give a notice, that the updating has failed and show the error on the console
-			console.log("Failure while adding Unwetter-timestamp in 'item'.", error);
+			console.log("Failure while adding Unwetter-timestamp in '" + collectionName + "'.", error);
 			// in case of an error while updating, do routing to "error.ejs"
 			res.render('error');
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that updating the item has succeeded
-			console.log("Successfully added Unwetter-timestamp in 'item'.");
+			console.log("Successfully added Unwetter-timestamp in '" + collectionName + "'.");
 			res.json(result);
 		}
 	});
@@ -154,13 +159,11 @@ router.put("/removeUnwetterTimestamps", (req, res) => {
 
 	var db = req.db;
 
-	console.log("remove Unwetter-timestamps");
-	console.log(req.body);
 
 	//delete req.body._id;
 
 	// filter database for Unwetters and ...
-	db.collection('item').updateMany( {type:"Unwetter"},
+	db.collection(collectionName).updateMany( {type:"Unwetter"},
 
 	// TODO: überprüfen, ob $lt oder $lte nötig ist !!!!
 	// ... remove timestamps in the timestamp-Array that are older than 10 timesteps (50 minutes, specified in timestampDeleting)
@@ -168,14 +171,14 @@ router.put("/removeUnwetterTimestamps", (req, res) => {
 
 		if (error) {
 			// give a notice, that the updating has failed and show the error on the console
-			console.log("Failure while removing Unwetter-timestamps in 'item'.", error);
+			console.log("Failure while removing Unwetter-timestamps in '" + collectionName + "'.", error);
 			// in case of an error while updating, do routing to "error.ejs"
 			res.render('error');
 
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that updating the Unwetter has succeeded
-			console.log("Successfully removed Unwetter-timestamps in 'item'.");
+			console.log("Successfully removed Unwetter-timestamps in '" + collectionName + "'.");
 			res.json(result);
 		}
 	});
@@ -194,21 +197,21 @@ router.delete("/deleteOldUnwetter", (req, res) => {
 	console.log("deleting all old Unwetter");
 
 	// filter database for Unwetters whose timestamps-Array is empty
-	db.collection('item').deleteMany(
+	db.collection(collectionName).deleteMany(
 		{ $and: [ { type:"Unwetter" },  { timestamps: { $size: 0 } } ]
 
 	}, (error, result) => {
 
 		if (error){
 			// give a notice, that the deleting has failed and show the error on the console
-			console.log("Failure while deleting all old Unwetter from 'item'.", error);
+			console.log("Failure while deleting all old Unwetter from '" + collectionName + "'.", error);
 			// in case of an error while deleting, do routing to "error.ejs"
 			res.render('error');
 
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that deleting the Unwetter has succeeded
-			console.log("Successfully deleted all old Unwetter from 'item'.");
+			console.log("Successfully deleted all old Unwetter from '" + collectionName + "'.");
 			res.json(result);
 		}
 	});
@@ -227,20 +230,20 @@ router.delete("/delete", (req, res) => {
 	console.log("delete ... " + req.query._id);
 
 	// filter database for Unwetters and ...
-	db.collection('item').deleteOne( {type:"Tweet"},
+	db.collection(collectionName).deleteOne( {type:"Tweet"},
 
 	// TODO: query
 	{  } , (error, result) => {
 
 		if (error){
 			// give a notice, that the deleting has failed and show the error on the console
-			console.log("Failure while deleting a Tweet from 'item'.", error);
+			console.log("Failure while deleting a Tweet from '" + collectionName + "'.", error);
 			// in case of an error while deleting, do routing to "error.ejs"
 			res.render('error');
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that deleting the Unwetter has succeeded
-			console.log("Successfully deleted a Tweet from 'item'.");
+			console.log("Successfully deleted a Tweet from '" + collectionName + "'.");
 			res.json(result);
 		}
 	});
