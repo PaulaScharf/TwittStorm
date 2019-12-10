@@ -23,35 +23,32 @@ let collectionName = config.mongodb.collection_name;
 // TODO: alle nicht benötigten Routen löschen!!
 
 
-// TODO: später löschen!!!
-/* GET routes */
-router.get("/routes", (req, res) => {
-	var db = req.db;
-	// find all
-	db.collection(collectionName).find({}).toArray((error, result) => {
-		if(error){
-			console.dir(error);
+/**
+ *
+ * @param input
+ * @returns query
+ */
+function queryParser(input) {
+	let query = {};
+	for (let key in input) {
+		if (input.hasOwnProperty(key)) {
+			if (key === "_id") {
+				query[key] = new mongodb.ObjectID(input[key]);
+			} else if (input[key].charAt(0) === "{" || input[key].charAt(0) === "[") {
+				query[key] = JSON.parse(input[key]);
+			} else {
+				query[key] = input[key];
+			}
 		}
-		res.json(result);
-	});
-});
-
-
-
+	}
+	return query;
+}
 
 /* GET items */
 router.post("/", function(req, res) {
 	var db = req.db;
-	let query = {};
-	for (let key in req.body) {
-		if (req.body.hasOwnProperty(key)) {
-			if (req.body[key].charAt(0) === "{" || req.body[key].charAt(0) === "[") {
-				query[key] = JSON.parse(req.body[key]);
-			} else {
-				query[key] = req.body[key];
-			}
-		}
-	}
+	let query = queryParser(req.body);
+
 	// find all
 	db.collection(collectionName).find(query).toArray((error, result) => {
 		if(error){
@@ -73,30 +70,6 @@ router.post("/", function(req, res) {
 // *********************** inserting .........: ***********************
 /* POST to add single item. */
 router.post('/add', function(req, res) {
-	var db = req.db;
-
-	db.collection(collectionName).insertOne(req.body, (error, result) => {
-		if(error){
-			// give a notice, that the inserting has failed and show the error on the console
-			console.log("Failure while inserting an item into '" + collectionName + "'.", error);
-			// in case of an error while inserting, do routing to "error.ejs"
-			res.render('error');
-			// if no error occurs ...
-		} else {
-			// ... give a notice, that inserting the item has succeeded
-			res.json({
-				error: 0,
-				// TODO: auf englisch ändern
-				msg: "item mit der ID " + result.insertedId + " angelegt."
-			});
-		}
-	});
-
-});
-
-
-/* POST to add multiple items. */
-router.post('/addMany', function(req, res) {
 	var db = req.db;
 
 	db.collection(collectionName).insertMany(req.body, (error, result) => {
@@ -122,20 +95,18 @@ router.post('/addMany', function(req, res) {
 
 // *********************** updating .........: ***********************
 /* update Unwetter */
-router.put("/addUnwetterTimestamp", (req, res) => {
+router.put("/update", (req, res) => {
 
 	var db = req.db;
 
-	let id = req.body._id;
+	let id = req.body.query._id;
+
+	let query = queryParser(req.body.query);
+	let update = queryParser(req.body.update);
 
 	console.log("update Unwetter " + id);
-
-	delete req.body._id;
-
-	//
-	db.collection(collectionName).updateOne({_id: new mongodb.ObjectID(id)},
-
-	{$push: {timestamps: req.body.currentTimestamp}}, (error, result) => {
+	
+	db.collection(collectionName).updateMany(query,	update, (error, result) => {
 
 		if (error) {
 			// give a notice, that the updating has failed and show the error on the console

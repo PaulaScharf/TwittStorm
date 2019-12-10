@@ -102,7 +102,7 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 						}
 						try {
 							if (arrayOfTweets.length > 0) {
-								promiseToPostMany(arrayOfTweets, "Tweets")
+								promiseToPostItems(arrayOfTweets, "Tweets")
 									.catch(console.error)
 									.then(function() {
 										resolve()
@@ -113,7 +113,7 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 									unwetter_ID: unwetterID,
 									requestTime: currentTime
 								};
-								promiseToPostItem(emptyTweet, "Tweet")
+								promiseToPostItems([emptyTweet], "Tweet")
 									.catch(console.error)
 									.then(function() {
 										resolve()
