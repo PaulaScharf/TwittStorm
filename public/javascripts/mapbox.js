@@ -181,17 +181,19 @@ function showMap(style) {
 			}
 		}
 
-		if (paramArray.wtype == "unwetter") {
-			requestNewAndDisplayCurrentUnwetters(map, Date.now());
+		if (paramArray.wtype === "unwetter") {
+			requestNewAndDisplayCurrentUnwetters(map);
+			// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
+			window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
 		}
 		//to be able to still use localhost:3000/
-		if (paramArray.wtype == undefined) {
-			requestNewAndDisplayCurrentUnwetters(map, Date.now());
+		if (paramArray.wtype === undefined) {
+			requestNewAndDisplayCurrentUnwetters(map);
 		}
 
 
-		// requestNewAndDisplayCurrentUnwetters(map, Date.now()) is called each 5 minutes (300000 milliseconds = 5 minutes)
-		window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map, Date.now());
+		// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
+		window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
 
 // TODO: beim setInterval Unwetter-Request werden nicht alle timestamps geupdated !!! (beim Seite manuell neu laden schon?)
 
@@ -256,8 +258,9 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
 * @param map -
 * @param {number} currentTimestamp - in Epoch milliseconds
 */
-function requestNewAndDisplayCurrentUnwetters(map, currentTimestamp){
+function requestNewAndDisplayCurrentUnwetters(map){
 
+	let currentTimestamp = Date.now();
 	// just keep those Unwetter in database that are included in the last 10 timesteps (last 50 minutes)
 	removeOldUnwetterFromDB(currentTimestamp);
 
