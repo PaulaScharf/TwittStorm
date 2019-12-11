@@ -24,6 +24,7 @@ let collectionName = config.mongodb.collection_name;
 
 /**
  * Parses the input query.
+ * @author Paula Scharf
  * @param input
  * @returns query
  */
@@ -85,7 +86,7 @@ router.post('/add', function(req, res) {
 			// ... give a notice, that inserting the item has succeeded
 			res.json({
 				error: 0,
-				msg: "items angelegt."
+				msg: "items saved."
 			});
 		}
 	});
@@ -99,13 +100,9 @@ router.put("/update", (req, res) => {
 
 	var db = req.db;
 
-	let id = req.body.query._id;
-
 	let query = queryParser(req.body.query);
 	let update = queryParser(req.body.update);
 
-	console.log("update Unwetter " + id);
-	
 	db.collection(collectionName).updateMany(query,	update, (error, result) => {
 
 		if (error) {
@@ -138,19 +135,19 @@ router.delete("/delete", (req, res) => {
 	// filter database for Unwetters whose timestamps-Array is empty
 	db.collection(collectionName).deleteMany(query, (error, result) => {
 
-			if (error){
-				// give a notice, that the deleting has failed and show the error on the console
-				console.log("Failure while deleting some items from '" + collectionName + "'.", error);
-				// in case of an error while deleting, do routing to "error.ejs"
-				res.render('error');
+		if (error){
+			// give a notice, that the deleting has failed and show the error on the console
+			console.log("Failure while deleting some items from '" + collectionName + "'.", error);
+			// in case of an error while deleting, do routing to "error.ejs"
+			res.render('error');
 
-				// if no error occurs ...
-			} else {
-				// ... give a notice, that deleting the Unwetter has succeeded
-				console.log("Successfully deleted some items from '" + collectionName + "'.");
-				res.json(result);
-			}
-		});
+			// if no error occurs ...
+		} else {
+			// ... give a notice, that deleting the Unwetter has succeeded
+			console.log("Successfully deleted some items from '" + collectionName + "'.");
+			res.json(result);
+		}
+	});
 });
 
 
