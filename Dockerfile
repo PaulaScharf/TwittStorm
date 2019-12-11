@@ -16,7 +16,7 @@ RUN cp /usr/bin/python3 /usr/bin/python
 RUN R -e "install.packages('dplyr',dependencies=TRUE, repos='http://cran.rstudio.com/')"\
     && R -e "install.packages('rdwd',dependencies=TRUE, repos='http://cran.rstudio.com/')"\
     && R -e "install.packages('raster',dependencies=TRUE, repos='http://cran.rstudio.com/')"\
-    && R -e "install.packages('rgdal',dependencies=TRUE, repos='http://cran.rstudio.com/')"\
+    && R -e "install.packages('rgdal',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 
 # install dependencies
 RUN npm install
