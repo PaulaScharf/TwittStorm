@@ -24,7 +24,7 @@ function processUnwettersFromDWD(currentTimestamp) {
   return new Promise((resolve, reject) => {
 
     // this array will contain all the calls of the function "promiseToPostItem"
-    let arrayOfPromises = [];
+    let arrayOfItems = [];
     //
     let arrayOfGroupedUnwetters = [];
     //
@@ -119,18 +119,18 @@ function processUnwettersFromDWD(currentTimestamp) {
         // POST each new Unwetter into database
         // TODO: nicht am Ende (nach DBcheck) alle auf einmal posten, sondern schon zwischendurch jedes Unwetter nach DBcheck direkt posten
         arrayUnwettersToPost.forEach(function (item){
-          arrayOfPromises.push(promiseToPostItems([item], "Unwetter"));
+          arrayOfItems.push(item);
         });
 
         try {
           // wait for all POSTs to the database to succeed and ...
-          Promise.all(arrayOfPromises)
-
+          promiseToPostItems(arrayOfItems, "unwetters")
+            .catch(console.error)
           // ... then end the function processUnwettersFromDWD to call displayCurrentUnwetters afterwards (this action is specified in requestNewAndDisplayCurrentUnwetters)
-          .then(() => {
-
-            resolve();
-          });
+            .then(function() {
+              console.dir("pups");
+              resolve();
+            });
 
         } catch(e) {
           console.log(e);

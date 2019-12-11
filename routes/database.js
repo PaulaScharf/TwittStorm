@@ -20,11 +20,10 @@ const yaml = require('js-yaml');
 const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 let collectionName = config.mongodb.collection_name;
-// TODO: alle nicht benötigten Routen löschen!!
 
 
 /**
- *
+ * Parses the input query.
  * @param input
  * @returns query
  */
@@ -47,7 +46,10 @@ function queryParser(input) {
 /* GET items */
 router.post("/", function(req, res) {
 	var db = req.db;
-	let query = queryParser(req.body);
+	let query = {};
+	if (req.body) {
+		query = queryParser(req.body);
+	}
 
 	// find all
 	db.collection(collectionName).find(query).toArray((error, result) => {
@@ -91,8 +93,6 @@ router.post('/add', function(req, res) {
 });
 
 
-// TODO: updateMany() verwenden?
-
 // *********************** updating .........: ***********************
 /* update Unwetter */
 router.put("/update", (req, res) => {
@@ -110,13 +110,13 @@ router.put("/update", (req, res) => {
 
 		if (error) {
 			// give a notice, that the updating has failed and show the error on the console
-			console.log("Failure while adding Unwetter-timestamp in '" + collectionName + "'.", error);
+			console.log("Failure while updating items in '" + collectionName + "'.", error);
 			// in case of an error while updating, do routing to "error.ejs"
 			res.render('error');
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that updating the item has succeeded
-			console.log("Successfully added Unwetter-timestamp in '" + collectionName + "'.");
+			console.log("Successfully updated items in '" + collectionName + "'.");
 			res.json(result);
 		}
 	});
@@ -124,100 +124,33 @@ router.put("/update", (req, res) => {
 
 
 // TODO: ausprobieren, ob es funktioniert:
-
-// *********************** updating the Array of timestamps of Unwetters : ***********************
-router.put("/removeUnwetterTimestamps", (req, res) => {
-
-	var db = req.db;
-
-
-	//delete req.body._id;
-
-	// filter database for Unwetters and ...
-	db.collection(collectionName).updateMany( {type:"Unwetter"},
-
-	// TODO: überprüfen, ob $lt oder $lte nötig ist !!!!
-	// ... remove timestamps in the timestamp-Array that are older than 10 timesteps (50 minutes, specified in timestampDeleting)
-	{$pull: {timestamps: { $lt: req.body.timestampDeleting }}}, (error, result) => {
-
-		if (error) {
-			// give a notice, that the updating has failed and show the error on the console
-			console.log("Failure while removing Unwetter-timestamps in '" + collectionName + "'.", error);
-			// in case of an error while updating, do routing to "error.ejs"
-			res.render('error');
-
-			// if no error occurs ...
-		} else {
-			// ... give a notice, that updating the Unwetter has succeeded
-			console.log("Successfully removed Unwetter-timestamps in '" + collectionName + "'.");
-			res.json(result);
-		}
-	});
-});
-
-
-
-// TODO: ausprobieren, ob es funktioniert:
-
-// *********************** deleting ...........: ***********************
-/* DELETE old Unwetters */
-router.delete("/deleteOldUnwetter", (req, res) => {
-
-	var db = req.db;
-
-	console.log("deleting all old Unwetter");
-
-	// filter database for Unwetters whose timestamps-Array is empty
-	db.collection(collectionName).deleteMany(
-		{ $and: [ { type:"Unwetter" },  { timestamps: { $size: 0 } } ]
-
-	}, (error, result) => {
-
-		if (error){
-			// give a notice, that the deleting has failed and show the error on the console
-			console.log("Failure while deleting all old Unwetter from '" + collectionName + "'.", error);
-			// in case of an error while deleting, do routing to "error.ejs"
-			res.render('error');
-
-			// if no error occurs ...
-		} else {
-			// ... give a notice, that deleting the Unwetter has succeeded
-			console.log("Successfully deleted all old Unwetter from '" + collectionName + "'.");
-			res.json(result);
-		}
-	});
-});
-
-
-
-
-// TODO:
 // *********************** deleting ...........: ***********************
 /* DELETE old Tweets */
 router.delete("/delete", (req, res) => {
 
 	var db = req.db;
 
-	console.log("delete ... " + req.query._id);
+	let query = {};
+	if (req.body) {
+		query = queryParser(req.body);
+	}
 
-	// filter database for Unwetters and ...
-	db.collection(collectionName).deleteOne( {type:"Tweet"},
+	// filter database for Unwetters whose timestamps-Array is empty
+	db.collection(collectionName).deleteMany(query, (error, result) => {
 
-	// TODO: query
-	{  } , (error, result) => {
+			if (error){
+				// give a notice, that the deleting has failed and show the error on the console
+				console.log("Failure while deleting some items from '" + collectionName + "'.", error);
+				// in case of an error while deleting, do routing to "error.ejs"
+				res.render('error');
 
-		if (error){
-			// give a notice, that the deleting has failed and show the error on the console
-			console.log("Failure while deleting a Tweet from '" + collectionName + "'.", error);
-			// in case of an error while deleting, do routing to "error.ejs"
-			res.render('error');
-			// if no error occurs ...
-		} else {
-			// ... give a notice, that deleting the Unwetter has succeeded
-			console.log("Successfully deleted a Tweet from '" + collectionName + "'.");
-			res.json(result);
-		}
-	});
+				// if no error occurs ...
+			} else {
+				// ... give a notice, that deleting the Unwetter has succeeded
+				console.log("Successfully deleted some items from '" + collectionName + "'.");
+				res.json(result);
+			}
+		});
 });
 
 

@@ -83,13 +83,13 @@ function promiseToPostItems(arrayOfItems, typeOfItems) {
     .done(function () {
       // ... give a notice on the console that the AJAX request for inserting many items has succeeded
       console.log("AJAX request (inserting many " + typeOfItems + ") is done successfully.");
+      resolve();
     })
 
     // if the request has failed, ...
     .fail(function (xhr, status, error) {
       // ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
       console.log("AJAX request (inserting many " + typeOfItems + ") has failed.", error);
-      resolve();
 
       // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
       if (error === "timeout") {

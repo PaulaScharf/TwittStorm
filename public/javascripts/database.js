@@ -23,10 +23,15 @@ function removeOldUnwetterFromDB(currentTimestamp){
   // TODO: überprüfen, ob < oder > oder = passt (serverseitig)
 
   // 10 timesteps = 50 minutes = 3000000 milliseconds
-  let timestampDeleting = currentTimestamp - 3000000;
+  let timestampDeleting = currentTimestamp - paramArray.config.max_difference_timestamp;
 
   let timestampQuery = {
-    timestampDeleting: timestampDeleting
+    query: {
+      type: "Unwetter"
+    },
+    update: {
+      "$pull": '{"timestamps": { "$lt": ' + timestampDeleting + ' }}'
+    }
   };
 
 
@@ -35,7 +40,7 @@ function removeOldUnwetterFromDB(currentTimestamp){
     // use a http PUT request
     type: "PUT",
     // URL to send the request to
-    url: "/db/removeUnwetterTimestamps",
+    url: "/db/update",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // data to send to the server, send as String for independence of server-side programming language
@@ -78,15 +83,19 @@ function removeOldUnwetterFromDB(currentTimestamp){
 */
 function removeOldUnwetterFromDB2(){
 
+  let query = {
+    "$and": '[ { "type":"Unwetter" },  { "timestamps": { "$size": 0 }} ]'
+  };
   //
   $.ajax({
     // use a http DELETE request
     type: "DELETE",
     // URL to send the request to
-    url: "/db/deleteOldUnwetter",
+    url: "/db/delete",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
-    // TODO: NO DATA NEEDED TO SENT, da alles in routes passiert, SO OKAY??
+    // query
+    data: query,
     // data to send to the server, send as String for independence of server-side programming language
     //data: JSON.stringify(),
     // timeout set to 10 seconds
