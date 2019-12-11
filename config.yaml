@@ -8,6 +8,11 @@ mongodb:
   db_name: itemdb
   collection_name: item
 
+# Map coordinates -----------------------------------
+map:
+  center: [10.5, 51.2]
+  zoom: 5
+
 # Process -------------------------------------------
 # refrech rate in milliseconds
 refresh_rate: 300000

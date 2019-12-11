@@ -71,14 +71,16 @@ function showMap(style) {
 	let centerURL;
 	// if not yet in URL, use standard
 	if (paramArray.mapZoom == undefined) {
-		zoomURL = 5;
+		//zoomURL = 5;
+		zoomURL = paramArray.config.map.zoom;
 		// otherwise use value from URL
 	} else {
 		zoomURL = paramArray.mapZoom;
 	}
 	// see above
 	if (paramArray.mapCenter == undefined) {
-		centerURL = [10.5, 51.2];
+		//centerURL = [10.5, 51.2];
+		centerURL = paramArray.config.map.center;
 	} else {
 		centerURL = paramArray.mapCenter;
 		centerURL = JSON.parse(centerURL);
