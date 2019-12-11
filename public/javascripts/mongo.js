@@ -27,8 +27,19 @@ $(document).ready(function() {
 function showRoutes() {
 	var tableContent = "";
 
-	//get JSON
-	$.getJSON('/db/routes', function(data) {
+	$.ajax({
+		// use a http POST request
+		type: "POST",
+		// URL to send the request to
+		url: "/db/",
+		//
+		data: {},
+		// timeout set to 20 seconds
+		timeout: 20000
+	})
+
+	// if the request is done successfully, ...
+		.done(function (data) {
 		routesArray = data;
 		console.log(data);
 		$.each(data, function(index) {
@@ -41,7 +52,20 @@ function showRoutes() {
 		//put into html
 		$('#routeTable').html(tableContent);
 		$('#routeTable').on('click', 'td a.linkdeleteroute', deleteRoute);
-	});
+	})
+		// if the request has failed, ...
+		.fail(function (xhr, status, error) {
+			// ... give a notice that the AJAX request for for reading all items has failed and show the error on the console
+			console.log("AJAX request (reading " + typeOfItems + ") has failed.", error);
+			console.dir(error);
+
+			// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+			if (error === "timeout") {
+				//JL("ajaxReadingAllItemsTimeout").fatalException("ajax: '/' timeout");
+			}
+
+			reject("AJAX request (reading " + typeOfItems + ") has failed.");
+		});
 }
 
 function deleteRoute(event) {

@@ -36,7 +36,7 @@ function saveRainRadar(product, classification) {
               classInformation: data.classBorders.classes,
               geometry: data.geometry
             };
-            arrayOfPromises.push(promiseToPostItem(radarJSON, "RainRadar"));
+            arrayOfPromises.push(promiseToPostItems([radarJSON], "RainRadar"));
 
             try {
                 // wait for all the posts to the database to succeed
