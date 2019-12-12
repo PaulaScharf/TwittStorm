@@ -81,6 +81,7 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 										let currentStatus = {
 											type: "Tweet",
 											id: currentFeature.id,
+											idstr: currentFeature.id_str,
 											statusmessage: currentFeature.text,
 											author: {
 												id: currentFeature.user.id,

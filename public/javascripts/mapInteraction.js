@@ -412,7 +412,7 @@ function loadSevereWeather(){
   	var pickedTweet = map.queryRenderedFeatures(e.point);
 
   	if (pickedTweet[0].source.includes("Tweet")) {
-  		let idAsString = JSON.stringify(pickedTweet[0].properties.id);
+  		let idAsString = pickedTweet[0].properties.idstr;
   		// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
   		new mapboxgl.Popup()
   		.setLngLat(e.lngLat)
