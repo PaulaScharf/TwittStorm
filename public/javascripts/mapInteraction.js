@@ -164,6 +164,21 @@ function openMenu(button, menu) {
 		button.style.display = "none";
 	}
 }
+/**
+* @desc Closes all open submenus on click
+* @author Benjamin Rieke
+*/
+function closeAllMenus() {
+	var innerRasterMenuToggle = document.getElementById('rasterMenu');
+	if (innerRasterMenuToggle.style.display == "block"){
+		innerRasterMenuToggle.style.display = "none"
+	};
+	var innerUnwetterMenuToggle = document.getElementById('menu');
+	if (innerUnwetterMenuToggle.style.display == "block"){
+		innerUnwetterMenuToggle.style.display = "none"
+	};
+}
+
 
 
 
@@ -210,18 +225,103 @@ for (var i = 0; i < inputs.length; i++) {
 
 
 // TODO: Deactivating the field after window is closed
-/**
+/*
 * Changes the style of a menu selector to active on click
 * @author Benjamon Rieke
+*/
 
 $(function () {
-	//var $lists = $('.list-group li').click(function(e) {
+    //var $lists = $('.list-group li').click(function(e) {
 
-		$(".selector").click(function () {
-			$(this).toggleClass("active");
-		});
-	})
+    $(".selector").click(function () {
+        $(this).toggleClass("active");
+    });
+		})
+
+
+	/**
+	* Loads the chosen radar product, updates the url, and hides previous selected layers
+	* @author Benjamin Rieke
+	* @param product -The desired radar product. CHeck the github wiki for further informations
 	*/
+
+function loadRaster(product){
+
+	console.log("Loading your requested radar product");
+	updateURL('wtype', 'radar');
+	updateURL('radProd', product);
+
+if (map.style.sourceCaches.rainRadar == undefined){
+
+	requestAndDisplayAllRainRadar(map, product, "dwd");
+	}
+else {
+	map.removeLayer('rainRadar')
+	map.removeSource('rainRadar')
+
+	requestAndDisplayAllRainRadar(map, product, "dwd");
+	};
+}
+
+/**
+* Hides the Unwetter polygons
+* @author Benjamin Rieke
+*/
+
+function hideUnwetter(){
+
+	map.style._order.forEach(function(layer) {
+		let mapLayer = layer;
+
+if (mapLayer.includes("Unwetter other") ) {
+		map.setLayoutProperty(layer, 'visibility', 'none');
+		console.log("hid one unwetter polygon");
+		}
+	});
+
+	var menuToggle = document.getElementById('severeWeather');
+	menuToggle.classList.remove("active");
+	var selectionToggle = document.getElementById('menu');
+	selectionToggle.style.display ="none";
+}
+
+
+/**
+* Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
+* @author Benjamin Rieke
+*/
+
+function loadSevereWeather(){
+	// update the url
+		updateURL('wtype', 'unwetter');
+		updateURL('radProd', '');
+	// if no rainradar is displayed simply show polygons
+		if (map.style.sourceCaches.rainRadar == undefined){
+		requestNewAndDisplayCurrentUnwetters(map);
+		}
+	// if not remove them first
+		else {
+			map.removeLayer('rainRadar')
+			map.removeSource('rainRadar')
+			requestNewAndDisplayCurrentUnwetters(map);
+			};
+
+			map.style._order.forEach(function(layer) {
+				let mapLayer = layer;
+
+		if (mapLayer.includes("Unwetter other") ) {
+				map.setLayoutProperty(layer, 'visibility', 'visible');
+				console.log("hid one unwetter polygon");
+				}
+			});
+
+			var rasterMenuToggle = document.getElementById('raster');
+			rasterMenuToggle.classList.remove("active");
+				var innerRasterMenuToggle = document.getElementById('rasterMenu');
+				innerRasterMenuToggle.style.display = "none";
+
+	}
+
 
 
 // ********************************** POP-UPS **********************************

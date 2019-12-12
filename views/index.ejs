@@ -28,23 +28,28 @@
     <!-- Product selection menu -->
 
     <div id="productMenu" style="display:none">
-      <a href="#" class="selector" onclick="openMenu(this, rasterMenu)">Radar </a>
-      <a href="#" id="severeWeather" class="selector" onclick="openMenu(this, menu)">Severe Weather</a>
+      <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)">Radar </a>
+      <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu); loadSevereWeather();">Severe Weather</a>
     </div>
 
     <!-- Raster selection menu -->
     <!-- Add functions for raster display here -->
 
-    <div id="rasterMenu" style="display:none">
-      <a href="#" class="selector" onclick>5 Minutes </a>
-      <a href="#" class="selector" onclick>60 Minutes</a>
-      <a href="#" class="selector" onclick>24 Hours</a>
+    <div id="rasterMenu" class="inputGroup" style="display:none">
+         <div>
+     <input id="radio1" name="radio" type="radio" onclick="loadRaster('ry'); hideUnwetter();" checked = 'checked'>5 Minutes</input>
+        </div>
+     <input id="radio2" name="radio" type="radio" onclick="loadRaster('rw'); hideUnwetter();">60 Minutes</input>
+        <div>
+     <input id="radio3" name="radio" type="radio" onclick="loadRaster('sf'); hideUnwetter();">24 Hours</input>
+        </div>
+   </div>
 
-    </div>
+
 
     <!-- button to open up the menu. Image taken from https://freeicons.io/user-interface-and-electronics/layer-up-down-screen-multiple-interface-ui-d-cd-icon-892#-->
 
-    <nav id="menuButton" class="container" onclick="openMenu(this, productMenu)" title="Change Layers" >
+    <nav id="menuButton" class="container" onclick="openMenu(this, productMenu); closeAllMenus();" title="Change Layers" >
       <div id="buttonIcon">
         <img src="/css/Layer-Icon.png"/>
       </div>
@@ -59,14 +64,13 @@
     </div>
 
     <div id='map'></div>
-    <div class='map-overlay' id='legend'></div>
 
     <!-- Style Selector -->
     <div class="switch-field" id='styleMenu'>
-        <input id='navigation-guidance-day-v4' type='radio' name='switch-two' value='streets' checked='checked'>
+        <input id='navigation-guidance-day-v4' type='radio' name='switch-two' value='streets' onchange="updateURL('style', 'streets')" checked='checked'>
         <label for='navigation-guidance-day-v4'>Streets</label>
         <br>
-        <input id='satellite-v9' type='radio' name='switch-two' value='satellite'>
+        <input id='satellite-v9' type='radio' name='switch-two' value='satellite' onchange="updateURL('style', 'satellite')">
         <label for='satellite-v9'>Satellite</label>
     </div>
 
@@ -79,7 +83,6 @@
 
 </body>
 </html>
-
 <script src="/jquery/jquery.js"></script>
 <script src="/popper/umd/popper.js"></script>
 <script src="/bootstrap/js/bootstrap.js"></script>

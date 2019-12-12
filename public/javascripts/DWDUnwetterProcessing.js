@@ -128,7 +128,6 @@ function processUnwettersFromDWD(currentTimestamp) {
             .catch(console.error)
           // ... then end the function processUnwettersFromDWD to call displayCurrentUnwetters afterwards (this action is specified in requestNewAndDisplayCurrentUnwetters)
             .then(function() {
-              console.dir("pups");
               resolve();
             });
 

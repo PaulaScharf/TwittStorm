@@ -1,4 +1,4 @@
-FROM node:10
+FROM rocker/geospatial:latest
 
 # create workdir
 WORKDIR /usr/src/app
@@ -7,7 +7,13 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # install dependencies
-RUN apt-get update && apt-get remove -y python && apt-get install -y python3 gdal-bin python-gdal python3-gdal r-base
+RUN apt-get update && apt-get install -y python3 curl gdal-bin python3-gdal
+
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g react-tools
 
 # install dependencies
 RUN cp /usr/bin/python3 /usr/bin/python
@@ -18,7 +24,9 @@ RUN R -e "install.packages('dplyr',dependencies=TRUE, repos='http://cran.rstudio
     && R -e "install.packages('raster',dependencies=TRUE, repos='http://cran.rstudio.com/')"\
     && R -e "install.packages('rgdal',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 
-# install dependencies
+    RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y nodejs git
+
 RUN npm install
 
 # bundle app source
