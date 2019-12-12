@@ -15,15 +15,77 @@
 // TODO: JSDoc für globale Variablen
 
 
-// TODO: zu globalen Variablen schreiben:
-// Takes the map styles from the selection on the index page
-var layerList = document.getElementById('styleMenu');
-var inputs = layerList.getElementsByTagName('input');
-
-
 
 
 // ******************************** functions **********************************
+
+/**
+* @desc
+*
+*
+* @author Katharina Poppinga
+* @private
+* @param {mapbox-map} map - mapbox-map for and in which to display the legend
+* @param {String} typeOfLegend - unwetter or radar
+*/
+function showLegend(map, typeOfLegend) {
+
+	let type;
+	let colors;
+	let metadata = document.getElementById("metadata");
+
+	// legend for Unwetter
+	if (typeOfLegend === "unwetter") {
+
+		// set titel of legend
+		document.getElementById("typeOfLegend").innerHTML = "<b>Severe weather</b>";
+
+		// TODO: BESSER MACHEN, INFOS DIREKT AUS LAYERN NEHMEN?? NICHT DIREKT MÖGLICH, DA JEDER TYPE VIELE LAYER HAT
+				//let allCurrentLayers = map.getStyle().layers;
+		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
+		// TODO: an endgültige Farben und feinere Farbabstufungen anpassen
+		type = ["Rain", "Snowfall", "Thunderstorm", "Black ice", "Other"]
+		colors = ["blue", "yellow", "red", "white", "grey"];
+
+		// tell the user about metadata of shown Unwetter
+		metadata.innerHTML = "<br>currently ongoing severe weather.<br><b>TODO: Text anpassen und evtl. in separates div auslagern</b><br><b>data source:</b> Deutscher Wetterdienst (evtl. Logo einfügen)<br><b>refresh rate:</b> aus yaml-datei auslesen<br><b>timestamp of last request:</b><br><b>positional accuracy of data:</b>";
+	}
+
+	// legend for rain radar
+	if (typeOfLegend === "radar") {
+		// set titel of legend
+		document.getElementById("typeOfLegend").innerHTML = "<b>Depth of precipitation</b>";
+
+		// TODO: BESSER MACHEN, INFOS DIREKT AUS DB NEHMEN??
+		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
+		type = ["0 to 0.01", "0.01 to 0.034", "0.034 to 0.166", "0.166 to 10000"]; // TODO: letzte werte zu kleinerer oder größerer klasse gehörig?
+		colors = ["#b3cde0", "#6497b1", "#03396c", "#011f4b"];
+
+		// tell the user about metadata of shown Unwetter
+		metadata.innerHTML = "unit: mm<br>rain radar... product type angeben<br><b>TODO: Text anpassen und evtl. in separates div auslagern</b><br><b>data source:</b> Deutscher Wetterdienst (evtl. Logo einfügen)<br><b>refresh rate:</b> aus yaml-datei auslesen<br><b>timestamp of last request:</b><br><b>positional accuracy of data:</b>";
+	}
+
+
+	let l;
+	// for-loop over every element-pair (value and color) for the legend
+	for (l = 0; l < type.length; l++) {
+		let item = document.createElement('div');
+
+		let colorKey = document.createElement('span');
+		colorKey.className = 'colorKey';
+		colorKey.style.backgroundColor = colors[l];
+
+		let value = document.createElement('span');
+		value.innerHTML = type[l];
+
+		item.appendChild(colorKey);
+		item.appendChild(value);
+		legend.appendChild(item);
+	}
+
+}
+
+
 
 /**
 * @desc
@@ -156,7 +218,6 @@ function addLayerToMenu(layerID) {
 */
 function openMenu(button, menu) {
 
-	// TODO: warum wird hier button neu definiert?
 	button = document.getElementById(menu.id);
 	if (button.style.display === "none") {
 		button.style.display = "block";
@@ -164,6 +225,8 @@ function openMenu(button, menu) {
 		button.style.display = "none";
 	}
 }
+
+
 /**
 * @desc Closes all open submenus on click
 * @author Benjamin Rieke
@@ -178,7 +241,6 @@ function closeAllMenus() {
 		innerUnwetterMenuToggle.style.display = "none"
 	};
 }
-
 
 
 
@@ -216,11 +278,23 @@ function switchLayer(layer) {
 
 
 
-// TODO: folgendes in eine Funktion schreiben:
-for (var i = 0; i < inputs.length; i++) {
-	inputs[i].onclick = switchLayer;
-}
+// TODO: folgende Funktion sinnvoll benennen
+/**
+*
+*
+* @author Benjamin Rieke
+*/
+function nameFinden(){
 
+	// Takes the map styles from the selection on the index page
+	let layerList = document.getElementById('styleMenu');
+	let inputs = layerList.getElementsByTagName('input');
+
+
+	for (var i = 0; i < inputs.length; i++) {
+		inputs[i].onclick = switchLayer;
+	}
+}
 
 
 
@@ -229,53 +303,51 @@ for (var i = 0; i < inputs.length; i++) {
 * Changes the style of a menu selector to active on click
 * @author Benjamon Rieke
 */
-
 $(function () {
-    //var $lists = $('.list-group li').click(function(e) {
+	//var $lists = $('.list-group li').click(function(e) {
 
-    $(".selector").click(function () {
-        $(this).toggleClass("active");
-    });
-		})
+	$(".selector").click(function () {
+		$(this).toggleClass("active");
+	});
+});
 
 
-	/**
-	* Loads the chosen radar product, updates the url, and hides previous selected layers
-	* @author Benjamin Rieke
-	* @param product -The desired radar product. CHeck the github wiki for further informations
-	*/
-
+/**
+* Loads the chosen radar product, updates the url, and hides previous selected layers
+* @author Benjamin Rieke
+* @param product -The desired radar product. CHeck the github wiki for further informations
+*/
 function loadRaster(product){
 
 	console.log("Loading your requested radar product");
 	updateURL('wtype', 'radar');
 	updateURL('radProd', product);
 
-if (map.style.sourceCaches.rainRadar == undefined){
+	if (map.style.sourceCaches.rainRadar == undefined){
 
-	requestAndDisplayAllRainRadar(map, product, "dwd");
+		requestAndDisplayAllRainRadar(map, product, "dwd");
 	}
-else {
-	map.removeLayer('rainRadar')
-	map.removeSource('rainRadar')
+	else {
+		map.removeLayer('rainRadar')
+		map.removeSource('rainRadar')
 
-	requestAndDisplayAllRainRadar(map, product, "dwd");
+		requestAndDisplayAllRainRadar(map, product, "dwd");
 	};
 }
+
 
 /**
 * Hides the Unwetter polygons
 * @author Benjamin Rieke
 */
-
 function hideUnwetter(){
 
 	map.style._order.forEach(function(layer) {
 		let mapLayer = layer;
 
-if (mapLayer.includes("Unwetter other") ) {
-		map.setLayoutProperty(layer, 'visibility', 'none');
-		console.log("hid one unwetter polygon");
+		if (mapLayer.includes("Unwetter other") ) {
+			map.setLayoutProperty(layer, 'visibility', 'none');
+			console.log("hid one unwetter polygon");
 		}
 	});
 
@@ -290,143 +362,142 @@ if (mapLayer.includes("Unwetter other") ) {
 * Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
 * @author Benjamin Rieke
 */
-
 function loadSevereWeather(){
 	// update the url
-		updateURL('wtype', 'unwetter');
-		updateURL('radProd', '');
+	updateURL('wtype', 'unwetter');
+	updateURL('radProd', '');
 	// if no rainradar is displayed simply show polygons
-		if (map.style.sourceCaches.rainRadar == undefined){
+	if (map.style.sourceCaches.rainRadar == undefined){
 		requestNewAndDisplayCurrentUnwetters(map);
-		}
+	}
 	// if not remove them first
-		else {
-			map.removeLayer('rainRadar')
-			map.removeSource('rainRadar')
-			requestNewAndDisplayCurrentUnwetters(map);
-			};
+	else {
+		map.removeLayer('rainRadar')
+		map.removeSource('rainRadar')
+		requestNewAndDisplayCurrentUnwetters(map);
+	};
 
-			map.style._order.forEach(function(layer) {
-				let mapLayer = layer;
+	map.style._order.forEach(function(layer) {
+		let mapLayer = layer;
 
 		if (mapLayer.includes("Unwetter other") ) {
-				map.setLayoutProperty(layer, 'visibility', 'visible');
-				console.log("hid one unwetter polygon");
-				}
-			});
+			map.setLayoutProperty(layer, 'visibility', 'visible');
+			console.log("hid one unwetter polygon");
+		}
+	});
 
-			var rasterMenuToggle = document.getElementById('raster');
-			rasterMenuToggle.classList.remove("active");
-				var innerRasterMenuToggle = document.getElementById('rasterMenu');
-				innerRasterMenuToggle.style.display = "none";
+	var rasterMenuToggle = document.getElementById('raster');
+	rasterMenuToggle.classList.remove("active");
+	var innerRasterMenuToggle = document.getElementById('rasterMenu');
+	innerRasterMenuToggle.style.display = "none";
 
-	}
+}
 
 
 
 // ********************************** POP-UPS **********************************
 
-  /**
-  * This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
-  * @author Katharina Poppinga
-  * @param {String} layerID - ID of a layer
-  */
-  function makeLayerInteractive(layerID) {
+/**
+* This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
+* @author Katharina Poppinga
+* @param {String} layerID - ID of a layer
+*/
+function makeLayerInteractive(layerID) {
 
-  	// ************************ changing of curser style ***********************
-  	// https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
-  	// if hovering the layer, change the cursor to a pointer
-  	map.on('mouseenter', layerID, function () {
-  		map.getCanvas().style.cursor = 'pointer';
-  	});
-  	// if leaving the layer, change the cursor back to a hand
-  	map.on('mouseleave', layerID, function () {
-  		map.getCanvas().style.cursor = '';
-  	});
+	// ************************ changing of curser style ***********************
+	// https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
+	// if hovering the layer, change the cursor to a pointer
+	map.on('mouseenter', layerID, function () {
+		map.getCanvas().style.cursor = 'pointer';
+	});
+	// if leaving the layer, change the cursor back to a hand
+	map.on('mouseleave', layerID, function () {
+		map.getCanvas().style.cursor = '';
+	});
 
-  	// ************************ showing popups on click ************************
-  	// TODO: Problem: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
-  	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
-  	map.on('click', layerID, function (e) {
-  		if (layerID.includes("Tweet")) {
-  			showTweetPopup(map,e);
-  		} else {
-  			showUnwetterPopup(map,e);
-  		}
-  	});
-  }
-
-
-  // TODO: Popups scrollbar machen oder enthaltenen Text kürzen??
-
-  /**
-  * @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
-  * The popup gives information about the period of validity and a description of the warning.
-  * @author Katharina Poppinga
-  * @private
-  * @param {mapbox-map} map map in which the Unwetter-features are in
-  * @param {Object} e ...
-  */
-  function showUnwetterPopup(map, e) {
-
-  	if (e) {
-  		// get information about the feature on which it was clicked
-  		var picked = map.queryRenderedFeatures(e.point);
-
-  		// TODO: Sommerzeit im Sommer??
-
-  		// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
-
-  		if (picked[0].source.includes("Unwetter")) {
-  			// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
-  			if (picked[0].properties.instruction !== "null") {
-  				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
-  				new mapboxgl.Popup()
-  				.setLngLat(e.lngLat)
-  				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction + "<br><b>mapSource: </b>" + picked[0].source)
-  				.addTo(map);
-  			}
-  			// if a instruction is not given by the DWD ...
-  			else {
-  				// ... create a popup with above information without an instruction
-  				new mapboxgl.Popup()
-  				.setLngLat(e.lngLat)
-  				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br><b>mapSource: </b>" + picked[0].source)
-  				.addTo(map);
-  			}
-  		}
-  	}
-  }
+	// ************************ showing popups on click ************************
+	// TODO: Problem: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
+	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
+	map.on('click', layerID, function (e) {
+		if (layerID.includes("Tweet")) {
+			showTweetPopup(map,e);
+		} else {
+			showUnwetterPopup(map,e);
+		}
+	});
+}
 
 
-  /**
-  * @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
-  * The popup gives information about the author, the message content and time of creation
-  * @author Paula Scharf
-  * @private
-  * @param {mapbox-map} map map in which the Unwetter-features are in
-  * @param {Object} e ...
-  */
-  function showTweetPopup(map, e) {
-  	// get information about the feature on which it was clicked
-  	var pickedTweet = map.queryRenderedFeatures(e.point);
+// TODO: Popups scrollbar machen oder enthaltenen Text kürzen??
 
-  	if (pickedTweet[0].source.includes("Tweet")) {
-  		let idAsString = JSON.stringify(pickedTweet[0].properties.id);
-  		// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
-  		new mapboxgl.Popup()
-  		.setLngLat(e.lngLat)
-  		.setHTML("<div id='" + idAsString + "'></div>")
-  		.addTo(map);
-  		twttr.widgets.createTweet(
-  			idAsString,
-  			document.getElementById(idAsString),
-  			{
-  				width: 1000,
-  				dnt: true
-  			}
-  		);
-  	}
-  }
+/**
+* @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
+* The popup gives information about the period of validity and a description of the warning.
+* @author Katharina Poppinga
+* @private
+* @param {mapbox-map} map map in which the Unwetter-features are in
+* @param {Object} e ...
+*/
+function showUnwetterPopup(map, e) {
+
+	if (e) {
+		// get information about the feature on which it was clicked
+		var picked = map.queryRenderedFeatures(e.point);
+
+		// TODO: Sommerzeit im Sommer??
+
+		// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
+
+		if (picked[0].source.includes("Unwetter")) {
+			// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
+			if (picked[0].properties.instruction !== "null") {
+				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
+				new mapboxgl.Popup()
+				.setLngLat(e.lngLat)
+				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction + "<br><b>mapSource: </b>" + picked[0].source)
+				.addTo(map);
+			}
+			// if a instruction is not given by the DWD ...
+			else {
+				// ... create a popup with above information without an instruction
+				new mapboxgl.Popup()
+				.setLngLat(e.lngLat)
+				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br><b>mapSource: </b>" + picked[0].source)
+				.addTo(map);
+			}
+		}
+	}
+}
+
+
+/**
+* @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
+* The popup gives information about the author, the message content and time of creation
+* @author Paula Scharf
+* @private
+* @param {mapbox-map} map map in which the Unwetter-features are in
+* @param {Object} e ...
+*/
+function showTweetPopup(map, e) {
+	// get information about the feature on which it was clicked
+	var pickedTweet = map.queryRenderedFeatures(e.point);
+
+	if (pickedTweet[0].source.includes("Tweet")) {
+		let idAsString = JSON.stringify(pickedTweet[0].properties.id);
+		// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
+		new mapboxgl.Popup()
+		.setLngLat(e.lngLat)
+		.setHTML("<div id='" + idAsString + "'></div>")
+		.addTo(map);
+		twttr.widgets.createTweet(
+			idAsString,
+			document.getElementById(idAsString),
+			{
+				width: 1000,
+				dnt: true
+			}
+		);
+	}
+}
 
 // *****************************************************************************

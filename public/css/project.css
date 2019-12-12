@@ -4,6 +4,12 @@
 ----------------------------------------------------------*/
 
 
+.container {
+  display: inline-block;
+  cursor: pointer;
+}
+
+
 #footer {
   position: fixed;
   bottom:0;
@@ -11,164 +17,176 @@
   width: 100%;
   text-align: center;
 }
+
 #menu {
-background: #fff;
-position: fixed;
-z-index: 1;
-top: 360px;
-right: 80px;
-border-radius: 3px;
-width: 120px;
-border: 1px solid rgba(0,0,0,0.4);
-font-family: 'Open Sans', sans-serif;
+  background: #fff;
+  position: fixed;
+  z-index: 1;
+  top: 360px;
+  right: 80px;
+  border-radius: 3px;
+  width: 120px;
+  border: 1px solid rgba(0,0,0,0.4);
+  font-family: 'Open Sans', sans-serif;
 }
 
 #menu a {
-font-size: 13px;
-color: black;
-display: block;
-margin: 0;
-padding: 0;
-padding: 10px;
-text-decoration: none;
-border-bottom: 1px solid rgba(0,0,0,0.25);
-text-align: center;
+  font-size: 13px;
+  color: black;
+  display: block;
+  margin: 0;
+  padding: 0;
+  padding: 10px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  text-align: center;
 }
 
 #menu a:last-child {
-border: none;
+  border: none;
 }
 
 #menu a:hover {
-background-color: grey;
-color: black;
+  background-color: grey;
+  color: black;
 }
 
 #menu a.active {
-background-color: lightgrey;
-color: black;
+  background-color: lightgrey;
+  color: black;
 }
 
 #menu a.active:hover {
-background: grey;
+  background: grey;
 }
 
-#productMenu {
-background: #fff;
-position: fixed;
-z-index: 1;
-top: 230px;
-right: 80px;
-border-radius: 3px;
-width: 120px;
-border: 1px solid rgba(0,0,0,0.4);
-font-family: 'Open Sans', sans-serif;
+/* ************************************************************************** */
+
+#map {
+  width: 100%;
+  height: 750px;
 }
 
-#productMenu a {
-font-size: 13px;
-color: black;
-display: block;
-margin: 0;
-padding: 0;
-padding: 10px;
-text-decoration: none;
-border-bottom: 1px solid rgba(0,0,0,0.25);
-text-align: center;
+.mapboxgl-popup {
+  min-width: 500px;
+  max-height: 800px;
+  z-index: 2;
 }
 
-#productMenu a:last-child {
-border: none;
-}
+/* ************************************************************************** */
 
-#productMenu a:hover {
-background-color: grey;
-color: black;
-}
-
-#productMenu a.active {
-background-color: lightgrey;
-color: black;
-}
-
-#productMenu a.active:hover {
-background: grey;
-}
-
-#rasterMenu {
-background: #fff;
-position: fixed;
-z-index: 1;
-top: 148px;
-right: 80px;
-border-radius: 3px;
-width: 120px;
-border: 1px solid rgba(0,0,0,0.4);
-font-family: 'Open Sans', sans-serif;
-}
-
-#rasterMenu a {
-font-size: 13px;
-color: black;
-display: block;
-margin: 0;
-padding: 0;
-padding: 10px;
-text-decoration: none;
-border-bottom: 1px solid rgba(0,0,0,0.25);
-text-align: center;
-}
-
-#rasterMenu a:last-child {
-border: none;
-}
-
-#rasterMenu a:hover {
-background-color: grey;
-color: black;
-}
-
-#rasterMenu a.active {
-background-color: lightgrey;
-color: black;
-}
-
-#rasterMenu a.active:hover {
-background: grey;
-}
-
-#buttonIcon{
-  position: absolute;
-  display: block;
-  top: -2px;
-  right: 21px;
-  width: 5px;
-  height: 25px;
-
-}
-
-#menuButton{
+#menuButton {
   position: absolute;
   z-index: 1;
   display: block;
-  top: 230px;
+  top: 234px;
   right: 25px;
   width: 5px;
-  height: 25px;
+  height: 33px;
   background-color: white;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+/* TODO: on hover dunkler färben */
+
+#buttonIcon {
+  position: absolute;
+  display: block;
+  top: 1px;
+  right: 21px;
+  width: 5px;
+  height: 25px;
+}
+
+#productMenu {
+  background: #fff;
+  position: fixed;
+  z-index: 1;
+  top: 230px;
+  right: 80px;
   border-radius: 3px;
+  width: 120px;
   border: 1px solid rgba(0,0,0,0.4);
-
-
-
+  font-family: 'Open Sans', sans-serif;
 }
 
-.container {
-  display: inline-block;
-  cursor: pointer;
+#productMenu a {
+  font-size: 13px;
+  color: black;
+  display: block;
+  margin: 0;
+  padding: 0;
+  padding: 10px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  text-align: center;
 }
 
+#productMenu a:last-child {
+  border: none;
+}
 
+#productMenu a:hover {
+  background-color: grey;
+  color: black;
+}
+
+#productMenu a.active {
+  background-color: lightgrey;
+  color: black;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+}
+
+#productMenu a.active:hover {
+  background: grey;
+}
+
+/* ************************************************************************** */
+
+#rasterMenu {
+  background: #fff;
+  position: fixed;
+  z-index: 1;
+  top: 148px;
+  right: 80px;
+  border-radius: 3px;
+  width: 120px;
+  border: 1px solid rgba(0,0,0,0.4);
+  font-family: 'Open Sans', sans-serif;
+}
+
+#rasterMenu a {
+  font-size: 13px;
+  color: black;
+  display: block;
+  margin: 0;
+  padding: 0;
+  padding: 10px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  text-align: center;
+}
+
+#rasterMenu a:last-child {
+  border: none;
+}
+
+#rasterMenu a:hover {
+  background-color: grey;
+  color: black;
+}
+
+#rasterMenu a.active {
+  background-color: lightgrey;
+  color: black;
+}
+
+#rasterMenu a.active:hover {
+  background: grey;
+}
+
+/* ************************************************************************** */
 
 #styleMenu {
   position: absolute;
@@ -176,50 +194,86 @@ background: grey;
   top: 60px;
   right: 120px;
   width: 120px;
+  padding: 5px;
   display: flex;
 }
 
 .switch-field input {
-	position: absolute !important;
-	clip: rect(0, 0, 0, 0);
-	height: 1px;
-	width: 1px;
-	border: 0;
-	overflow: hidden;
+  position: absolute !important;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  width: 1px;
+  border: 0;
+  overflow: hidden;
 }
 
 .switch-field label {
-	background-color: white;
-	color: rgba(0, 0, 0, 0.6);
-	font-size: 14px;
+  background-color: white;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
   font-weight: bold;
-	line-height: 1;
-	text-align: center;
-	padding: 8px 16px;
-	margin-right: -1px;
-	border: 1px solid rgba(0, 0, 0, 0.2);
-	box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
-	transition: all 0.1s ease-in-out;
+  line-height: 1;
+  text-align: center;
+  padding: 8px 16px;
+  margin-right: -1px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  transition: all 0.1s ease-in-out;
+  box-shadow: none;
 }
 
 .switch-field label:hover {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .switch-field input:checked + label {
-	background-color: lightgrey;
-	box-shadow: none;
+  background-color: lightgrey;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .switch-field label:first-of-type {
-	border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px;
 }
 
 .switch-field label:last-of-type {
-	border-radius: 0 4px 4px 0;
+  border-radius: 0 4px 4px 0;
 }
 
-.mapboxgl-popup {
-    min-width: 500px;
-    max-height: 800px;
+
+/* ********************************* LEGEND ********************************* */
+
+.map-overlay {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  width: 300px;
+  z-index: 1;
+  position: absolute;
+  top: 60px;
+  left: 20px;
+  padding: 5px;
+  display: flex;
 }
+
+.map-overlay .map-overlay-inner {
+  color: rgba(0, 0, 0, 0.6);
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+#legend {
+  line-height: 25px;
+}
+
+.colorKey {
+  display: inline-block;
+  opacity: 0.4;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  width: 21px;
+  height: 21px;
+  margin-right: 5px;
+  vertical-align: bottom;
+}
+
+/* ************************************************************************** */

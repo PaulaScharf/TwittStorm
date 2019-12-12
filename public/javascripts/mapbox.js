@@ -70,6 +70,11 @@ function showMap(style) {
 		layers.removeChild(layers.firstChild);
 	}
 
+
+// TODO: folgende Funktion sinnvoll benennen (steht in mapInteraction.js)
+nameFinden();
+
+
 	// declare var
 	let zoomURL;
 	let centerURL;
@@ -177,6 +182,9 @@ function showMap(style) {
 
 		// Rain Radar Data
 		if (paramArray.wtype == "radar") {
+
+			showLegend(map, "radar");
+
 			if(paramArray.rasterClassification == undefined) {
 				paramArray.rasterClassification = 'dwd';
 			}
@@ -187,24 +195,18 @@ function showMap(style) {
 			}
 		}
 
-		if (paramArray.wtype === "unwetter") {
+
+		// 2.oder-fall (undefined): to be able to still use localhost:3000/ TODO: später löschen oder als default lassen?)
+		if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
+
+			showLegend(map, "unwetter");
+
 			requestNewAndDisplayCurrentUnwetters(map);
 			// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
 			window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
 		}
-		// to be able to still use localhost:3000/
-		// TODO: später löschen? oder als default lassen? dann in andere vorherige if integrieren
-		if (paramArray.wtype === undefined) {
-			requestNewAndDisplayCurrentUnwetters(map);
-			// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
-			window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
-		}
 
 
-		// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
-		window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
-
-		// TODO: beim setInterval Unwetter-Request werden nicht alle timestamps geupdated !!! (beim Seite manuell neu laden schon?)
 
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -399,26 +401,50 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 			// https://medium.com/@krishnaglodha/add-legends-in-mapbox-gl-js-dynamically-3782d6f5d74
 
+/*
 
-		// *************************************************************************
+			let colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'];
+
+			let allCurrentLayers = map.getStyle().layers;
+
+			let l;
+				for (l = 0; l < customLayerIds.length; l++) {
+			let layerID = customLayerIds[l];
+			let color = colors[0];
+			let item = document.createElement('div');
+			let key = document.createElement('span');
+			key.className = 'legend-key';
+			key.style.backgroundColor = colors[2];
+
+			let value = document.createElement('span');
+			value.innerHTML = layerID;
+			item.appendChild(key);
+			item.appendChild(value);
+			legend.appendChild(item);
+				}
+*/
 
 
-		// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST
-		//
-		checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
-		.catch(console.error)
-		.then(function(result){
-			if (!result) {
-				retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
-			}
-		})
-	}
 
-},function (xhr, status, error) {
+			// *************************************************************************
 
-	// ... give a notice that the ....... has failed and show the error on the console
-	console.log("Notice........", error);
-});
+
+			// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST
+			//
+			checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
+			.catch(console.error)
+			.then(function(result){
+				if (!result) {
+					retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
+				}
+			})
+		}
+
+	},function (xhr, status, error) {
+
+		// ... give a notice that the ....... has failed and show the error on the console
+		console.log("Notice........", error);
+	});
 }
 
 
