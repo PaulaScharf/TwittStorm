@@ -71,7 +71,7 @@ function showMap(style) {
 	let centerURL;
 	// if not yet in URL, use standard
 	if (paramArray.mapZoom == undefined) {
-		//zoomURL = 5;
+		//get value from config.yaml
 		zoomURL = paramArray.config.map.zoom;
 		// otherwise use value from URL
 	} else {
@@ -79,7 +79,7 @@ function showMap(style) {
 	}
 	// see above
 	if (paramArray.mapCenter == undefined) {
-		//centerURL = [10.5, 51.2];
+		//get value from config.yaml
 		centerURL = paramArray.config.map.center;
 	} else {
 		centerURL = paramArray.mapCenter;
