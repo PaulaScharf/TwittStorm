@@ -28,9 +28,11 @@ let map;
 // referes to all the layers that are not defaults
 let customLayerIds = [];
 
+
+
 window.twttr = (function(d, s, id) {
 	var js, fjs = d.getElementsByTagName(s)[0],
-		t = window.twttr || {};
+	t = window.twttr || {};
 	if (d.getElementById(id)) return t;
 	js = d.createElement(s);
 	js.id = id;
@@ -45,7 +47,47 @@ window.twttr = (function(d, s, id) {
 	return t;
 }(document, "script", "twitter-wjs"));
 
+
 // ******************************** functions **********************************
+
+
+/**
+* @desc
+*
+* @author Katharina Poppinga
+* @param {} directionToPan - the direction in which the map to pan: left, right, up or down
+*/
+function panMapWithButton(directionToPan) {
+
+	// TODO: 4 pan-Buttons fehlen noch
+	
+	// TODO: so noch unsinnig, da Verschiebung um x Grad nicht abhängig von Zoomlevel ist
+
+	let center = map.getCenter();
+	let newCenter;
+
+	switch (directionToPan) {
+		case (directionToPan = "left"):
+		newCenter = [center.lng - 10, center.lat];
+		console.log(newCenter);
+		break;
+		case (directionToPan = "right"):
+		newCenter = [center.lng + 10, center.lat];
+		break;
+		case (directionToPan = "up"):
+		newCenter = [center.lng, center.lat + 10];
+		break;
+		case (directionToPan = "down"):
+		newCenter = [center.lng, center.lat - 10];
+		break;
+	}
+
+	map.panTo(newCenter);
+
+	// map.panBy();
+}
+
+
 
 /**
 * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
@@ -108,8 +150,6 @@ function showMap(style) {
 	// add zoom and rotation controls to the map
 	map.addControl(new mapboxgl.NavigationControl());
 
-	// TODO: pan-Button fehlt noch
-
 
 	// ************************ adding boundary of Germany *************************
 	// TODO: evtl. in eigene Funktion auslagern, der Übersicht halber
@@ -148,16 +188,16 @@ function showMap(style) {
 			e.preventDefault();
 			e.stopPropagation();
 
-		var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+			var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
 
-		if (visibility === 'visible') {
-			map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-			this.className = '';
-		}
-		else {
-			this.className = 'active';
-			map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-		}
+			if (visibility === 'visible') {
+				map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+				this.className = '';
+			}
+			else {
+				this.className = 'active';
+				map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+			}
 		};
 
 		var layers = document.getElementById('productMenu');
@@ -195,7 +235,7 @@ function showMap(style) {
 		// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
 		window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
 
-// TODO: beim setInterval Unwetter-Request werden nicht alle timestamps geupdated !!! (beim Seite manuell neu laden schon?)
+		// TODO: beim setInterval Unwetter-Request werden nicht alle timestamps geupdated !!! (beim Seite manuell neu laden schon?)
 
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -299,7 +339,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 		"properties.expires": '{"$gt":  ' + currentTimestamp + '}'
 	};
 
-//
+	//
 	promiseToGetItems(query, "all current Unwetter")
 	.catch(function(error) {
 		reject(error)
@@ -381,22 +421,66 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 				displayEvent(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
 			}
 
-			// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST
-			//
-			checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
-			.catch(console.error)
-			.then(function(result){
-				if (!result) {
-					retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
-				}
-			})
+
+
+			// *************** legend ***************
+
+			// https://docs.mapbox.com/mapbox-gl-js/example/updating-choropleth/
+
+			// https://medium.com/@krishnaglodha/add-legends-in-mapbox-gl-js-dynamically-3782d6f5d74
+
+
+			/*
+			var colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'];
+
+
+
+			let l;
+			for (l = 0; l < customLayerIds.length; i++) {
+			let layerID = customLayerIds[l];
+			let color = colors[l];
+			let item = document.createElement('div');
+			let key = document.createElement('span');
+			key.className = 'legend-key';
+			key.style.backgroundColor = colors[2];
+
+			let value = document.createElement('span');
+			value.innerHTML = layerID;
+			item.appendChild(key);
+			item.appendChild(value);
+			legend.appendChild(item);
 		}
 
-	},function (xhr, status, error) {
+		*/
 
-		// ... give a notice that the ....... has failed and show the error on the console
-		console.log("Notice........", error);
-	});
+		// ***************************************
+
+
+
+
+
+
+
+
+
+
+
+		// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST
+		//
+		checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
+		.catch(console.error)
+		.then(function(result){
+			if (!result) {
+				retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
+			}
+		})
+	}
+
+},function (xhr, status, error) {
+
+	// ... give a notice that the ....... has failed and show the error on the console
+	console.log("Notice........", error);
+});
 }
 
 
@@ -799,9 +883,9 @@ function showTweetPopup(map, e) {
 		let idAsString = JSON.stringify(pickedTweet[0].properties.id);
 		// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
 		new mapboxgl.Popup()
-			.setLngLat(e.lngLat)
-			.setHTML("<div id='" + idAsString + "'></div>")
-			.addTo(map);
+		.setLngLat(e.lngLat)
+		.setHTML("<div id='" + idAsString + "'></div>")
+		.addTo(map);
 		twttr.widgets.createTweet(
 			idAsString,
 			document.getElementById(idAsString),
@@ -1098,10 +1182,10 @@ function forEachLayer(cb) {
 
 
 $(function () {
-    //var $lists = $('.list-group li').click(function(e) {
+	//var $lists = $('.list-group li').click(function(e) {
 
-    $(".selector").click(function () {
-        $(this).toggleClass("active");
-    });
+		$(".selector").click(function () {
+			$(this).toggleClass("active");
+		});
 	})
-*/
+	*/
