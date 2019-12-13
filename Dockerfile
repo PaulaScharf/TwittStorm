@@ -7,7 +7,17 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # install dependencies
-RUN apt-get update && apt-get remove -y python && apt-get install -y python3 gdal-bin python-gdal python3-gdal libgdal-dev libgdal20 r-base
+RUN apt-get update && apt-get remove -y python && apt-get install -y python3 gdal-bin python-gdal python3-gdal libgdal-dev libgdal20
+
+# install current R
+RUN apt-get install -y software-properties-common
+RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
+# one the both following lines work
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
+RUN gpg --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
+RUN add-apt-repository 'deb http://cloud.r-project.org/bin/linux/debian stretch-cran35/'
+RUN apt update
+RUN apt-get install -y r-base
 
 # install dependencies
 RUN cp /usr/bin/python3 /usr/bin/python
