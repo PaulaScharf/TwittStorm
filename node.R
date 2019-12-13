@@ -1,7 +1,10 @@
 needs(dplyr)
 needs(rdwd)
+needs(dwdradar)
+needs(sp)
 needs(raster)
 needs(rgdal)
+needs(RCurl)
 
 # TODO implement choosing the radar option depending on input
 attach(input[[1]])
