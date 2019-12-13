@@ -15,7 +15,7 @@
 * @param {object} twitterSearchQuery
 * @param {string} unwetterID
 * @param {string} unwetterEvent
-* @param unwetter_geometry
+* @param currentTime
 * @returns {Promise<any>}
 */
 function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEvent, currentTime) {
@@ -75,7 +75,12 @@ function saveNewTweetsThroughSearch(twitterSearchQuery, unwetterID, unwetterEven
 							let polygon = turf.polygon(arrayOfPolygons);
 							for (let i = response.statuses.length - 1; i >= 0; i--) {
 								let currentFeature = response.statuses[i];
-								if (currentFeature.coordinates) {
+								let max_age = 0;
+								if (paramArray.config.max_age_tweets !== null) {
+									max_age = currentTime - (paramArray.config.max_age_tweets * 60000);
+								}
+								let age_tweet = Date.parse(currentFeature.created_at);
+								if (currentFeature.coordinates && age_tweet >= max_age) {
 									let tweetLocation = turf.point(currentFeature.coordinates.coordinates);
 									if (turf.booleanPointInPolygon(tweetLocation, polygon)) {
 										let currentStatus = {

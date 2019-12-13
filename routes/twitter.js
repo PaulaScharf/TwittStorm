@@ -40,7 +40,6 @@ router.post("/search", (req, res) => {
 			// send the result to the ajax request
 			res.json(JSON.parse(response.body));
 		} else {
-			console.dir(error);
 			res.json(error);
 		}
 	});
