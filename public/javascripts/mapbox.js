@@ -8,7 +8,6 @@
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 */
 
-// please define your own tokens at tokens.js
 
 // TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
 

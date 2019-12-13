@@ -19,7 +19,6 @@ var router = express.Router();
 // yaml configuration
 const fs = require('fs');
 const yaml = require('js-yaml');
-const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 /* GET home page.*/
 router.get('/', function(req, res, next) {
@@ -34,7 +33,7 @@ router.get('/', function(req, res, next) {
     "base": req.query.base,
     "mapZoom": req.query.mapZoom,
     "mapCenter": req.query.mapCenter,
-    "config": config
+    "config": yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'))
   };
 
   res.render('index', {
@@ -53,9 +52,12 @@ router.get('/help', function(req, res, next) {
   res.render('help', { title: 'User Documentation'});
 });
 
-/* GET map site */
-router.get('/mapbox', function(req, res, next) {
-  res.render('mapbox', { title: 'Mapbox'});
+/* GET mongo site */
+router.get('/config', function(req, res, next) {
+  res.render('config', {
+    title: 'Configuration',
+    config: yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'))
+  });
 });
 
 /* GET mongo site */

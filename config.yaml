@@ -18,6 +18,8 @@ map:
 refresh_rate: 300000
 # how far back timestamps are being recorded for unwetters in milliseconds
 max_difference_timestamp: 3000000
+# how far back tweets are being searched for in minutes
+max_age_tweets: null
 
 # keys ----------------------------------------------
 keys:

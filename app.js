@@ -42,6 +42,7 @@ var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/database');
 var twitterRouter = require('./routes/twitter');
 var rasterRouter = require('./routes/raster');
+var configRouter = require('./routes/configuration');
 
 
 var app = express();
@@ -183,6 +184,8 @@ app.use('/db', dbRouter);
 app.use('/twitter', twitterRouter);
 //
 app.use('/raster', rasterRouter);
+//
+app.use('/config', configRouter);
 
 
 

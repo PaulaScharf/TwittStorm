@@ -1,0 +1,45 @@
+<!-- Project: TwittStorm, Geosoftware 2, WiSe 2019/2020 -->
+<!-- Authors: Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/project.css">
+</head>
+
+<body>
+
+<!-- navbar -->
+<%- include('partial/navbar', {active: "config"}); %>
+
+<main>
+    <div class="wrapper">
+        <div class="d-flex justify-content-center">
+            <div class="col-med-6 center">
+                <h2 align="center">Configuration</h2>
+                <form action="config/update" method="POST" name="updateForm" id="updateForm">
+                    <p>default map location:</p>
+                    <textarea type="text" name="map.center" style="height:30px"><%- JSON.stringify(config.map.center) %></textarea><br><br>
+                    <p>default map zoom:</p>
+                    <textarea type="text" name="map.zoom" style="height:30px;"><%- JSON.stringify(config.map.zoom) %></textarea><br><br>
+                    <p>haw far back tweets are being searched from now</p>
+                    <p>(if you put in null the tweets will be less than two weeks old)</p>
+                    <textarea type="text" name="max_age_tweets" style="height:30px;"><%- JSON.stringify(config.max_age_tweets) %></textarea><br>
+                    <input type="submit" value="update configuration" id="submitbutton"/>
+                </form>
+            </div>
+        </div>
+        <div class="push"></div>
+    </div>
+</main>
+
+<!-- footer -->
+<%- include('partial/footer'); %>
+
+</body>
+</html>
