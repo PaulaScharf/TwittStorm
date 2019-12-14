@@ -400,41 +400,6 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 			}
 
 
-
-			// ******************************** legend ********************************
-
-			// https://docs.mapbox.com/mapbox-gl-js/example/updating-choropleth/
-
-			// https://medium.com/@krishnaglodha/add-legends-in-mapbox-gl-js-dynamically-3782d6f5d74
-
-			/*
-
-			let colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'];
-
-			let allCurrentLayers = map.getStyle().layers;
-
-			let l;
-			for (l = 0; l < customLayerIds.length; l++) {
-			let layerID = customLayerIds[l];
-			let color = colors[0];
-			let item = document.createElement('div');
-			let key = document.createElement('span');
-			key.className = 'legend-key';
-			key.style.backgroundColor = colors[2];
-
-			let value = document.createElement('span');
-			value.innerHTML = layerID;
-			item.appendChild(key);
-			item.appendChild(value);
-			legend.appendChild(item);
-		}
-		*/
-
-
-
-		// *************************************************************************
-
-
 		// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST
 		//
 		checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
