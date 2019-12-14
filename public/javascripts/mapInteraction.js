@@ -15,15 +15,110 @@
 // TODO: JSDoc für globale Variablen
 
 
-// TODO: zu globalen Variablen schreiben:
-// Takes the map styles from the selection on the index page
-var layerList = document.getElementById('styleMenu');
-var inputs = layerList.getElementsByTagName('input');
-
-
 
 
 // ******************************** functions **********************************
+
+// TODO: classes übergeben und verwenden bei radar!!
+/**
+* @desc
+*
+*
+* @author Katharina Poppinga
+* @private
+* @param {mapbox-map} map - mapbox-map for and in which to display the legend
+* @param {String} typeOfLegend - unwetter or radar
+* @param {Array} classes - just needed for radar, not used for unwetter
+*/
+function showLegend(map, typeOfLegend, classes) {
+
+	let values = [];
+	let colors = [];
+	let paraTypeOfLegend = document.getElementById("typeOfLegend");
+	let dataSource = document.getElementById("dataSource");
+	let timestampLastRequest = document.getElementById("timestampLastRequest");
+	let refreshRate = document.getElementById("refreshRate");
+	let posAccuracy = document.getElementById("posAccuracy");
+
+
+	// legend for Unwetter
+	if (typeOfLegend === "unwetter") {
+
+		// set titel of legend
+		paraTypeOfLegend.innerHTML = "<b>Severe weather</b>";
+
+		// TODO: BESSER MACHEN, INFOS DIREKT AUS LAYERN NEHMEN?? NICHT DIREKT MÖGLICH, DA JEDER TYPE VIELE LAYER HAT
+		//let allCurrentLayers = map.getStyle().layers;
+		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
+		// TODO: an endgültige Farben und feinere Farbabstufungen anpassen
+		values = ["Rain", "Snowfall", "Thunderstorm", "Black ice", "Other"]
+		colors = ["blue", "yellow", "red", "white", "grey"];
+	}
+
+	// legend for rain radar
+	if (typeOfLegend === "radar") {
+
+		// set titel of legend
+		paraTypeOfLegend.innerHTML = "<b>Depth of precipitation</b>";
+
+		let productType = document.createElement("p"); // create a html-paragraph
+		productType.id = "productType"; // set ID of the html-paragraph
+		productType.innerHTML = "TODO: Rain radar product type: " + paramArray.radProd;
+		paraTypeOfLegend.appendChild(productType);
+
+
+		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
+
+
+		// TODO: KLASSEN DIREKT AUS JSON AUS DB NEHMEN
+		// Beispiel für SF
+		let classes = [[0,0.01,1],[0.01,0.034,2],[0.034,0.166,3],[0.166,10000,4]];
+
+		//values = ["0 to 0.01", "0.01 to 0.034", "0.034 to 0.166", "0.166 to 10000"];
+
+		// TODO: letzte werte zu kleinerer oder größerer klasse gehörig?
+		values = [(classes[0][0] + " mm to " + classes[0][1] + " mm"), (classes[1][0] + " mm to " + classes[1][1] + " mm"), (classes[2][0] + " mm to " + classes[2][1] + " mm"), (classes[3][0] + " mm to " + classes[3][1] + " mm")];
+		colors = ["#b3cde0", "#6497b1", "#03396c", "#011f4b"];
+	}
+
+
+	let l;
+	// for-loop over every element-pair (value and color) for the legend
+	for (l = 0; l < values.length; l++) {
+		let item = document.createElement('div');
+
+		let colorKey = document.createElement('span');
+		colorKey.className = 'colorKey';
+		colorKey.style.backgroundColor = colors[l];
+
+		let value = document.createElement('span');
+		value.innerHTML = values[l];
+
+		item.appendChild(colorKey);
+		item.appendChild(value);
+		legend.appendChild(item);
+	}
+
+	//
+	dataSource.innerHTML = "<b>data source:</b><br>Deutscher Wetterdienst<br>(evtl. Logo einfügen)";
+	timestampLastRequest.innerHTML = "<b>timestamp of last request:</b><br>";
+	let refreshRateValue = paramArray.config.refresh_rate;
+	refreshRate.innerHTML = "<b>refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
+	posAccuracy.innerHTML = "<b>positional accuracy of data:</b><br>TODO!";
+}
+
+
+
+/**
+* https://stackoverflow.com/questions/21294302/converting-milliseconds-to-minutes-and-seconds-with-javascript
+*/
+function msToMin(ms) {
+	var min = Math.floor(ms / 60000);
+	var sec = ((ms % 60000) / 1000).toFixed(0);
+	return min + ":" + (sec < 10 ? '0' : '') + sec;
+}
+
+
 
 /**
 * @desc
@@ -43,7 +138,6 @@ function panMapWithButton(directionToPan) {
 	switch (directionToPan) {
 		case (directionToPan = "left"):
 		newCenter = [center.lng - 10, center.lat];
-		console.log(newCenter);
 		break;
 		case (directionToPan = "right"):
 		newCenter = [center.lng + 10, center.lat];
@@ -156,7 +250,6 @@ function addLayerToMenu(layerID) {
 */
 function openMenu(button, menu) {
 
-	// TODO: warum wird hier button neu definiert?
 	button = document.getElementById(menu.id);
 	if (button.style.display === "none") {
 		button.style.display = "block";
@@ -164,6 +257,8 @@ function openMenu(button, menu) {
 		button.style.display = "none";
 	}
 }
+
+
 /**
 * @desc Closes all open submenus on click
 * @author Benjamin Rieke
@@ -178,7 +273,6 @@ function closeAllMenus() {
 		innerUnwetterMenuToggle.style.display = "none"
 	};
 }
-
 
 
 
@@ -216,11 +310,23 @@ function switchLayer(layer) {
 
 
 
-// TODO: folgendes in eine Funktion schreiben:
-for (var i = 0; i < inputs.length; i++) {
-	inputs[i].onclick = switchLayer;
-}
+// TODO: folgende Funktion sinnvoll benennen
+/**
+*
+*
+* @author Benjamin Rieke
+*/
+function nameFinden(){
 
+	// Takes the map styles from the selection on the index page
+	let layerList = document.getElementById('styleMenu');
+	let inputs = layerList.getElementsByTagName('input');
+
+
+	for (var i = 0; i < inputs.length; i++) {
+		inputs[i].onclick = switchLayer;
+	}
+}
 
 
 
@@ -229,53 +335,51 @@ for (var i = 0; i < inputs.length; i++) {
 * Changes the style of a menu selector to active on click
 * @author Benjamon Rieke
 */
-
 $(function () {
-    //var $lists = $('.list-group li').click(function(e) {
+	//var $lists = $('.list-group li').click(function(e) {
 
-    $(".selector").click(function () {
-        $(this).toggleClass("active");
-    });
-		})
+	$(".selector").click(function () {
+		$(this).toggleClass("active");
+	});
+});
 
 
-	/**
-	* Loads the chosen radar product, updates the url, and hides previous selected layers
-	* @author Benjamin Rieke
-	* @param product -The desired radar product. CHeck the github wiki for further informations
-	*/
-
+/**
+* Loads the chosen radar product, updates the url, and hides previous selected layers
+* @author Benjamin Rieke
+* @param product -The desired radar product. CHeck the github wiki for further informations
+*/
 function loadRaster(product){
 
 	console.log("Loading your requested radar product");
 	updateURL('wtype', 'radar');
 	updateURL('radProd', product);
 
-if (map.style.sourceCaches.rainRadar == undefined){
+	if (map.style.sourceCaches.rainRadar == undefined){
 
-	requestAndDisplayAllRainRadar(map, product, "dwd");
+		requestAndDisplayAllRainRadar(map, product, "dwd");
 	}
-else {
-	map.removeLayer('rainRadar')
-	map.removeSource('rainRadar')
+	else {
+		map.removeLayer('rainRadar')
+		map.removeSource('rainRadar')
 
-	requestAndDisplayAllRainRadar(map, product, "dwd");
+		requestAndDisplayAllRainRadar(map, product, "dwd");
 	};
 }
+
 
 /**
 * Hides the Unwetter polygons
 * @author Benjamin Rieke
 */
-
 function hideUnwetter(){
 
 	map.style._order.forEach(function(layer) {
 		let mapLayer = layer;
 
-if (mapLayer.includes("Unwetter other") ) {
-		map.setLayoutProperty(layer, 'visibility', 'none');
-		console.log("hid one unwetter polygon");
+		if (mapLayer.includes("Unwetter other") ) {
+			map.setLayoutProperty(layer, 'visibility', 'none');
+			console.log("hid one unwetter polygon");
 		}
 	});
 
@@ -290,37 +394,36 @@ if (mapLayer.includes("Unwetter other") ) {
 * Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
 * @author Benjamin Rieke
 */
-
 function loadSevereWeather(){
 	// update the url
-		updateURL('wtype', 'unwetter');
-		updateURL('radProd', '');
+	updateURL('wtype', 'unwetter');
+	updateURL('radProd', '');
 	// if no rainradar is displayed simply show polygons
-		if (map.style.sourceCaches.rainRadar == undefined){
+	if (map.style.sourceCaches.rainRadar == undefined){
 		requestNewAndDisplayCurrentUnwetters(map);
-		}
+	}
 	// if not remove them first
-		else {
-			map.removeLayer('rainRadar')
-			map.removeSource('rainRadar')
-			requestNewAndDisplayCurrentUnwetters(map);
-			};
+	else {
+		map.removeLayer('rainRadar')
+		map.removeSource('rainRadar')
+		requestNewAndDisplayCurrentUnwetters(map);
+	};
 
-			map.style._order.forEach(function(layer) {
-				let mapLayer = layer;
+	map.style._order.forEach(function(layer) {
+		let mapLayer = layer;
 
 		if (mapLayer.includes("Unwetter other") ) {
-				map.setLayoutProperty(layer, 'visibility', 'visible');
-				console.log("hid one unwetter polygon");
-				}
-			});
+			map.setLayoutProperty(layer, 'visibility', 'visible');
+			console.log("hid one unwetter polygon");
+		}
+	});
 
-			var rasterMenuToggle = document.getElementById('raster');
-			rasterMenuToggle.classList.remove("active");
-				var innerRasterMenuToggle = document.getElementById('rasterMenu');
-				innerRasterMenuToggle.style.display = "none";
+	var rasterMenuToggle = document.getElementById('raster');
+	rasterMenuToggle.classList.remove("active");
+	var innerRasterMenuToggle = document.getElementById('rasterMenu');
+	innerRasterMenuToggle.style.display = "none";
 
-	}
+}
 
 
 

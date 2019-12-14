@@ -20,7 +20,7 @@ function updateURL(param, newString) {
 	// index of parameter desc
 	let index = url.search(param);
  	// if param is found, change it
-	if(index > 0) {
+	if (index > 0) {
 		// slice the complete part of url to the right
 		let right = url.slice(index, url.length);
 		// also get the left parameter
@@ -28,7 +28,7 @@ function updateURL(param, newString) {
 		// search for "&"
 		let andIndex = right.search("&");
 		// if & is found, param lies in the middle
-		if(andIndex >= 0) {
+		if (andIndex >= 0) {
 			// adjust the right part
 			right = right.slice(andIndex, url.length);
 			// put things together
@@ -45,7 +45,7 @@ function updateURL(param, newString) {
 	}
 
 	// if "?" is not found
-	if(indexOfPath < 0) {
+	if (indexOfPath < 0) {
 		// override newURL with "?" + the new param + description
 		newURL = "?".concat(param, "=", newString);
 	}

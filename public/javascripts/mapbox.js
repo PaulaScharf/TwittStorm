@@ -69,6 +69,11 @@ function showMap(style) {
 		layers.removeChild(layers.firstChild);
 	}
 
+
+	// TODO: folgende Funktion sinnvoll benennen (steht in mapInteraction.js)
+	nameFinden();
+
+
 	// declare var
 	let zoomURL;
 	let centerURL;
@@ -176,6 +181,10 @@ function showMap(style) {
 
 		// Rain Radar Data
 		if (paramArray.wtype == "radar") {
+
+			// TODO: für legende schon JSON-antwort aus DB mit radardaten nötig, um class-werte in legende einzutragen
+			showLegend(map, "radar");	// TODO: hier muss classBorders.classes mit übergeben werden
+
 			if(paramArray.rasterClassification == undefined) {
 				paramArray.rasterClassification = 'dwd';
 			}
@@ -186,24 +195,18 @@ function showMap(style) {
 			}
 		}
 
-		if (paramArray.wtype === "unwetter") {
+
+		// 2.oder-fall (undefined): to be able to still use localhost:3000/ TODO: später löschen oder als default lassen?)
+		if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
+
+			showLegend(map, "unwetter");
+
 			requestNewAndDisplayCurrentUnwetters(map);
 			// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
 			window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
 		}
-		// to be able to still use localhost:3000/
-		// TODO: später löschen? oder als default lassen? dann in andere vorherige if integrieren
-		if (paramArray.wtype === undefined) {
-			requestNewAndDisplayCurrentUnwetters(map);
-			// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
-			window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
-		}
 
 
-		// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
-		window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
-
-		// TODO: beim setInterval Unwetter-Request werden nicht alle timestamps geupdated !!! (beim Seite manuell neu laden schon?)
 
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -283,6 +286,12 @@ function requestNewAndDisplayCurrentUnwetters(map){
 
 		//
 		displayCurrentUnwetters(map, currentTimestamp);
+
+		// display the timestamp of the last request in the legend
+		let splittedTimestamp = Date(currentTimestamp).split("(");
+		let formattedTimestamp = splittedTimestamp[0];
+		let timestampLastRequest = document.getElementById("timestampLastRequest");
+		timestampLastRequest.innerHTML = "<b>timestamp of last request:</b><br>" + formattedTimestamp;
 
 	}, function(err) {
 		console.log(err);
@@ -397,6 +406,30 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 			// https://docs.mapbox.com/mapbox-gl-js/example/updating-choropleth/
 
 			// https://medium.com/@krishnaglodha/add-legends-in-mapbox-gl-js-dynamically-3782d6f5d74
+
+			/*
+
+			let colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'];
+
+			let allCurrentLayers = map.getStyle().layers;
+
+			let l;
+			for (l = 0; l < customLayerIds.length; l++) {
+			let layerID = customLayerIds[l];
+			let color = colors[0];
+			let item = document.createElement('div');
+			let key = document.createElement('span');
+			key.className = 'legend-key';
+			key.style.backgroundColor = colors[2];
+
+			let value = document.createElement('span');
+			value.innerHTML = layerID;
+			item.appendChild(key);
+			item.appendChild(value);
+			legend.appendChild(item);
+		}
+		*/
+
 
 
 		// *************************************************************************
