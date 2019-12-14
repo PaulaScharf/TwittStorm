@@ -400,22 +400,22 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 			}
 
 
-		// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST
-		//
-		checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
-		.catch(console.error)
-		.then(function(result){
-			if (!result) {
-				retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
-			}
-		})
-	}
+			// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST UND DAMIT EVTL. ZEIT GESPART WIRD?
+			//
+			checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
+			.catch(console.error)
+			.then(function(result){
+				if (!result) {
+					retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
+				}
+			})
+		}
 
-},function (xhr, status, error) {
+	},function (xhr, status, error) {
 
-	// ... give a notice that the ....... has failed and show the error on the console
-	console.log("Notice........", error);
-});
+		// ... give a notice that the ....... has failed and show the error on the console
+		console.log("Notice........", error);
+	});
 }
 
 
@@ -479,7 +479,7 @@ function displayEvent(map, layerID, eventFeatureCollection) {
 						"match", ["string", ["get", "event"]],
 						"FROST",
 						"grey",
-						"GLÄTTE",
+						"GLÄTTE",						// TODO: Farbe weiß sieht man auf der Straßenkarte mit solch geringer opacity nicht!!
 						"white",
 						"GLATTEIS",
 						"white",

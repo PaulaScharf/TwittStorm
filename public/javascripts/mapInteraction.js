@@ -128,8 +128,6 @@ function msToMin(ms) {
 */
 function panMapWithButton(directionToPan) {
 
-	// TODO: 4 pan-Buttons fehlen noch
-
 	// TODO: so noch unsinnig, da Verschiebung um x Grad nicht abhängig von Zoomlevel ist
 
 	let center = map.getCenter();
@@ -137,21 +135,20 @@ function panMapWithButton(directionToPan) {
 
 	switch (directionToPan) {
 		case (directionToPan = "left"):
-		newCenter = [center.lng - 10, center.lat];
+		newCenter = [center.lng - 1, center.lat];
 		break;
 		case (directionToPan = "right"):
-		newCenter = [center.lng + 10, center.lat];
+		newCenter = [center.lng + 1, center.lat];
 		break;
 		case (directionToPan = "up"):
-		newCenter = [center.lng, center.lat + 10];
+		newCenter = [center.lng, center.lat + 1];
 		break;
 		case (directionToPan = "down"):
-		newCenter = [center.lng, center.lat - 10];
+		newCenter = [center.lng, center.lat - 1];
 		break;
 	}
 
 	map.panTo(newCenter);
-
 	// map.panBy();
 }
 
@@ -429,107 +426,107 @@ function loadSevereWeather(){
 
 // ********************************** POP-UPS **********************************
 
-  /**
-  * This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
-  * @author Katharina Poppinga
-  * @param {String} layerID - ID of a layer
-  */
-  function makeLayerInteractive(layerID) {
+/**
+* This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
+* @author Katharina Poppinga
+* @param {String} layerID - ID of a layer
+*/
+function makeLayerInteractive(layerID) {
 
-  	// ************************ changing of curser style ***********************
-  	// https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
-  	// if hovering the layer, change the cursor to a pointer
-  	map.on('mouseenter', layerID, function () {
-  		map.getCanvas().style.cursor = 'pointer';
-  	});
-  	// if leaving the layer, change the cursor back to a hand
-  	map.on('mouseleave', layerID, function () {
-  		map.getCanvas().style.cursor = '';
-  	});
+	// ************************ changing of curser style ***********************
+	// https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
+	// if hovering the layer, change the cursor to a pointer
+	map.on('mouseenter', layerID, function () {
+		map.getCanvas().style.cursor = 'pointer';
+	});
+	// if leaving the layer, change the cursor back to a hand
+	map.on('mouseleave', layerID, function () {
+		map.getCanvas().style.cursor = '';
+	});
 
-  	// ************************ showing popups on click ************************
-  	// TODO: Problem: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
-  	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
-  	map.on('click', layerID, function (e) {
-  		if (layerID.includes("Tweet")) {
-  			showTweetPopup(map,e);
-  		} else {
-  			showUnwetterPopup(map,e);
-  		}
-  	});
-  }
-
-
-  // TODO: Popups scrollbar machen oder enthaltenen Text kürzen??
-
-  /**
-  * @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
-  * The popup gives information about the period of validity and a description of the warning.
-  * @author Katharina Poppinga
-  * @private
-  * @param {mapbox-map} map map in which the Unwetter-features are in
-  * @param {Object} e ...
-  */
-  function showUnwetterPopup(map, e) {
-
-  	if (e) {
-  		// get information about the feature on which it was clicked
-  		var picked = map.queryRenderedFeatures(e.point);
-
-  		// TODO: Sommerzeit im Sommer??
-
-  		// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
-
-  		if (picked[0].source.includes("Unwetter")) {
-  			// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
-  			if (picked[0].properties.instruction !== "null") {
-  				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
-  				new mapboxgl.Popup()
-  				.setLngLat(e.lngLat)
-  				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction + "<br><b>mapSource: </b>" + picked[0].source)
-  				.addTo(map);
-  			}
-  			// if a instruction is not given by the DWD ...
-  			else {
-  				// ... create a popup with above information without an instruction
-  				new mapboxgl.Popup()
-  				.setLngLat(e.lngLat)
-  				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br><b>mapSource: </b>" + picked[0].source)
-  				.addTo(map);
-  			}
-  		}
-  	}
-  }
+	// ************************ showing popups on click ************************
+	// TODO: Problem: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
+	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
+	map.on('click', layerID, function (e) {
+		if (layerID.includes("Tweet")) {
+			showTweetPopup(map,e);
+		} else {
+			showUnwetterPopup(map,e);
+		}
+	});
+}
 
 
-  /**
-  * @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
-  * The popup gives information about the author, the message content and time of creation
-  * @author Paula Scharf
-  * @private
-  * @param {mapbox-map} map map in which the Unwetter-features are in
-  * @param {Object} e ...
-  */
-  function showTweetPopup(map, e) {
-  	// get information about the feature on which it was clicked
-  	var pickedTweet = map.queryRenderedFeatures(e.point);
+// TODO: Popups scrollbar machen oder enthaltenen Text kürzen??
 
-  	if (pickedTweet[0].source.includes("Tweet")) {
-  		let idAsString = pickedTweet[0].properties.idstr;
-  		// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
-  		new mapboxgl.Popup()
-  		.setLngLat(e.lngLat)
-  		.setHTML("<div id='" + idAsString + "'></div>")
-  		.addTo(map);
-  		twttr.widgets.createTweet(
-  			idAsString,
-  			document.getElementById(idAsString),
-  			{
-  				width: 1000,
-  				dnt: true
-  			}
-  		);
-  	}
-  }
+/**
+* @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
+* The popup gives information about the period of validity and a description of the warning.
+* @author Katharina Poppinga
+* @private
+* @param {mapbox-map} map map in which the Unwetter-features are in
+* @param {Object} e ...
+*/
+function showUnwetterPopup(map, e) {
+
+	if (e) {
+		// get information about the feature on which it was clicked
+		var picked = map.queryRenderedFeatures(e.point);
+
+		// TODO: Sommerzeit im Sommer??
+
+		// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
+
+		if (picked[0].source.includes("Unwetter")) {
+			// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
+			if (picked[0].properties.instruction !== "null") {
+				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
+				new mapboxgl.Popup()
+				.setLngLat(e.lngLat)
+				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction + "<br><b>mapSource: </b>" + picked[0].source)
+				.addTo(map);
+			}
+			// if a instruction is not given by the DWD ...
+			else {
+				// ... create a popup with above information without an instruction
+				new mapboxgl.Popup()
+				.setLngLat(e.lngLat)
+				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br><b>mapSource: </b>" + picked[0].source)
+				.addTo(map);
+			}
+		}
+	}
+}
+
+
+/**
+* @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
+* The popup gives information about the author, the message content and time of creation
+* @author Paula Scharf
+* @private
+* @param {mapbox-map} map map in which the Unwetter-features are in
+* @param {Object} e ...
+*/
+function showTweetPopup(map, e) {
+	// get information about the feature on which it was clicked
+	var pickedTweet = map.queryRenderedFeatures(e.point);
+
+	if (pickedTweet[0].source.includes("Tweet")) {
+		let idAsString = pickedTweet[0].properties.idstr;
+		// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
+		new mapboxgl.Popup()
+		.setLngLat(e.lngLat)
+		.setHTML("<div id='" + idAsString + "'></div>")
+		.addTo(map);
+		twttr.widgets.createTweet(
+			idAsString,
+			document.getElementById(idAsString),
+			{
+				width: 1000,
+				dnt: true
+			}
+		);
+	}
+}
 
 // *****************************************************************************
