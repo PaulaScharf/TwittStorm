@@ -71,8 +71,8 @@ function showMap(style) {
 	}
 
 
-// TODO: folgende Funktion sinnvoll benennen (steht in mapInteraction.js)
-nameFinden();
+	// TODO: folgende Funktion sinnvoll benennen (steht in mapInteraction.js)
+	nameFinden();
 
 
 	// declare var
@@ -183,7 +183,8 @@ nameFinden();
 		// Rain Radar Data
 		if (paramArray.wtype == "radar") {
 
-			showLegend(map, "radar");
+			// TODO: für legende schon JSON-antwort aus DB mit radardaten nötig, um class-werte in legende einzutragen
+			showLegend(map, "radar");	// TODO: hier muss classBorders.classes mit übergeben werden
 
 			if(paramArray.rasterClassification == undefined) {
 				paramArray.rasterClassification = 'dwd';
@@ -286,6 +287,12 @@ function requestNewAndDisplayCurrentUnwetters(map){
 
 		//
 		displayCurrentUnwetters(map, currentTimestamp);
+
+		// display the timestamp of the last request in the legend
+		let splittedTimestamp = Date(currentTimestamp).split("(");
+		let formattedTimestamp = splittedTimestamp[0];
+		let timestampLastRequest = document.getElementById("timestampLastRequest");
+		timestampLastRequest.innerHTML = "<b>timestamp of last request:</b><br>" + formattedTimestamp;
 
 	}, function(err) {
 		console.log(err);
@@ -401,14 +408,14 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 			// https://medium.com/@krishnaglodha/add-legends-in-mapbox-gl-js-dynamically-3782d6f5d74
 
-/*
+			/*
 
 			let colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'];
 
 			let allCurrentLayers = map.getStyle().layers;
 
 			let l;
-				for (l = 0; l < customLayerIds.length; l++) {
+			for (l = 0; l < customLayerIds.length; l++) {
 			let layerID = customLayerIds[l];
 			let color = colors[0];
 			let item = document.createElement('div');
@@ -421,30 +428,30 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 			item.appendChild(key);
 			item.appendChild(value);
 			legend.appendChild(item);
-				}
-*/
-
-
-
-			// *************************************************************************
-
-
-			// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST
-			//
-			checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
-			.catch(console.error)
-			.then(function(result){
-				if (!result) {
-					retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
-				}
-			})
 		}
+		*/
 
-	},function (xhr, status, error) {
 
-		// ... give a notice that the ....... has failed and show the error on the console
-		console.log("Notice........", error);
-	});
+
+		// *************************************************************************
+
+
+		// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST
+		//
+		checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
+		.catch(console.error)
+		.then(function(result){
+			if (!result) {
+				retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
+			}
+		})
+	}
+
+},function (xhr, status, error) {
+
+	// ... give a notice that the ....... has failed and show the error on the console
+	console.log("Notice........", error);
+});
 }
 
 

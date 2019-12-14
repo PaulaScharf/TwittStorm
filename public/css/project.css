@@ -261,6 +261,16 @@
   padding: 10px;
 }
 
+#typeOfLegend {
+  font-size:16px;
+  text-align: center;
+}
+
+#productType {
+  font-size:14px;
+  text-align: left;
+}
+
 #legend {
   line-height: 25px;
 }

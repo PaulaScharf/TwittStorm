@@ -19,6 +19,7 @@
 
 // ******************************** functions **********************************
 
+// TODO: classes übergeben und verwenden bei radar!!
 /**
 * @desc
 *
@@ -27,48 +28,63 @@
 * @private
 * @param {mapbox-map} map - mapbox-map for and in which to display the legend
 * @param {String} typeOfLegend - unwetter or radar
+* @param {Array} classes - just needed for radar, not used for unwetter
 */
-function showLegend(map, typeOfLegend) {
+function showLegend(map, typeOfLegend, classes) {
 
-	let type;
-	let colors;
-	let metadata = document.getElementById("metadata");
+	let values = [];
+	let colors = [];
+	let paraTypeOfLegend = document.getElementById("typeOfLegend");
+	let dataSource = document.getElementById("dataSource");
+	let timestampLastRequest = document.getElementById("timestampLastRequest");
+	let refreshRate = document.getElementById("refreshRate");
+	let posAccuracy = document.getElementById("posAccuracy");
+
 
 	// legend for Unwetter
 	if (typeOfLegend === "unwetter") {
 
 		// set titel of legend
-		document.getElementById("typeOfLegend").innerHTML = "<b>Severe weather</b>";
+		paraTypeOfLegend.innerHTML = "<b>Severe weather</b>";
 
 		// TODO: BESSER MACHEN, INFOS DIREKT AUS LAYERN NEHMEN?? NICHT DIREKT MÖGLICH, DA JEDER TYPE VIELE LAYER HAT
-				//let allCurrentLayers = map.getStyle().layers;
+		//let allCurrentLayers = map.getStyle().layers;
 		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
 		// TODO: an endgültige Farben und feinere Farbabstufungen anpassen
-		type = ["Rain", "Snowfall", "Thunderstorm", "Black ice", "Other"]
+		values = ["Rain", "Snowfall", "Thunderstorm", "Black ice", "Other"]
 		colors = ["blue", "yellow", "red", "white", "grey"];
-
-		// tell the user about metadata of shown Unwetter
-		metadata.innerHTML = "<br>currently ongoing severe weather.<br><b>TODO: Text anpassen und evtl. in separates div auslagern</b><br><b>data source:</b> Deutscher Wetterdienst (evtl. Logo einfügen)<br><b>refresh rate:</b> aus yaml-datei auslesen<br><b>timestamp of last request:</b><br><b>positional accuracy of data:</b>";
 	}
 
 	// legend for rain radar
 	if (typeOfLegend === "radar") {
+
 		// set titel of legend
-		document.getElementById("typeOfLegend").innerHTML = "<b>Depth of precipitation</b>";
+		paraTypeOfLegend.innerHTML = "<b>Depth of precipitation</b>";
 
-		// TODO: BESSER MACHEN, INFOS DIREKT AUS DB NEHMEN??
+		let productType = document.createElement("p"); // create a html-paragraph
+		productType.id = "productType"; // set ID of the html-paragraph
+		productType.innerHTML = "TODO: Rain radar product type: " + paramArray.radProd;
+		paraTypeOfLegend.appendChild(productType);
+
+
 		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
-		type = ["0 to 0.01", "0.01 to 0.034", "0.034 to 0.166", "0.166 to 10000"]; // TODO: letzte werte zu kleinerer oder größerer klasse gehörig?
-		colors = ["#b3cde0", "#6497b1", "#03396c", "#011f4b"];
 
-		// tell the user about metadata of shown Unwetter
-		metadata.innerHTML = "unit: mm<br>rain radar... product type angeben<br><b>TODO: Text anpassen und evtl. in separates div auslagern</b><br><b>data source:</b> Deutscher Wetterdienst (evtl. Logo einfügen)<br><b>refresh rate:</b> aus yaml-datei auslesen<br><b>timestamp of last request:</b><br><b>positional accuracy of data:</b>";
+
+		// TODO: KLASSEN DIREKT AUS JSON AUS DB NEHMEN
+		// Beispiel für SF
+		let classes = [[0,0.01,1],[0.01,0.034,2],[0.034,0.166,3],[0.166,10000,4]];
+
+		//values = ["0 to 0.01", "0.01 to 0.034", "0.034 to 0.166", "0.166 to 10000"];
+
+		// TODO: letzte werte zu kleinerer oder größerer klasse gehörig?
+		values = [(classes[0][0] + " mm to " + classes[0][1] + " mm"), (classes[1][0] + " mm to " + classes[1][1] + " mm"), (classes[2][0] + " mm to " + classes[2][1] + " mm"), (classes[3][0] + " mm to " + classes[3][1] + " mm")];
+		colors = ["#b3cde0", "#6497b1", "#03396c", "#011f4b"];
 	}
 
 
 	let l;
 	// for-loop over every element-pair (value and color) for the legend
-	for (l = 0; l < type.length; l++) {
+	for (l = 0; l < values.length; l++) {
 		let item = document.createElement('div');
 
 		let colorKey = document.createElement('span');
@@ -76,13 +92,30 @@ function showLegend(map, typeOfLegend) {
 		colorKey.style.backgroundColor = colors[l];
 
 		let value = document.createElement('span');
-		value.innerHTML = type[l];
+		value.innerHTML = values[l];
 
 		item.appendChild(colorKey);
 		item.appendChild(value);
 		legend.appendChild(item);
 	}
 
+	//
+	dataSource.innerHTML = "<b>data source:</b><br>Deutscher Wetterdienst<br>(evtl. Logo einfügen)";
+	timestampLastRequest.innerHTML = "<b>timestamp of last request:</b><br>";
+	let refreshRateValue = paramArray.config.refresh_rate;
+	refreshRate.innerHTML = "<b>refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
+	posAccuracy.innerHTML = "<b>positional accuracy of data:</b><br>TODO!";
+}
+
+
+
+/**
+* https://stackoverflow.com/questions/21294302/converting-milliseconds-to-minutes-and-seconds-with-javascript
+*/
+function msToMin(ms) {
+	var min = Math.floor(ms / 60000);
+	var sec = ((ms % 60000) / 1000).toFixed(0);
+	return min + ":" + (sec < 10 ? '0' : '') + sec;
 }
 
 
@@ -105,7 +138,6 @@ function panMapWithButton(directionToPan) {
 	switch (directionToPan) {
 		case (directionToPan = "left"):
 		newCenter = [center.lng - 10, center.lat];
-		console.log(newCenter);
 		break;
 		case (directionToPan = "right"):
 		newCenter = [center.lng + 10, center.lat];
