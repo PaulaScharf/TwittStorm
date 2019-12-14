@@ -124,7 +124,7 @@ function processUnwettersFromDWD(currentTimestamp) {
 
         try {
           // wait for all POSTs to the database to succeed and ...
-          promiseToPostItems(arrayOfItems, "unwetters")
+          promiseToPostItems(arrayOfItems, "Unwetters")
             .catch(console.error)
           // ... then end the function processUnwettersFromDWD to call displayCurrentUnwetters afterwards (this action is specified in requestNewAndDisplayCurrentUnwetters)
             .then(function() {

@@ -111,8 +111,9 @@ function removeOldUnwetterFromDB2(){
     console.log("AJAX request (deleting all old Unwetter) is done successfully.");
 
 
-    // TODO: bei Erstellung der Tweets deren DB-ID auch in zugehörigem Unwetter in DB speichern ??
-    // aber dann sind IDs direkt weg, wenn Unwetter gelöscht und wie zwischenspeichern?
+    // TODO: wie die zu gelöschten Unwettern zugehörigen Tweets löschen? - nicht komfortabel, da MongoDB dokumentenorientierte und nicht-relationale DB ist
+
+    // für jeden Tweet schauen, ob dessen UnwetterID noch vorhanden ist, wäre super aufwändig
 
     // after deleting old Unwetter, delete their corresponding tweets, too
     // Aufruf für jeden Tweet einzeln nötig
