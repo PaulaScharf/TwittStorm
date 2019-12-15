@@ -95,7 +95,7 @@ function removeOldUnwetterFromDB2(){
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // query
-    data: query,
+    data: JSON.stringify(query),
     // data to send to the server, send as String for independence of server-side programming language
     //data: JSON.stringify(),
     // timeout set to 10 seconds
