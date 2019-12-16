@@ -201,12 +201,33 @@ function showMap(style) {
 
 			showLegend(map, "unwetter");
 
-			requestNewAndDisplayCurrentUnwetters(map);
-			// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
-			window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
+			// the last Unwetter request was "hm"-milliseconds ago
+			let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_Unwetter_request;
+
+			// if the timestamp of the last Unwetter request is empty (no request so far) or equal to or older than "paramArray.config.refresh_rate" ...
+			if ((paramArray.config.timestamp_last_Unwetter_request == null) || (msecsToLastUnwetterRequest >= paramArray.config.refresh_rate)) {
+
+				// ... do a new Unwetter request right now ...
+				requestNewAndDisplayCurrentUnwetters(map);
+
+				// TODO: wird folgendes immer wieder ausgeführt, auch wenn Bedingung in if sich ändert?
+				// ... and afterwards request Unwetter each "paramArray.config.refresh_rate" again
+				requestNewAndDisplayCurrentUnwettersEachInterval(map, paramArray.config.refresh_rate);
+
+
+				// if the last Unwetter request is less than "paramArray.config.refresh_rate" ago ...
+			} else {
+
+				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - msecsToLastUnwetterRequest;
+
+				// ... do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
+				// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
+				window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
+
+				// ... and afterwards each "paramArray.config.refresh_rate" again
+				window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
+			}
 		}
-
-
 
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -261,6 +282,19 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
 // *****************************************************************************************************
 
 
+/**
+* @desc
+*
+* @author Katharina Poppinga
+* @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
+* @param {number} interval -
+*/
+function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
+
+	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map);
+}
+
+
 
 /**
 * @desc
@@ -268,7 +302,7 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
 * @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
 */
-function requestNewAndDisplayCurrentUnwetters(map){
+function requestNewAndDisplayCurrentUnwetters(map) {
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	let currentTimestamp = Date.now();
@@ -283,6 +317,14 @@ function requestNewAndDisplayCurrentUnwetters(map){
 	.catch(console.error)
 	//
 	.then(function() {
+
+
+		// TODO: currentTimestamp in config-yaml speichern!!
+		// currentTimestamp
+
+		// serverseitig, da require yaml nötig ist (oder andere Möglichkeit suchen?)
+
+
 
 		//
 		displayCurrentUnwetters(map, currentTimestamp);
@@ -304,7 +346,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 * @desc
 *
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
-* * @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
+* @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
 * @param {number} currentTimestamp - in Epoch milliseconds
 */
 function displayCurrentUnwetters(map, currentTimestamp) {

@@ -55,6 +55,11 @@ function removeOldUnwetterFromDB(currentTimestamp){
     // ... give a notice on the console that the AJAX request for removing old Unwetter timestamps has succeeded
     console.log("AJAX request (removing old Unwetter timestamps) is done successfully.");
 
+
+// TODO: GET all Unwetter, deren timestamps-Array leer ist, deren Unwetter ID nötig, um dann Tweets zu löschen
+// (für delete von Tweets eine query erstellen mit allen Unwetter IDs drin, die gelöscht wurden)
+
+
     // delete each Unwetter from database that has an empty timestamp-array
     removeOldUnwetterFromDB2();
   })
@@ -118,6 +123,13 @@ function removeOldUnwetterFromDB2(){
     // after deleting old Unwetter, delete their corresponding tweets, too
     // Aufruf für jeden Tweet einzeln nötig
     //    removeOldTweetFromDB();
+
+
+
+// TODO: für delete von Tweets eine query erstellen mit allen Unwetter IDs drin, die gelöscht wurden,
+// die IDs aus dem GET der Unwetter aus dieser Datei nehmen
+
+
 
 
   })

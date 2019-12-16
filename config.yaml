@@ -16,6 +16,10 @@ map:
 # Process -------------------------------------------
 # refresh rate in milliseconds
 refresh_rate: 300000
+# timestamp of last Unwetter request
+timestamp_last_Unwetter_request:
+# timestamp of last rain radar request
+timestamp_last_radar_request: 
 # how far back timestamps are being recorded for unwetters in milliseconds
 max_difference_timestamp: 3000000
 # how far back tweets are being searched for in minutes
