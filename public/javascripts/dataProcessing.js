@@ -66,6 +66,9 @@ function promiseToGetItems(query, typeOfItems) {
 function promiseToPostItems(arrayOfItems, typeOfItems) {
 
   return new Promise((resolve, reject) => {
+    if (arrayOfItems.length === 0) {
+      resolve();
+    }
     $.ajax({
       // use a http POST request
       type: "POST",
