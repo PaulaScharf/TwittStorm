@@ -197,7 +197,9 @@ right: 13px;
   height: 33px;
 }
 
-/* TODO: on hover dunkler färben */
+#buttonIcon :hover {
+  background-color: lightgrey;
+}
 
 #buttonIcon {
   position: absolute;
@@ -219,6 +221,8 @@ right: 13px;
   width: 120px;
   border: 1px solid rgba(0,0,0,0.4);
   font-family: 'Open Sans', sans-serif;
+
+
 }
 
 #productMenu a {
@@ -264,6 +268,7 @@ right: 13px;
   width: 120px;
   border: 1px solid rgba(0,0,0,0.4);
   font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
 }
 
 #rasterMenu a {
@@ -309,6 +314,11 @@ right: 13px;
   border-radius: 3px;
   border: 1px solid rgba(0,0,0,0.4);
 
+}
+
+#germanyIcon :hover {
+  background-color: grey;
+  color: black;
 }
 
 #germanyIcon{

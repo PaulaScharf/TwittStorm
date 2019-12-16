@@ -379,6 +379,8 @@ function styleSelector(){
 * @param product -The desired radar product. CHeck the github wiki for further informations
 */
 function loadRaster(product){
+	// set flag to radar
+	wtypeFlag = "radar";
 
 	// hide all severe weather polygons
 	hideUnwetter();
