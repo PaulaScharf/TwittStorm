@@ -318,7 +318,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	let currentTimestamp = Date.now();
 
 	// just keep those Unwetter in database that are included in the last 10 timesteps (last 50 minutes)
-	removeOldUnwetterFromDB(currentTimestamp);
+	removeOldUnwetterAndTweetsFromDB(currentTimestamp);
 
 	// ".then" is used here, to ensure that the .......... has finished and a result is available
 	// saves new requested Unwetter in database
@@ -332,7 +332,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		// TODO: currentTimestamp in config-yaml speichern!!
 		// currentTimestamp
 
-		// serverseitig, da require yaml nötig ist (oder andere Möglichkeit suchen?)
+		// serverseitig, da require yaml nötig ist
+		// ist serverseitig passend, da Unwetter eh vom Server requested werden (müssen)!!
 
 
 

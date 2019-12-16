@@ -12,13 +12,12 @@
 /**
 * @desc First, for all Unwetter in database, respectively removes all timestamps of Array "timestamps" that
 * are older than 50 minutes.
-* Afterwards, deletes those Unwetter which then have an empty Array "timestamps".
-* TODO: AUCH ZUGEHÖRIGE TWEETS-LÖSCHUNG!!
+* Afterwards, deletes those Unwetter which then have an empty Array "timestamps" and deletes their coresponding Tweets, too.
 *
 * @author Katharina Poppinga
 * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
 */
-function removeOldUnwetterFromDB(currentTimestamp){
+function removeOldUnwetterAndTweetsFromDB(currentTimestamp){
 
   // TODO: überprüfen, ob < oder > oder = passt (serverseitig)
 
@@ -33,7 +32,6 @@ function removeOldUnwetterFromDB(currentTimestamp){
       "$pull": '{"timestamps": { "$lt": ' + timestampDeleting + ' }}'
     }
   };
-
 
   // array-update for all DB-items with type "Unwetter" do: for each array "timestamps" remove all timestamps that are older than timestampDeleting
   $.ajax({
@@ -55,13 +53,8 @@ function removeOldUnwetterFromDB(currentTimestamp){
     // ... give a notice on the console that the AJAX request for removing old Unwetter timestamps has succeeded
     console.log("AJAX request (removing old Unwetter timestamps) is done successfully.");
 
-
-// TODO: GET all Unwetter, deren timestamps-Array leer ist, deren Unwetter ID nötig, um dann Tweets zu löschen
-// (für delete von Tweets eine query erstellen mit allen Unwetter IDs drin, die gelöscht wurden)
-
-
-    // delete each Unwetter from database that has an empty timestamp-array
-    removeOldUnwetterFromDB2();
+    // delete all Unwetter from database which have an empty timestamp-array and delete their corresponding tweets, too
+    removeOldUnwetterAndTweetsFromDB2();
   })
 
 
@@ -73,7 +66,7 @@ function removeOldUnwetterFromDB(currentTimestamp){
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajax........Timeout").fatalException("ajax: '/db/removeUnwetterTimestamps' timeout");
+      //    JL("ajax........Timeout").fatalException("ajax: '/db/update' timeout");
     }
   });
 }
@@ -81,26 +74,27 @@ function removeOldUnwetterFromDB(currentTimestamp){
 
 
 /**
-* @desc Deletes all Unwetter from database which have an empty Array "timestamps".
-* TODO: AUCH ZUGEHÖRIGE TWEETS-LÖSCHUNG!!
+* @desc Deletes all Unwetter from database which have an empty Array "timestamps"
+* and deletes their corresponding Tweets.
 *
 * @author Katharina Poppinga
 */
-function removeOldUnwetterFromDB2(){
+function removeOldUnwetterAndTweetsFromDB2() {
 
-  let query = {
-    "$and": '[ { "type":"Unwetter" },  { "timestamps": { "$size": 0 }} ]'
+  let queryGetOldUnwetter = {
+    "$and": '[ { "type":"Unwetter" },  { "timestamps": { "$size": 1 }} ]'
   };
-  //
+
+  // get all Unwetter from database which have an empty Array "timestamps"
   $.ajax({
-    // use a http DELETE request
-    type: "DELETE",
+    // use a http POST request
+    type: "POST",
     // URL to send the request to
-    url: "/db/delete",
+    url: "/db/",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // query
-    data: JSON.stringify(query),
+    data: JSON.stringify(queryGetOldUnwetter),
     // data to send to the server, send as String for independence of server-side programming language
     //data: JSON.stringify(),
     // timeout set to 10 seconds
@@ -110,28 +104,73 @@ function removeOldUnwetterFromDB2(){
   // if the request is done successfully, ...
   .done (function (response) {
 
-    // response hilft nicht weiter fürs tweet löschen
+    // ... give a notice on the console that the AJAX request for getting all old Unwetter has succeeded
+    console.log("AJAX request (getting all old Unwetter) is done successfully.");
+
+
+    console.log(response);
+
+    // TODO:
+    // response ist Array mit Unwetter-Elementen, die jeweils u.a. das Attribut dwd_id enthalten
+    // TODO: diese dwd_ids abgreifen (z.B. in einer for-schleife und in eigenes array schreiben o.ä.)
+    // mit diesen dwd_ids dann in die folgenden beiden Funktionen gehen:
+    let oldUnwetterIDs = [         ]; //TODO
+
+
+    removeOldUnwetterFromDB(oldUnwetterIDs);
+
+    removeOldTweetsFromDB(oldUnwetterIDs);
+  })
+
+  // if the AJAX-request has failed, ...
+  .fail (function (xhr, status, error) {
+
+    // ... give a notice that the AJAX request for getting all old Unwetter has failed and show the error on the console
+    console.log("AJAX request (getting all old Unwetter) has failed.", error);
+
+    // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+    if (error === "timeout") {
+      //    JL("ajaxGettingOldUnwetterTimeout").fatalException("ajax: '/db/' timeout");
+    }
+  });
+}
+
+
+
+/**
+* @desc Deletes old Unwetter ................. from database.
+* ANPASSEN
+*
+* @author Katharina Poppinga
+* @param {} UnwetterIDs -
+*/
+function removeOldUnwetterFromDB(UnwetterIDs){
+
+  // delete all Unwetter from database which have an empty Array "timestamps"
+  let query = {
+    // TODO: hier die UnwetterIDs einfügen
+    "$and": '[ { "type":"Unwetter" },  { "unwetter_ID": {            }} ]' // IDs in Mehrzahl!!
+  };
+
+  //
+  $.ajax({
+    // use a http DELETE request
+    type: "DELETE",
+    // URL to send the request to
+    url: "/db/delete",
+    // type of the data that is sent to the server
+    contentType: "application/json; charset=utf-8",
+    // data to send to the server, send as String for independence of server-side programming language
+    data: JSON.stringify(query),
+    // timeout set to 10 seconds
+    timeout: 10000
+  })
+
+  // if the request is done successfully, ...
+  .done (function (response) {
 
     // ... give a notice on the console that the AJAX request for deleting all old Unwetter has succeeded
     console.log("AJAX request (deleting all old Unwetter) is done successfully.");
-
-
-    // TODO: wie die zu gelöschten Unwettern zugehörigen Tweets löschen? - nicht komfortabel, da MongoDB dokumentenorientierte und nicht-relationale DB ist
-
-    // für jeden Tweet schauen, ob dessen UnwetterID noch vorhanden ist, wäre super aufwändig
-
-    // after deleting old Unwetter, delete their corresponding tweets, too
-    // Aufruf für jeden Tweet einzeln nötig
-    //    removeOldTweetFromDB();
-
-
-
-// TODO: für delete von Tweets eine query erstellen mit allen Unwetter IDs drin, die gelöscht wurden,
-// die IDs aus dem GET der Unwetter aus dieser Datei nehmen
-
-
-
-
   })
 
   // if the AJAX-request has failed, ...
@@ -142,32 +181,30 @@ function removeOldUnwetterFromDB2(){
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/db/deleteOldUnwetter' timeout");
+      //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/db/delete' timeout");
     }
   });
 }
 
 
 
+// UnwetterID der Tweets ist die DWD-ID der Unwetter
 
 /**
-* @desc Deletes a tweet given given ID (???) from database.
+* @desc Deletes old tweets ................. from database.
 * ANPASSEN
 *
 * @author Katharina Poppinga
-* @param
+* @param {} UnwetterIDs -
 */
-function removeOldTweetFromDB(){
+function removeOldTweetsFromDB(UnwetterIDs){
 
   // alle Tweets aus DB löschen, deren zugehörigen Unwetter gelöscht wurden
-
-  let tweetID = {
-
+  let query = {
+    "$and": '[ { "type":"Tweet" },  { "unwetter_ID": {            }} ]' // IDs in Mehrzahl!!
   };
 
-  // TODO: evtl. neuen Funktionsaufruf zu einer Funktion fürs deleten allgemein machen (Modularisierung, nur falls überhaupt auch andere items gelöscht werden müssen)
-  // TODO: tweetID zu iD machen, um code allgemeiner nutzen zu können
-
+  //
   $.ajax({
     // use a http DELETE request
     type: "DELETE",
@@ -176,7 +213,7 @@ function removeOldTweetFromDB(){
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // data to send to the server, send as String for independence of server-side programming language
-    data: JSON.stringify(tweetID),
+    data: JSON.stringify(query),
     // timeout set to 10 seconds
     timeout: 10000
   })
@@ -185,14 +222,14 @@ function removeOldTweetFromDB(){
   .done (function (response) {
 
     // ... give a notice on the console that the AJAX request for deleting ....... has succeeded
-    console.log("AJAX request (deleting one Tweet) is done successfully. NOCH NICHT IMPLEMENTIERT");
+    console.log("AJAX request (deleting old Tweets) is done successfully. NOCH NICHT IMPLEMENTIERT");
   })
 
   // if the AJAX-request has failed, ...
   .fail (function (xhr, status, error) {
 
     // ... give a notice that the AJAX request for finding one item has failed and show the error on the console
-    console.log("AJAX request (deleting one Tweet) has failed.", error);
+    console.log("AJAX request (deleting old Tweets) has failed.", error);
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
