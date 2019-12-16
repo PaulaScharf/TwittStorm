@@ -278,7 +278,6 @@ function openMenu(button, menu) {
 
 	}
 
-
 /**
 * @desc Closes all open submenus on click
 * @author Benjamin Rieke
@@ -359,9 +358,7 @@ function switchLayer(layer) {
 
 
 
-// TODO: folgende Funktion sinnvoll benennen
 /**
-*
 * @desc Uses the styles that are set on the index page to switch between them on click of the switcher field
 * @author Benjamin Rieke
 */
@@ -376,14 +373,13 @@ function styleSelector(){
 	}
 }
 
-
-
 /**
-* Loads the chosen radar product, updates the url, and hides previous selected layers
+* @desc Loads the chosen radar product, updates the url, and hides previous selected layers
 * @author Benjamin Rieke
 * @param product -The desired radar product. CHeck the github wiki for further informations
 */
 function loadRaster(product){
+
 	// hide all severe weather polygons
 	hideUnwetter();
 
@@ -411,9 +407,8 @@ function loadRaster(product){
 
 }
 
-
 /**
-* Hides the Unwetter polygons and changes the severeweather Tab to not active
+* @desc Hides the Unwetter polygons and changes the severeweather Tab to not active
 * @author Benjamin Rieke
 */
 function hideUnwetter(){
@@ -437,7 +432,7 @@ function hideUnwetter(){
 
 
 /**
-* Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
+* @desc Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
 * @author Benjamin Rieke
 */
 function loadSevereWeather(){
@@ -485,7 +480,6 @@ function loadSevereWeather(){
 
 
 }
-
 
 
 // ********************************** POP-UPS **********************************
