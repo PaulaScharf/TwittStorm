@@ -29,25 +29,33 @@
       <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)">Radar</a>
       <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu); loadSevereWeather();">Severe Weather</a>
     </div>
-    
+
     <!-- Raster selection menu -->
     <!-- Add functions for raster display here -->
     <div id="rasterMenu" class="inputGroup" style="display:none">
       <div>
-        <input id="radio1" name="radio" type="radio" onclick="loadRaster('ry'); hideUnwetter();" checked = 'checked'> 5 Minutes</input>
+        <input id="radio1" name="radio" type="radio" onclick="loadRaster('ry');"> 5 Minutes</input>
       </div>
       <div>
-        <input id="radio2" name="radio" type="radio" onclick="loadRaster('rw'); hideUnwetter();"> 60 Minutes</input>
+        <input id="radio2" name="radio" type="radio" onclick="loadRaster('rw');"> 60 Minutes</input>
       </div>
       <div>
-        <input id="radio3" name="radio" type="radio" onclick="loadRaster('sf'); hideUnwetter();"> 24 Hours</input>
+        <input id="radio3" name="radio" type="radio" onclick="loadRaster('sf');"> 24 Hours</input>
       </div>
     </div>
 
     <!-- button to open up the menu. image taken from https://freeicons.io/user-interface-and-electronics/layer-up-down-screen-multiple-interface-ui-d-cd-icon-892 -->
-    <nav id="menuButton" class="button" onclick="openMenu(this, productMenu); closeAllMenus();" title="Change Layers">
+    <nav id="menuButton" class="button" onclick="openMenu(this, productMenu);" title="Change Layers">
       <div id="buttonIcon">
         <img src="/css/Layer-Icon.png"/>
+      </div>
+    </nav>
+
+    <!-- button to show and hide the boundaries of germany. image taken from https://upload.wikimedia.org/wikipedia/commons/e/e3/Karte_Deutschland.svg -->
+    <!-- Alternative: Change img src to /css/Germany-Outline.svg. image taken from: https://upload.wikimedia.org/wikipedia/commons/f/f2/Germany-Outline.svg-->
+    <nav id="germanyButton" class="container" onclick="removeAddGermany();" title="Toggle Germany Boundaries" style="display:none">
+      <div id="germanyIcon" >
+        <img src="/css/Karte_Deutschland.svg" width="20" height="20"/>
       </div>
     </nav>
 
