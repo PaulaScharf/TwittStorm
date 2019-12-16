@@ -73,7 +73,7 @@ function showMap(style) {
 	}
 
 	// enables the ability to choose between different mapstyles
-	styleSelector();
+	//styleSelector();
 
 	// declare var
 	let zoomURL;
