@@ -160,6 +160,7 @@ function panMapWithButton(directionToPan) {
 * @param coordinates
 */
 function zoomToCoordinates(coordinates) {
+
 	// Pass the first coordinates in the Polygon to `lngLatBounds` &
 	// wrap each coordinate pair in `extend` to include them in the bounds
 	// result. A variation of this technique could be applied to zooming
@@ -175,6 +176,7 @@ function zoomToCoordinates(coordinates) {
 }
 
 
+
 /**
 * This function adds a layer (identified by the given layerID) to the layer-menu.
 * The layer-menu makes it possible to toggle layers on and off.
@@ -182,6 +184,7 @@ function zoomToCoordinates(coordinates) {
 * @param {String} layerID - ID of a layer
 */
 function addLayerToMenu(layerID) {
+
 	// split layerID on whitspace
 	let layerParts = layerID.split(/[ ]+/);
 	let groupName = layerParts[1];
@@ -237,6 +240,7 @@ function addLayerToMenu(layerID) {
 }
 
 
+
 /**
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X
 * @param button Links the button to the function
@@ -244,6 +248,7 @@ function addLayerToMenu(layerID) {
 * @author Benjamin Rieke
 */
 function openMenu(button, menu) {
+
 	// if a radar product is selected automatically open up the radar submenu
 	if (wtypeFlag == "radar") {
 		var innerRasterMenuToggle = document.getElementById('rasterMenu');
@@ -254,7 +259,6 @@ function openMenu(button, menu) {
 		if (innerUnwetterMenuToggle.style.display = "block"){
 		};
 
-
 	}
 	// displays the germany boundary button if is not visible
 	var boundaryButtonToggle = document.getElementById('germanyButton');
@@ -264,8 +268,8 @@ function openMenu(button, menu) {
 	// the germany button is also used as an indicator to see if the menus are open
 	// if that is the case all menus will be closed when the main layer menu button is pressed
 	else {
-	closeAllMenus();
-};
+		closeAllMenus();
+	};
 	// displays the requested submenus
 	button = document.getElementById(menu.id);
 	if (button.style.display === "none") {
@@ -275,14 +279,16 @@ function openMenu(button, menu) {
 	} else {
 		button.style.display = "none";
 	};
+}
 
-	}
+
 
 /**
 * @desc Closes all open submenus on click
 * @author Benjamin Rieke
 */
 function closeAllMenus() {
+
 	// Hides the raster sub menu if it is still open
 	var innerRasterMenuToggle = document.getElementById('rasterMenu');
 	if (innerRasterMenuToggle.style.display == "block"){
@@ -302,11 +308,12 @@ function closeAllMenus() {
 	};
 }
 
+
+
 /**
 * @desc Removes or adds the boundary of germany on click
 * @author Benjamin Rieke
 */
-
 function removeAddGermany(){
 
 	// uses the visibility attribute of a mapbox layer
@@ -314,8 +321,8 @@ function removeAddGermany(){
 
 	// if the visibility is set to visible hide it
 	if (visibility == "visible") {
-			map.setLayoutProperty("boundaryGermany", 'visibility', 'none');
-			}
+		map.setLayoutProperty("boundaryGermany", 'visibility', 'none');
+	}
 	// if not display it
 	else {
 		map.setLayoutProperty("boundaryGermany", 'visibility', 'visible');
@@ -330,6 +337,7 @@ function removeAddGermany(){
 * @author Benjamin Rieke, Paula Scharf
 */
 function switchLayer(layer) {
+
 	const savedLayers = [];
 	const savedSources = {};
 	forEachLayer((layer) => {
@@ -373,12 +381,14 @@ function styleSelector(){
 	}
 }
 
+
 /**
 * @desc Loads the chosen radar product, updates the url, and hides previous selected layers
 * @author Benjamin Rieke
 * @param product -The desired radar product. CHeck the github wiki for further informations
 */
-function loadRaster(product){
+function loadRaster(product) {
+
 	// set flag to radar
 	wtypeFlag = "radar";
 
@@ -406,14 +416,15 @@ function loadRaster(product){
 	// add active attribute to radar tab
 	var rasterMenuToggle = document.getElementById('raster');
 	rasterMenuToggle.classList.add("active");
-
 }
+
+
 
 /**
 * @desc Hides the Unwetter polygons and changes the severeweather Tab to not active
 * @author Benjamin Rieke
 */
-function hideUnwetter(){
+function hideUnwetter() {
 
 	// hide every available severe weather polygon
 	map.style._order.forEach(function(layer) {
@@ -433,11 +444,13 @@ function hideUnwetter(){
 }
 
 
+
 /**
 * @desc Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
 * @author Benjamin Rieke
 */
-function loadSevereWeather(){
+function loadSevereWeather() {
+
 	// set flag to severeWeather
 	wtypeFlag = "severeWeather";
 	// update the url
@@ -454,7 +467,7 @@ function loadSevereWeather(){
 		requestNewAndDisplayCurrentUnwetters(map);
 	};
 
-	//display all available severe weather polygons
+	// display all available severe weather polygons
 	map.style._order.forEach(function(layer) {
 		let mapLayer = layer;
 
@@ -469,7 +482,7 @@ function loadSevereWeather(){
 	var innerRasterMenuToggle = document.getElementById('rasterMenu');
 	innerRasterMenuToggle.style.display = "none";
 
-	//uncheck all raster products
+	// uncheck all raster products
 	var innerRasterCheckToggle1 = document.getElementById('radio1');
 	innerRasterCheckToggle1.checked = false;
 	var innerRasterCheckToggle2 = document.getElementById('radio2');
@@ -477,12 +490,9 @@ function loadSevereWeather(){
 	var innerRasterCheckToggle3 = document.getElementById('radio3');
 	innerRasterCheckToggle3.checked = false;
 
-
 	// activate the severe weather tab
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
-
-
 }
 
 
