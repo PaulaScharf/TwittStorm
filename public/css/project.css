@@ -15,7 +15,7 @@
   background: #fff;
   position: fixed;
   z-index: 1;
-  top: 360px;
+  top: 320px;
   right: 80px;
   border-radius: 3px;
   width: 120px;
@@ -133,59 +133,59 @@ cursor: pointer;
 /* *************************** PAN BUTTONS ********************************** */
 
 #panButtonL, #panButtonR, #panButtonU, #panButtonD {
-height: 25px;
-width: 25px;
+height: 22px;
+width: 22px;
 }
 
 #panButtonL {
-  top: 310px;
-  right: 78px;
+  top: 320px;
+  right: 47px;
 }
 
 #panButtonR {
-  top: 310px;
-  right: 28px;
+  top: 320px;
+  right: 15px;
 }
 
 #panButtonU {
-  top: 285px;
-  right: 53px;
+  top: 298px;
+  right: 30px;
 }
 
 #panButtonD {
-  top: 335px;
-  right: 53px;
+  top: 342px;
+  right: 30px;
 }
 
 .panButtonImg {
 position: absolute;
 display: block;
 z-index: 1;
-height: 20px;
-width: 21px;
+height: 11px;
+width: 12px;
 }
 
 #panButton_L_img {
-  bottom: 7px;
-  right: 4px;
+  bottom: 13px;
+  right: 10px;
 }
 
 #panButton_R_img {
 transform: rotate(180deg);
-top: 7px;
-left: 4px;
+top: 15px;
+left: 10px;
 }
 
 #panButton_U_img {
 transform: rotate(90deg);
-bottom: 4px;
-left: 6px;
+bottom: 11px;
+left: 13px;
 }
 
 #panButton_D_img {
 transform: rotate(270deg);
-top: 4px;
-right: 6px;
+top: 12px;
+right: 13px;
 }
 
 /* ************************************************************************** */
@@ -197,7 +197,9 @@ right: 6px;
   height: 33px;
 }
 
-/* TODO: on hover dunkler färben */
+#buttonIcon :hover {
+  background-color: lightgrey;
+}
 
 #buttonIcon {
   position: absolute;
@@ -219,6 +221,8 @@ right: 6px;
   width: 120px;
   border: 1px solid rgba(0,0,0,0.4);
   font-family: 'Open Sans', sans-serif;
+
+
 }
 
 #productMenu a {
@@ -264,6 +268,7 @@ right: 6px;
   width: 120px;
   border: 1px solid rgba(0,0,0,0.4);
   font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
 }
 
 #rasterMenu a {
@@ -294,6 +299,38 @@ right: 6px;
 
 #rasterMenu a.active:hover {
   background: grey;
+}
+
+/* ********************************* Germany Menu Button ********************************* */
+
+#germanyButton{
+  position: absolute;
+  z-index: 1;
+  top: 270px;
+  right: 25px;
+  width: 2px;
+  height: 25px;
+  background-color: white;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.4);
+
+}
+
+#germanyIcon :hover {
+  background-color: grey;
+  color: black;
+}
+
+#germanyIcon{
+  position: absolute;
+  display: block;
+  top: -2px;
+  right: 21px;
+  width: 5px;
+  height: 25px;
+  cursor: pointer;
+
+
 }
 
 /* ********************************* LEGEND ********************************* */

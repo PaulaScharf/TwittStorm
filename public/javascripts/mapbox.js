@@ -27,6 +27,9 @@ let map;
 // referes to all the layers that are not defaults
 let customLayerIds = [];
 
+// Flag that indicates if a radar product is requested
+let wtypeFlag = "";
+
 
 // TODO: folgendes in eine Funktion schreiben:
 // TODO: was macht dieser code?
@@ -69,10 +72,8 @@ function showMap(style) {
 		layers.removeChild(layers.firstChild);
 	}
 
-
-	// TODO: folgende Funktion sinnvoll benennen (steht in mapInteraction.js)
-	nameFinden();
-
+	// enables the ability to choose between different mapstyles
+	//styleSelector();
 
 	// declare var
 	let zoomURL;
@@ -147,33 +148,6 @@ function showMap(style) {
 		});
 		customLayerIds.push('boundaryGermany');
 
-		// ************************ adding boundary of Germany to the menu *************************
-		var gerBoundary = document.createElement('a');
-		gerBoundary.href = '#';
-		gerBoundary.className = 'active';
-		gerBoundary.textContent = 'boundaryGermany';
-
-		gerBoundary.onclick = function (e) {
-			var clickedLayer = this.textContent;
-			e.preventDefault();
-			e.stopPropagation();
-
-			var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-
-			if (visibility === 'visible') {
-				map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-				this.className = '';
-			}
-			else {
-				this.className = 'active';
-				map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-			}
-		};
-
-		var layers = document.getElementById('productMenu');
-		layers.insertBefore(gerBoundary, severeWeather);
-
-		// *****************************************************************************
 
 		// enable drawing the area-of-interest-polygons
 		drawForAOI(map);
@@ -181,6 +155,14 @@ function showMap(style) {
 
 		// Rain Radar Data
 		if (paramArray.wtype == "radar") {
+			// set the flag to radar
+			wtypeFlag = "radar";
+
+			// toggle the menu tabs for radar and severe weather to active or not active
+			var rasterMenuToggle = document.getElementById('raster');
+			rasterMenuToggle.classList.toggle("active");
+			var severeWeatherMenuToggle = document.getElementById('severeWeather');
+			severeWeatherMenuToggle.classList.remove("active");
 
 			// TODO: für legende schon JSON-antwort aus DB mit radardaten nötig, um class-werte in legende einzutragen
 			showLegend(map, "radar");	// TODO: hier muss classBorders.classes mit übergeben werden
@@ -188,16 +170,44 @@ function showMap(style) {
 			if(paramArray.rasterClassification == undefined) {
 				paramArray.rasterClassification = 'dwd';
 			}
+
 			if (paramArray.rasterProduct != undefined) {
 				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.rasterClassification);
+
+				// check the checkbox of the radar submenu according to the chosen product
+				if (paramArray.rasterProduct == "ry") {
+					var innerRasterCheckToggle1 = document.getElementById('radio1');
+					innerRasterCheckToggle1.checked = true;
+				};
+				if (paramArray.rasterProduct == "rw") {
+					var innerRasterCheckToggle2 = document.getElementById('radio2');
+					innerRasterCheckToggle2.checked = true;
+				};
+				if (paramArray.rasterProduct == "sf") {
+					var innerRasterCheckToggle3 = document.getElementById('radio3');
+					innerRasterCheckToggle3.checked = true;
+				};
+
+
 			} else {
 				requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
-			}
+				var innerRasterCheckToggle2 = document.getElementById('radio2');
+				innerRasterCheckToggle2.checked = true;
+			};
 		}
 
 
 		// 2.oder-fall (undefined): to be able to still use localhost:3000/ TODO: später löschen oder als default lassen?)
 		if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
+
+			// set the flag to severe weather
+			wtypeFlag = "severeWeather";
+
+			// toggle the menu tabs for radar and severe weather to active or not active
+			var rasterMenuToggle = document.getElementById('raster');
+			rasterMenuToggle.classList.remove("active");
+			var severeWeatherMenuToggle = document.getElementById('severeWeather');
+			severeWeatherMenuToggle.classList.add("active");
 
 			showLegend(map, "unwetter");
 
