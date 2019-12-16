@@ -174,6 +174,7 @@ function panMapWithButton(directionToPan) {
 * @param coordinates
 */
 function zoomToCoordinates(coordinates) {
+
 	// Pass the first coordinates in the Polygon to `lngLatBounds` &
 	// wrap each coordinate pair in `extend` to include them in the bounds
 	// result. A variation of this technique could be applied to zooming
@@ -197,6 +198,7 @@ function zoomToCoordinates(coordinates) {
 * @param {String} layerID - ID of a layer
 */
 function addLayerToMenu(layerID) {
+
 	// split layerID on whitspace
 	let layerParts = layerID.split(/[ ]+/);
 	let groupName = layerParts[1];
@@ -261,13 +263,36 @@ function addLayerToMenu(layerID) {
 */
 function openMenu(button, menu) {
 
+	// if a radar product is selected automatically open up the radar submenu
+	if (wtypeFlag == "radar") {
+		var innerRasterMenuToggle = document.getElementById('rasterMenu');
+		innerRasterMenuToggle.style.display = "block";
+	}
+	else {
+		var innerUnwetterMenuToggle = document.getElementById('menu');
+		if (innerUnwetterMenuToggle.style.display = "block"){
+		};
+
+	}
+	// displays the germany boundary button if is not visible
+	var boundaryButtonToggle = document.getElementById('germanyButton');
+	if (boundaryButtonToggle.style.display === "none"){
+		boundaryButtonToggle.style.display = "block";
+	}
+	// the germany button is also used as an indicator to see if the menus are open
+	// if that is the case all menus will be closed when the main layer menu button is pressed
+	else {
+		closeAllMenus();
+	};
+	// displays the requested submenus
 	button = document.getElementById(menu.id);
 	if (button.style.display === "none") {
 		button.style.display = "block";
 	} else {
 		button.style.display = "none";
-	}
+	};
 }
+
 
 
 /**
@@ -275,6 +300,8 @@ function openMenu(button, menu) {
 * @author Benjamin Rieke
 */
 function closeAllMenus() {
+
+	// Hides the raster sub menu if it is still open
 	var innerRasterMenuToggle = document.getElementById('rasterMenu');
 	if (innerRasterMenuToggle.style.display == "block"){
 		innerRasterMenuToggle.style.display = "none"
@@ -283,6 +310,33 @@ function closeAllMenus() {
 	if (innerUnwetterMenuToggle.style.display == "block"){
 		innerUnwetterMenuToggle.style.display = "none"
 	};
+
+	// Hides germany boundary button if it is still shown
+	var boundaryButtonToggle = document.getElementById('germanyButton');
+	if (boundaryButtonToggle.style.display == "block"){
+		boundaryButtonToggle.style.display = "none"
+	};
+}
+
+
+
+/**
+* @desc Removes or adds the boundary of germany on click
+* @author Benjamin Rieke
+*/
+function removeAddGermany(){
+
+	// uses the visibility attribute of a mapbox layer
+	var visibility = map.getLayoutProperty("boundaryGermany", 'visibility');
+
+	// if the visibility is set to visible hide it
+	if (visibility == "visible") {
+		map.setLayoutProperty("boundaryGermany", 'visibility', 'none');
+	}
+	// if not display it
+	else {
+		map.setLayoutProperty("boundaryGermany", 'visibility', 'visible');
+	}
 }
 
 
@@ -293,6 +347,7 @@ function closeAllMenus() {
 * @author Benjamin Rieke, Paula Scharf
 */
 function switchLayer(layer) {
+
 	const savedLayers = [];
 	const savedSources = {};
 	forEachLayer((layer) => {
@@ -321,18 +376,15 @@ function switchLayer(layer) {
 
 
 
-// TODO: folgende Funktion sinnvoll benennen
 /**
-*
-*
+* @desc Uses the styles that are set on the index page to switch between them on click of the switcher field
 * @author Benjamin Rieke
 */
-function nameFinden(){
+function styleSelector() {
 
 	// Takes the map styles from the selection on the index page
 	let layerList = document.getElementById('styleMenu');
 	let inputs = layerList.getElementsByTagName('input');
-
 
 	for (var i = 0; i < inputs.length; i++) {
 		inputs[i].onclick = switchLayer;
@@ -341,26 +393,18 @@ function nameFinden(){
 
 
 
-// TODO: Deactivating the field after window is closed
-/*
-* Changes the style of a menu selector to active on click
-* @author Benjamon Rieke
-*/
-$(function () {
-	//var $lists = $('.list-group li').click(function(e) {
-
-	$(".selector").click(function () {
-		$(this).toggleClass("active");
-	});
-});
-
-
 /**
 * Loads the chosen radar product into map, updates the URL, and hides previous selected layers
 * @author Benjamin Rieke
 * @param product - The desired radar product. CHeck the GitHub Wiki for further informations
 */
 function loadRaster(product) {
+
+	// set flag to radar
+	wtypeFlag = "radar";
+
+	// hide all severe weather polygons
+	hideUnwetter();
 
 	console.log("Loading your requested radar product");
 	updateURL('wtype', 'radar');
@@ -383,14 +427,19 @@ function loadRaster(product) {
 
 		requestAndDisplayAllRainRadar(map, product, "dwd");
 	};
+
+	// add active attribute to radar tab
+	var rasterMenuToggle = document.getElementById('raster');
+	rasterMenuToggle.classList.add("active");
 }
+
 
 
 /**
 * Hides the Unwetter polygons
 * @author Benjamin Rieke
 */
-function hideUnwetter(){
+function hideUnwetter() {
 
 	map.style._order.forEach(function(layer) {
 		let mapLayer = layer;
@@ -408,11 +457,15 @@ function hideUnwetter(){
 }
 
 
+
 /**
 * Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
 * @author Benjamin Rieke
 */
 function loadSevereWeather() {
+
+	// set flag to severeWeather
+	wtypeFlag = "severeWeather";
 	// update the url
 	updateURL('wtype', 'unwetter');
 	updateURL('radProd', '');
@@ -430,20 +483,32 @@ function loadSevereWeather() {
 		requestNewAndDisplayCurrentUnwetters(map);
 	};
 
+	// display all available severe weather polygons
 	map.style._order.forEach(function(layer) {
 		let mapLayer = layer;
 
 		if (mapLayer.includes("Unwetter other") ) {
 			map.setLayoutProperty(layer, 'visibility', 'visible');
-			console.log("hid one unwetter polygon");
 		}
 	});
 
+// deavtivate the raster menu
 	var rasterMenuToggle = document.getElementById('raster');
 	rasterMenuToggle.classList.remove("active");
 	var innerRasterMenuToggle = document.getElementById('rasterMenu');
 	innerRasterMenuToggle.style.display = "none";
 
+	// uncheck all raster products
+	var innerRasterCheckToggle1 = document.getElementById('radio1');
+	innerRasterCheckToggle1.checked = false;
+	var innerRasterCheckToggle2 = document.getElementById('radio2');
+	innerRasterCheckToggle1.checked = false;
+	var innerRasterCheckToggle3 = document.getElementById('radio3');
+	innerRasterCheckToggle3.checked = false;
+
+	// activate the severe weather tab
+	var severeWeatherMenuToggle = document.getElementById('severeWeather');
+	severeWeatherMenuToggle.classList.add("active");
 }
 
 
