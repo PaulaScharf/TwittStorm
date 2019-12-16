@@ -438,6 +438,8 @@ function hideUnwetter(){
 * @author Benjamin Rieke
 */
 function loadSevereWeather(){
+	// set flag to severeWeather
+	wtypeFlag = "severeWeather";
 	// update the url
 	updateURL('wtype', 'unwetter');
 	updateURL('radProd', '');
