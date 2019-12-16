@@ -33,7 +33,7 @@
 */
 function showLegend(map, typeOfLegend, product, classes) {
 
-// TODO: classes nutzen
+	// TODO: classes nutzen
 
 	while (legend.hasChildNodes()) {
 		legend.removeChild(legend.firstChild);
@@ -198,7 +198,6 @@ function zoomToCoordinates(coordinates) {
 * @param {String} layerID - ID of a layer
 */
 function addLayerToMenu(layerID) {
-
 	// split layerID on whitspace
 	let layerParts = layerID.split(/[ ]+/);
 	let groupName = layerParts[1];
@@ -257,7 +256,7 @@ function addLayerToMenu(layerID) {
 
 /**
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X
-* @param button Links the button to the function for the animation
+* @param button Links the button to the function
 * @param menu Id of the menu that is supposed to open/close
 * @author Benjamin Rieke
 */
@@ -271,9 +270,10 @@ function openMenu(button, menu) {
 	else {
 		var innerUnwetterMenuToggle = document.getElementById('menu');
 		if (innerUnwetterMenuToggle.style.display = "block"){
+			// TODO?
 		};
-
 	}
+
 	// displays the germany boundary button if is not visible
 	var boundaryButtonToggle = document.getElementById('germanyButton');
 	if (boundaryButtonToggle.style.display === "none"){
@@ -284,10 +284,12 @@ function openMenu(button, menu) {
 	else {
 		closeAllMenus();
 	};
+
 	// displays the requested submenus
 	button = document.getElementById(menu.id);
 	if (button.style.display === "none") {
 		button.style.display = "block";
+		boundaryButtonToggle.style.display = "block";
 	} else {
 		button.style.display = "none";
 	};
@@ -300,12 +302,13 @@ function openMenu(button, menu) {
 * @author Benjamin Rieke
 */
 function closeAllMenus() {
-
 	// Hides the raster sub menu if it is still open
 	var innerRasterMenuToggle = document.getElementById('rasterMenu');
 	if (innerRasterMenuToggle.style.display == "block"){
 		innerRasterMenuToggle.style.display = "none"
 	};
+
+	// Hides the severe weather sub menu if it is still open
 	var innerUnwetterMenuToggle = document.getElementById('menu');
 	if (innerUnwetterMenuToggle.style.display == "block"){
 		innerUnwetterMenuToggle.style.display = "none"
@@ -347,9 +350,9 @@ function removeAddGermany(){
 * @author Benjamin Rieke, Paula Scharf
 */
 function switchLayer(layer) {
-
 	const savedLayers = [];
 	const savedSources = {};
+
 	forEachLayer((layer) => {
 		savedSources[layer.source] = map.getSource(layer.source).serialize();
 		savedLayers.push(layer);
@@ -380,8 +383,7 @@ function switchLayer(layer) {
 * @desc Uses the styles that are set on the index page to switch between them on click of the switcher field
 * @author Benjamin Rieke
 */
-function styleSelector() {
-
+function styleSelector(){
 	// Takes the map styles from the selection on the index page
 	let layerList = document.getElementById('styleMenu');
 	let inputs = layerList.getElementsByTagName('input');
@@ -394,12 +396,11 @@ function styleSelector() {
 
 
 /**
-* Loads the chosen radar product into map, updates the URL, and hides previous selected layers
+* @desc Loads the chosen radar product, updates the url, and hides previous selected layers
 * @author Benjamin Rieke
-* @param product - The desired radar product. CHeck the GitHub Wiki for further informations
+* @param product -The desired radar product. CHeck the github wiki for further informations
 */
-function loadRaster(product) {
-
+function loadRaster(product){
 	// set flag to radar
 	wtypeFlag = "radar";
 
@@ -407,8 +408,10 @@ function loadRaster(product) {
 	hideUnwetter();
 
 	console.log("Loading your requested radar product");
+	// update the URL
 	updateURL('wtype', 'radar');
 	updateURL('radProd', product);
+
 
 	// TODO: für legende schon JSON-antwort aus DB mit radardaten nötig, um class-werte in legende einzutragen
 	showLegend(map, "radar", product);	// TODO: hier muss classBorders.classes mit übergeben werden
@@ -418,12 +421,15 @@ function loadRaster(product) {
 	// sf: 24 hours
 
 
+	// if no rainradar data is displayed load the requested product
 	if (map.style.sourceCaches.rainRadar == undefined){
+
 		requestAndDisplayAllRainRadar(map, product, "dwd");
 	}
+	// if a radar product is already on display remove it first
 	else {
-		map.removeLayer('rainRadar');
-		map.removeSource('rainRadar');
+		map.removeLayer('rainRadar')
+		map.removeSource('rainRadar')
 
 		requestAndDisplayAllRainRadar(map, product, "dwd");
 	};
@@ -436,22 +442,24 @@ function loadRaster(product) {
 
 
 /**
-* Hides the Unwetter polygons
+* @desc Hides the Unwetter polygons and changes the severeweather Tab to not active
 * @author Benjamin Rieke
 */
-function hideUnwetter() {
+function hideUnwetter(){
 
+	// hide every available severe weather polygon
 	map.style._order.forEach(function(layer) {
 		let mapLayer = layer;
-
 		if (mapLayer.includes("Unwetter other") ) {
 			map.setLayoutProperty(layer, 'visibility', 'none');
 			console.log("hid one unwetter polygon");
-		}
+		};
 	});
 
+	// remove the active attribute from the severe weather tab
 	var menuToggle = document.getElementById('severeWeather');
 	menuToggle.classList.remove("active");
+	// hide the svere weather sub menu
 	var selectionToggle = document.getElementById('menu');
 	selectionToggle.style.display ="none";
 }
@@ -459,11 +467,10 @@ function hideUnwetter() {
 
 
 /**
-* Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
+* @desc Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
 * @author Benjamin Rieke
 */
-function loadSevereWeather() {
-
+function loadSevereWeather(){
 	// set flag to severeWeather
 	wtypeFlag = "severeWeather";
 	// update the url
@@ -478,12 +485,12 @@ function loadSevereWeather() {
 	}
 	// if not remove them first
 	else {
-		map.removeLayer('rainRadar');
-		map.removeSource('rainRadar');
+		map.removeLayer('rainRadar')
+		map.removeSource('rainRadar')
 		requestNewAndDisplayCurrentUnwetters(map);
 	};
 
-	// display all available severe weather polygons
+	//display all available severe weather polygons
 	map.style._order.forEach(function(layer) {
 		let mapLayer = layer;
 
@@ -492,19 +499,20 @@ function loadSevereWeather() {
 		}
 	});
 
-// deavtivate the raster menu
+	// deavtivate the raster menu
 	var rasterMenuToggle = document.getElementById('raster');
 	rasterMenuToggle.classList.remove("active");
 	var innerRasterMenuToggle = document.getElementById('rasterMenu');
 	innerRasterMenuToggle.style.display = "none";
 
-	// uncheck all raster products
+	//uncheck all raster products
 	var innerRasterCheckToggle1 = document.getElementById('radio1');
 	innerRasterCheckToggle1.checked = false;
 	var innerRasterCheckToggle2 = document.getElementById('radio2');
 	innerRasterCheckToggle1.checked = false;
 	var innerRasterCheckToggle3 = document.getElementById('radio3');
 	innerRasterCheckToggle3.checked = false;
+
 
 	// activate the severe weather tab
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
