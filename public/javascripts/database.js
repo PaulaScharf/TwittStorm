@@ -81,9 +81,9 @@ function removeOldUnwetterAndTweetsFromDB(currentTimestamp){
 */
 function removeOldUnwetterAndTweetsFromDB2() {
 
-  //TODO: warum hier schon als String erstellen, wenn im ajax doch stringfy aufgerufen wird?
+  //TODO: warum hier schon als String erstellen, wenn im ajax doch stringfy aufgerufen wird? -> wegen queryParser
   let queryGetOldUnwetter = {
-    "$and": '[ { "type":"Unwetter" },  { "timestamps": { "$size": 1 }} ]'
+    "$and": '[ { "type":"Unwetter" }, { "timestamps": { "$size": 1 }} ]'
   };
 
   // get all Unwetter from database which have an empty Array "timestamps"
@@ -108,12 +108,11 @@ function removeOldUnwetterAndTweetsFromDB2() {
     // ... give a notice on the console that the AJAX request for getting all old Unwetter has succeeded
     console.log("AJAX request (getting all old Unwetter) is done successfully.");
 
-    console.log(response);
     let oldUnwetterIDs = [];
+    // put together all JSON-objects of old Unwetter dwd_ids in one array
     for (let u = 0; u < response.length; u++) {
-      oldUnwetterIDs.push(response[u].dwd_id);
+      oldUnwetterIDs.push( {"dwd_id": response[u].dwd_id} );
     }
-    console.log(oldUnwetterIDs);
 
     removeOldUnwetterFromDB(oldUnwetterIDs);
     removeOldTweetsFromDB(oldUnwetterIDs);
@@ -144,113 +143,46 @@ function removeOldUnwetterAndTweetsFromDB2() {
 function removeOldUnwetterFromDB(unwetterIDs){
 
   let query = {
-    // TODO syntax berichtigen
-    $and: [
-      { type:"Unwetter" },
-      { $or: []
-      }
-    ]
+    "$and": '[ { "type": "Unwetter" }, { "$or": "' + unwetterIDs + '"} ]'
   };
 
+  //
+  $.ajax({
+    // use a http DELETE request
+    type: "DELETE",
+    // URL to send the request to
+    url: "/db/delete",
+    // type of the data that is sent to the server
+    contentType: "application/json; charset=utf-8",
+    // data to send to the server, send as String for independence of server-side programming language
+    data: JSON.stringify(query),
+    // timeout set to 10 seconds
+    timeout: 10000
+  })
 
-  console.log(query);
+  // if the request is done successfully, ...
+  .done (function (response) {
 
-  for (let u = 0; u < unwetterIDs.length; u++) {
-    query.$and[1].push({"dwd_id": + unwetterIDs[u]});
-  }
+    // ... give a notice on the console that the AJAX request for deleting all old Unwetter has succeeded
+    console.log("AJAX request (deleting all old Unwetter) is done successfully.");
+  })
 
-  console.log(query);
+  // if the AJAX-request has failed, ...
+  .fail (function (xhr, status, error) {
 
-  /*
-  // delete all Unwetter from database which have an empty Array "timestamps"
-  let queryT = {
-  // TODO syntax berichtigen
-  "$and": '[
-  { "type":"Unwetter" },
-  { "$or": [
-  //      {
-  //        "dwd_id": + unwetterIDs[u] +
-  //      },
-  //      {
-  //        "dwd_id": ""
-  //      },
-  //      {
-  //        "dwd_id": ""
-  //      },
-  //      {
-  //        "dwd_id": ""
-  //      }
-]
-}
-]'
-};
-*/
+    // ... give a notice that the AJAX request for for deleting all old Unwetter has failed and show the error on the console
+    console.log("AJAX request (deleting all old Unwetter) has failed.", error);
 
-/*
-let query = {
-// TODO syntax berichtigen
-$and: [
-{ type:"Unwetter" },
-{ $or: [
-{
-dwd_id: "123"
-}
-//      ,
-//      {
-//        "dwd_id": ""
-//      },
-//      {
-//        "dwd_id": ""
-//      },
-//      {
-//        "dwd_id": ""
-//      }
-]
-}
-]
-};
-*/
-
-console.log(JSON.stringify(query));
-
-//
-$.ajax({
-  // use a http DELETE request
-  type: "DELETE",
-  // URL to send the request to
-  url: "/db/delete",
-  // type of the data that is sent to the server
-  contentType: "application/json; charset=utf-8",
-  // data to send to the server, send as String for independence of server-side programming language
-  data: JSON.stringify(query),
-  // timeout set to 10 seconds
-  timeout: 10000
-})
-
-// if the request is done successfully, ...
-.done (function (response) {
-
-  // ... give a notice on the console that the AJAX request for deleting all old Unwetter has succeeded
-  console.log("AJAX request (deleting all old Unwetter) is done successfully.");
-})
-
-// if the AJAX-request has failed, ...
-.fail (function (xhr, status, error) {
-
-  // ... give a notice that the AJAX request for for deleting all old Unwetter has failed and show the error on the console
-  console.log("AJAX request (deleting all old Unwetter) has failed.", error);
-
-  // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-  if (error === "timeout") {
-    //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/db/delete' timeout");
-  }
-});
+    // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+    if (error === "timeout") {
+      //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/db/delete' timeout");
+    }
+  });
 }
 
 
 
-// UnwetterID der Tweets ist die DWD-ID der Unwetter
-
+// TODO: funktioniert nur, wenn Tweets schon die dwd_id anstatt der unwetter_ID haben
 /**
 * @desc Deletes old tweets ................. from database.
 * ANPASSEN
@@ -260,9 +192,9 @@ $.ajax({
 */
 function removeOldTweetsFromDB(unwetterIDs){
 
-  // alle Tweets aus DB löschen, deren zugehörigen Unwetter gelöscht wurden
+  //
   let query = {
-    "$and": '[ { "type":"Tweet" },  { "unwetter_ID": "$or": "' + unwetterIDs + '"} ]'
+    "$and": '[ { "type": "Tweet" }, { "$or": "' + unwetterIDs + '"} ]'
   };
 
   //
