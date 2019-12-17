@@ -127,7 +127,8 @@ function showLegend(map, typeOfLegend, product) {
 		legend.appendChild(legendElements);
 	}
 
-	//image taken from: https://upload.wikimedia.org/wikipedia/de/thumb/7/7b/DWD-Logo_2013.svg/800px-DWD-Logo_2013.svg.png
+	// image taken from: https://upload.wikimedia.org/wikipedia/de/thumb/7/7b/DWD-Logo_2013.svg/800px-DWD-Logo_2013.svg.png
+	// TODO: change source to https://www.dwd.de/SharedDocs/bilder/DE/logos/dwd/dwd_logo_258x69.png?__blob=normal
 	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD-Logo_2013.svg' alt='Deutscher Wetterdienst'>";
 	timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>";
 	let refreshRateValue = paramArray.config.refresh_rate;
