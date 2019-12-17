@@ -107,18 +107,14 @@ function removeOldUnwetterAndTweetsFromDB2() {
     // ... give a notice on the console that the AJAX request for getting all old Unwetter has succeeded
     console.log("AJAX request (getting all old Unwetter) is done successfully.");
 
-
     console.log(response);
-
-    // TODO:
-    // response ist Array mit Unwetter-Elementen, die jeweils u.a. das Attribut dwd_id enthalten
-    // TODO: diese dwd_ids abgreifen (z.B. in einer for-schleife und in eigenes array schreiben o.ä.)
-    // mit diesen dwd_ids dann in die folgenden beiden Funktionen gehen:
-    let oldUnwetterIDs = [         ]; //TODO
-
+    let oldUnwetterIDs = [];
+    for (let u = 0; u < response.length; u++) {
+      oldUnwetterIDs.push(response[u].dwd_id);
+    }
+    console.log(oldUnwetterIDs);
 
     removeOldUnwetterFromDB(oldUnwetterIDs);
-
     removeOldTweetsFromDB(oldUnwetterIDs);
   })
 
@@ -142,15 +138,21 @@ function removeOldUnwetterAndTweetsFromDB2() {
 * ANPASSEN
 *
 * @author Katharina Poppinga
-* @param {} UnwetterIDs -
+* @param {} unwetterIDs -
 */
-function removeOldUnwetterFromDB(UnwetterIDs){
+function removeOldUnwetterFromDB(unwetterIDs){
 
   // delete all Unwetter from database which have an empty Array "timestamps"
   let query = {
-    // TODO: hier die UnwetterIDs einfügen
-    "$and": '[ { "type":"Unwetter" },  { "unwetter_ID": {            }} ]' // IDs in Mehrzahl!!
+    // TODO syntax berichtigen
+    "$and": '[ { "type":"Unwetter" },  { "$or": [ { "dwd_id": { } } ] } ]'
+
+//    }+ unwetterIDs + '"} ]'
   };
+
+  //$or: [id, id,...]
+console.log(JSON.stringify(query));
+
 
   //
   $.ajax({
@@ -195,13 +197,13 @@ function removeOldUnwetterFromDB(UnwetterIDs){
 * ANPASSEN
 *
 * @author Katharina Poppinga
-* @param {} UnwetterIDs -
+* @param {} unwetterIDs -
 */
-function removeOldTweetsFromDB(UnwetterIDs){
+function removeOldTweetsFromDB(unwetterIDs){
 
   // alle Tweets aus DB löschen, deren zugehörigen Unwetter gelöscht wurden
   let query = {
-    "$and": '[ { "type":"Tweet" },  { "unwetter_ID": {            }} ]' // IDs in Mehrzahl!!
+    "$and": '[ { "type":"Tweet" },  { "unwetter_ID": "$or": "' + unwetterIDs + '"} ]'
   };
 
   //
