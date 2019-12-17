@@ -52,12 +52,12 @@ var getItems = function(req, res) {
 
 	// find all
 	db.collection(collectionName).find(query).toArray((error, result) => {
-		if(error){
+		if (error){
 			// give a notice, that reading all items has failed and show the error on the console
 			console.log("Failure in reading all items from '" + collectionName + "'.", error);
 			// in case of an error while reading, do routing to "error.ejs"
 			res.render('error');
-			//       // if no error occurs ...
+			// if no error occurs ...
 		} else {
 			// ... give a notice, that the reading has succeeded and show the result on the console
 			console.log("Successfully read the items from '" + collectionName + "'.");
@@ -69,12 +69,11 @@ var getItems = function(req, res) {
 
 
 // *********************** inserting .........: ***********************
-/* POST to add single item. */
 var postItems = function(req, res) {
 	var db = req.db;
 
 	db.collection(collectionName).insertMany(req.body, (error, result) => {
-		if(error){
+		if (error){
 			// give a notice, that the inserting has failed and show the error on the console
 			console.log("Failure while inserting an item into '" + collectionName + "'.", error);
 			// in case of an error while inserting, do routing to "error.ejs"
@@ -83,17 +82,16 @@ var postItems = function(req, res) {
 		} else {
 			// ... give a notice, that inserting the item has succeeded
 			res.json({
+				// TODO: umändern, an API Doc anpassen
 				error: 0,
 				msg: "items saved."
 			});
 		}
 	});
-
 };
 
 
 // *********************** updating .........: ***********************
-/* update Unwetter */
 var updateItems =  (req, res) => {
 
 	var db = req.db;
@@ -120,7 +118,6 @@ var updateItems =  (req, res) => {
 
 // TODO: ausprobieren, ob es funktioniert:
 // *********************** deleting ...........: ***********************
-/* DELETE old Tweets */
 var deleteItems = (req, res) => {
 
 	var db = req.db;
@@ -133,7 +130,7 @@ var deleteItems = (req, res) => {
 	// filter database for Unwetters whose timestamps-Array is empty
 	db.collection(collectionName).deleteMany(query, (error, result) => {
 
-		if (error){
+		if (error) {
 			// give a notice, that the deleting has failed and show the error on the console
 			console.log("Failure while deleting some items from '" + collectionName + "'.", error);
 			// in case of an error while deleting, do routing to "error.ejs"

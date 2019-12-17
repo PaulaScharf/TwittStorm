@@ -734,7 +734,7 @@ function findAndRemoveOldLayerIDs(currentUnwetters){
 			}
 		}
 	}
-	console.log(customLayerIds);
+//	console.log(customLayerIds);
 }
 
 

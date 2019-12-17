@@ -83,8 +83,10 @@ function removeOldUnwetterAndTweetsFromDB2() {
 
   //TODO: warum hier schon als String erstellen, wenn im ajax doch stringfy aufgerufen wird? -> wegen queryParser
   let queryGetOldUnwetter = {
-    "$and": '[ { "type":"Unwetter" }, { "timestamps": { "$size": 1 }} ]'
+    "$and": '[ { "type":"Unwetter" }, { "timestamps": { "$size": 0 }} ]'
   };
+
+console.log(JSON.stringify(queryGetOldUnwetter));
 
   // get all Unwetter from database which have an empty Array "timestamps"
   $.ajax({
