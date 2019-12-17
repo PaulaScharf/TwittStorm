@@ -5,13 +5,11 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 
-var express = require('express');
-var router = express.Router();
 const mongodb = require('mongodb');
 
 // yaml configuration
@@ -45,7 +43,7 @@ function queryParser(input) {
 }
 
 /* GET items */
-router.post("/", function(req, res) {
+var getItems = function(req, res) {
 	var db = req.db;
 	let query = {};
 	if (req.body) {
@@ -67,12 +65,12 @@ router.post("/", function(req, res) {
 			res.json(result);
 		}
 	});
-});
+};
 
 
 // *********************** inserting .........: ***********************
 /* POST to add single item. */
-router.post('/add', function(req, res) {
+var postItems = function(req, res) {
 	var db = req.db;
 
 	db.collection(collectionName).insertMany(req.body, (error, result) => {
@@ -91,12 +89,12 @@ router.post('/add', function(req, res) {
 		}
 	});
 
-});
+};
 
 
 // *********************** updating .........: ***********************
 /* update Unwetter */
-router.put("/update", (req, res) => {
+var updateItems =  (req, res) => {
 
 	var db = req.db;
 
@@ -117,13 +115,13 @@ router.put("/update", (req, res) => {
 			res.json(result);
 		}
 	});
-});
+};
 
 
 // TODO: ausprobieren, ob es funktioniert:
 // *********************** deleting ...........: ***********************
 /* DELETE old Tweets */
-router.delete("/delete", (req, res) => {
+var deleteItems = (req, res) => {
 
 	var db = req.db;
 
@@ -148,7 +146,12 @@ router.delete("/delete", (req, res) => {
 			res.json(result);
 		}
 	});
-});
+};
 
 
-module.exports = router;
+module.exports = {
+	getItems,
+	postItems,
+	updateItems,
+	deleteItems
+};
