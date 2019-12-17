@@ -81,6 +81,7 @@ function removeOldUnwetterAndTweetsFromDB(currentTimestamp){
 */
 function removeOldUnwetterAndTweetsFromDB2() {
 
+  //TODO: warum hier schon als String erstellen, wenn im ajax doch stringfy aufgerufen wird?
   let queryGetOldUnwetter = {
     "$and": '[ { "type":"Unwetter" },  { "timestamps": { "$size": 1 }} ]'
   };
@@ -142,50 +143,108 @@ function removeOldUnwetterAndTweetsFromDB2() {
 */
 function removeOldUnwetterFromDB(unwetterIDs){
 
-  // delete all Unwetter from database which have an empty Array "timestamps"
   let query = {
     // TODO syntax berichtigen
-    "$and": '[ { "type":"Unwetter" },  { "$or": [ { "dwd_id": { } } ] } ]'
-
-//    }+ unwetterIDs + '"} ]'
+    $and: [
+      { type:"Unwetter" },
+      { $or: []
+      }
+    ]
   };
 
-  //$or: [id, id,...]
+
+  console.log(query);
+
+  for (let u = 0; u < unwetterIDs.length; u++) {
+    query.$and[1].push({"dwd_id": + unwetterIDs[u]});
+  }
+
+  console.log(query);
+
+  /*
+  // delete all Unwetter from database which have an empty Array "timestamps"
+  let queryT = {
+  // TODO syntax berichtigen
+  "$and": '[
+  { "type":"Unwetter" },
+  { "$or": [
+  //      {
+  //        "dwd_id": + unwetterIDs[u] +
+  //      },
+  //      {
+  //        "dwd_id": ""
+  //      },
+  //      {
+  //        "dwd_id": ""
+  //      },
+  //      {
+  //        "dwd_id": ""
+  //      }
+]
+}
+]'
+};
+*/
+
+/*
+let query = {
+// TODO syntax berichtigen
+$and: [
+{ type:"Unwetter" },
+{ $or: [
+{
+dwd_id: "123"
+}
+//      ,
+//      {
+//        "dwd_id": ""
+//      },
+//      {
+//        "dwd_id": ""
+//      },
+//      {
+//        "dwd_id": ""
+//      }
+]
+}
+]
+};
+*/
+
 console.log(JSON.stringify(query));
 
+//
+$.ajax({
+  // use a http DELETE request
+  type: "DELETE",
+  // URL to send the request to
+  url: "/db/delete",
+  // type of the data that is sent to the server
+  contentType: "application/json; charset=utf-8",
+  // data to send to the server, send as String for independence of server-side programming language
+  data: JSON.stringify(query),
+  // timeout set to 10 seconds
+  timeout: 10000
+})
 
-  //
-  $.ajax({
-    // use a http DELETE request
-    type: "DELETE",
-    // URL to send the request to
-    url: "/db/delete",
-    // type of the data that is sent to the server
-    contentType: "application/json; charset=utf-8",
-    // data to send to the server, send as String for independence of server-side programming language
-    data: JSON.stringify(query),
-    // timeout set to 10 seconds
-    timeout: 10000
-  })
+// if the request is done successfully, ...
+.done (function (response) {
 
-  // if the request is done successfully, ...
-  .done (function (response) {
+  // ... give a notice on the console that the AJAX request for deleting all old Unwetter has succeeded
+  console.log("AJAX request (deleting all old Unwetter) is done successfully.");
+})
 
-    // ... give a notice on the console that the AJAX request for deleting all old Unwetter has succeeded
-    console.log("AJAX request (deleting all old Unwetter) is done successfully.");
-  })
+// if the AJAX-request has failed, ...
+.fail (function (xhr, status, error) {
 
-  // if the AJAX-request has failed, ...
-  .fail (function (xhr, status, error) {
+  // ... give a notice that the AJAX request for for deleting all old Unwetter has failed and show the error on the console
+  console.log("AJAX request (deleting all old Unwetter) has failed.", error);
 
-    // ... give a notice that the AJAX request for for deleting all old Unwetter has failed and show the error on the console
-    console.log("AJAX request (deleting all old Unwetter) has failed.", error);
-
-    // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-    if (error === "timeout") {
-      //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/db/delete' timeout");
-    }
-  });
+  // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+  if (error === "timeout") {
+    //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/db/delete' timeout");
+  }
+});
 }
 
 
