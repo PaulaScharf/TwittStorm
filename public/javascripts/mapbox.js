@@ -445,21 +445,21 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 					})
 
 					// if the request is done successfully, ...
-						.done(function () {
-							// ... give a notice on the console that the AJAX request for inserting many items has succeeded
-							console.log("AJAX request (finding and inserting tweets) is done successfully.");
-						})
+					.done(function () {
+						// ... give a notice on the console that the AJAX request for inserting many items has succeeded
+						console.log("AJAX request (finding and inserting tweets) is done successfully.");
+					})
 
-						// if the request has failed, ...
-						.fail(function (xhr, status, error) {
-							// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
-							console.log("AJAX request (finding and inserting tweets) has failed.", error);
+					// if the request has failed, ...
+					.fail(function (xhr, status, error) {
+						// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+						console.log("AJAX request (finding and inserting tweets) has failed.", error);
 
-							// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-							if (error === "timeout") {
-								//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
-							}
-						});
+						// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+						if (error === "timeout") {
+							//JL("ajaxTwitterSearchEventsTimeout").fatalException("ajax: '/twitter/searchEvents' timeout");
+						}
+					});
 				}
 			})
 		}
@@ -644,17 +644,15 @@ function displayEvent(map, layerID, eventFeatureCollection) {
 */
 function findAndRemoveOldLayerIDs(currentUnwetters){
 
-
-	// TODO: DIESE FUNKTION TUT NICHT DAS GEWÜNSCHTE??
-
 	// Array in which the layerIDs of the Unwetter which shall not longer be displayed in the map will be collected (for deleting them from Array customLayerIds afterwards)
 	let layerIDsToRemove = [];
 
 	// iteration over all elements (all layerIDs) in Array customLayerIds
 	for (let i = 0; i < customLayerIds.length; i++) {
 
-		console.log(i);
-		console.log(customLayerIds.length);
+		// TODO: für fehlersuche
+		//	console.log(i);
+		//	console.log(customLayerIds.length);
 
 		let layerID = customLayerIds[i];
 

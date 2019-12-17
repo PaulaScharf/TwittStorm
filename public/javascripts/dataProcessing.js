@@ -11,7 +11,7 @@
 
 
 /**
-* This function calls '/db/' with AJAX, to retrieve all items that comply to the given query in the database.
+* This function calls '/data/' with AJAX, to retrieve all items that comply to the given query in the database.
 * The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example of await).
 * @author Paula Scharf, matr.: 450334
 * @param {Object} query
@@ -57,7 +57,7 @@ function promiseToGetItems(query, typeOfItems) {
 
 
 /**
-* This function calls '/db/add' with AJAX, to save the given items in the database.* The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example of await)
+* This function calls '/data/add' with AJAX, to save the given items in the database.* The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example of await)
 * @author Paula Scharf
 * @param arrayOfItems - array which contains the items
 * @param {String} typeOfItems - for documentation
@@ -67,9 +67,11 @@ function promiseToPostItems(arrayOfItems, typeOfItems) {
   return new Promise((resolve, reject) => {
 
     if (arrayOfItems.length === 0) {
-      resolve();
+      // TODO: fragen, ob so ok
+      return resolve();
     }
 
+    //
     $.ajax({
       // use a http POST request
       type: "POST",
