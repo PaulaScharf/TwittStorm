@@ -87,7 +87,6 @@ function processUnwettersFromDWD(currentTimestamp) {
               // TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
               //      allUnwetter[i].properties.RESPONSETYPE
               //      allUnwetter[i].properties.URGENCY === "Immediate"
-              // weitere Parameter in CAP-Doc, zB Altitude und Ceiling
 
 
               // check whether exactly this Unwetter is already stored in the database
@@ -246,11 +245,8 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
 */
 function createUnwetterForDB(currentFeature, currentTimestamp){
 
-  // TODO: wird "color" am Ende wirklich verwendet? sonst löschen und auch die Funktionen rgbToHex und componentToHex löschen!!
-
   //
   let area_color = (currentFeature.properties.EC_AREA_COLOR).split(' ').map(Number);
-  //let color = rgbToHex(area_color[0], area_color[1], area_color[2]);
 
   // FÜR ALLE TIMESTAMPS JEDEN REQUESTS (siehe Zettel mit Paula, Jonathan)
   let timestamps = [currentTimestamp];
@@ -260,10 +256,6 @@ function createUnwetterForDB(currentFeature, currentTimestamp){
   let onset = Date.parse(currentFeature.properties.ONSET);
   let effective = Date.parse(currentFeature.properties.EFFECTIVE);
   let expires = Date.parse(currentFeature.properties.EXPIRES);
-  //let sent = Date.parse(currentFeature.properties.SENT) + 3600000;
-  //let onset = Date.parse(currentFeature.properties.ONSET) + 3600000;
-  //let effective = Date.parse(currentFeature.properties.EFFECTIVE) + 3600000;
-  //let expires = Date.parse(currentFeature.properties.EXPIRES) + 3600000;
 
   //
   let currentUnwetter = {
@@ -278,18 +270,13 @@ function createUnwetterForDB(currentFeature, currentTimestamp){
       responseType: currentFeature.properties.RESPONSETYPE,
       urgency: currentFeature.properties.URGENCY,
       severity: currentFeature.properties.SEVERITY,
-      // TODO: was ist Parameter? Wozu?
-      //parameter: currentFeature.properties.Parameter,
       certainty: currentFeature.properties.CERTAINTY,
       description: currentFeature.properties.DESCRIPTION,
       instruction: currentFeature.properties.INSTRUCTION,
-      //color: color,
       sent: sent,
       onset: onset,
       effective: effective,
-      expires: expires,
-      //altitude: currentFeature.properties.ALTITUDE,
-      //ceiling: currentFeature.properties.CEILING
+      expires: expires
     }
   };
   // return the formatted Unwetter
@@ -327,7 +314,7 @@ function updateTimestamp(_id, currentTimestamp) {
       // use a http PUT request
       type: "PUT",
       // URL to send the request to
-      url: "/db/update",
+      url: "/data/update",
       // type of the data that is sent to the server
       contentType: "application/json; charset=utf-8",
       // data to send to the server, send as String for independence of server-side programming language
@@ -352,7 +339,7 @@ function updateTimestamp(_id, currentTimestamp) {
 
       // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
       if (error === "timeout") {
-        //    JL("ajaxUpdatingOneUnwetterItemTimeout").fatalException("ajax: '/db/updateUnwetter' timeout");
+        //    JL("ajaxUpdatingOneUnwetterItemTimeout").fatalException("ajax: '/data/updateUnwetter' timeout");
       }
 
       reject("AJAX request (updating timestamps of one Unwetter) has failed.");

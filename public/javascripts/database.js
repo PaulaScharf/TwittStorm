@@ -40,7 +40,7 @@ function removeOldUnwetterFromDB(currentTimestamp){
     // use a http PUT request
     type: "PUT",
     // URL to send the request to
-    url: "/db/update",
+    url: "/data/update",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // data to send to the server, send as String for independence of server-side programming language
@@ -68,7 +68,7 @@ function removeOldUnwetterFromDB(currentTimestamp){
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajax........Timeout").fatalException("ajax: '/db/removeUnwetterTimestamps' timeout");
+      //    JL("ajax........Timeout").fatalException("ajax: '/data/update' timeout");
     }
   });
 }
@@ -91,7 +91,7 @@ function removeOldUnwetterFromDB2(){
     // use a http DELETE request
     type: "DELETE",
     // URL to send the request to
-    url: "/db/delete",
+    url: "/data/delete",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // query
@@ -129,7 +129,7 @@ function removeOldUnwetterFromDB2(){
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/db/deleteOldUnwetter' timeout");
+      //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/data/delete' timeout");
     }
   });
 }
@@ -159,7 +159,7 @@ function removeOldTweetFromDB(){
     // use a http DELETE request
     type: "DELETE",
     // URL to send the request to
-    url: "/db/delete",
+    url: "/data/delete",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // data to send to the server, send as String for independence of server-side programming language
@@ -183,7 +183,7 @@ function removeOldTweetFromDB(){
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajaxDeletingOneTweetTimeout").fatalException("ajax: '/db/delete' timeout");
+      //    JL("ajaxDeletingOneTweetTimeout").fatalException("ajax: '/data/delete' timeout");
     }
   });
 }

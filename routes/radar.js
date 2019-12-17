@@ -12,7 +12,8 @@
 var express = require('express');
 var router = express.Router();
 var R = require('r-script');
-const mongodb = require('mongodb');
+//const mongodb = require('mongodb');
+
 
 /**
   * function to return a GeoJSON formatted Polygon

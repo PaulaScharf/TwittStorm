@@ -40,10 +40,10 @@ const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 // set the routers-paths
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/data');
-var twitterRouter = require('./routes/twitter');
+var warningsRouter = require('./routes/warnings');
 var radarRouter = require('./routes/radar');
+var twitterRouter = require('./routes/twitter');
 var configRouter = require('./routes/configuration');
-
 
 var app = express();
 
@@ -179,11 +179,13 @@ app.post("/jsnlog.logger", function (req, res) {
 // index-router
 app.use('/', indexRouter);
 //
-app.use('/db', dbRouter);
+app.use('/data', dbRouter);
 //
-app.use('/twitter', twitterRouter);
+app.use('/warnings', warningsRouter);
 //
 app.use('/radar', radarRouter);
+//
+app.use('/twitter', twitterRouter);
 //
 app.use('/config', configRouter);
 
