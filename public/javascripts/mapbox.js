@@ -164,14 +164,14 @@ function showMap(style) {
 			var severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-			// TODO: für legende schon JSON-antwort aus DB mit radardaten nötig, um class-werte in legende einzutragen
-			showLegend(map, "radar");	// TODO: hier muss classBorders.classes mit übergeben werden
-
-			if(paramArray.rasterClassification == undefined) {
+			if (paramArray.rasterClassification == undefined) {
 				paramArray.rasterClassification = 'dwd';
 			}
 
 			if (paramArray.rasterProduct != undefined) {
+
+				showLegend(map, "radar", paramArray.rasterProduct);
+
 				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.rasterClassification);
 
 				// check the checkbox of the radar submenu according to the chosen product
@@ -188,8 +188,9 @@ function showMap(style) {
 					innerRasterCheckToggle3.checked = true;
 				};
 
-
 			} else {
+				// default radar case (rw)
+				showLegend(map, "radar", "rw");
 				requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
 				var innerRasterCheckToggle2 = document.getElementById('radio2');
 				innerRasterCheckToggle2.checked = true;
@@ -340,11 +341,21 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		//
 		displayCurrentUnwetters(map, currentTimestamp);
 
-		// display the timestamp of the last request in the legend
-		let splittedTimestamp = Date(currentTimestamp).split("(");
-		let formattedTimestamp = splittedTimestamp[0];
-		let timestampLastRequest = document.getElementById("timestampLastRequest");
-		timestampLastRequest.innerHTML = "<b>timestamp of last request:</b><br>" + formattedTimestamp;
+		// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN RADAR-LEGENDE REIN,
+		// FALLS NACH UNWETTER-MENÜ-AUFRUF DIREKT RADAR AUFGERUFEN WURDE UND UNWETTER NOCH VERARBEITET WERDEN!!!!
+		if (paramArray.wtype != "radar"){
+			// display the timestamp of the last request in the legend
+			let splittedTimestamp = Date(currentTimestamp).split("(");
+			let formattedTimestamp = splittedTimestamp[0];
+			let timestampLastRequest = document.getElementById("timestampLastRequest");
+			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+		}
+
+		// TODO: für RADARFUNKTION folgendes verwenden:
+		/*
+		let dataTimestamp = document.getElementById("dataTimestamp");
+		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br> TODO"; // TODO: hier timestamp of radar data aus DB anfügen
+		*/
 
 	}, function(err) {
 		console.log(err);
@@ -459,7 +470,41 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 			.catch(console.error)
 			.then(function(result){
 				if (!result) {
-					retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
+					let query = {
+						twitterSearchQuery: twitterSearchQuery,
+						unwetterID: currentUnwetterEvent.dwd_id,
+						unwetterEvent: currentUnwetterEvent.properties.event,
+						currentTimestamp: currentTimestamp
+					};
+					$.ajax({
+						// use a http POST request
+						type: "POST",
+						// URL to send the request to
+						url: "/twitter/searchEvents",
+						// type of the data that is sent to the server
+						contentType: "application/json; charset=utf-8",
+						// data to send to the server
+						data: JSON.stringify(query),
+						// timeout set to 15 seconds
+						timeout: 15000
+					})
+
+					// if the request is done successfully, ...
+						.done(function () {
+							// ... give a notice on the console that the AJAX request for inserting many items has succeeded
+							console.log("AJAX request (finding and inserting tweets) is done successfully.");
+						})
+
+						// if the request has failed, ...
+						.fail(function (xhr, status, error) {
+							// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+							console.log("AJAX request (finding and inserting tweets) has failed.", error);
+
+							// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+							if (error === "timeout") {
+								//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
+							}
+						});
 				}
 			})
 		}
@@ -467,7 +512,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 	},function (xhr, status, error) {
 
 		// ... give a notice that the ....... has failed and show the error on the console
-		console.log("Notice........", error);
+		console.log("Notice ... failed.", error);
 	});
 }
 

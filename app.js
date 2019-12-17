@@ -39,9 +39,9 @@ const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
-var dbRouter = require('./routes/database');
+var dbRouter = require('./routes/data');
 var twitterRouter = require('./routes/twitter');
-var rasterRouter = require('./routes/raster');
+var radarRouter = require('./routes/radar');
 var configRouter = require('./routes/configuration');
 
 
@@ -183,7 +183,7 @@ app.use('/db', dbRouter);
 //
 app.use('/twitter', twitterRouter);
 //
-app.use('/raster', rasterRouter);
+app.use('/radar', radarRouter);
 //
 app.use('/config', configRouter);
 

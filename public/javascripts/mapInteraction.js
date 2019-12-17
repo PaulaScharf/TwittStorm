@@ -19,7 +19,6 @@
 
 // ******************************** functions **********************************
 
-// TODO: classes übergeben und verwenden bei radar!!
 /**
 * @desc
 *
@@ -28,13 +27,11 @@
 * @private
 * @param {mapbox-map} map - mapbox-map for and in which to display the legend
 * @param {String} typeOfLegend - unwetter or radar
-* @param {String} product type of rain radar: RY, RW or SF
-* @param {Array} classes - ... - just needed for radar, not used for unwetter
+* @param {String} product type of rain radar: ry, rw or sf
 */
-function showLegend(map, typeOfLegend, product, classes) {
+function showLegend(map, typeOfLegend, product) {
 
-	// TODO: classes nutzen
-
+	// first remove some old DOM elements
 	while (legend.hasChildNodes()) {
 		legend.removeChild(legend.firstChild);
 	}
@@ -44,21 +41,24 @@ function showLegend(map, typeOfLegend, product, classes) {
 	paraTypeOfLegend.id = "typeOfLegend"; // set ID of the html-paragraph
 	legend.appendChild(paraTypeOfLegend);
 
-
 	let values = [];
 	let colors = [];
-	//let paraTypeOfLegend = document.getElementById("typeOfLegend");
 	let dataSource = document.getElementById("dataSource");
+	let dataTimestamp = document.getElementById("dataTimestamp");
 	let timestampLastRequest = document.getElementById("timestampLastRequest");
 	let refreshRate = document.getElementById("refreshRate");
 	let posAccuracy = document.getElementById("posAccuracy");
 
 
-	// legend for Unwetter
+	// ******************************* legend for Unwetter *******************************
 	if (typeOfLegend === "unwetter") {
 
 		// set titel of legend
 		paraTypeOfLegend.innerHTML = "<b>Severe weather</b>";
+		// set info for data timestamps
+		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>Differs for each warning,<br>see popups in map.";
+		// set positional accuracy
+		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>TODO! local authority level";
 
 		// TODO: BESSER MACHEN, INFOS DIREKT AUS LAYERN NEHMEN?? NICHT DIREKT MÖGLICH, DA JEDER TYPE VIELE LAYER HAT
 		//let allCurrentLayers = map.getStyle().layers;
@@ -68,32 +68,46 @@ function showLegend(map, typeOfLegend, product, classes) {
 		colors = ["blue", "yellow", "red", "white", "grey"];
 	}
 
-	// legend for rain radar
+
+	// ****************************** legend for rain radar ******************************
 	if (typeOfLegend === "radar") {
 
 		// set titel of legend
 		paraTypeOfLegend.innerHTML = "<b>Depth of precipitation</b>";
 
+		//
 		let productType = document.createElement("p"); // create a html-paragraph
 		productType.id = "productType"; // set ID of the html-paragraph
-		productType.innerHTML = "TODO: Rain radar product type: " + paramArray.radProd;
 		paraTypeOfLegend.appendChild(productType);
 
+		//
+		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>TODO"; // TODO: in radar-js-datei den timestamp of radar data aus DB anfügen
+		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>1 km";
 
-		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
+		let classes = [];
+		// last value of last class is not needed, it is just any much to big value for including all bigger values than in the three lower classes
 
+		switch (product) {
+			case (product = "ry"): // 5 min
+			productType.innerHTML = "Rain radar product type:<br><b>Sum of 5 min (RY)</b>";
+			classes = [[0,0.01,1],[0.01,0.034,2],[0.034,0.166,3],[0.166,10000,4]];
+			break;
+			case (product = "rw"): // 60 min
+			productType.innerHTML = "Rain radar product type:<br><b>Sum of 60 min (RW)</b>";
+			classes = [[0,0.25,1],[0.25,1,2],[1,5,3],[5,10000,4]];
+			break;
+			case (product = "sf"): // 24 h
+			productType.innerHTML = "Rain radar product type:<br><b>Sum of 24 h (SF)</b>";
+			classes = [[0,6,1],[6,24,2],[24,120,3],[120,10000,4]];
+			break;
+		}
 
-		// TODO: KLASSEN DIREKT AUS JSON AUS DB NEHMEN
-		// Beispiel für SF
-		let classes = [[0,0.01,1],[0.01,0.034,2],[0.034,0.166,3],[0.166,10000,4]];
-
-		//values = ["0 to 0.01", "0.01 to 0.034", "0.034 to 0.166", "0.166 to 10000"];
-
-		// TODO: letzte werte zu kleinerer oder größerer klasse gehörig?
-		values = [(classes[0][0] + " mm to " + classes[0][1] + " mm"), (classes[1][0] + " mm to " + classes[1][1] + " mm"), (classes[2][0] + " mm to " + classes[2][1] + " mm"), (classes[3][0] + " mm to " + classes[3][1] + " mm")];
+		values = [("> " + classes[0][0] + " mm to " + classes[0][1] + " mm"), ("> " + classes[1][0] + " mm to " + classes[1][1] + " mm"), ("> " + classes[2][0] + " mm to " + classes[2][1] + " mm"), ("> " + classes[3][0] + " mm")];
 		colors = ["#b3cde0", "#6497b1", "#03396c", "#011f4b"];
 	}
 
+
+	// ****************************** legend for both ******************************
 
 	let l;
 	// for-loop over every element-pair (value and color) for the legend
@@ -114,11 +128,10 @@ function showLegend(map, typeOfLegend, product, classes) {
 	}
 
 	//
-	dataSource.innerHTML = "<b>data source:</b><br>Deutscher Wetterdienst<br>(evtl. Logo einfügen)";
-	timestampLastRequest.innerHTML = "<b>timestamp of last request:</b><br>";
+	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD_Logo.png' alt='Deutscher Wetterdienst'>";
+	timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>";
 	let refreshRateValue = paramArray.config.refresh_rate;
-	refreshRate.innerHTML = "<b>refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
-	posAccuracy.innerHTML = "<b>positional accuracy of data:</b><br>TODO!";
+	refreshRate.innerHTML = "<b>Refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
 }
 
 
@@ -198,6 +211,7 @@ function zoomToCoordinates(coordinates) {
 * @param {String} layerID - ID of a layer
 */
 function addLayerToMenu(layerID) {
+	
 	// split layerID on whitspace
 	let layerParts = layerID.split(/[ ]+/);
 	let groupName = layerParts[1];
@@ -350,6 +364,7 @@ function removeAddGermany(){
 * @author Benjamin Rieke, Paula Scharf
 */
 function switchLayer(layer) {
+
 	const savedLayers = [];
 	const savedSources = {};
 
@@ -401,6 +416,7 @@ function styleSelector(){
 * @param product -The desired radar product. CHeck the github wiki for further informations
 */
 function loadRaster(product){
+
 	// set flag to radar
 	wtypeFlag = "radar";
 
@@ -412,14 +428,7 @@ function loadRaster(product){
 	updateURL('wtype', 'radar');
 	updateURL('radProd', product);
 
-
-	// TODO: für legende schon JSON-antwort aus DB mit radardaten nötig, um class-werte in legende einzutragen
-	showLegend(map, "radar", product);	// TODO: hier muss classBorders.classes mit übergeben werden
-	console.log(product);
-	// ry: 5 minutes
-	// rw: 60 minutes
-	// sf: 24 hours
-
+	showLegend(map, "radar", product);
 
 	// if no rainradar data is displayed load the requested product
 	if (map.style.sourceCaches.rainRadar == undefined){
@@ -580,7 +589,7 @@ function showUnwetterPopup(map, e) {
 				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
 				new mapboxgl.Popup()
 				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction + "<br><b>mapSource: </b>" + picked[0].source)
+				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
 				.addTo(map);
 			}
 			// if a instruction is not given by the DWD ...
@@ -588,7 +597,7 @@ function showUnwetterPopup(map, e) {
 				// ... create a popup with above information without an instruction
 				new mapboxgl.Popup()
 				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br><b>mapSource: </b>" + picked[0].source)
+				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
 				.addTo(map);
 			}
 		}
@@ -610,7 +619,7 @@ function showTweetPopup(map, e) {
 
 	if (pickedTweet[0].source.includes("Tweet")) {
 		let idAsString = pickedTweet[0].properties.idstr;
-		// ... create a popup with the following information: event-type, description, onset and expires timestamp and a instruction
+		// ... create a popup with the following information: ........
 		new mapboxgl.Popup()
 		.setLngLat(e.lngLat)
 		.setHTML("<div id='" + idAsString + "'></div>")
