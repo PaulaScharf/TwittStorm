@@ -356,13 +356,15 @@ right: 13px;
 }
 
 #typeOfLegend {
-  font-size:16px;
+  font-size: 16px;
   text-align: center;
+  /*line-height: 2;*/
 }
 
 #productType {
-  font-size:14px;
+  font-size: 14px;
   text-align: left;
+  line-height: 1.5;
 }
 
 #legend {

@@ -164,14 +164,17 @@ function showMap(style) {
 			var severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-			// TODO: für legende schon JSON-antwort aus DB mit radardaten nötig, um class-werte in legende einzutragen
-			showLegend(map, "radar");	// TODO: hier muss classBorders.classes mit übergeben werden
+// TODO: hier legende einfügen
 
-			if(paramArray.rasterClassification == undefined) {
+			if (paramArray.rasterClassification == undefined) {
 				paramArray.rasterClassification = 'dwd';
 			}
 
 			if (paramArray.rasterProduct != undefined) {
+
+				// TODO: weiter oben einfügen, aber wo wird default für radProd = rw gesetzt?
+				showLegend(map, "radar", paramArray.rasterProduct);
+
 				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.rasterClassification);
 
 				// check the checkbox of the radar submenu according to the chosen product

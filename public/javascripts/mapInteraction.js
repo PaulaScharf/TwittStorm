@@ -19,7 +19,6 @@
 
 // ******************************** functions **********************************
 
-// TODO: classes übergeben und verwenden bei radar!!
 /**
 * @desc
 *
@@ -28,37 +27,32 @@
 * @private
 * @param {mapbox-map} map - mapbox-map for and in which to display the legend
 * @param {String} typeOfLegend - unwetter or radar
-* @param {String} product type of rain radar: RY, RW or SF
-* @param {Array} classes - ... - just needed for radar, not used for unwetter
+* @param {String} product type of rain radar: ry, rw or sf
 */
-function showLegend(map, typeOfLegend, product, classes) {
-
-// TODO: classes nutzen
+function showLegend(map, typeOfLegend, product) {
 
 	while (legend.hasChildNodes()) {
 		legend.removeChild(legend.firstChild);
 	}
 
-
 	let paraTypeOfLegend = document.createElement("p"); // create a html-paragraph
 	paraTypeOfLegend.id = "typeOfLegend"; // set ID of the html-paragraph
 	legend.appendChild(paraTypeOfLegend);
 
-
 	let values = [];
 	let colors = [];
-	//let paraTypeOfLegend = document.getElementById("typeOfLegend");
 	let dataSource = document.getElementById("dataSource");
 	let timestampLastRequest = document.getElementById("timestampLastRequest");
 	let refreshRate = document.getElementById("refreshRate");
 	let posAccuracy = document.getElementById("posAccuracy");
-
 
 	// legend for Unwetter
 	if (typeOfLegend === "unwetter") {
 
 		// set titel of legend
 		paraTypeOfLegend.innerHTML = "<b>Severe weather</b>";
+		// set positional accuracy
+		posAccuracy.innerHTML = "<b>positional accuracy of data:</b><br>TODO! Gemeindeebene";
 
 		// TODO: BESSER MACHEN, INFOS DIREKT AUS LAYERN NEHMEN?? NICHT DIREKT MÖGLICH, DA JEDER TYPE VIELE LAYER HAT
 		//let allCurrentLayers = map.getStyle().layers;
@@ -76,21 +70,33 @@ function showLegend(map, typeOfLegend, product, classes) {
 
 		let productType = document.createElement("p"); // create a html-paragraph
 		productType.id = "productType"; // set ID of the html-paragraph
-		productType.innerHTML = "TODO: Rain radar product type: " + paramArray.radProd;
 		paraTypeOfLegend.appendChild(productType);
+
+		posAccuracy.innerHTML = "<b>positional accuracy of data:</b><br>1 km";
 
 
 		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
 
 
-		// TODO: KLASSEN DIREKT AUS JSON AUS DB NEHMEN
-		// Beispiel für SF
-		let classes = [[0,0.01,1],[0.01,0.034,2],[0.034,0.166,3],[0.166,10000,4]];
+		let classes = [];
+		// last value of last class is not needed, it is just any much to big value for including all bigger values than in the three lower classes
 
-		//values = ["0 to 0.01", "0.01 to 0.034", "0.034 to 0.166", "0.166 to 10000"];
+		switch (product) {
+			case (product = "ry"): // 5 min
+			productType.innerHTML = "Rain radar product type:<br><b>RY (sum of 5 min)</b>";
+			classes = [[0,0.01,1],[0.01,0.034,2],[0.034,0.166,3],[0.166,10000,4]];
+			break;
+			case (product = "rw"): // 60 min
+			productType.innerHTML = "Rain radar product type:<br><b>RW (sum of 60 min)</b>";
+			classes = [[0,0.25,1],[0.25,1,2],[1,5,3],[5,10000,4]];
+			break;
+			case (product = "sf"): // 24 h
+			productType.innerHTML = "Rain radar product type:<br><b>SF (sum of 24 h)</b>";
+			classes = [[0,6,1],[6,24,2],[24,120,3],[120,10000,4]];
+			break;
+		}
 
-		// TODO: letzte werte zu kleinerer oder größerer klasse gehörig?
-		values = [(classes[0][0] + " mm to " + classes[0][1] + " mm"), (classes[1][0] + " mm to " + classes[1][1] + " mm"), (classes[2][0] + " mm to " + classes[2][1] + " mm"), (classes[3][0] + " mm to " + classes[3][1] + " mm")];
+		values = [(">" + classes[0][0] + " mm to " + classes[0][1] + " mm"), (">" + classes[1][0] + " mm to " + classes[1][1] + " mm"), (">" + classes[2][0] + " mm to " + classes[2][1] + " mm"), (">" + classes[3][0] + " mm")];
 		colors = ["#b3cde0", "#6497b1", "#03396c", "#011f4b"];
 	}
 
@@ -118,7 +124,6 @@ function showLegend(map, typeOfLegend, product, classes) {
 	timestampLastRequest.innerHTML = "<b>timestamp of last request:</b><br>";
 	let refreshRateValue = paramArray.config.refresh_rate;
 	refreshRate.innerHTML = "<b>refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
-	posAccuracy.innerHTML = "<b>positional accuracy of data:</b><br>TODO!";
 }
 
 
@@ -410,13 +415,7 @@ function loadRaster(product) {
 	updateURL('wtype', 'radar');
 	updateURL('radProd', product);
 
-	// TODO: für legende schon JSON-antwort aus DB mit radardaten nötig, um class-werte in legende einzutragen
-	showLegend(map, "radar", product);	// TODO: hier muss classBorders.classes mit übergeben werden
-	console.log(product);
-	// ry: 5 minutes
-	// rw: 60 minutes
-	// sf: 24 hours
-
+	showLegend(map, "radar", product);
 
 	if (map.style.sourceCaches.rainRadar == undefined){
 		requestAndDisplayAllRainRadar(map, product, "dwd");
@@ -492,7 +491,7 @@ function loadSevereWeather() {
 		}
 	});
 
-// deavtivate the raster menu
+	// deavtivate the raster menu
 	var rasterMenuToggle = document.getElementById('raster');
 	rasterMenuToggle.classList.remove("active");
 	var innerRasterMenuToggle = document.getElementById('rasterMenu');
