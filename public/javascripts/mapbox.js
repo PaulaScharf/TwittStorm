@@ -416,7 +416,41 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 			.catch(console.error)
 			.then(function(result){
 				if (!result) {
-					retrieveTweets(twitterSearchQuery, currentUnwetterEvent.dwd_id, currentUnwetterEvent.properties.event, currentTimestamp);
+					let query = {
+						twitterSearchQuery: twitterSearchQuery,
+						unwetterID: currentUnwetterEvent.dwd_id,
+						unwetterEvent: currentUnwetterEvent.properties.event,
+						currentTimestamp: currentTimestamp
+					};
+					$.ajax({
+						// use a http POST request
+						type: "POST",
+						// URL to send the request to
+						url: "/twitter/searchEvents",
+						// type of the data that is sent to the server
+						contentType: "application/json; charset=utf-8",
+						// data to send to the server
+						data: JSON.stringify(query),
+						// timeout set to 15 seconds
+						timeout: 15000
+					})
+
+					// if the request is done successfully, ...
+						.done(function () {
+							// ... give a notice on the console that the AJAX request for inserting many items has succeeded
+							console.log("AJAX request (finding and inserting tweets) is done successfully.");
+						})
+
+						// if the request has failed, ...
+						.fail(function (xhr, status, error) {
+							// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+							console.log("AJAX request (finding and inserting tweets) has failed.", error);
+
+							// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+							if (error === "timeout") {
+								//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
+							}
+						});
 				}
 			})
 		}

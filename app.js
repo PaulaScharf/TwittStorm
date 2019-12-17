@@ -39,7 +39,7 @@ const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
-var dbRouter = require('./routes/database');
+var dbRouter = require('./routes/data');
 var twitterRouter = require('./routes/twitter');
 var rasterRouter = require('./routes/raster');
 var configRouter = require('./routes/configuration');
