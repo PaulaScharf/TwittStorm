@@ -127,8 +127,8 @@ function showLegend(map, typeOfLegend, product) {
 		legend.appendChild(legendElements);
 	}
 
-	//
-	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD_Logo.png' alt='Deutscher Wetterdienst'>";
+	//image taken from: https://upload.wikimedia.org/wikipedia/de/thumb/7/7b/DWD-Logo_2013.svg/800px-DWD-Logo_2013.svg.png
+	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD-Logo_2013.svg' alt='Deutscher Wetterdienst'>";
 	timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>";
 	let refreshRateValue = paramArray.config.refresh_rate;
 	refreshRate.innerHTML = "<b>Refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
@@ -211,7 +211,7 @@ function zoomToCoordinates(coordinates) {
 * @param {String} layerID - ID of a layer
 */
 function addLayerToMenu(layerID) {
-	
+
 	// split layerID on whitspace
 	let layerParts = layerID.split(/[ ]+/);
 	let groupName = layerParts[1];
