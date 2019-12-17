@@ -19,7 +19,7 @@
   * @author Katharina Poppinga, Benjamin Rieke, Paula Scharf, Jonathan Bahlmann
   */
 function saveRainRadar(product, classification) {
-  let url = '/raster/' + product + '/' + classification;
+  let url = '/radar/' + product + '/' + classification;
   return new Promise((resolve, reject) => {
       // This array will contain all the calls of the function "promiseToPostItem"
       let arrayOfPromises = [];
