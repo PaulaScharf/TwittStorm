@@ -164,15 +164,12 @@ function showMap(style) {
 			var severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-// TODO: hier legende einfügen
-
 			if (paramArray.rasterClassification == undefined) {
 				paramArray.rasterClassification = 'dwd';
 			}
 
 			if (paramArray.rasterProduct != undefined) {
 
-				// TODO: weiter oben einfügen, aber wo wird default für radProd = rw gesetzt?
 				showLegend(map, "radar", paramArray.rasterProduct);
 
 				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.rasterClassification);
@@ -191,8 +188,9 @@ function showMap(style) {
 					innerRasterCheckToggle3.checked = true;
 				};
 
-
 			} else {
+				// default radar case (rw)
+				showLegend(map, "radar", "rw");
 				requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
 				var innerRasterCheckToggle2 = document.getElementById('radio2');
 				innerRasterCheckToggle2.checked = true;
@@ -218,8 +216,6 @@ function showMap(style) {
 			// requestNewAndDisplayCurrentUnwetters(map) is called each 5 minutes (300000 milliseconds = 5 minutes)
 			window.setInterval(requestNewAndDisplayCurrentUnwetters, paramArray.config.refresh_rate, map);
 		}
-
-
 
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -300,11 +296,21 @@ function requestNewAndDisplayCurrentUnwetters(map){
 		//
 		displayCurrentUnwetters(map, currentTimestamp);
 
-		// display the timestamp of the last request in the legend
-		let splittedTimestamp = Date(currentTimestamp).split("(");
-		let formattedTimestamp = splittedTimestamp[0];
-		let timestampLastRequest = document.getElementById("timestampLastRequest");
-		timestampLastRequest.innerHTML = "<b>timestamp of last request:</b><br>" + formattedTimestamp;
+		// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN RADAR-LEGENDE REIN,
+		// FALLS NACH UNWETTER-MENÜ-AUFRUF DIREKT RADAR AUFGERUFEN WURDE UND UNWETTER NOCH VERARBEITET WERDEN!!!!
+		if (paramArray.wtype != "radar"){
+			// display the timestamp of the last request in the legend
+			let splittedTimestamp = Date(currentTimestamp).split("(");
+			let formattedTimestamp = splittedTimestamp[0];
+			let timestampLastRequest = document.getElementById("timestampLastRequest");
+			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+		}
+
+		// TODO: für RADARFUNKTION folgendes verwenden:
+		/*
+		let dataTimestamp = document.getElementById("dataTimestamp");
+		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br> TODO"; // TODO: hier timestamp of radar data aus DB anfügen
+		*/
 
 	}, function(err) {
 		console.log(err);
@@ -427,7 +433,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 	},function (xhr, status, error) {
 
 		// ... give a notice that the ....... has failed and show the error on the console
-		console.log("Notice........", error);
+		console.log("Notice ... failed.", error);
 	});
 }
 

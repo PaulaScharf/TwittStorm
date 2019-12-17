@@ -371,6 +371,10 @@ right: 13px;
   line-height: 25px;
 }
 
+#DWD_Logo {
+  height: 50px;
+}
+
 .colorKey {
   display: inline-block;
   opacity: 0.4;

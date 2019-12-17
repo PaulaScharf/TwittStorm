@@ -20,9 +20,9 @@ var router = express.Router();
 const fs = require('fs');
 const yaml = require('js-yaml');
 
-/* GET home page.*/
-router.get('/', function(req, res, next) {
 
+/* GET main page.*/
+router.get('/', function(req, res, next) {
 
   let paramArray = {
     "timestamp": req.query.timestamp,
@@ -42,17 +42,40 @@ router.get('/', function(req, res, next) {
   });
 });
 
-/* GET author site */
+/* GET map page */
+router.get('/map', function(req, res, next) {
+
+  // TODO: modularisieren, damit nicht doppelt für / und /map ?
+  let paramArray = {
+    "timestamp": req.query.timestamp,
+    "aoi": req.query.aoi,
+    "wtype": req.query.wtype,
+    "rasterProduct": req.query.radProd,
+    "rasterClassification": req.query.radClass,
+    "base": req.query.base,
+    "mapZoom": req.query.mapZoom,
+    "mapCenter": req.query.mapCenter,
+    "config": yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'))
+  };
+
+  res.render('index', {
+    title: 'TwittStorm',
+    paramArray: paramArray
+  });
+});
+
+
+/* GET author page */
 router.get('/author', function(req, res, next) {
   res.render('author', { title: 'Author'});
 });
 
-/* GET create site */
+/* GET help page */
 router.get('/help', function(req, res, next) {
   res.render('help', { title: 'User Documentation'});
 });
 
-/* GET mongo site */
+/* GET config page */
 router.get('/config', function(req, res, next) {
   res.render('config', {
     title: 'Configuration',
@@ -60,7 +83,7 @@ router.get('/config', function(req, res, next) {
   });
 });
 
-/* GET mongo site */
+/* GET mongo page */
 router.get('/mongo', function(req, res, next) {
   res.render('mongo', { title: 'MongoDB'});
 });
