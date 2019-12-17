@@ -38,7 +38,7 @@ function removeOldUnwetterAndTweetsFromDB(currentTimestamp){
     // use a http PUT request
     type: "PUT",
     // URL to send the request to
-    url: "/db/update",
+    url: "/data/update",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // data to send to the server, send as String for independence of server-side programming language
@@ -66,7 +66,7 @@ function removeOldUnwetterAndTweetsFromDB(currentTimestamp){
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajax........Timeout").fatalException("ajax: '/db/update' timeout");
+      //    JL("ajax........Timeout").fatalException("ajax: '/data/update' timeout");
     }
   });
 }
@@ -91,7 +91,7 @@ function removeOldUnwetterAndTweetsFromDB2() {
     // use a http POST request
     type: "POST",
     // URL to send the request to
-    url: "/db/",
+    url: "/data/delete",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // query
@@ -126,7 +126,7 @@ function removeOldUnwetterAndTweetsFromDB2() {
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajaxGettingOldUnwetterTimeout").fatalException("ajax: '/db/' timeout");
+      //    JL("ajaxGettingOldUnwetterTimeout").fatalException("ajax: '/data' timeout");
     }
   });
 }
@@ -151,7 +151,7 @@ function removeOldUnwetterFromDB(unwetterIDs){
     // use a http DELETE request
     type: "DELETE",
     // URL to send the request to
-    url: "/db/delete",
+    url: "/data/delete",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // data to send to the server, send as String for independence of server-side programming language
@@ -175,7 +175,7 @@ function removeOldUnwetterFromDB(unwetterIDs){
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/db/delete' timeout");
+      //    JL("ajaxDeletingOldUnwetterTimeout").fatalException("ajax: '/data/delete' timeout");
     }
   });
 }
@@ -202,7 +202,7 @@ function removeOldTweetsFromDB(unwetterIDs){
     // use a http DELETE request
     type: "DELETE",
     // URL to send the request to
-    url: "/db/delete",
+    url: "/data/delete",
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // data to send to the server, send as String for independence of server-side programming language
@@ -226,7 +226,7 @@ function removeOldTweetsFromDB(unwetterIDs){
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      //    JL("ajaxDeletingOneTweetTimeout").fatalException("ajax: '/db/delete' timeout");
+      //    JL("ajaxDeletingOneTweetTimeout").fatalException("ajax: '/data/delete' timeout");
     }
   });
 }

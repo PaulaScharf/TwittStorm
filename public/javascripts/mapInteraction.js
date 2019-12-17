@@ -281,12 +281,12 @@ function openMenu(button, menu) {
 		var innerRasterMenuToggle = document.getElementById('rasterMenu');
 		innerRasterMenuToggle.style.display = "block";
 	}
+	// if severe weather is selected automatically open up the severe weather submenu
 	else {
-		var innerUnwetterMenuToggle = document.getElementById('menu');
-		if (innerUnwetterMenuToggle.style.display = "block"){
-			// TODO?
-		};
-	}
+			var innerUnwetterMenuToggle = document.getElementById('menu');
+			innerUnwetterMenuToggle.style.display = "block";
+	};
+
 
 	// displays the germany boundary button if is not visible
 	var boundaryButtonToggle = document.getElementById('germanyButton');
@@ -409,7 +409,6 @@ function styleSelector(){
 }
 
 
-
 /**
 * @desc Loads the chosen radar product, updates the url, and hides previous selected layers
 * @author Benjamin Rieke
@@ -421,7 +420,7 @@ function loadRaster(product){
 	wtypeFlag = "radar";
 
 	// hide all severe weather polygons
-	hideUnwetter();
+	removeUnwetter();
 
 	console.log("Loading your requested radar product");
 	// update the URL
@@ -451,26 +450,42 @@ function loadRaster(product){
 
 
 /**
-* @desc Hides the Unwetter polygons and changes the severeweather Tab to not active
-* @author Benjamin Rieke
+* @desc Hides the Unwetter polygons, based on the findAndRemoveOldLayerIDs function. Also changes the severeweather Tab to not active
+* @author Benjamin Rieke, Katharina Poppinga
 */
-function hideUnwetter(){
+function removeUnwetter(){
 
-	// hide every available severe weather polygon
-	map.style._order.forEach(function(layer) {
-		let mapLayer = layer;
-		if (mapLayer.includes("Unwetter other") ) {
-			map.setLayoutProperty(layer, 'visibility', 'none');
-			console.log("hid one unwetter polygon");
-		};
-	});
+	// remove every available severe weather polygon
+	for (let i = 0; i < customLayerIds.length; i++) {
 
-	// remove the active attribute from the severe weather tab
-	var menuToggle = document.getElementById('severeWeather');
-	menuToggle.classList.remove("active");
-	// hide the svere weather sub menu
-	var selectionToggle = document.getElementById('menu');
-	selectionToggle.style.display ="none";
+		let layerID = customLayerIds[i];
+
+		// split the String of the layerID by space for getting the type Unwetter and the dwd_ids as isolated elements
+		let layerIdParts = layerID.split(/[ ]+/);
+
+		// layerIdParts[0] contains the type of layer-element
+		if (layerIdParts[0] === "Unwetter") {
+
+				// remove the corresponding layer and source from map for not displaying this Unwetter any longer
+				map.removeLayer(layerID);
+				map.removeSource(layerID);
+				console.log("removed unwetter");
+
+				// removes 1 element at index i from Array customLayerIds
+				customLayerIds.splice(i, 1);
+
+				// for not omitting one layerID in this for-loop after removing one
+				i--;
+
+			};
+}
+// remove the active attribute from the severe weather tab
+var menuToggle = document.getElementById('severeWeather');
+menuToggle.classList.remove("active");
+// hide the svere weather sub menu
+var selectionToggle = document.getElementById('menu');
+selectionToggle.style.display = "none";
+
 }
 
 

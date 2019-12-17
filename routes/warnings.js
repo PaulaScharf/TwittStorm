@@ -12,11 +12,8 @@
 
 var express = require('express');
 var router = express.Router();
-const dataHelpers = require('./dataHelpers.js');
 
-router.route("/").post(dataHelpers.getItems);
-router.route("/add").post(dataHelpers.postItems);
-router.route("/update").put(dataHelpers.updateItems);
-router.route("/delete").delete(dataHelpers.deleteItems);
+
+
 
 module.exports = router;

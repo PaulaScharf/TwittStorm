@@ -12,7 +12,7 @@
 
 var express = require('express');
 var router = express.Router();
-var app = require('../app.js');
+//var app = require('../app.js');
 
 const {postItems} = require('./dataHelpers.js');
 const {makeCircle} = require('./geometryHelpers.js');
@@ -34,6 +34,7 @@ var client = new Twitter({
 	access_token_key: config.keys.twitter.access_token_key,
 	access_token_secret: config.keys.twitter.access_token_secret
 });
+
 
 /**
  * Calculates the smallest enclosing circle around an array of coordinates.
