@@ -84,7 +84,7 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
 			// JSON with the ID of the current Unwetter, needed for following database-check
 			let query = {
 				type: "Tweet",
-				unwetter_ID: dwd_id,
+				event_ID: dwd_id,
 				$and: [
 					{"requestTime": {"$gt": (currentTime - 299000)}},
 					{"requestTime": {"$lt": (currentTime + 299000)}}
@@ -126,7 +126,6 @@ var searchTweetsForEvent = function(req, res) {
 				searchTerm = searchTerm.substring(0,searchTerm.length - 4);
 				let arrayOfAllCoordinates = [];
 				req.body.twitterSearchQuery.geometry.coordinates.forEach(function (feature) {
-					console.dir(feature);
 					feature[0].forEach(function (item) {
 						arrayOfAllCoordinates = arrayOfAllCoordinates.concat(item);
 					})
@@ -151,8 +150,8 @@ var searchTweetsForEvent = function(req, res) {
 					.then( function (tweets) {
 						if (tweets) {
 							let arrayOfPolygons = [];
-							req.body.twitterSearchQuery.geometry.forEach(function (item) {
-								arrayOfPolygons.push(item.coordinates[0][0])
+							req.body.twitterSearchQuery.geometry.coordinates.forEach(function (item) {
+								arrayOfPolygons.push(item[0])
 							});
 							let polygon = turf.polygon(arrayOfPolygons);
 							for (let i = tweets.statuses.length - 1; i >= 0; i--) {
@@ -178,7 +177,7 @@ var searchTweetsForEvent = function(req, res) {
 											timestamp: currentFeature.created_at,
 											location_actual: currentFeature.coordinates,
 											event_ID: req.body.eventID,
-											requestTime: req.body.currentTime
+											requestTime: req.body.currentTimestamp
 										};
 										arrayOfTweets.push(currentStatus);
 									}
@@ -190,11 +189,11 @@ var searchTweetsForEvent = function(req, res) {
 								let emptyTweet = {
 									type: "Tweet",
 									event_ID: req.body.eventID,
-									requestTime: req.body.currentTime
+									requestTime: req.body.currentTimestamp
 								};
 								arrayOfTweets.push(emptyTweet);
 							}
-							req.db.collection(collectionName).insertMany(arrayOfTweets, (error, result) => {
+							req.db.collection(collectionName).insertMany(arrayOfTweets, (error) => {
 								if(error){
 									// give a notice, that the inserting has failed and show the error on the console
 									console.log("Failure while inserting an item into '" + collectionName + "'.", error);
@@ -204,7 +203,7 @@ var searchTweetsForEvent = function(req, res) {
 								} else {
 									// ... give a notice, that the reading has succeeded and show the result on the console
 									console.log("Successfully inserted items into '" + collectionName + "'.");
-									req.db.collection(collectionName).find({type: "Tweet", unwetter_ID: req.body.unwetterID}, (error, result) => {
+									req.db.collection(collectionName).find({type: "Tweet", event_ID: req.body.eventID}, (error, result) => {
 										if(error){
 											// give a notice, that the inserting has failed and show the error on the console
 											console.log("Failure in reading all items from '" + collectionName + "'.", error);
@@ -228,7 +227,7 @@ var searchTweetsForEvent = function(req, res) {
 						}
 					});
 			} else {
-				req.db.collection(collectionName).find({type: "Tweet", unwetter_ID: req.body.unwetterID}, (error, result) => {
+				req.db.collection(collectionName).find({type: "Tweet", event_ID: req.body.eventID}, (error, result) => {
 					if(error){
 						// give a notice, that the inserting has failed and show the error on the console
 						console.log("Failure while inserting an item into '" + collectionName + "'.", error);
@@ -278,12 +277,8 @@ function promiseToGet(query, db) {
 			} else {
 				// ... give a notice, that the reading has succeeded and show the result on the console
 				console.log("Successfully read the items from '" + collectionName + "'.");
-				// ... give a notice, that inserting the item has succeeded
-				if (result) {
-					resolve(result);
-				} else {
-					resolve({});
-				}
+				console.dir(result);
+				resolve(result);
 			}
 		});
 		reject("could not insert item");

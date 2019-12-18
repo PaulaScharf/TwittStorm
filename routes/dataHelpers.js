@@ -78,7 +78,7 @@ var postItems = function(req, res) {
 			// give a notice, that the inserting has failed and show the error on the console
 			console.log("Failure while inserting an item into '" + collectionName + "'.", error);
 			// in case of an error while inserting, do routing to "error.ejs"
-			res.render('error');
+			res.status(500).send(error);
 			// if no error occurs ...
 		} else {
 			// ... give a notice, that inserting the item has succeeded
