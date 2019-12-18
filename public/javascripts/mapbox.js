@@ -408,51 +408,6 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 				//
 				displayEvent(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
 			}
-
-
-			// TODO: TWEETSUCHE SCHON VOR DER displayCurrentUnwetters-FUNKTION STARTEN, DAMIT REQUEST + DB-INSERT VOM DISPLAY GETRENNT IST UND DAMIT EVTL. ZEIT GESPART WIRD?
-			//
-			checkForExistingTweets(currentUnwetterEvent.dwd_id, currentTimestamp)
-			.catch(console.error)
-			.then(function(result){
-				if (!result) {
-					let query = {
-						twitterSearchQuery: twitterSearchQuery,
-						unwetterID: currentUnwetterEvent.dwd_id,
-						unwetterEvent: currentUnwetterEvent.properties.event,
-						currentTimestamp: currentTimestamp
-					};
-					$.ajax({
-						// use a http POST request
-						type: "POST",
-						// URL to send the request to
-						url: "/twitter/searchEvents",
-						// type of the data that is sent to the server
-						contentType: "application/json; charset=utf-8",
-						// data to send to the server
-						data: JSON.stringify(query),
-						// timeout set to 15 seconds
-						timeout: 15000
-					})
-
-					// if the request is done successfully, ...
-						.done(function () {
-							// ... give a notice on the console that the AJAX request for inserting many items has succeeded
-							console.log("AJAX request (finding and inserting tweets) is done successfully.");
-						})
-
-						// if the request has failed, ...
-						.fail(function (xhr, status, error) {
-							// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
-							console.log("AJAX request (finding and inserting tweets) has failed.", error);
-
-							// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-							if (error === "timeout") {
-								//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
-							}
-						});
-				}
-			})
 		}
 
 	},function (xhr, status, error) {
@@ -741,46 +696,76 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 			} else {
 				visibility = 'visible';
 
-				//let layerProperties = source._data.features[0].properties;
-				promiseToGetItems({type: "Tweet", unwetter_ID: layerIDSplit[2]}, "Tweet/s")
-				// show errors in the console
-				.catch(console.error)
-				// process the result of the requests
-				.then(function (result) {
-					if(typeof result !== "undefined") {
-						try {
-							let turfPolygon = turf.polygon(polygon.geometry.coordinates);
-							// create an empty featurecollection for the tweets
-							let tweetFeatureCollection = {
-								"type": "FeatureCollection",
-								"features": []
-							};
-							// add the tweets in the result to the featurecollection
-							result.forEach(function (item) {
-								if (item.id && item.location_actual !== null) {
-									let tweetLocation = turf.point(item.location_actual.coordinates);
-									if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
-										let tweetFeature = {
-											"type": "Feature",
-											"geometry": item.location_actual,
-											"properties": item
-										};
-										tweetFeatureCollection.features.push(tweetFeature);
+					let query = {
+						twitterSearchQuery: {
+							geometry: source._data.features[0].geometry,
+							searchWords: ["Liebe"]
+						},
+						eventID: layerIDSplit[2],
+						currentTimestamp: Date.now()
+					};
+					$.ajax({
+						// use a http POST request
+						type: "POST",
+						// URL to send the request to
+						url: "/Twitter/tweets/",
+						// type of the data that is sent to the server
+						contentType: "application/json; charset=utf-8",
+						// data to send to the server
+						data: JSON.stringify(query),
+						// timeout set to 15 seconds
+						timeout: 15000
+					})
+
+					// if the request is done successfully, ...
+						.done(function (result) {
+							// ... give a notice on the console that the AJAX request for inserting many items has succeeded
+							console.log("AJAX request (finding and inserting tweets) is done successfully.");
+
+							console.dir(result);
+							if(typeof result !== "undefined") {
+								try {
+									let turfPolygon = turf.polygon(polygon.geometry.coordinates);
+									// create an empty featurecollection for the tweets
+									let tweetFeatureCollection = {
+										"type": "FeatureCollection",
+										"features": []
+									};
+									// add the tweets in the result to the featurecollection
+									result.forEach(function (item) {
+										if (item.id && item.location_actual !== null) {
+											let tweetLocation = turf.point(item.location_actual.coordinates);
+											if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
+												let tweetFeature = {
+													"type": "Feature",
+													"geometry": item.location_actual,
+													"properties": item
+												};
+												tweetFeatureCollection.features.push(tweetFeature);
+											}
+										}
+									});
+									// add the tweets to the map
+									if (tweetFeatureCollection.features.length > 0) {
+										displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
 									}
+								} catch (e) {
+									console.dir("there was an error while processing the tweets from the database", e);
+									// TODO: error catchen und dann hier auch den error ausgeben?
 								}
-							});
-							// add the tweets to the map
-							if (tweetFeatureCollection.features.length > 0) {
-								displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
 							}
-						} catch (e) {
-							console.dir("there was an error while processing the tweets from the database", e);
-							// TODO: error catchen und dann hier auch den error ausgeben?
-						}
-					}
-				}, function (reason) {
-					console.dir(reason);
-				});
+						})
+
+						// if the request has failed, ...
+						.fail(function (xhr, status, error) {
+							// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+							console.log("AJAX request (finding and inserting tweets) has failed.", error);
+
+							// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+							if (error === "timeout") {
+								//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
+							}
+						});
 			}
 			// change visibility of unwetter layer
 			map.setLayoutProperty(layerID, 'visibility', visibility);
