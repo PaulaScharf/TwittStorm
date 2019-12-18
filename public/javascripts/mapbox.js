@@ -203,6 +203,9 @@ function showMap(style) {
 		// 2.oder-fall (undefined): to be able to still use localhost:3000/ TODO: später löschen oder als default lassen?)
 		if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
 
+			//set URL to requested wtype
+			updateURL("wtype", "unwetter");
+
 			// set the flag to severe weather
 			wtypeFlag = "severeWeather";
 
