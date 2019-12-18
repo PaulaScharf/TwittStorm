@@ -114,19 +114,21 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
  * @returns {Promise<any>}
  */
 var searchTweetsForEvent = function(req, res) {
-	checkForExistingTweets(req.body.eventID, req.body.currentTimestamp, req.db)
+	console.dir("test");
+	let request = JSON.parse(JSON.stringify(req));
+	checkForExistingTweets(request.body.eventID, request.body.currentTimestamp, request.db)
 		.catch(console.error)
 		.then( function (response) {
 			if (!response) {
 				let arrayOfTweets = [];
 				let searchTerm = "";
-				req.body.twitterSearchQuery.searchWords.forEach(function (item) {
+				request.body.twitterSearchQuery.searchWords.forEach(function (item) {
 					searchTerm += item + " OR ";
 				});
 				searchTerm = searchTerm.substring(0,searchTerm.length - 4);
 				let arrayOfAllCoordinates = [];
-				req.body.twitterSearchQuery.geometry.coordinates.forEach(function (feature) {
-					feature[0].forEach(function (item) {
+				request.body.twitterSearchQuery.geometry.coordinates.forEach(function (feature) {
+					feature.forEach(function (item) {
 						arrayOfAllCoordinates = arrayOfAllCoordinates.concat(item);
 					})
 				});
@@ -150,7 +152,7 @@ var searchTweetsForEvent = function(req, res) {
 					.then( function (tweets) {
 						if (tweets) {
 							let arrayOfPolygons = [];
-							req.body.twitterSearchQuery.geometry.coordinates.forEach(function (item) {
+							request.body.twitterSearchQuery.geometry.coordinates.forEach(function (item) {
 								arrayOfPolygons.push(item[0])
 							});
 							let polygon = turf.polygon(arrayOfPolygons);
@@ -176,8 +178,8 @@ var searchTweetsForEvent = function(req, res) {
 											},
 											timestamp: currentFeature.created_at,
 											location_actual: currentFeature.coordinates,
-											event_ID: req.body.eventID,
-											requestTime: req.body.currentTimestamp
+											event_ID: request.body.eventID,
+											requestTime: request.body.currentTimestamp
 										};
 										arrayOfTweets.push(currentStatus);
 									}
@@ -188,46 +190,29 @@ var searchTweetsForEvent = function(req, res) {
 							if (arrayOfTweets.length === 0) {
 								let emptyTweet = {
 									type: "Tweet",
-									event_ID: req.body.eventID,
-									requestTime: req.body.currentTimestamp
+									event_ID: request.body.eventID,
+									requestTime: request.body.currentTimestamp
 								};
 								arrayOfTweets.push(emptyTweet);
 							}
-							req.db.collection(collectionName).insertMany(arrayOfTweets, (error) => {
-								if(error){
-									// give a notice, that the inserting has failed and show the error on the console
-									console.log("Failure while inserting an item into '" + collectionName + "'.", error);
-									// in case of an error while inserting, do routing to "error.ejs"
-									res.status(500).send(error);
-									// if no error occurs ...
-								} else {
-									// ... give a notice, that the reading has succeeded and show the result on the console
-									console.log("Successfully inserted items into '" + collectionName + "'.");
-									req.db.collection(collectionName).find({type: "Tweet", event_ID: req.body.eventID}, (error, result) => {
-										if(error){
-											// give a notice, that the inserting has failed and show the error on the console
-											console.log("Failure in reading all items from '" + collectionName + "'.", error);
-											// in case of an error while inserting, do routing to "error.ejs"
-											res.status(500).send(error);
-											// if no error occurs ...
-										} else {
-											// ... give a notice, that the reading has succeeded and show the result on the console
-											console.log("Successfully read the items from '" + collectionName + "'.");
-											res.send(result);
-										}
-									});
-								}
-							});
-							// ... give a notice on the console that the AJAX request for receiving all tweets from Twitter has succeeded
-							//console.log("AJAX request (receiving all tweets from Twitter Search API) is done successfully.");
-							// if await Promise.all(arrayOfPromises) fails:
+							promiseToPost(arrayOfTweets,request.db)
+								.catch(console.error)
+								.then( function () {
+									let query = {type: "Tweet", event_ID: request.body.eventID};
+									promiseToGet(query,request.db)
+										.catch(console.error)
+										.then( function (response) {
+											console.dir(response);
+											res.send(response);
+										});
+								});
 						} catch (e) {
 							console.dir(e);
 							res.status(500).send(e);
 						}
 					});
 			} else {
-				req.db.collection(collectionName).find({type: "Tweet", event_ID: req.body.eventID}, (error, result) => {
+				request.db.collection(collectionName).find({type: "Tweet", event_ID: request.body.eventID}, (error, result) => {
 					if(error){
 						// give a notice, that the inserting has failed and show the error on the console
 						console.log("Failure while inserting an item into '" + collectionName + "'.", error);
@@ -249,7 +234,7 @@ var searchTweetsForEvent = function(req, res) {
 
 function promiseToPost(arrayOfItems, db) {
 	return new Promise((resolve, reject) => {
-		db.collection(collectionName).insertMany(req.body, (error, result) => {
+		db.collection(collectionName).insertMany(arrayOfItems, (error, result) => {
 			if(error){
 				// give a notice, that the inserting has failed and show the error on the console
 				console.log("Failure while inserting an item into '" + collectionName + "'.", error);
@@ -266,22 +251,25 @@ function promiseToPost(arrayOfItems, db) {
 
 function promiseToGet(query, db) {
 	return new Promise((resolve, reject) => {
-		// find all
-		db.collection(collectionName).find(query).toArray((error, result) => {
-			if(error){
-				// give a notice, that the inserting has failed and show the error on the console
-				console.log("Failure while inserting an item into '" + collectionName + "'.", error);
-				// in case of an error while inserting, do routing to "error.ejs"
-				reject(error);
-				// if no error occurs ...
-			} else {
-				// ... give a notice, that the reading has succeeded and show the result on the console
-				console.log("Successfully read the items from '" + collectionName + "'.");
-				console.dir(result);
-				resolve(result);
-			}
-		});
-		reject("could not insert item");
+		try {
+			// find all
+			db.collection(collectionName).find(query).toArray((error, result) => {
+				if (error) {
+					// give a notice, that the inserting has failed and show the error on the console
+					console.log("Failure while inserting an item into '" + collectionName + "'.", error);
+					// in case of an error while inserting, do routing to "error.ejs"
+					reject(error);
+					// if no error occurs ...
+				} else {
+					// ... give a notice, that the reading has succeeded and show the result on the console
+					console.log("Successfully read the items from '" + collectionName + "'.");
+					console.dir(query);
+					resolve(result);
+				}
+			});
+		} catch(e) {
+			reject(e);
+		}
 	});
 }
 
