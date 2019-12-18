@@ -127,6 +127,8 @@ function showMap(style) {
 
 	// this event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
 	map.on('load', function() {
+		// resize map to full screen
+		map.resize();
 		// for a better orientation, add the boundary of germany to the map
 		map.addLayer({
 			'id': 'boundaryGermany',
