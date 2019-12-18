@@ -82,7 +82,7 @@ function showLegend(map, typeOfLegend, product) {
 
 		//
 		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>TODO"; // TODO: in radar-js-datei den timestamp of radar data aus DB anfügen
-		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>1 km";
+		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>1 km x 1 km";
 
 		let classes = [];
 		// last value of last class is not needed, it is just any much to big value for including all bigger values than in the three lower classes
