@@ -205,6 +205,7 @@ function showMap(style) {
 
 			//set URL to requested wtype
 			updateURL("wtype", "unwetter");
+			updateURL("radProd", "");
 
 			// set the flag to severe weather
 			wtypeFlag = "severeWeather";
