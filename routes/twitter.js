@@ -14,7 +14,7 @@ var express = require('express');
 var router = express.Router();
 //var app = require('../app.js');
 
-const {postItems} = require('./dataHelpers.js');
+const {promiseToGetItems,promiseToPostItems} = require('./dataPromisesHelpers.js');
 const {makeCircle} = require('./geometryHelpers.js');
 var turf = require('@turf/turf');
 
@@ -25,8 +25,6 @@ var Twitter = require('twitter');
 const fs = require('fs');
 const yaml = require('js-yaml');
 const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
-
-let collectionName = config.mongodb.collection_name;
 
 var client = new Twitter({
 	consumer_key: config.keys.twitter.consumer_key,
@@ -59,7 +57,13 @@ function calculateEnclosingCircle(coordinatesAsArrays) {
 	return enclosing;
 }
 
-var searchTweets = function(params) {
+/**
+ *
+ * @author Paula Scharf, matr.: 450334
+ * @param params
+ * @returns {Promise<any>}
+ */
+var promiseToGetTweetsFromTwitter = function(params) {
 	return new Promise((resolve, reject) => {
 		client.get('search/tweets', params, function (error, tweets, response) {
 			if (!error) {
@@ -90,7 +94,7 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
 					{"requestTime": {"$lt": (currentTime + 299000)}}
 				]
 			};
-			promiseToGet(query, db)
+		promiseToGetItems(query, db)
 				.catch(function (error) {
 					reject(error);
 				})
@@ -114,20 +118,18 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
  * @returns {Promise<any>}
  */
 var searchTweetsForEvent = function(req, res) {
-	console.dir("test");
-	let request = JSON.parse(JSON.stringify(req));
-	checkForExistingTweets(request.body.eventID, request.body.currentTimestamp, request.db)
+	checkForExistingTweets(req.body.eventID, req.body.currentTimestamp, req.db)
 		.catch(console.error)
 		.then( function (response) {
 			if (!response) {
 				let arrayOfTweets = [];
 				let searchTerm = "";
-				request.body.twitterSearchQuery.searchWords.forEach(function (item) {
+				req.body.twitterSearchQuery.searchWords.forEach(function (item) {
 					searchTerm += item + " OR ";
 				});
 				searchTerm = searchTerm.substring(0,searchTerm.length - 4);
 				let arrayOfAllCoordinates = [];
-				request.body.twitterSearchQuery.geometry.coordinates.forEach(function (feature) {
+				req.body.twitterSearchQuery.geometry.coordinates.forEach(function (feature) {
 					feature.forEach(function (item) {
 						arrayOfAllCoordinates = arrayOfAllCoordinates.concat(item);
 					})
@@ -147,12 +149,12 @@ var searchTweetsForEvent = function(req, res) {
 					count: 20
 				};
 
-				searchTweets(searchQuery)
+				promiseToGetTweetsFromTwitter(searchQuery)
 					.catch(console.error)
 					.then( function (tweets) {
 						if (tweets) {
 							let arrayOfPolygons = [];
-							request.body.twitterSearchQuery.geometry.coordinates.forEach(function (item) {
+							req.body.twitterSearchQuery.geometry.coordinates.forEach(function (item) {
 								arrayOfPolygons.push(item[0])
 							});
 							let polygon = turf.polygon(arrayOfPolygons);
@@ -178,8 +180,8 @@ var searchTweetsForEvent = function(req, res) {
 											},
 											timestamp: currentFeature.created_at,
 											location_actual: currentFeature.coordinates,
-											event_ID: request.body.eventID,
-											requestTime: request.body.currentTimestamp
+											event_ID: req.body.eventID,
+											requestTime: req.body.currentTimestamp
 										};
 										arrayOfTweets.push(currentStatus);
 									}
@@ -190,19 +192,18 @@ var searchTweetsForEvent = function(req, res) {
 							if (arrayOfTweets.length === 0) {
 								let emptyTweet = {
 									type: "Tweet",
-									event_ID: request.body.eventID,
-									requestTime: request.body.currentTimestamp
+									event_ID: req.body.eventID,
+									requestTime: req.body.currentTimestamp
 								};
 								arrayOfTweets.push(emptyTweet);
 							}
-							promiseToPost(arrayOfTweets,request.db)
+							promiseToPostItems(arrayOfTweets,req.db)
 								.catch(console.error)
 								.then( function () {
-									let query = {type: "Tweet", event_ID: request.body.eventID};
-									promiseToGet(query,request.db)
+									let query = {type: "Tweet", event_ID: req.body.eventID};
+									promiseToGetItems(query,req.db)
 										.catch(console.error)
 										.then( function (response) {
-											console.dir(response);
 											res.send(response);
 										});
 								});
@@ -212,66 +213,19 @@ var searchTweetsForEvent = function(req, res) {
 						}
 					});
 			} else {
-				request.db.collection(collectionName).find({type: "Tweet", event_ID: request.body.eventID}, (error, result) => {
-					if(error){
-						// give a notice, that the inserting has failed and show the error on the console
-						console.log("Failure while inserting an item into '" + collectionName + "'.", error);
-						// in case of an error while inserting, do routing to "error.ejs"
-						res.status(500).send(error);
-						// if no error occurs ...
-					} else {
-						// ... give a notice, that the reading has succeeded and show the result on the console
-						console.log("Successfully read the items from '" + collectionName + "'.");
-						res.send(result);
-					}
-				});
+				let query = {type: "Tweet", event_ID: req.body.eventID};
+				promiseToGetItems(query,req.db)
+					.catch(console.error)
+					.then( function (response) {
+						res.send(response);
+					});
+
 			}
 		}, function(error) {
 			console.dir(error);
 			res.status(500).send(error);
 		});
 };
-
-function promiseToPost(arrayOfItems, db) {
-	return new Promise((resolve, reject) => {
-		db.collection(collectionName).insertMany(arrayOfItems, (error, result) => {
-			if(error){
-				// give a notice, that the inserting has failed and show the error on the console
-				console.log("Failure while inserting an item into '" + collectionName + "'.", error);
-				// in case of an error while inserting, do routing to "error.ejs"
-				reject(error);
-				// if no error occurs ...
-			} else {
-				// ... give a notice, that inserting the item has succeeded
-				resolve();
-			}
-		});
-	});
-}
-
-function promiseToGet(query, db) {
-	return new Promise((resolve, reject) => {
-		try {
-			// find all
-			db.collection(collectionName).find(query).toArray((error, result) => {
-				if (error) {
-					// give a notice, that the inserting has failed and show the error on the console
-					console.log("Failure while inserting an item into '" + collectionName + "'.", error);
-					// in case of an error while inserting, do routing to "error.ejs"
-					reject(error);
-					// if no error occurs ...
-				} else {
-					// ... give a notice, that the reading has succeeded and show the result on the console
-					console.log("Successfully read the items from '" + collectionName + "'.");
-					console.dir(query);
-					resolve(result);
-				}
-			});
-		} catch(e) {
-			reject(e);
-		}
-	});
-}
 
 router.route("/tweets").post(searchTweetsForEvent);
 
