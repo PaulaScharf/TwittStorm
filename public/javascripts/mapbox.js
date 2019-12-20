@@ -18,21 +18,45 @@ mapboxgl.accessToken = paramArray.config.keys.mapbox.access_key;
 
 // TODO: JSDoc für globale Variablen
 
-// refers to the layer menu
+/**
+* refers to the layer menu
+* @type {}
+*/
 var layers = document.getElementById('menu');
 
-// refers to the mapbox map element
+
+/**
+* refers to the mapbox map element
+* @type {mapbox_map}
+*/
 let map;
 
-// referes to all the layers that are not defaults
+
+/**
+* referes to all the layers that are not defaults
+* @type {Array}
+*/
 let customLayerIds = [];
 
+
+/**
+*
+* @type {boolean}
+*/
 let popupsEnabled = true;
 
-// time of app start
+
+/**
+* time of app start
+* @type {}
+*/
 let initTimestamp = Date.now();
 
-// Flag that indicates if a radar product is requested
+
+/**
+* Flag that indicates if a radar product is requested
+* @type {String}
+*/
 let wtypeFlag = "";
 
 
@@ -333,7 +357,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
-			console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.")
+			console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.");
 			currentTimestamp = Date.now();
 		}
 	}
@@ -748,7 +772,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 					try {
 						Date.parse(currentTimestamp);
 					} catch {
-						console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.")
+						console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.");
 						currentTimestamp = Date.now();
 					}
 				}
@@ -806,7 +830,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 										displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
 									}
 								} catch (e) {
-									console.dir("there was an error while processing the tweets from the database", e);
+									console.dir("There was an error while processing the tweets from the database", e);
 									// TODO: error catchen und dann hier auch den error ausgeben?
 								}
 							}

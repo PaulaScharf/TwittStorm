@@ -5,9 +5,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
- * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
- * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
- */
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
 
 
 const mongodb = require('mongodb');
@@ -21,11 +21,11 @@ let collectionName = config.mongodb.collection_name;
 
 
 /**
- * Parses the input query.
- * @author Paula Scharf
- * @param input
- * @returns query
- */
+* Parses the input query.
+* @author Paula Scharf
+* @param input
+* @returns query
+*/
 function queryParser(input) {
 	let query = {};
 	for (let key in input) {
@@ -124,6 +124,9 @@ var deleteItems = (req, res) => {
 
 	let query = {};
 	if (req.body) {
+
+		//	query = req.body;
+
 		query = queryParser(req.body);
 	}
 
