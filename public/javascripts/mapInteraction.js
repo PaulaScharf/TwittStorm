@@ -82,7 +82,7 @@ function showLegend(map, typeOfLegend, product) {
 
 		//
 		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>TODO"; // TODO: in radar-js-datei den timestamp of radar data aus DB anfügen
-		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>1 km";
+		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>1 km x 1 km";
 
 		let classes = [];
 		// last value of last class is not needed, it is just any much to big value for including all bigger values than in the three lower classes
@@ -127,8 +127,9 @@ function showLegend(map, typeOfLegend, product) {
 		legend.appendChild(legendElements);
 	}
 
-	//
-	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD_Logo.png' alt='Deutscher Wetterdienst'>";
+	// image taken from: https://upload.wikimedia.org/wikipedia/de/thumb/7/7b/DWD-Logo_2013.svg/800px-DWD-Logo_2013.svg.png
+	// TODO: change source to https://www.dwd.de/SharedDocs/bilder/DE/logos/dwd/dwd_logo_258x69.png?__blob=normal
+	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD-Logo_2013.svg' alt='Deutscher Wetterdienst'>";
 	timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>";
 	let refreshRateValue = paramArray.config.refresh_rate;
 	refreshRate.innerHTML = "<b>Refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
@@ -211,7 +212,7 @@ function zoomToCoordinates(coordinates) {
 * @param {String} layerID - ID of a layer
 */
 function addLayerToMenu(layerID) {
-	
+
 	// split layerID on whitspace
 	let layerParts = layerID.split(/[ ]+/);
 	let groupName = layerParts[1];
@@ -590,30 +591,32 @@ function makeLayerInteractive(layerID) {
 */
 function showUnwetterPopup(map, e) {
 
-	if (e) {
-		// get information about the feature on which it was clicked
-		var picked = map.queryRenderedFeatures(e.point);
+	if (popupsEnabled) {
+		if (e) {
+			// get information about the feature on which it was clicked
+			var picked = map.queryRenderedFeatures(e.point);
 
-		// TODO: Sommerzeit im Sommer??
+			// TODO: Sommerzeit im Sommer??
 
-		// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
+			// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
 
-		if (picked[0].source.includes("Unwetter")) {
-			// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
-			if (picked[0].properties.instruction !== "null") {
-				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
-				new mapboxgl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
-				.addTo(map);
-			}
-			// if a instruction is not given by the DWD ...
-			else {
-				// ... create a popup with above information without an instruction
-				new mapboxgl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
-				.addTo(map);
+			if (picked[0].source.includes("Unwetter")) {
+				// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
+				if (picked[0].properties.instruction !== "null") {
+					// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
+					new mapboxgl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
+						.addTo(map);
+				}
+				// if a instruction is not given by the DWD ...
+				else {
+					// ... create a popup with above information without an instruction
+					new mapboxgl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
+						.addTo(map);
+				}
 			}
 		}
 	}
@@ -629,24 +632,26 @@ function showUnwetterPopup(map, e) {
 * @param {Object} e ...
 */
 function showTweetPopup(map, e) {
-	// get information about the feature on which it was clicked
-	var pickedTweet = map.queryRenderedFeatures(e.point);
+	if (popupsEnabled) {
+		// get information about the feature on which it was clicked
+		var pickedTweet = map.queryRenderedFeatures(e.point);
 
-	if (pickedTweet[0].source.includes("Tweet")) {
-		let idAsString = pickedTweet[0].properties.idstr;
-		// ... create a popup with the following information: ........
-		new mapboxgl.Popup()
-		.setLngLat(e.lngLat)
-		.setHTML("<div id='" + idAsString + "'></div>")
-		.addTo(map);
-		twttr.widgets.createTweet(
-			idAsString,
-			document.getElementById(idAsString),
-			{
-				width: 1000,
-				dnt: true
-			}
-		);
+		if (pickedTweet[0].source.includes("Tweet")) {
+			let idAsString = pickedTweet[0].properties.idstr;
+			// ... create a popup with the following information: ........
+			new mapboxgl.Popup()
+				.setLngLat(e.lngLat)
+				.setHTML("<div id='" + idAsString + "'></div>")
+				.addTo(map);
+			twttr.widgets.createTweet(
+				idAsString,
+				document.getElementById(idAsString),
+				{
+					width: 1000,
+					dnt: true
+				}
+			);
+		}
 	}
 }
 

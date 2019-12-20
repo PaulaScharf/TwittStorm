@@ -8,12 +8,13 @@ mongodb:
   db_name: itemdb
   collection_name: item
 
-# Map coordinates -----------------------------------
+# Process -------------------------------------------
+# current time as epoch timestamp
+current_time: null
+# Map coordinates
 map:
   center: [10.5, 51.2]
   zoom: 5
-
-# Process -------------------------------------------
 # refresh rate in milliseconds
 refresh_rate: 300000
 # timestamp of last Unwetter request
@@ -34,3 +35,7 @@ keys:
     access_token_secret: 'W9b9MvmH93UTbiTcEMr1h2IBqLc2lQfF3LtqphfdeReJK'
   mapbox:
     access_key: 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA'
+
+# urls ----------------------------------------------
+dwd:
+  warnings: 'https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson'

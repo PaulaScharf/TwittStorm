@@ -26,8 +26,8 @@
 
     <!-- Product selection menu -->
     <div id="productMenu" style="display:none">
-      <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)">Radar</a>
-      <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu); loadSevereWeather();">Severe Weather</a>
+      <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)" title="Request radar data">Radar</a>
+      <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu); loadSevereWeather();" title="Request severe weather data">Severe Weather</a>
     </div>
 
     <!-- Raster selection menu -->
@@ -54,7 +54,7 @@
     <!-- button to show and hide the boundaries of germany. image taken from https://upload.wikimedia.org/wikipedia/commons/e/e3/Karte_Deutschland.svg -->
     <!-- Alternative: Change img src to /css/Germany-Outline.svg. image taken from: https://upload.wikimedia.org/wikipedia/commons/f/f2/Germany-Outline.svg-->
     <nav id="germanyButton" class="container" onclick="removeAddGermany();" title="Toggle Germany Boundaries" style="display:none">
-      <div id="germanyIcon" >
+      <div id="germanyIcon">
         <img src="/css/Karte_Deutschland.svg" width="20" height="20"/>
       </div>
     </nav>
@@ -135,9 +135,7 @@
   <script src="/javascripts/mapboxDraw.js"></script>
   <script src="/javascripts/dataProcessing.js"></script>
   <script src="/javascripts/database.js"></script>
-  <script src="/javascripts/smallest-enclosing-circle.js"></script>
   <script src="/javascripts/DWDUnwetterProcessing.js"></script>
-  <script src="/javascripts/twitterProcessing.js"></script>
   <script src="/javascripts/rasterProcessing.js"></script>
   <script src="/javascripts/mapbox.js"></script>
   <script src="/javascripts/germanyBoundary.js"></script>

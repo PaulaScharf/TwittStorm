@@ -31,7 +31,7 @@ function processUnwettersFromDWD(currentTimestamp) {
     let arrayUnwettersToPost = [];
 
     // load the GeoJSON from the DWD Geoserver and display the current Unwetter-areas
-    $.getJSON('https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson', function (data) {
+    $.getJSON(paramArray.config.dwd.warnings, function (data) {
       // EPSG: 4326
 
       // ***** formatting the Unwetter which will be inserted into the database afterwards: *****

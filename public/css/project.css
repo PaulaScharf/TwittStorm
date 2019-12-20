@@ -311,7 +311,6 @@ right: 13px;
   background-color: white;
   border-radius: 3px;
   border: 1px solid rgba(0,0,0,0.4);
-
 }
 
 #germanyIcon :hover {
@@ -327,8 +326,6 @@ right: 13px;
   width: 5px;
   height: 25px;
   cursor: pointer;
-
-
 }
 
 /* ********************************* LEGEND ********************************* */
