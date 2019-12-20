@@ -83,7 +83,7 @@ function removeOldUnwetterAndTweetsFromDB2() {
 
   //TODO: warum hier schon als String erstellen, wenn im ajax doch stringfy aufgerufen wird? -> wegen queryParser
   let queryGetOldUnwetter = {
-    "$and": '[ { "type":"Unwetter" }, { "timestamps": { "$size": 2 }} ]'
+    "$and": '[ { "type":"Unwetter" }, { "timestamps": { "$size": 0 }} ]'
   };
 
   // get all Unwetter from database which have an empty Array "timestamps"
@@ -114,13 +114,13 @@ function removeOldUnwetterAndTweetsFromDB2() {
       oldUnwetterIDs.push( {"dwd_id": response[u].dwd_id} );
     }
 
-    console.log(oldUnwetterIDs.length);
+    //console.log(oldUnwetterIDs.length);
 
     // if there are old Unwetter existing (older than 50 minutes),
     // delete them and their corresponding tweets
     if (oldUnwetterIDs.length > 0) {
 
-      console.log(oldUnwetterIDs.length);
+      //console.log(oldUnwetterIDs.length);
       removeOldUnwetterFromDB(oldUnwetterIDs);
       removeOldTweetsFromDB(oldUnwetterIDs);
     }
@@ -158,9 +158,8 @@ function removeOldUnwetterFromDB(unwetterIDs){
     $and: [ { "type": "Unwetter" }, { "$or": unwetterIDs} ]
   };
 
-  console.log(JSON.stringify(query));
-  console.log(JSON.parse(JSON.stringify(query)));
-
+  //console.log(JSON.stringify(query));
+  //console.log(JSON.parse(JSON.stringify(query)));
 
   //
   $.ajax({
@@ -198,7 +197,6 @@ function removeOldUnwetterFromDB(unwetterIDs){
 
 
 
-// TODO: funktioniert nur, wenn Tweets schon die dwd_id anstatt der unwetter_ID haben
 /**
 * @desc Deletes old tweets ................. from database.
 * ANPASSEN
