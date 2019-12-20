@@ -160,18 +160,23 @@ function panMapWithButton(directionToPan) {
 	let center = map.getCenter();
 	let newCenter;
 
+// TODO: anpassen!!
+let panLong = 20 / paramArray.config.map.zoom;
+let panLat = 15 / paramArray.config.map.zoom;
+
+
 	switch (directionToPan) {
 		case (directionToPan = "left"):
-		newCenter = [center.lng - 1, center.lat];
+		newCenter = [center.lng - panLong, center.lat];
 		break;
 		case (directionToPan = "right"):
-		newCenter = [center.lng + 1, center.lat];
+		newCenter = [center.lng + panLong, center.lat];
 		break;
 		case (directionToPan = "up"):
-		newCenter = [center.lng, center.lat + 1];
+		newCenter = [center.lng, center.lat + panLat];
 		break;
 		case (directionToPan = "down"):
-		newCenter = [center.lng, center.lat - 1];
+		newCenter = [center.lng, center.lat - panLat];
 		break;
 	}
 
@@ -211,7 +216,7 @@ function zoomToCoordinates(coordinates) {
 * @param {String} layerID - ID of a layer
 */
 function addLayerToMenu(layerID) {
-	
+
 	// split layerID on whitspace
 	let layerParts = layerID.split(/[ ]+/);
 	let groupName = layerParts[1];
