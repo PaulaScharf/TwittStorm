@@ -1,41 +1,29 @@
----
-# Data ----------------------------------------------
 data_path: ~/data
-# database
 mongodb:
   host: localhost
   port: 27017
   db_name: itemdb
   collection_name: item
-
-# Process -------------------------------------------
-# current time as epoch timestamp
 current_time: null
-# Map coordinates
 map:
-  center: [10.5, 51.2]
-  zoom: 5
-# refresh rate in milliseconds
+  center:
+    - 10.5
+    - 51.2
+  zoom: 6
 refresh_rate: 300000
-# timestamp of last Unwetter request
-timestamp_last_Unwetter_request:
-# timestamp of last rain radar request
-timestamp_last_radar_request: 
-# how far back timestamps are being recorded for unwetters in milliseconds
+timestamp_last_Unwetter_request: null
+timestamp_last_radar_request: null
 max_difference_timestamp: 3000000
-# how far back tweets are being searched for in minutes
 max_age_tweets: null
-
-# keys ----------------------------------------------
 keys:
   twitter:
-    consumer_key: 'MrvR3iGRtOYWEHvyX1GQvbgbn'
-    consumer_secret: '8fDd8OEVcklCC4a0JdWa5P7dOC3J3p029jhFSITbwmDwnVN8CA'
-    access_token_key: '1186999137541283840-8t6BUIDVX9it9aZznjRX7QmIduO4dw'
-    access_token_secret: 'W9b9MvmH93UTbiTcEMr1h2IBqLc2lQfF3LtqphfdeReJK'
+    consumer_key: MrvR3iGRtOYWEHvyX1GQvbgbn
+    consumer_secret: 8fDd8OEVcklCC4a0JdWa5P7dOC3J3p029jhFSITbwmDwnVN8CA
+    access_token_key: 1186999137541283840-8t6BUIDVX9it9aZznjRX7QmIduO4dw
+    access_token_secret: W9b9MvmH93UTbiTcEMr1h2IBqLc2lQfF3LtqphfdeReJK
   mapbox:
-    access_key: 'pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA'
-
-# urls ----------------------------------------------
+    access_key: >-
+      pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA
 dwd:
-  warnings: 'https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson'
+  warnings: >-
+    https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson

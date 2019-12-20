@@ -21,7 +21,7 @@
     <div class="d-flex justify-content-center">
         <div class="col-med-6 center">
             <h2 align="center">Configuration</h2>
-            <form action="config/" method="POST" name="updateForm" id="updateForm">
+            <form action="/config/" method="POST" name="updateForm" id="updateForm">
                 <p>Default map location:</p>
                 <textarea type="text" name="map.center" style="height:30px"><%- JSON.stringify(config.map.center) %></textarea>
                 <br><br>
@@ -32,8 +32,8 @@
                 (If you put in 'null', the tweets will be less than two weeks old.)</p>
                 <textarea type="text" name="max_age_tweets" style="height:30px;"><%- JSON.stringify(config.max_age_tweets) %></textarea>
                 <br><br>
-                <p>current time as an  epoch timestamp<br>
-                (If you put in null, the actual local current time will be used)</p>
+                <p>Current time as an Epoch timestamp<br>
+                (If you put in null, the actual local current time will be used.)</p>
                 <textarea type="text" name="current_time" style="height:30px;"><%- JSON.stringify(config.current_time) %></textarea>
                 <br><br>
                 <input type="submit" value="update configuration" id="submitbutton"/>
