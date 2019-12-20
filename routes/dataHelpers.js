@@ -125,9 +125,9 @@ var deleteItems = (req, res) => {
 	let query = {};
 	if (req.body) {
 
-		//	query = req.body;
-
-		query = queryParser(req.body);
+// TODO: queryParser funktioniert momentan noch nicht für delete nach den 10 zeitschritten
+			query = req.body;
+	//	query = queryParser(req.body);
 	}
 
 	// filter database for Unwetters whose timestamps-Array is empty

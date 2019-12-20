@@ -88,7 +88,7 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
 			// JSON with the ID of the current Unwetter, needed for following database-check
 			let query = {
 				type: "Tweet",
-				event_ID: dwd_id,
+				dwd_id: dwd_id,
 				$and: [
 					{"requestTime": {"$gt": (currentTime - 299000)}},
 					{"requestTime": {"$lt": (currentTime + 299000)}}
@@ -180,7 +180,7 @@ var searchTweetsForEvent = function(req, res) {
 											},
 											timestamp: currentFeature.created_at,
 											location_actual: currentFeature.coordinates,
-											event_ID: req.body.eventID,
+											dwd_id: req.body.eventID,
 											requestTime: req.body.currentTimestamp
 										};
 										arrayOfTweets.push(currentStatus);
@@ -192,7 +192,7 @@ var searchTweetsForEvent = function(req, res) {
 							if (arrayOfTweets.length === 0) {
 								let emptyTweet = {
 									type: "Tweet",
-									event_ID: req.body.eventID,
+									dwd_id: req.body.eventID,
 									requestTime: req.body.currentTimestamp
 								};
 								arrayOfTweets.push(emptyTweet);
@@ -200,7 +200,7 @@ var searchTweetsForEvent = function(req, res) {
 							promiseToPostItems(arrayOfTweets,req.db)
 								.catch(console.error)
 								.then( function () {
-									let query = {type: "Tweet", event_ID: req.body.eventID};
+									let query = {type: "Tweet", dwd_id: req.body.eventID};
 									promiseToGetItems(query,req.db)
 										.catch(console.error)
 										.then( function (response) {
@@ -213,7 +213,7 @@ var searchTweetsForEvent = function(req, res) {
 						}
 					});
 			} else {
-				let query = {type: "Tweet", event_ID: req.body.eventID};
+				let query = {type: "Tweet", dwd_id: req.body.eventID};
 				promiseToGetItems(query,req.db)
 					.catch(console.error)
 					.then( function (response) {

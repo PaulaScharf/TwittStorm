@@ -150,15 +150,13 @@ function removeOldUnwetterAndTweetsFromDB2() {
 */
 function removeOldUnwetterFromDB(unwetterIDs){
 
+  //  let query = {
+  //    "$and": '[ { "type": "Unwetter" }, { "$or": "' + unwetterIDs + '"} ]'
+  //  };
 
   let query = {
-    "$and": '[ { "type": "Unwetter" }, { "$or": "' + unwetterIDs + '"} ]'
+    $and: [ { "type": "Unwetter" }, { "$or": unwetterIDs} ]
   };
-
-
-//  query = {
-//    $and: [ { "type": "Unwetter" }, { "$or": unwetterIDs} ]
-//  };
 
   console.log(JSON.stringify(query));
   console.log(JSON.parse(JSON.stringify(query)));
@@ -210,10 +208,14 @@ function removeOldUnwetterFromDB(unwetterIDs){
 */
 function removeOldTweetsFromDB(unwetterIDs){
 
-  //
+  //  let query = {
+  //    "$and": '[ { "type": "Tweet" }, { "$or": "' + unwetterIDs + '"} ]'
+  //  };
+
   let query = {
-    "$and": '[ { "type": "Tweet" }, { "$or": "' + unwetterIDs + '"} ]'
+    $and: [ { "type": "Tweet" }, { "$or": unwetterIDs} ]
   };
+
 
   //
   $.ajax({

@@ -9,7 +9,7 @@ map:
   center:
     - 10.5
     - 51.2
-  zoom: 6
+  zoom: 5
 refresh_rate: 300000
 timestamp_last_Unwetter_request: null
 timestamp_last_radar_request: null
