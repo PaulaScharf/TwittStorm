@@ -591,30 +591,32 @@ function makeLayerInteractive(layerID) {
 */
 function showUnwetterPopup(map, e) {
 
-	if (e) {
-		// get information about the feature on which it was clicked
-		var picked = map.queryRenderedFeatures(e.point);
+	if (popupsEnabled) {
+		if (e) {
+			// get information about the feature on which it was clicked
+			var picked = map.queryRenderedFeatures(e.point);
 
-		// TODO: Sommerzeit im Sommer??
+			// TODO: Sommerzeit im Sommer??
 
-		// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
+			// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
 
-		if (picked[0].source.includes("Unwetter")) {
-			// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
-			if (picked[0].properties.instruction !== "null") {
-				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
-				new mapboxgl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
-				.addTo(map);
-			}
-			// if a instruction is not given by the DWD ...
-			else {
-				// ... create a popup with above information without an instruction
-				new mapboxgl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
-				.addTo(map);
+			if (picked[0].source.includes("Unwetter")) {
+				// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
+				if (picked[0].properties.instruction !== "null") {
+					// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
+					new mapboxgl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
+						.addTo(map);
+				}
+				// if a instruction is not given by the DWD ...
+				else {
+					// ... create a popup with above information without an instruction
+					new mapboxgl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
+						.addTo(map);
+				}
 			}
 		}
 	}
@@ -630,24 +632,26 @@ function showUnwetterPopup(map, e) {
 * @param {Object} e ...
 */
 function showTweetPopup(map, e) {
-	// get information about the feature on which it was clicked
-	var pickedTweet = map.queryRenderedFeatures(e.point);
+	if (popupsEnabled) {
+		// get information about the feature on which it was clicked
+		var pickedTweet = map.queryRenderedFeatures(e.point);
 
-	if (pickedTweet[0].source.includes("Tweet")) {
-		let idAsString = pickedTweet[0].properties.idstr;
-		// ... create a popup with the following information: ........
-		new mapboxgl.Popup()
-		.setLngLat(e.lngLat)
-		.setHTML("<div id='" + idAsString + "'></div>")
-		.addTo(map);
-		twttr.widgets.createTweet(
-			idAsString,
-			document.getElementById(idAsString),
-			{
-				width: 1000,
-				dnt: true
-			}
-		);
+		if (pickedTweet[0].source.includes("Tweet")) {
+			let idAsString = pickedTweet[0].properties.idstr;
+			// ... create a popup with the following information: ........
+			new mapboxgl.Popup()
+				.setLngLat(e.lngLat)
+				.setHTML("<div id='" + idAsString + "'></div>")
+				.addTo(map);
+			twttr.widgets.createTweet(
+				idAsString,
+				document.getElementById(idAsString),
+				{
+					width: 1000,
+					dnt: true
+				}
+			);
+		}
 	}
 }
 

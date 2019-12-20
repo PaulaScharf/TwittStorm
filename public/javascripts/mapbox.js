@@ -27,6 +27,11 @@ let map;
 // referes to all the layers that are not defaults
 let customLayerIds = [];
 
+let popupsEnabled = true;
+
+// time of app start
+let initTimestamp = Date.now();
+
 // Flag that indicates if a radar product is requested
 let wtypeFlag = "";
 
@@ -287,6 +292,15 @@ function requestNewAndDisplayCurrentUnwetters(map){
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	let currentTimestamp = Date.now();
+	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
+		currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
+		try {
+			Date.parse(currentTimestamp);
+		} catch {
+			console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.")
+			currentTimestamp = Date.now();
+		}
+	}
 
 	// just keep those Unwetter in database that are included in the last 10 timesteps (last 50 minutes)
 	removeOldUnwetterFromDB(currentTimestamp);
@@ -683,6 +697,16 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 				visibility = 'none';
 			} else {
 				visibility = 'visible';
+				let currentTimestamp = Date.now();
+				if (paramArray.config.current_time && paramArray.config.current_time !== null) {
+					currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
+					try {
+						Date.parse(currentTimestamp);
+					} catch {
+						console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.")
+						currentTimestamp = Date.now();
+					}
+				}
 
 					let query = {
 						twitterSearchQuery: {
@@ -690,7 +714,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 							searchWords: source._data.features[0].properties.searchWords
 						},
 						eventID: layerIDSplit[2],
-						currentTimestamp: Date.now()
+						currentTimestamp: currentTimestamp
 					};
 					$.ajax({
 						// use a http POST request

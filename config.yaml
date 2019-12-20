@@ -8,12 +8,13 @@ mongodb:
   db_name: itemdb
   collection_name: item
 
-# Map coordinates -----------------------------------
+# Process -------------------------------------------
+# current time as epoch timestamp
+current_time: null
+# Map coordinates
 map:
   center: [10.5, 51.2]
   zoom: 5
-
-# Process -------------------------------------------
 # refresh rate in milliseconds
 refresh_rate: 300000
 # how far back timestamps are being recorded for unwetters in milliseconds
