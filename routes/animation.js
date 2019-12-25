@@ -70,7 +70,9 @@ var previousWeather = function(req, res) {
                         weatherEvents[timestamp] = [];
                     }
                     response.forEach(function (event) {
-                        if (event.timestamps.includes(timestamp)) {
+                        if (event.timestamps.includes(timestamp) &&
+                            (event.properties.onset) ? true : (event.properties.onset <= timestamp) &&
+                            (event.properties.expires) ? true : (event.properties.expires > timestamp)) {
                             weatherEvents[timestamp].push(event);
                         }
                     });

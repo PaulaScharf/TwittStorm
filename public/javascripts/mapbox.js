@@ -421,6 +421,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 
 	// JSON with the query for getting only all current Unwetter out of database
 	let query = {
+		"type":"unwetter",
 		"properties.onset": '{"$lt": ' + currentTimestamp + '}',
 		"properties.expires": '{"$gt":  ' + currentTimestamp + '}'
 	};
