@@ -16,7 +16,7 @@
 * @author Paula Scharf, matr.: 450334
 * @param {Object} query
 * @param {String} typeOfItems - for documentation
-* @example promiseToGetItems({type: "Unwetter"})
+* @example promiseToGetItems({type: "unwetter"})
 */
 function promiseToGetItems(query, typeOfItems) {
 

@@ -29,20 +29,20 @@ function saveRainRadar(product, classification) {
           // an async call is necessary here to use the await-functionality
           (async () => {
             let radarJSON = {
-              type: "RainRadar",
+              type: "rainradar",
               date: data.rasterMeta.date,
               product: data.rasterMeta.product,
               interval: data.rasterMeta.interval_minutes,
               classInformation: data.classBorders.classes,
               geometry: data.geometry
             };
-            arrayOfPromises.push(promiseToPostItems([radarJSON], "RainRadar"));
+            arrayOfPromises.push(promiseToPostItems([radarJSON], "rainradar"));
 
             try {
                 // wait for all the posts to the database to succeed
                 await Promise.all(arrayOfPromises);
                 // return the promise to get all Items
-                resolve(promiseToGetItems({type: "RainRadar"}, "RainRadar"));
+                resolve(promiseToGetItems({type: "rainradar"}, "rainradar"));
             } catch(e) {
               reject("could not POST all Radar data");
             }

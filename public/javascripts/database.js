@@ -26,14 +26,14 @@ function removeOldUnwetterAndTweetsFromDB(currentTimestamp){
 
   let timestampQuery = {
     query: {
-      type: "Unwetter"
+      type: "unwetter"
     },
     update: {
       "$pull": '{"timestamps": { "$lt": ' + timestampDeleting + ' }}'
     }
   };
 
-  // array-update for all DB-items with type "Unwetter" do: for each array "timestamps" remove all timestamps that are older than timestampDeleting
+  // array-update for all DB-items with type "unwetter" do: for each array "timestamps" remove all timestamps that are older than timestampDeleting
   $.ajax({
     // use a http PUT request
     type: "PUT",
@@ -83,7 +83,7 @@ function removeOldUnwetterAndTweetsFromDB2() {
 
   //TODO: warum hier schon als String erstellen, wenn im ajax doch stringfy aufgerufen wird? -> wegen queryParser
   let queryGetOldUnwetter = {
-    "$and": '[ { "type":"Unwetter" }, { "timestamps": { "$size": 0 }} ]'
+    "$and": '[ { "type":"unwetter" }, { "timestamps": { "$size": 0 }} ]'
   };
 
   // get all Unwetter from database which have an empty Array "timestamps"
@@ -151,11 +151,11 @@ function removeOldUnwetterAndTweetsFromDB2() {
 function removeOldUnwetterFromDB(unwetterIDs){
 
   //  let query = {
-  //    "$and": '[ { "type": "Unwetter" }, { "$or": "' + unwetterIDs + '"} ]'
+  //    "$and": '[ { "type": "unwetter" }, { "$or": "' + unwetterIDs + '"} ]'
   //  };
 
   let query = {
-    $and: [ { "type": "Unwetter" }, { "$or": unwetterIDs} ]
+    $and: [ { "type": "unwetter" }, { "$or": unwetterIDs} ]
   };
 
   //console.log(JSON.stringify(query));

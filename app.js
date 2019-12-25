@@ -44,8 +44,8 @@ var warningsRouter = require('./routes/warnings');
 var radarRouter = require('./routes/radar');
 var twitterRouter = require('./routes/twitter');
 var configRouter = require('./routes/configuration');
+var animationRouter = require('./routes/animation');
 
-var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -188,6 +188,8 @@ app.use('/radar', radarRouter);
 app.use('/twitter', twitterRouter);
 //
 app.use('/config', configRouter);
+//
+app.use('/getPreviousWeather', animationRouter);
 
 
 
