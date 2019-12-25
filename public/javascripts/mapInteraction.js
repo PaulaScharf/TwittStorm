@@ -431,14 +431,14 @@ function loadRaster(product){
 	showLegend(map, "radar", product);
 
 	// if no rainradar data is displayed load the requested product
-	if (map.style.sourceCaches.rainRadar == undefined){
+	if (map.style.sourceCaches.rainradar == undefined){
 
 		requestAndDisplayAllRainRadar(map, product, "dwd");
 	}
 	// if a radar product is already on display remove it first
 	else {
-		map.removeLayer('rainRadar')
-		map.removeSource('rainRadar')
+		map.removeLayer('rainradar')
+		map.removeSource('rainradar')
 
 		requestAndDisplayAllRainRadar(map, product, "dwd");
 	};
@@ -465,7 +465,7 @@ function removeUnwetter(){
 		let layerIdParts = layerID.split(/[ ]+/);
 
 		// layerIdParts[0] contains the type of layer-element
-		if (layerIdParts[0] === "Unwetter") {
+		if (layerIdParts[0] === "unwetter") {
 
 				// remove the corresponding layer and source from map for not displaying this Unwetter any longer
 				map.removeLayer(layerID);
@@ -600,7 +600,7 @@ function showUnwetterPopup(map, e) {
 
 			// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
 
-			if (picked[0].source.includes("Unwetter")) {
+			if (picked[0].source.includes("unwetter")) {
 				// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
 				if (picked[0].properties.instruction !== "null") {
 					// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction

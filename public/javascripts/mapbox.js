@@ -300,14 +300,14 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
 		//console.log(result[result.length - 1]);
 
 		result = result[result.length - 1];
-		map.addSource("rainRadar", {
+		map.addSource("rainradar", {
 			"type": "geojson",
 			"data": result.geometry
 		});
 		map.addLayer({
-			"id": "rainRadar",
+			"id": "rainradar",
 			"type": "fill",
-			"source": "rainRadar",
+			"source": "rainradar",
 			"layout": {"visibility": "visible"},
 			"paint": {
 				"fill-color" : {
@@ -322,7 +322,7 @@ function requestAndDisplayAllRainRadar(map, product, classification) {
 				"fill-opacity": 0.4
 			}
 		});
-		customLayerIds.push('rainRadar');
+		customLayerIds.push('rainradar');
 	});
 }
 // *****************************************************************************************************
@@ -502,7 +502,7 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 				};
 				unwetterFeature.features[0].properties.searchWords = searchWords;
 				//
-				displayEvent(map, "Unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
+				displayEvent(map, "unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
 			}
 		}
 
@@ -702,7 +702,7 @@ function findAndRemoveOldLayerIDs(currentUnwetters){
 		let layerIdParts = layerID.split(/[ ]+/);
 
 		// layerIdParts[0] contains the type of layer-element
-		if (layerIdParts[0] === "Unwetter") {
+		if (layerIdParts[0] === "unwetter") {
 
 			// default false stands for: layer-Unwetter is not (no longer) a current Unwetter
 			let isCurrent = false;
@@ -744,7 +744,7 @@ function findAndRemoveOldLayerIDs(currentUnwetters){
 function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 	customLayerIds.forEach(function(layerID) {
 		// make sure to only check layers which contain an Unwetter
-		if (layerID.includes("Unwetter")) {
+		if (layerID.includes("unwetter")) {
 			let isInAOI = false;
 			let source = map.getSource(layerID);
 			// if any polygon of the layer is not contained by the given polygon, it is not inside the AOI

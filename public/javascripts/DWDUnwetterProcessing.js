@@ -163,7 +163,7 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, arr
   return new Promise((resolve, reject) => {
     // JSON with the ID of the current Unwetter, needed for following database-check
     let query = {
-      type: "Unwetter",
+      type: "unwetter",
       dwd_id: currentFeature.properties.IDENTIFIER
     };
 
@@ -259,7 +259,7 @@ function createUnwetterForDB(currentFeature, currentTimestamp){
 
   //
   let currentUnwetter = {
-    type: "Unwetter",
+    type: "unwetter",
     dwd_id: currentFeature.properties.IDENTIFIER,
     timestamps: timestamps,
     geometry: currentFeature.geometry,
