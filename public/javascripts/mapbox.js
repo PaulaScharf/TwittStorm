@@ -92,7 +92,7 @@ window.twttr = (function(d, s, id) {
 *
 *
 * This function is called, when "index.ejs" is loaded.
-* @author Katharina Poppinga
+* @author Katharina Poppinga, Jonathan Bahlmann
 */
 function showMap(style) {
 
@@ -195,15 +195,21 @@ function showMap(style) {
 			var severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-			if (paramArray.rasterClassification == undefined) {
-				paramArray.rasterClassification = 'dwd';
+			// if timestamp undefined
+			if (paramArray.timestamp == undefined) {
+				let now = Date.now();
+				// define it to now
+				paramArray.timestamp = now;
+				updateURL("timestamp", now);
 			}
+			updateURL("timestamp", paramArray.timestamp);
 
+			//if rasterProduct is defined
 			if (paramArray.rasterProduct !== undefined) {
 
 				showLegend(map, "radar", paramArray.rasterProduct);
-
-				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.rasterClassification);
+				// display rain radar
+				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.timestamp);
 
 				// check the checkbox of the radar submenu according to the chosen product
 				if (paramArray.rasterProduct === "ry") {
@@ -211,7 +217,7 @@ function showMap(style) {
 					innerRasterCheckToggle1.checked = true;
 				}
 				if (paramArray.rasterProduct === "rw") {
-					var innerRasterCheckToggle2 = document.getElementById('radio2');
+					let innerRasterCheckToggle2 = document.getElementById('radio2');
 					innerRasterCheckToggle2.checked = true;
 				}
 				if (paramArray.rasterProduct === "sf") {
@@ -219,11 +225,14 @@ function showMap(style) {
 					innerRasterCheckToggle3.checked = true;
 				}
 
-			} else {
+			}
+			// if radarproduct is undefined
+			else {
 				// default radar case (rw)
 				showLegend(map, "radar", "rw");
-				requestAndDisplayAllRainRadar(map, 'rw', 'dwd');
-				var innerRasterCheckToggle2 = document.getElementById('radio2');
+				requestAndDisplayAllRainRadar(map, 'rw', paramArray.timestamp);
+				updateURL("rasterProduct", "rw");
+				let innerRasterCheckToggle2 = document.getElementById('radio2');
 				innerRasterCheckToggle2.checked = true;
 			}
 		}
@@ -288,18 +297,17 @@ function showMap(style) {
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
 * @param map the map to display data in
 * @param product the radarProduct, see API wiki on github
-* @param classification classification method, see API wiki on GitHub
+* @param timestamp see API wiki on GitHub
 */
-function requestAndDisplayAllRainRadar(map, product, classification) {
+function requestAndDisplayAllRainRadar(map, product, timestamp) {
+	let url = "/radar/" + product + "/latest";
 	// Rain Radar Data
-	saveRainRadar(product, classification)
-	.catch(console.error)
-	.then(function(result) {
+	$.getJSON(url, function(result) {
+
 		//result is array of rainRadar JSONs
 		//result[result.length - 1] is most recent one -- insert variable
 		//console.log(result[result.length - 1]);
 
-		result = result[result.length - 1];
 		map.addSource("rainradar", {
 			"type": "geojson",
 			"data": result.geometry
@@ -348,7 +356,7 @@ function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
 * @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
 */
-function requestNewAndDisplayCurrentUnwetters(map) {
+function requestNewAndDisplayCurrentUnwetters(map){
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	let currentTimestamp = Date.now();
@@ -357,7 +365,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
-			console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.");
+			console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.")
 			currentTimestamp = Date.now();
 		}
 	}
@@ -773,7 +781,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 					try {
 						Date.parse(currentTimestamp);
 					} catch {
-						console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.");
+						console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.")
 						currentTimestamp = Date.now();
 					}
 				}
