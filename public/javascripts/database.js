@@ -44,7 +44,11 @@ function removeOldUnwetterAndTweetsFromDB(currentTimestamp){
     // data to send to the server, send as String for independence of server-side programming language
     data: JSON.stringify(timestampQuery),
     // timeout set to 10 seconds
-    timeout: 10000
+    timeout: 10000,
+    // update the status display
+    success: function() {
+          $('#information').html("Trying to delete old data");
+        }
   })
 
   // if the request is done successfully, ...
@@ -99,7 +103,11 @@ function removeOldUnwetterAndTweetsFromDB2() {
     // data to send to the server, send as String for independence of server-side programming language
     //data: JSON.stringify(),
     // timeout set to 10 seconds
-    timeout: 10000
+    timeout: 10000,
+    // update the status display
+    success: function() {
+          $('#information').html("Getting all old severe weather events");
+        }
   })
 
   // if the request is done successfully, ...
@@ -172,7 +180,11 @@ function removeOldUnwetterFromDB(unwetterIDs){
     // data to send to the server, send as String for independence of server-side programming language
     data: JSON.stringify(query),
     // timeout set to 10 seconds
-    timeout: 10000
+    timeout: 10000,
+    // update the status display
+    success: function() {
+          $('#information').html("Removing all old severe weather events");
+        }
   })
 
   // if the request is done successfully, ...
@@ -226,7 +238,11 @@ function removeOldTweetsFromDB(unwetterIDs){
     // data to send to the server, send as String for independence of server-side programming language
     data: JSON.stringify(query),
     // timeout set to 10 seconds
-    timeout: 10000
+    timeout: 10000,
+    // update the status display
+    success: function() {
+          $('#information').html("Deleting old Tweets from the Database");
+        }
   })
 
   // if the request is done successfully, ...

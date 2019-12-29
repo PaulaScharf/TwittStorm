@@ -29,13 +29,17 @@ function promiseToGetItems(query, typeOfItems) {
       //
       data: query,
       // timeout set to 20 seconds
-      timeout: 20000
+      timeout: 20000,
+      // update the status display
+      success: function() {
+            $('#information').html("Reading " + typeOfItems +" from the database");
+          }
     })
 
     // if the request is done successfully, ...
     .done(function (response) {
       // ... give a notice on the console that the AJAX request for reading all items has succeeded
-      console.log("AJAX request (reading " + typeOfItems + ") is done successfully.");
+      console.log("AJAX request (Reading " + typeOfItems + ") is done successfully.");
       // "resolve" acts like "return" in this context
       resolve(response);
     })
@@ -50,7 +54,7 @@ function promiseToGetItems(query, typeOfItems) {
         //JL("ajaxReadingAllItemsTimeout").fatalException("ajax: '/data' timeout");
       }
 
-      reject("AJAX request (reading " + typeOfItems + ") has failed.");
+      reject("AJAX request (Reading " + typeOfItems + ") has failed.");
     });
   });
 }
@@ -82,7 +86,11 @@ function promiseToPostItems(arrayOfItems, typeOfItems) {
       // data to send to the server
       data: JSON.stringify(arrayOfItems),
       // timeout set to 15 seconds
-      timeout: 15000
+      timeout: 15000,
+      // update the status display
+      success: function() {
+            $('#information').html("Trying to insert " + typeOfItems +" into the database");
+          }
     })
 
     // if the request is done successfully, ...

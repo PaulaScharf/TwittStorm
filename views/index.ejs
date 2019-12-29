@@ -22,11 +22,20 @@
 
   <main>
 
+    <!-- status display -->
+    <div class="loading" id="loading" style="display:none">
+      <div class="information" id="information">
+        <p></p>
+      </div>
+    </div>
+
     <!-- map -->
     <div class="container-fluid">
       <div id="map">
         <!-- DWD selection menu -->
         <div id="menu" style="display:none"></div>
+
+
 
         <!-- Product selection menu -->
         <div id="productMenu" style="display:none">
@@ -138,6 +147,5 @@
   <script src="/javascripts/dataProcessing.js"></script>
   <script src="/javascripts/database.js"></script>
   <script src="/javascripts/DWDUnwetterProcessing.js"></script>
-  <script src="/javascripts/rasterProcessing.js"></script>
   <script src="/javascripts/mapbox.js"></script>
   <script src="/javascripts/germanyBoundary.js"></script>
