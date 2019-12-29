@@ -505,13 +505,13 @@ function loadSevereWeather(){
 	showLegend(map, "unwetter");
 
 	// if no rainradar is displayed simply show polygons
-	if (map.style.sourceCaches.rainRadar == undefined){
+	if (map.style.sourceCaches.rainradar == undefined){
 		requestNewAndDisplayCurrentUnwetters(map);
 	}
 	// if not remove them first
 	else {
-		map.removeLayer('rainRadar')
-		map.removeSource('rainRadar')
+		map.removeLayer('rainradar')
+		map.removeSource('rainradar')
 		requestNewAndDisplayCurrentUnwetters(map);
 	};
 

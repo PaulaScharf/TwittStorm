@@ -34,6 +34,9 @@ function processUnwettersFromDWD(currentTimestamp) {
     $.getJSON(paramArray.config.dwd.warnings, function (data) {
       // EPSG: 4326
 
+      // update the status display
+      $('#information').html("Retrieving current severe weather warnings");
+
       // ***** formatting the Unwetter which will be inserted into the database afterwards: *****
 
       //
@@ -320,7 +323,11 @@ function updateTimestamp(_id, currentTimestamp) {
       // data to send to the server, send as String for independence of server-side programming language
       data: JSON.stringify(data),
       // timeout set to 10 seconds
-      timeout: 10000
+      timeout: 10000,
+      // update the status display
+      success: function() {
+            $('#information').html("Updating the timestamp of a severe weather event");
+          }
     })
 
     // if the request is done successfully, ...

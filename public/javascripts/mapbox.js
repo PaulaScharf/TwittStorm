@@ -80,7 +80,17 @@ window.twttr = (function(d, s, id) {
 }(document, "script", "twitter-wjs"));
 
 
+
+
 // ******************************** functions **********************************
+
+// shows and hides the current status of an ajax call
+$(document).ajaxSend(function(){
+    $('#loading').fadeIn(250);
+});
+$(document).ajaxComplete(function(){
+    $('#loading').fadeOut(250);
+});
 
 /**
 * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
@@ -301,6 +311,9 @@ function showMap(style) {
 */
 function requestAndDisplayAllRainRadar(map, product, timestamp) {
 	let url = "/radar/" + product + "/latest";
+
+	// update the status display
+	$('#information').html("Retrieving the requested " + product + " radar product");
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
 
@@ -804,7 +817,11 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 						// data to send to the server
 						data: JSON.stringify(query),
 						// timeout set to 15 seconds
-						timeout: 15000
+						timeout: 15000,
+						// update the status display
+						success: function() {
+									$('#information').html("Trying to find and insert fitting tweets");
+								}
 					})
 
 					// if the request is done successfully, ...
