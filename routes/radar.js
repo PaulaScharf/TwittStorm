@@ -406,4 +406,8 @@ var radarRouteLatest = function(req, res) {
 // make this route available to the router
 router.route("/:radarProduct/latest").get(radarRouteLatest);
 
+router.route("*").get(function(req, res){
+  res.status(404).send({err_msg: "Parameters are not valid"});
+});
+
 module.exports = router;
