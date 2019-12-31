@@ -39,7 +39,6 @@ const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
-var dbRouter = require('./routes/data');
 var warningsRouter = require('./routes/warnings');
 var radarRouter = require('./routes/radar');
 var twitterRouter = require('./routes/twitter');
@@ -179,8 +178,6 @@ app.post("/jsnlog.logger", function (req, res) {
 // index-router
 app.use('/', indexRouter);
 //
-app.use('/data', dbRouter);
-//
 app.use('/warnings', warningsRouter);
 //
 app.use('/radar', radarRouter);
@@ -189,13 +186,13 @@ app.use('/twitter', twitterRouter);
 //
 app.use('/config', configRouter);
 //
-app.use('/getPreviousWeather', animationRouter);
+app.use('/previousWeather', animationRouter);
 
 
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  res.status(404).send({err_msg: "Not Found"});
 });
 
 
@@ -207,7 +204,10 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  // respond with html page
+  res.send({
+    err_msg: err.message
+  });
 });
 
 

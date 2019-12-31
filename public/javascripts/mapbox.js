@@ -361,49 +361,50 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			currentTimestamp = Date.now();
 		}
 	}
+	$.ajax({
+		// use a http GET request
+		type: "GET",
+		// URL to send the request to
+		url: "/warnings/" + currentTimestamp,
+		// type of the data that is sent to the server
+		contentType: "application/json; charset=utf-8",
+		// timeout set to 15 seconds
+		timeout: 15000
+	})
 
-	// just keep those Unwetter in database that are included in the last 10 timesteps (last 50 minutes)
-	removeOldUnwetterAndTweetsFromDB(currentTimestamp);
+	// if the request is done successfully, ...
+		.done(function (result) {
+			// ... give a notice on the console that the AJAX request for inserting many items has succeeded
+			console.log("AJAX request (finding and inserting tweets) is done successfully.");
+			displayCurrentUnwetters(result.events);
+		})
 
-	// ".then" is used here, to ensure that the .......... has finished and a result is available
-	// saves new requested Unwetter in database
-	processUnwettersFromDWD(currentTimestamp)
-	//
-	.catch(console.error)
-	//
-	.then(function() {
+		// if the request has failed, ...
+		.fail(function (xhr, status, error) {
+			// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+			console.log("AJAX request (finding and inserting tweets) has failed.", error);
 
+			// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+			if (error === "timeout") {
+				//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
+			}
+		});
 
-		// TODO: currentTimestamp in config-yaml speichern!!
-		// currentTimestamp
+	// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN RADAR-LEGENDE REIN,
+	// FALLS NACH UNWETTER-MENÜ-AUFRUF DIREKT RADAR AUFGERUFEN WURDE UND UNWETTER NOCH VERARBEITET WERDEN!!!!
+	if (paramArray.wtype != "radar"){
+		// display the timestamp of the last request in the legend
+		let splittedTimestamp = Date(currentTimestamp).split("(");
+		let formattedTimestamp = splittedTimestamp[0];
+		let timestampLastRequest = document.getElementById("timestampLastRequest");
+		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+	}
 
-		// serverseitig, da require yaml nötig ist
-		// ist serverseitig passend, da Unwetter eh vom Server requested werden (müssen)!!
-
-
-
-		//
-		displayCurrentUnwetters(map, currentTimestamp);
-
-		// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN RADAR-LEGENDE REIN,
-		// FALLS NACH UNWETTER-MENÜ-AUFRUF DIREKT RADAR AUFGERUFEN WURDE UND UNWETTER NOCH VERARBEITET WERDEN!!!!
-		if (paramArray.wtype != "radar"){
-			// display the timestamp of the last request in the legend
-			let splittedTimestamp = Date(currentTimestamp).split("(");
-			let formattedTimestamp = splittedTimestamp[0];
-			let timestampLastRequest = document.getElementById("timestampLastRequest");
-			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
-		}
-
-		// TODO: für RADARFUNKTION folgendes verwenden:
-		/*
-		let dataTimestamp = document.getElementById("dataTimestamp");
-		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br> TODO"; // TODO: hier timestamp of radar data aus DB anfügen
-		*/
-
-	}, function(err) {
-		console.log(err);
-	});
+	// TODO: für RADARFUNKTION folgendes verwenden:
+	/*
+  let dataTimestamp = document.getElementById("dataTimestamp");
+  dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br> TODO"; // TODO: hier timestamp of radar data aus DB anfügen
+  */
 }
 
 
@@ -415,26 +416,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 * @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
 * @param {number} currentTimestamp - in Epoch milliseconds
 */
-function displayCurrentUnwetters(map, currentTimestamp) {
-
-	// TODO: überprüfen, ob die query richtig funktioniert (nur die Unwetter aus DB nehmen, die grad aktuell sind)
-
-	// JSON with the query for getting only all current Unwetter out of database
-	let query = {
-		"type":"unwetter",
-		"properties.onset": '{"$lt": ' + currentTimestamp + '}',
-		"properties.expires": '{"$gt":  ' + currentTimestamp + '}'
-	};
-
-	//
-	promiseToGetItems(query, "all current Unwetter")
-	.catch(function(error) {
-		reject(error)
-	})
-	.then(function(response) {
-
-		// all Unwetter that are stored in the database
-		let currentUnwetters = response;
+function displayCurrentUnwetters(currentUnwetters) {
 
 		// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
 		let unwetterFeature;
@@ -506,12 +488,6 @@ function displayCurrentUnwetters(map, currentTimestamp) {
 				displayEvent(map, "unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
 			}
 		}
-
-	},function (xhr, status, error) {
-
-		// ... give a notice that the ....... has failed and show the error on the console
-		console.log("Notice ... failed.", error);
-	});
 }
 
 

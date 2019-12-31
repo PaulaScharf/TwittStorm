@@ -40,41 +40,49 @@ function GeoJSONPolygon(object) {
 /* GET raster data as polygons */
 /* returns JSON ready to be put into DB */
 router.get("/:radarProduct/:classification", function(req, res) {
-  var db = req.db;
-  var radarProduct = req.params.radarProduct;
-  var classification = req.params.classification;
+  try {
+    var db = req.db;
+    var radarProduct = req.params.radarProduct;
+    var classification = req.params.classification;
 
-  //TODO check if this is already available
-  //db search with current timestamp, depending on availability of radarProduct
-  //call R script
-  R("./node.R")
-    .data({ "radarProduct": radarProduct, "classification": classification})
-    .call(function(err, d) {
-      if(err) throw err;
-      //TODO GeoJSONify response d
-      var rasterMeta = d[0];
-      var classBorders = d[1];
-      var answerJSON = {
-        "type": "RainRadar",
-        "rasterMeta": rasterMeta,
-        "classBorders": classBorders,
-        "geometry": {
-          "type": "FeatureCollection",
-          "features": []
+    //TODO check if this is already available
+    //db search with current timestamp, depending on availability of radarProduct
+    //call R script
+    R("./node.R")
+      .data({"radarProduct": radarProduct, "classification": classification})
+      .call(function (err, d) {
+        if (err) throw err;
+        //TODO GeoJSONify response d
+        var rasterMeta = d[0];
+        var classBorders = d[1];
+        var answerJSON = {
+          "type": "rainradar",
+          "rasterMeta": rasterMeta,
+          "classBorders": classBorders,
+          "geometry": {
+            "type": "FeatureCollection",
+            "features": []
+          }
+        };
+
+        //make one big GeoJSON featurecollection
+        for (let i = 2; i < d.length; i++) {
+          var polygon = GeoJSONPolygon(d[i]);
+          //push to collection
+          answerJSON.geometry.features.push(polygon);
         }
-      };
+        //console.log("got raster data, timestamp: " + answerJSON.rasterMeta.date + ", " + answerJSON.rasterMeta.product + " product");
 
-      //make one big GeoJSON featurecollection
-      for(let i = 2; i < d.length; i++) {
-        var polygon = GeoJSONPolygon(d[i]);
-        //push to collection
-        answerJSON.geometry.features.push(polygon);
-      }
-      //console.log("got raster data, timestamp: " + answerJSON.rasterMeta.date + ", " + answerJSON.rasterMeta.product + " product");
+        //send response, response is db-object like JSON
+        res.send(answerJSON);
+      });
+  } catch (error) {
+    res.status(500).send({err_msg: error});
+  }
+});
 
-      //send response, response is db-object like JSON
-      res.send(answerJSON);
-    });
+router.route("*").get(function(req, res){
+    res.status(404).send({err_msg: "Parameters are not valid"});
 });
 
 //TODO connect to db get/post functionality
