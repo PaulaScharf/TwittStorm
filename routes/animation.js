@@ -43,61 +43,72 @@ var previousWeather = function(req, res) {
 
         };
         promiseToGetItems(query, req.db)
-            .catch(console.error)
+            .catch(function(error) {
+                res.status(500).send({err_msg: error});
+            })
             .then(function (response) {
-                // this will be the response of the request
-                let weatherEvents = {
-                    "type": (wtype === "unwetter") ? "severeWeatherWarnings" : "rainRadar"
-                };
-                // this array will contain the timestamps of all the events that were returned
-                let arrayOfTimestamps = [];
-                response.forEach(function (event) {
-                    event.timestamps.forEach(function (timestamp) {
-                        if (!arrayOfTimestamps.includes(timestamp)) {
-                            arrayOfTimestamps.push(timestamp);
-                        }
-                    })
-                });
-                // if the response includes more than 10 timestamp only choose the 10 most recent ones
-                if (arrayOfTimestamps.length > 10) {
-                    arrayOfTimestamps.sort(function (a, b) {
-                        return a - b
-                    });
-                    arrayOfTimestamps = arrayOfTimestamps.slice(0, 9);
-                }
-                arrayOfTimestamps.forEach(function (timestamp) {
-                    if (!weatherEvents[timestamp]) {
-                        weatherEvents[timestamp] = [];
-                    }
+                try {
+                    // this will be the response of the request
+                    let weatherEvents = {
+                        "type": (wtype === "unwetter") ? "severeWeatherWarnings" : "rainRadar"
+                    };
+                    // this array will contain the timestamps of all the events that were returned
+                    let arrayOfTimestamps = [];
                     response.forEach(function (event) {
-                        if (event.timestamps.includes(timestamp) &&
+                        event.timestamps.forEach(function (timestamp) {
+                            if (!arrayOfTimestamps.includes(timestamp)) {
+                                arrayOfTimestamps.push(timestamp);
+                            }
+                        })
+                    });
+                    // if the response includes more than 10 timestamp only choose the 10 most recent ones
+                    if (arrayOfTimestamps.length > 10) {
+                        arrayOfTimestamps.sort(function (a, b) {
+                            return a - b
+                        });
+                        arrayOfTimestamps = arrayOfTimestamps.slice(0, 9);
+                    }
+                    arrayOfTimestamps.forEach(function (timestamp) {
+                        if (!weatherEvents[timestamp]) {
+                            weatherEvents[timestamp] = [];
+                        }
+                        response.forEach(function (event) {
+                            if (event.timestamps.includes(timestamp) &&
                             (event.properties.onset) ? true : (event.properties.onset <= timestamp) &&
                             (event.properties.expires) ? true : (event.properties.expires > timestamp)) {
-                            weatherEvents[timestamp].push(event);
-                        }
+                                weatherEvents[timestamp].push(event);
+                            }
+                        });
                     });
-                });
 
-                res.json(weatherEvents);
+                    res.json(weatherEvents);
+                } catch(error) {
+                    res.status(500).send({err_msg: error});
+                }
             });
     }
 };
 
 function checkParams(params) {
-    if (params.wtype !== "unwetter" && params.wtype !== "rainradar") {
-        return {
-            err_message: "'wtype' (weather type) is neither 'unwetter' nor 'rainradar'"
-        };
-    } else if (JSON.parse(params.currentTimestamp) < 0) {
-        return {
-            err_message: "'currenttimestamp' is not a valid epoch timestamp (milliseconds)"
-        };
+    switch (params) {
+        case (params.wtype !== "unwetter" && params.wtype !== "rainradar"):
+            return {
+                err_message: "'wtype' (weather type) is neither 'unwetter' nor 'rainradar'"
+            };
+        case (JSON.parse(params.currentTimestamp) < 0):
+            return {
+                err_message: "'currentTimestamp' is not a valid epoch timestamp (milliseconds)"
+            };
+        default:
+            return {
+                err_message: ""
+            };
     }
-    return {
-        err_message: ""
-    };
 }
 
 router.route("/:wtype/:currentTimestamp").get(previousWeather);
+router.route("*").get(function(req, res){
+    res.status(404).send({err_msg: "Parameters are not valid"});
+});
 
 module.exports = router;

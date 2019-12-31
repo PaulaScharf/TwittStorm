@@ -87,16 +87,16 @@ function findLastTimestamp(product, timestampString) {
 
 
           // SF or RW products
-          if(prod == 'SF' || prod == 'RW') {
+          if(prod === 'SF' || prod === 'RW') {
             let until = 50;
 
-            while(timestampDate.getMinutes() != until) {
+            while(timestampDate.getMinutes() !== until) {
               timestampDate.setMinutes(timestampDate.getMinutes() - 1);
             }
           }
-          if(prod == 'RY') {
+          if(prod === 'RY') {
             let mod = 5;
-            while(timestampDate.getMinutes() % mod != 0) {
+            while(timestampDate.getMinutes() % mod !== 0) {
               console.log(timestampDate.getMinutes());
               timestampDate.setMinutes(timestampDate.getMinutes() - 1);
             }
@@ -405,5 +405,9 @@ var radarRouteLatest = function(req, res) {
 
 // make this route available to the router
 router.route("/:radarProduct/latest").get(radarRouteLatest);
+
+router.route("*").get(function(req, res){
+  res.status(404).send({err_msg: "Parameters are not valid"});
+});
 
 module.exports = router;

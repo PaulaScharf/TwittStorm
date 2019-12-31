@@ -6,8 +6,6 @@ The code of this project can be found on GitHub: [https://github.com/PaulaScharf
 Are in the routes folder in the index.js. The crud functionality is provided through the data.js in the same folder.
 ## Pages
 The Webpages are in the views folder and are in the .ejs format which can be used just like HTML.
-## CRUD
-The CRUD functionality is based on the solution for geosoft1 and still uses the format that was used for that task. Can be changed once we know what we need to use it for.
 ## How to set things up
 To start the application via npm, navigate to the app's folder, open your commandprompt and enter <br/>
 `npm install`, `npm start` or <br/> `nodemon start` for dynamic changes.<br/>
