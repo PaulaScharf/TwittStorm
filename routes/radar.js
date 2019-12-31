@@ -87,16 +87,16 @@ function findLastTimestamp(product, timestampString) {
 
 
           // SF or RW products
-          if(prod == 'SF' || prod == 'RW') {
+          if(prod === 'SF' || prod === 'RW') {
             let until = 50;
 
-            while(timestampDate.getMinutes() != until) {
+            while(timestampDate.getMinutes() !== until) {
               timestampDate.setMinutes(timestampDate.getMinutes() - 1);
             }
           }
-          if(prod == 'RY') {
+          if(prod === 'RY') {
             let mod = 5;
-            while(timestampDate.getMinutes() % mod != 0) {
+            while(timestampDate.getMinutes() % mod !== 0) {
               console.log(timestampDate.getMinutes());
               timestampDate.setMinutes(timestampDate.getMinutes() - 1);
             }
