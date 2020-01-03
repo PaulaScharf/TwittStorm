@@ -143,7 +143,6 @@ const getWarningsForTime = function(req, res, next) {
 function processUnwettersFromDWD(currentTimestamp, db) {
   //
   return new Promise((resolve, reject) => {
-
     //
     let arrayOfGroupedUnwetters = [];
 
@@ -166,7 +165,7 @@ function processUnwettersFromDWD(currentTimestamp, db) {
         body += chunk;
       });
 
-      httpResponse.on("end", () => {
+      httpResponse.on("end", async () => {
 
         try {
           let data = JSON.parse(body);
@@ -190,6 +189,7 @@ function processUnwettersFromDWD(currentTimestamp, db) {
             arrayOfGroupedUnwetters.push(currentUnwetter);
           });
 
+          let processingUnwetters = [];
             //
             for (let i = arrayOfGroupedUnwetters.length - 1; i >= 0; i--) {
 
@@ -219,16 +219,11 @@ function processUnwettersFromDWD(currentTimestamp, db) {
 
                 // check whether exactly this Unwetter is already stored in the database
                 // and, depending on its MSGTYPE (Alert, Update, Cancel), add, update or delete if to/from database
-                checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, currentTimestamp, db)
-                  .then(function() {
-                    resolve();
-                  })
-                  .catch(function(error) {
-                    reject(error);
-                  });
+                processingUnwetters.push(checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, currentTimestamp, db));
               }
             }
-
+            await Promise.all(processingUnwetters);
+            resolve();
           // if an error occurs in parsing and sending the body ...
         } catch(error) {
           reject(error);
@@ -325,7 +320,6 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, cur
 
         }
         //
-        resolve(response);
       })
       .catch(function(error) {
         reject(error);
