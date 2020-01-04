@@ -21,94 +21,105 @@
   <%- include('partial/navbar', {active: "home"}); %>
 
   <main>
-    <!-- DWD selection menu -->
-    <div id="menu" style="display:none"></div>
 
-    <!-- Product selection menu -->
-    <div id="productMenu" style="display:none">
-      <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)">Radar</a>
-      <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu); loadSevereWeather();">Severe Weather</a>
-    </div>
-
-    <!-- Raster selection menu -->
-    <!-- Add functions for raster display here -->
-    <div id="rasterMenu" class="inputGroup" style="display:none">
-      <div>
-        <input id="radio1" name="radio" type="radio" onclick="loadRaster('ry');"> 5 Minutes</input>
-      </div>
-      <div>
-        <input id="radio2" name="radio" type="radio" onclick="loadRaster('rw');"> 60 Minutes</input>
-      </div>
-      <div>
-        <input id="radio3" name="radio" type="radio" onclick="loadRaster('sf');"> 24 Hours</input>
+    <!-- status display -->
+    <div class="loading" id="loading" style="display:none">
+      <div class="information" id="information">
+        <p></p>
       </div>
     </div>
-
-    <!-- button to open up the menu. image taken from https://freeicons.io/user-interface-and-electronics/layer-up-down-screen-multiple-interface-ui-d-cd-icon-892 -->
-    <nav id="menuButton" class="button" onclick="openMenu(this, productMenu);" title="Change Layers">
-      <div id="buttonIcon">
-        <img src="/css/Layer-Icon.png"/>
-      </div>
-    </nav>
-
-    <!-- button to show and hide the boundaries of germany. image taken from https://upload.wikimedia.org/wikipedia/commons/e/e3/Karte_Deutschland.svg -->
-    <!-- Alternative: Change img src to /css/Germany-Outline.svg. image taken from: https://upload.wikimedia.org/wikipedia/commons/f/f2/Germany-Outline.svg-->
-    <nav id="germanyButton" class="container" onclick="removeAddGermany();" title="Toggle Germany Boundaries" style="display:none">
-      <div id="germanyIcon" >
-        <img src="/css/Karte_Deutschland.svg" width="20" height="20"/>
-      </div>
-    </nav>
 
     <!-- map -->
     <div class="container-fluid">
-      <div id="map"></div>
-      <!-- map-legend -->
-      <div class="map-overlay top">
-        <div class="map-overlay-inner">
-          <div id="legend" class="legend">
-          </div>
-          <div id="metadata">
-            <br>
-            <p id="dataSource"></p>
-            <p id="dataTimestamp"></p>
-            <p id="timestampLastRequest"></p>
-            <p id="refreshRate"></p>
-            <p id="posAccuracy"></p>
-          </div>
-        </div>
-      </div>
+      <div id="map">
+        <!-- DWD selection menu -->
+        <div id="menu" style="display:none"></div>
 
-      <!-- Style Selector -->
-      <div class="switch-field" id='styleMenu'>
-        <input id='navigation-guidance-day-v4' type='radio' name='switch-two' value='streets' onchange="updateURL('style', 'streets')" checked='checked'>
-        <label for='navigation-guidance-day-v4'>Streets</label>
-        <br>
-        <input id='satellite-v9' type='radio' name='switch-two' value='satellite' onchange="updateURL('style', 'satellite')">
-        <label for='satellite-v9'>Satellite</label>
-      </div>
 
-      <!-- Pan Buttons -->
-      <!-- image taken from https://freeicons.io/user-interface-and-electronics/arrow-backword-back-ui-left-interface-e-da-c-a-icon-811 -->
-      <nav id="panButtonL" class="button" onclick="panMapWithButton('left');" title="Pan map to the left">
-        <div id="panButton_L_img" class="panButtonImg">
-          <img src="/css/pan.png"/>
+
+        <!-- Product selection menu -->
+        <div id="productMenu" style="display:none">
+          <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)" title="Request radar data">Radar</a>
+          <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu); loadSevereWeather();" title="Request severe weather data">Severe Weather</a>
         </div>
-      </nav>
-      <nav id="panButtonR" class="button" onclick="panMapWithButton('right');" title="Pan map to the right">
-        <div id="panButton_R_img" class="panButtonImg">
-          <img src="/css/pan.png"/>
+
+        <!-- Raster selection menu -->
+        <!-- Add functions for raster display here -->
+        <div id="rasterMenu" class="inputGroup" style="display:none">
+          <div>
+            <input id="radio1" name="radio" type="radio" onclick="loadRaster('ry');"> 5 Minutes</input>
+          </div>
+          <div>
+            <input id="radio2" name="radio" type="radio" onclick="loadRaster('rw');"> 60 Minutes</input>
+          </div>
+          <div>
+            <input id="radio3" name="radio" type="radio" onclick="loadRaster('sf');"> 24 Hours</input>
+          </div>
         </div>
-      </nav>
-      <nav id="panButtonU" class="button" onclick="panMapWithButton('up');" title="Pan map up">
-        <div id="panButton_U_img" class="panButtonImg">
-          <img src="/css/pan.png"/>
+
+        <!-- button to open up the menu. image taken from https://freeicons.io/user-interface-and-electronics/layer-up-down-screen-multiple-interface-ui-d-cd-icon-892 -->
+        <nav id="menuButton" class="button" onclick="openMenu(this, productMenu);" title="Change Layers">
+          <div id="buttonIcon">
+            <img src="/css/Layer-Icon.png"/>
+          </div>
+        </nav>
+
+        <!-- button to show and hide the boundaries of germany. image taken from https://upload.wikimedia.org/wikipedia/commons/e/e3/Karte_Deutschland.svg -->
+        <!-- Alternative: Change img src to /css/Germany-Outline.svg. image taken from: https://upload.wikimedia.org/wikipedia/commons/f/f2/Germany-Outline.svg-->
+        <nav id="germanyButton" class="container" onclick="removeAddGermany();" title="Toggle Germany Boundaries" style="display:none">
+          <div id="germanyIcon">
+            <img src="/css/Karte_Deutschland.svg" width="20" height="20"/>
+          </div>
+        </nav>
+
+        <!-- map-legend -->
+        <div class="map-overlay top">
+          <div class="map-overlay-inner">
+            <div id="legend" class="legend">
+            </div>
+            <div id="metadata">
+              <br>
+              <p id="dataSource"></p>
+              <p id="dataTimestamp"></p>
+              <p id="timestampLastRequest"></p>
+              <p id="refreshRate"></p>
+              <p id="posAccuracy"></p>
+            </div>
+          </div>
         </div>
-      </nav>
-      <nav id="panButtonD" class="button" onclick="panMapWithButton('down');" title="Pan map down">
-        <div id="panButton_D_img" class="panButtonImg">
-          <img src="/css/pan.png"/>
+
+        <!-- Style Selector -->
+        <div class="switch-field" id='styleMenu'>
+          <input id='navigation-guidance-day-v4' type='radio' name='switch-two' value='streets' onchange="updateURL('style', 'streets')" checked='checked'>
+          <label for='navigation-guidance-day-v4'>Streets</label>
+          <br>
+          <input id='satellite-v9' type='radio' name='switch-two' value='satellite' onchange="updateURL('style', 'satellite')">
+          <label for='satellite-v9'>Satellite</label>
         </div>
-      </nav>
+
+        <!-- Pan Buttons -->
+        <!-- image taken from https://freeicons.io/user-interface-and-electronics/arrow-backword-back-ui-left-interface-e-da-c-a-icon-811 -->
+        <nav id="panButtonL" class="button" onclick="panMapWithButton('left');" title="Pan map to the left">
+          <div id="panButton_L_img" class="panButtonImg">
+            <img src="/css/pan.png"/>
+          </div>
+        </nav>
+        <nav id="panButtonR" class="button" onclick="panMapWithButton('right');" title="Pan map to the right">
+          <div id="panButton_R_img" class="panButtonImg">
+            <img src="/css/pan.png"/>
+          </div>
+        </nav>
+        <nav id="panButtonU" class="button" onclick="panMapWithButton('up');" title="Pan map up">
+          <div id="panButton_U_img" class="panButtonImg">
+            <img src="/css/pan.png"/>
+          </div>
+        </nav>
+        <nav id="panButtonD" class="button" onclick="panMapWithButton('down');" title="Pan map down">
+          <div id="panButton_D_img" class="panButtonImg">
+            <img src="/css/pan.png"/>
+          </div>
+        </nav>
+      </div>
 
 
     </main>
@@ -135,9 +146,6 @@
   <script src="/javascripts/mapboxDraw.js"></script>
   <script src="/javascripts/dataProcessing.js"></script>
   <script src="/javascripts/database.js"></script>
-  <script src="/javascripts/smallest-enclosing-circle.js"></script>
   <script src="/javascripts/DWDUnwetterProcessing.js"></script>
-  <script src="/javascripts/twitterProcessing.js"></script>
-  <script src="/javascripts/rasterProcessing.js"></script>
   <script src="/javascripts/mapbox.js"></script>
   <script src="/javascripts/germanyBoundary.js"></script>

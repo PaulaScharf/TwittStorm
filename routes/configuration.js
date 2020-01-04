@@ -17,27 +17,33 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 let config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
-router.post("/update", (req, res) => {
-	for (let key in req.body) {
-		if (req.body.hasOwnProperty(key)) {
-			var schema = config;
-			var pList = key.split('.');
-			var len = pList.length;
-			for(var i = 0; i < len-1; i++) {
-				var elem = pList[i];
-				if( !schema[elem] ) schema[elem] = {};
-				schema = schema[elem];
-			}
-			try {
-				schema[pList[len-1]] = JSON.parse(req.body[key]);
-			} catch {
-				schema[pList[len-1]] = req.body[key];
+router.post("/", (req, res) => {
+	try {
+		for (let key in req.body) {
+			if (req.body.hasOwnProperty(key)) {
+				if (key === "map.zoom" || key === "map.center" || key === "max_age_tweets" || key === "current_time") {
+					var schema = config;
+					var pList = key.split('.');
+					var len = pList.length;
+					for (var i = 0; i < len - 1; i++) {
+						var elem = pList[i];
+						if (!schema[elem]) schema[elem] = {};
+						schema = schema[elem];
+					}
+					try {
+						schema[pList[len - 1]] = JSON.parse(req.body[key]);
+					} catch {
+						schema[pList[len - 1]] = req.body[key];
+					}
+				}
 			}
 		}
+		let yamlStr = yaml.safeDump(config);
+		fs.writeFileSync('config.yaml', yamlStr, 'utf8');
+		res.redirect("/config");
+	} catch (error) {
+		res.status(500).send({err_msg: error});
 	}
-	let yamlStr = yaml.safeDump(config);
-	fs.writeFileSync('config.yaml', yamlStr, 'utf8');
-	res.redirect("/config");
 });
 
 module.exports = router;

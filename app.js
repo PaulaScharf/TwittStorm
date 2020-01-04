@@ -39,13 +39,12 @@ const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 // set the routers-paths
 var indexRouter = require('./routes/index');
-var dbRouter = require('./routes/data');
-var twitterRouter = require('./routes/twitter');
+var warningsRouter = require('./routes/warnings');
 var radarRouter = require('./routes/radar');
+var twitterRouter = require('./routes/twitter');
 var configRouter = require('./routes/configuration');
+var animationRouter = require('./routes/animation');
 
-
-var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -179,19 +178,21 @@ app.post("/jsnlog.logger", function (req, res) {
 // index-router
 app.use('/', indexRouter);
 //
-app.use('/db', dbRouter);
-//
-app.use('/twitter', twitterRouter);
+app.use('/warnings', warningsRouter);
 //
 app.use('/radar', radarRouter);
 //
+app.use('/twitter', twitterRouter);
+//
 app.use('/config', configRouter);
+//
+app.use('/previousWeather', animationRouter);
 
 
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  res.status(404).send({err_msg: "Not Found"});
 });
 
 
@@ -203,7 +204,10 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  // respond with html page
+  res.send({
+    err_msg: err.message
+  });
 });
 
 

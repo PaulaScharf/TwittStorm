@@ -31,7 +31,7 @@ function showRoutes() {
 		// use a http POST request
 		type: "POST",
 		// URL to send the request to
-		url: "/db/",
+		url: "/data",
 		//
 		data: {},
 		// timeout set to 20 seconds
@@ -73,7 +73,7 @@ function deleteRoute(event) {
 
 	$.ajax({
 		type: 'DELETE',
-		url: '/db/delete' + $(this).attr('rel')
+		url: '/data/delete' + $(this).attr('rel')
 	}).done(function(response) {
 		if(response.msg === '') {
 			alert('done!');
@@ -98,7 +98,7 @@ function createRouteButton() {
 	$.ajax({
 		type: 'POST',
 		data: item,
-		url: '/db/add',
+		url: '/data/add',
 		contentType:"application/json"
 	}).done(function(response) {
 		console.dir(response);

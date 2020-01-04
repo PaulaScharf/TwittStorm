@@ -76,4 +76,9 @@ function drawForAOI(map) {
 		console.log("drawnPolygons-selectionchanged:");
 		console.log(e.features);
 	});
+
+// 
+	map.on('draw.modechange', function (e) {
+			popupsEnabled = (e.mode !== "draw_polygon");
+	})
 }

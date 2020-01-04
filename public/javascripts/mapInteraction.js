@@ -82,7 +82,7 @@ function showLegend(map, typeOfLegend, product) {
 
 		//
 		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>TODO"; // TODO: in radar-js-datei den timestamp of radar data aus DB anfügen
-		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>1 km";
+		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>1 km x 1 km";
 
 		let classes = [];
 		// last value of last class is not needed, it is just any much to big value for including all bigger values than in the three lower classes
@@ -127,8 +127,9 @@ function showLegend(map, typeOfLegend, product) {
 		legend.appendChild(legendElements);
 	}
 
-	//
-	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD_Logo.png' alt='Deutscher Wetterdienst'>";
+	// image taken from: https://upload.wikimedia.org/wikipedia/de/thumb/7/7b/DWD-Logo_2013.svg/800px-DWD-Logo_2013.svg.png
+	// TODO: change source to https://www.dwd.de/SharedDocs/bilder/DE/logos/dwd/dwd_logo_258x69.png?__blob=normal
+	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD-Logo_2013.svg' alt='Deutscher Wetterdienst'>";
 	timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>";
 	let refreshRateValue = paramArray.config.refresh_rate;
 	refreshRate.innerHTML = "<b>Refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
@@ -286,12 +287,12 @@ function openMenu(button, menu) {
 		var innerRasterMenuToggle = document.getElementById('rasterMenu');
 		innerRasterMenuToggle.style.display = "block";
 	}
+	// if severe weather is selected automatically open up the severe weather submenu
 	else {
-		var innerUnwetterMenuToggle = document.getElementById('menu');
-		if (innerUnwetterMenuToggle.style.display = "block"){
-			// TODO?
-		};
-	}
+			var innerUnwetterMenuToggle = document.getElementById('menu');
+			innerUnwetterMenuToggle.style.display = "block";
+	};
+
 
 	// displays the germany boundary button if is not visible
 	var boundaryButtonToggle = document.getElementById('germanyButton');
@@ -414,7 +415,6 @@ function styleSelector(){
 }
 
 
-
 /**
 * @desc Loads the chosen radar product, updates the url, and hides previous selected layers
 * @author Benjamin Rieke
@@ -426,7 +426,7 @@ function loadRaster(product){
 	wtypeFlag = "radar";
 
 	// hide all severe weather polygons
-	hideUnwetter();
+	removeUnwetter();
 
 	console.log("Loading your requested radar product");
 	// update the URL
@@ -436,14 +436,14 @@ function loadRaster(product){
 	showLegend(map, "radar", product);
 
 	// if no rainradar data is displayed load the requested product
-	if (map.style.sourceCaches.rainRadar == undefined){
+	if (map.style.sourceCaches.rainradar == undefined){
 
 		requestAndDisplayAllRainRadar(map, product, "dwd");
 	}
 	// if a radar product is already on display remove it first
 	else {
-		map.removeLayer('rainRadar')
-		map.removeSource('rainRadar')
+		map.removeLayer('rainradar')
+		map.removeSource('rainradar')
 
 		requestAndDisplayAllRainRadar(map, product, "dwd");
 	};
@@ -456,26 +456,42 @@ function loadRaster(product){
 
 
 /**
-* @desc Hides the Unwetter polygons and changes the severeweather Tab to not active
-* @author Benjamin Rieke
+* @desc Hides the Unwetter polygons, based on the findAndRemoveOldLayerIDs function. Also changes the severeweather Tab to not active
+* @author Benjamin Rieke, Katharina Poppinga
 */
-function hideUnwetter(){
+function removeUnwetter(){
 
-	// hide every available severe weather polygon
-	map.style._order.forEach(function(layer) {
-		let mapLayer = layer;
-		if (mapLayer.includes("Unwetter other") ) {
-			map.setLayoutProperty(layer, 'visibility', 'none');
-			console.log("hid one unwetter polygon");
-		};
-	});
+	// remove every available severe weather polygon
+	for (let i = 0; i < customLayerIds.length; i++) {
 
-	// remove the active attribute from the severe weather tab
-	var menuToggle = document.getElementById('severeWeather');
-	menuToggle.classList.remove("active");
-	// hide the svere weather sub menu
-	var selectionToggle = document.getElementById('menu');
-	selectionToggle.style.display ="none";
+		let layerID = customLayerIds[i];
+
+		// split the String of the layerID by space for getting the type Unwetter and the dwd_ids as isolated elements
+		let layerIdParts = layerID.split(/[ ]+/);
+
+		// layerIdParts[0] contains the type of layer-element
+		if (layerIdParts[0] === "unwetter") {
+
+				// remove the corresponding layer and source from map for not displaying this Unwetter any longer
+				map.removeLayer(layerID);
+				map.removeSource(layerID);
+				console.log("removed unwetter");
+
+				// removes 1 element at index i from Array customLayerIds
+				customLayerIds.splice(i, 1);
+
+				// for not omitting one layerID in this for-loop after removing one
+				i--;
+
+			};
+}
+// remove the active attribute from the severe weather tab
+var menuToggle = document.getElementById('severeWeather');
+menuToggle.classList.remove("active");
+// hide the svere weather sub menu
+var selectionToggle = document.getElementById('menu');
+selectionToggle.style.display = "none";
+
 }
 
 
@@ -494,13 +510,13 @@ function loadSevereWeather(){
 	showLegend(map, "unwetter");
 
 	// if no rainradar is displayed simply show polygons
-	if (map.style.sourceCaches.rainRadar == undefined){
+	if (map.style.sourceCaches.rainradar == undefined){
 		requestNewAndDisplayCurrentUnwetters(map);
 	}
 	// if not remove them first
 	else {
-		map.removeLayer('rainRadar')
-		map.removeSource('rainRadar')
+		map.removeLayer('rainradar')
+		map.removeSource('rainradar')
 		requestNewAndDisplayCurrentUnwetters(map);
 	};
 
@@ -580,30 +596,32 @@ function makeLayerInteractive(layerID) {
 */
 function showUnwetterPopup(map, e) {
 
-	if (e) {
-		// get information about the feature on which it was clicked
-		var picked = map.queryRenderedFeatures(e.point);
+	if (popupsEnabled) {
+		if (e) {
+			// get information about the feature on which it was clicked
+			var picked = map.queryRenderedFeatures(e.point);
 
-		// TODO: Sommerzeit im Sommer??
+			// TODO: Sommerzeit im Sommer??
 
-		// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
+			// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
 
-		if (picked[0].source.includes("Unwetter")) {
-			// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
-			if (picked[0].properties.instruction !== "null") {
-				// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
-				new mapboxgl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
-				.addTo(map);
-			}
-			// if a instruction is not given by the DWD ...
-			else {
-				// ... create a popup with above information without an instruction
-				new mapboxgl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
-				.addTo(map);
+			if (picked[0].source.includes("unwetter")) {
+				// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
+				if (picked[0].properties.instruction !== "null") {
+					// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
+					new mapboxgl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
+						.addTo(map);
+				}
+				// if a instruction is not given by the DWD ...
+				else {
+					// ... create a popup with above information without an instruction
+					new mapboxgl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
+						.addTo(map);
+				}
 			}
 		}
 	}
@@ -619,24 +637,26 @@ function showUnwetterPopup(map, e) {
 * @param {Object} e ...
 */
 function showTweetPopup(map, e) {
-	// get information about the feature on which it was clicked
-	var pickedTweet = map.queryRenderedFeatures(e.point);
+	if (popupsEnabled) {
+		// get information about the feature on which it was clicked
+		var pickedTweet = map.queryRenderedFeatures(e.point);
 
-	if (pickedTweet[0].source.includes("Tweet")) {
-		let idAsString = pickedTweet[0].properties.idstr;
-		// ... create a popup with the following information: ........
-		new mapboxgl.Popup()
-		.setLngLat(e.lngLat)
-		.setHTML("<div id='" + idAsString + "'></div>")
-		.addTo(map);
-		twttr.widgets.createTweet(
-			idAsString,
-			document.getElementById(idAsString),
-			{
-				width: 1000,
-				dnt: true
-			}
-		);
+		if (pickedTweet[0].source.includes("Tweet")) {
+			let idAsString = pickedTweet[0].properties.idstr;
+			// ... create a popup with the following information: ........
+			new mapboxgl.Popup()
+				.setLngLat(e.lngLat)
+				.setHTML("<div id='" + idAsString + "'></div>")
+				.addTo(map);
+			twttr.widgets.createTweet(
+				idAsString,
+				document.getElementById(idAsString),
+				{
+					width: 1000,
+					dnt: true
+				}
+			);
+		}
 	}
 }
 

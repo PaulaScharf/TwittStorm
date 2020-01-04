@@ -11,12 +11,12 @@
 
 
 /**
-* This function calls '/db/' with AJAX, to retrieve all items that comply to the given query in the database.
+* This function calls '/data/' with AJAX, to retrieve all items that comply to the given query in the database.
 * The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example of await).
 * @author Paula Scharf, matr.: 450334
 * @param {Object} query
 * @param {String} typeOfItems - for documentation
-* @example promiseToGetItems({type: "Unwetter"})
+* @example promiseToGetItems({type: "unwetter"})
 */
 function promiseToGetItems(query, typeOfItems) {
 
@@ -25,17 +25,21 @@ function promiseToGetItems(query, typeOfItems) {
       // use a http POST request
       type: "POST",
       // URL to send the request to
-      url: "/db/",
+      url: "/data/",
       //
       data: query,
       // timeout set to 20 seconds
-      timeout: 20000
+      timeout: 20000,
+      // update the status display
+      success: function() {
+            $('#information').html("Reading " + typeOfItems +" from the database");
+          }
     })
 
     // if the request is done successfully, ...
     .done(function (response) {
       // ... give a notice on the console that the AJAX request for reading all items has succeeded
-      console.log("AJAX request (reading " + typeOfItems + ") is done successfully.");
+      console.log("AJAX request (Reading " + typeOfItems + ") is done successfully.");
       // "resolve" acts like "return" in this context
       resolve(response);
     })
@@ -44,21 +48,20 @@ function promiseToGetItems(query, typeOfItems) {
     .fail(function (xhr, status, error) {
       // ... give a notice that the AJAX request for for reading all items has failed and show the error on the console
       console.log("AJAX request (reading " + typeOfItems + ") has failed.", error);
-      console.dir(error);
 
       // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
       if (error === "timeout") {
-        //JL("ajaxReadingAllItemsTimeout").fatalException("ajax: '/' timeout");
+        //JL("ajaxReadingAllItemsTimeout").fatalException("ajax: '/data' timeout");
       }
-      
-      reject("AJAX request (reading " + typeOfItems + ") has failed.");
+
+      reject("AJAX request (Reading " + typeOfItems + ") has failed.");
     });
   });
 }
 
 
 /**
-* This function calls '/db/add' with AJAX, to save the given items in the database.* The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example of await)
+* This function calls '/data/add' with AJAX, to save the given items in the database.* The logic is wrapped in a promise to make it possible to await it (see processUnwetterFromDWD for an example of await)
 * @author Paula Scharf
 * @param arrayOfItems - array which contains the items
 * @param {String} typeOfItems - for documentation
@@ -66,20 +69,28 @@ function promiseToGetItems(query, typeOfItems) {
 function promiseToPostItems(arrayOfItems, typeOfItems) {
 
   return new Promise((resolve, reject) => {
+
     if (arrayOfItems.length === 0) {
-      resolve();
+      // TODO: fragen, ob so ok
+      return resolve();
     }
+
+    //
     $.ajax({
       // use a http POST request
       type: "POST",
       // URL to send the request to
-      url: "/db/add",
+      url: "/data/add",
       // type of the data that is sent to the server
       contentType: "application/json; charset=utf-8",
       // data to send to the server
       data: JSON.stringify(arrayOfItems),
       // timeout set to 15 seconds
-      timeout: 15000
+      timeout: 15000,
+      // update the status display
+      success: function() {
+            $('#information').html("Trying to insert " + typeOfItems +" into the database");
+          }
     })
 
     // if the request is done successfully, ...
@@ -96,7 +107,7 @@ function promiseToPostItems(arrayOfItems, typeOfItems) {
 
       // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
       if (error === "timeout") {
-        //JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
+        //JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/data/add' timeout");
       }
 
       reject("AJAX request (inserting many " + typeOfItems + ") has failed.");
