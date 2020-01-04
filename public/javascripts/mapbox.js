@@ -382,6 +382,8 @@ function requestNewAndDisplayCurrentUnwetters(map){
 			currentTimestamp = Date.now();
 		}
 	}
+	$('#information').html("Retrieving the requested warnings");
+
 	$.ajax({
 		// use a http GET request
 		type: "GET",
@@ -397,6 +399,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 		.done(function (result) {
 			// ... give a notice on the console that the AJAX request for inserting many items has succeeded
 			console.log("AJAX request (finding and inserting tweets) is done successfully.");
+
 			displayCurrentUnwetters(result.events);
 		})
 

@@ -88,4 +88,25 @@ router.get('/mongo', function(req, res, next) {
   res.render('mongo', { title: 'MongoDB'});
 });
 
+/* GET animation page.*/
+router.get('/animation', function(req, res, next) {
+
+  let paramArray = {
+    "timestamp": req.query.timestamp,
+    "aoi": req.query.aoi,
+    "wtype": req.query.wtype,
+    "rasterProduct": req.query.radProd,
+    "rasterClassification": req.query.radClass,
+    "base": req.query.base,
+    "mapZoom": req.query.mapZoom,
+    "mapCenter": req.query.mapCenter,
+    "config": yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'))
+  };
+
+  res.render('animation', {
+    title: 'TwittStorm',
+    paramArray: paramArray
+  });
+});
+
 module.exports = router;
