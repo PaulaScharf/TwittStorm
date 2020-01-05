@@ -780,7 +780,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 							geometry: source._data.features[0].geometry,
 							searchWords: source._data.features[0].properties.searchWords
 						},
-						eventID: layerIDSplit[2],
+						dwd_id: layerIDSplit[2],
 						currentTimestamp: currentTimestamp
 					};
 					$.ajax({
