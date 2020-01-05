@@ -2,8 +2,63 @@
 * Project: TwittStorm, Geosoftware 2, WiSe 2019/2020
 * Authors: Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 ----------------------------------------------------------*/
+/* Animation Overlay */
+.animation-overlay {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px;
+  width: 320px;
+  z-index: 1;
+  position: absolute;
+  top: 66px;
+  right: 260px;
+  padding: 5px;
+  display: flex;
+}
 
-/* Absolute Center Spinner */
+.animation-overlay  {
+background-color: #fff;
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+border-radius: 3px;
+padding: 25px;
+margin-bottom: 30px;
+}
+
+
+
+.animation-overlay input {
+background-color: transparent;
+display: inline-block;
+width: 100%;
+position: relative;
+margin: 0;
+cursor: ew-resize;
+}
+
+/* **********************************Playbutton**************************************** */
+
+#playButton{
+  position: absolute;
+  top: 115px;
+  right: 65px;
+}
+
+#playButton :hover {
+  background-color: lightgrey;
+}
+
+/* **********************************Pausebutton**************************************** */
+
+#stopButton{
+  position: absolute;
+  top: 115px;
+  right: 35px;
+}
+
+#stopButton :hover {
+  background-color: lightgrey;
+}
+
+/* Ajax Center Spinner */
 .loading {
   position: fixed;
   z-index: 999;
@@ -34,8 +89,6 @@
 
 
 
-
-
 .loading:not(:required):after {
   content: '';
   display: block;
@@ -52,8 +105,6 @@
   -webkit-box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.5) -1.5em 0 0 0, rgba(0, 0, 0, 0.5) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
   box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) -1.5em 0 0 0, rgba(0, 0, 0, 0.75) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
 }
-
-/* Animation */
 
 @-webkit-keyframes spinner {
   0% {
@@ -306,7 +357,24 @@ top: 12px;
 right: 11px;
 }
 
-/* ************************************************************************** */
+#panButtonL :hover {
+  background-color: lightgrey;
+}
+
+#panButtonR :hover {
+  background-color: lightgrey;
+}
+
+#panButtonU :hover {
+  background-color: lightgrey;
+}
+
+#panButtonD :hover {
+  background-color: lightgrey;
+}
+
+/* **********************************Menubutton**************************************** */
+
 
 #menuButton {
   top: 185px;
@@ -328,6 +396,8 @@ right: 11px;
   height: 10px;
 }
 
+
+/* **********************************Productmenu**************************************** */
 
 #productMenu {
   background: #fff;
@@ -372,7 +442,7 @@ right: 11px;
   background: grey;
 }
 
-/* ************************************************************************** */
+/* **********************************Rastermenu**************************************** */
 
 #rasterMenu {
   background: #fff;
