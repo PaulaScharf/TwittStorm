@@ -33,7 +33,7 @@ const getWarningsForTime = function(req, res, next) {
   try {
 
     // timestamp (in Epoch milliseconds) for this whole specific request
-    let currentTimestamp = req.params.timestamp;
+    let currentTimestamp = JSON.parse(req.params.timestamp);
 
     // TODO: überprüfen, ob < oder > oder = passt (serverseitig)
 
