@@ -46,4 +46,22 @@ router.post("/", (req, res) => {
 	}
 });
 
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// TODO: falls folgendes übernommen wird, muss API Doc angepasst werden
+
+router.post("/timestamps", (req, res) => {
+	try {
+
+
+	
+		let yamlStr = yaml.safeDump(config);
+		fs.writeFileSync('config.yaml', yamlStr, 'utf8');
+		res.redirect("/config");
+	} catch (error) {
+		res.status(500).send({err_msg: error});
+	}
+});
+
+
 module.exports = router;

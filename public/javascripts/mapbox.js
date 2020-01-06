@@ -373,6 +373,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	let currentTimestamp = Date.now();
+	
 	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
 		currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
 		try {
@@ -382,6 +383,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 			currentTimestamp = Date.now();
 		}
 	}
+
 	$.ajax({
 		// use a http GET request
 		type: "GET",
