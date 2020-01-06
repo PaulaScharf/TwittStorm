@@ -168,6 +168,7 @@ var usedTimestamps = [];
 
 var outputArray = [];
 
+//arrays to store all unwetters from a timestamp
 first = [];
 second = [];
 third = [];
@@ -209,14 +210,7 @@ $.ajax({
 
       let currentPolygon = result[key][j].geometry[i];
       // make a GeoJSON Feature out of the current Unwetter
-      unwetterFeature = {
-        "type": "FeatureCollection",
-        "features": [{
-          "type": "Feature",
-          "geometry": currentPolygon,
-          "timestamp": key
-        }]
-      };
+
 
       previousPush  = {
             "type": "MultiPolygon",
@@ -264,7 +258,7 @@ if (usedTimestamps[i] == previousPush.timestamp){
 }
 
       displayPrevious(map, key + result[key][j]._id + i ,  second);
-      
+
       //console.log(unwetterFeature);
 
     };
