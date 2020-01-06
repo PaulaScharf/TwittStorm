@@ -15,7 +15,7 @@ const https = require("https");
 
 // import functions that are declared within other routes-files
 const {promiseToGetItems, promiseToPostItems, promiseToUpdateItems, promiseToDeleteItems} = require('./dataPromisesHelpers.js');
-const updateCurrentTimestampInConfigYaml = require('./configuration.js');
+const updateCurrentTimestampInConfigYaml = require('./configuration.js').updateCurrentTimestampInConfigYaml;
 
 // yaml configuration
 const fs = require('fs');

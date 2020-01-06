@@ -75,6 +75,5 @@ function updateCurrentTimestampInConfigYaml(currentTimestamp, typeOfData){
 	}
 }
 
-module.exports = updateCurrentTimestampInConfigYaml;
-
-//module.exports = router;
+module.exports.updateCurrentTimestampInConfigYaml = updateCurrentTimestampInConfigYaml;
+module.exports.router = router;
