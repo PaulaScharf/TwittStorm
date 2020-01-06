@@ -25,6 +25,11 @@ var router = express.Router();
 var R = require('r-script');
 //const mongodb = require('mongodb');
 
+// yaml configuration
+const fs = require('fs');
+const yaml = require('js-yaml');
+var config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+
 
 /**
   * function to return a GeoJSON formatted Polygon
@@ -49,10 +54,9 @@ function GeoJSONPolygon(object) {
 }
 
 function findLastTimestamp(product, timestampString) {
-
     return new Promise((resolve, reject) => {
       R("./getFileList.R")
-        .data({ "radarProduct": product })
+        .data({ "radarProduct": product, "dwdUrl": config.dwd.radar })
         .call(function(err, fileList) {
           if(err) throw err;
 
@@ -186,7 +190,7 @@ var promiseToFetchRadarData = function(radarProduct) {
 
   return new Promise((resolve, reject) => {
     R("./node.R")
-      .data({ "radarProduct": radarProduct, "classification": classification})
+      .data({ "radarProduct": radarProduct, "classification": classification, "dwdUrl": config.dwd.radar })
       .call(function(err, d) {
         if(err) throw err;
 
@@ -198,8 +202,6 @@ var promiseToFetchRadarData = function(radarProduct) {
           "radarProduct": rasterMeta.product,
           "date": rasterMeta.date,
           "timestamp": timestamp,
-          "classBorders": classBorders,
-          "classInformation": classBorders.classes,
           "geometry": {
             "type": "FeatureCollection",
             "features": []
@@ -282,7 +284,7 @@ var radarDataRoute = function(req, res) {
 function findLastTimestamp(product) {
     return new Promise((resolve, reject) => {
       R("./getFileList.R")
-        .data({ "radarProduct": product })
+        .data({ "radarProduct": product, "dwdUrl": config.dwd.radar })
         .call(function(err, fileList) {
           if(err) throw err;
 
