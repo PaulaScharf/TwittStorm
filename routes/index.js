@@ -76,7 +76,7 @@ router.get('/help', function(req, res, next) {
 });
 
 /* GET config page */
-router.get('/config', function(req, res, next) {
+router.get('/configuration', function(req, res, next) {
   res.render('config', {
     title: 'Configuration',
     config: yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'))

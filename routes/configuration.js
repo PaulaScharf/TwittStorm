@@ -40,7 +40,7 @@ router.post("/", (req, res) => {
 		}
 		let yamlStr = yaml.safeDump(config);
 		fs.writeFileSync('config.yaml', yamlStr, 'utf8');
-		res.redirect("/config");
+		res.status(200).send();
 	} catch (error) {
 		res.status(500).send({err_msg: error});
 	}
