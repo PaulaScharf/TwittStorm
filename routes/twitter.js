@@ -136,7 +136,7 @@ const searchTweetsForEvent = function(req, res) {
                     req.body.twitterSearchQuery.geometry.coordinates.forEach(function (feature) {
                         feature.forEach(function (item) {
                             arrayOfAllCoordinates = arrayOfAllCoordinates.concat(item);
-                        })
+                        });
                     });
                     let enclosingCircle = calculateEnclosingCircle(arrayOfAllCoordinates);
                     /* this could be used to make a bbox out of the coordinates instead of the enclosing circle:
@@ -162,7 +162,7 @@ const searchTweetsForEvent = function(req, res) {
                                 if (tweets) {
                                     let arrayOfPolygons = [];
                                     req.body.twitterSearchQuery.geometry.coordinates.forEach(function (item) {
-                                        arrayOfPolygons.push(item[0])
+                                        arrayOfPolygons.push(item[0]);
                                     });
                                     let polygon = turf.polygon(arrayOfPolygons);
                                     for (let i = tweets.statuses.length - 1; i >= 0; i--) {
@@ -284,7 +284,7 @@ const deleteTweet = function(req, res) {
             res.send();
         },function(error) {
             res.status(500).send({err_msg: error});
-        })
+        });
 };
 
 router.route("/tweets").post(searchTweetsForEvent);

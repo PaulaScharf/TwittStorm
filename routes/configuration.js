@@ -5,9 +5,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
- * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
- * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
- */
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
 
 var express = require('express');
 var router = express.Router();
@@ -17,6 +17,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 let config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
+//
 router.post("/", (req, res) => {
 	try {
 		for (let key in req.body) {
@@ -27,6 +28,8 @@ router.post("/", (req, res) => {
 					var len = pList.length;
 					for (var i = 0; i < len - 1; i++) {
 						var elem = pList[i];
+
+						// TODO: was passiert hier??
 						if (!schema[elem]) schema[elem] = {};
 						schema = schema[elem];
 					}
@@ -40,28 +43,38 @@ router.post("/", (req, res) => {
 		}
 		let yamlStr = yaml.safeDump(config);
 		fs.writeFileSync('config.yaml', yamlStr, 'utf8');
-		res.redirect("/config");
+		res.status(200).send();
 	} catch (error) {
 		res.status(500).send({err_msg: error});
 	}
 });
 
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// TODO: falls folgendes übernommen wird, muss API Doc angepasst werden
+// TODO: konform mit API Doc?
+/**
+*
+*
+* @author Katharina Poppinga
+* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+* @param {String} typeOfData - "Unwetter" or "Radar"
+*/
+function updateCurrentTimestampInConfigYaml(currentTimestamp, typeOfData){
 
-router.post("/timestamps", (req, res) => {
-	try {
+	console.log("test");
 
-
-	
+	if (typeOfData === "Unwetter") {
+		config["timestamp_last_Unwetter_request"] = currentTimestamp;
 		let yamlStr = yaml.safeDump(config);
 		fs.writeFileSync('config.yaml', yamlStr, 'utf8');
-		res.redirect("/config");
-	} catch (error) {
-		res.status(500).send({err_msg: error});
 	}
-});
 
+	if (typeOfData === "Radar") {
+		config["timestamp_last_radar_request"] = currentTimestamp;
+		let yamlStr = yaml.safeDump(config);
+		fs.writeFileSync('config.yaml', yamlStr, 'utf8');
+	}
+}
 
-module.exports = router;
+module.exports = updateCurrentTimestampInConfigYaml;
+
+//module.exports = router;

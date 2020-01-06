@@ -86,10 +86,10 @@ window.twttr = (function(d, s, id) {
 
 // shows and hides the current status of an ajax call
 $(document).ajaxSend(function(){
-    $('#loading').fadeIn(250);
+	$('#loading').fadeIn(250);
 });
 $(document).ajaxComplete(function(){
-    $('#loading').fadeOut(250);
+	$('#loading').fadeOut(250);
 });
 
 /**
@@ -218,6 +218,7 @@ function showMap(style) {
 			if (paramArray.rasterProduct !== undefined) {
 
 				showLegend(map, "radar", paramArray.rasterProduct);
+
 				// display rain radar
 				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.timestamp);
 
@@ -310,10 +311,12 @@ function showMap(style) {
 * @param timestamp see API wiki on GitHub
 */
 function requestAndDisplayAllRainRadar(map, product, timestamp) {
+
 	let url = "/radar/" + product + "/latest";
 
 	// update the status display
 	$('#information').html("Retrieving the requested " + product + " radar product");
+
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
 
@@ -321,10 +324,32 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 		//result[result.length - 1] is most recent one -- insert variable
 		//console.log(result[result.length - 1]);
 
+
+		// show timestamp of current radar data in legend
+		let dataTimestamp = document.getElementById("dataTimestamp");
+		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + Date(result.timestamp);
+
+
+		// ***************************************************************************************************************
+		// TODO: folgendes anpassen, dazu currentTimestamp der requestAndDisplayAllRainRadar übergeben!!!
+		// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN UNWETTER-LEGENDE REIN,
+		// FALLS NACH RADAR-MENÜ-AUFRUF DIREKT UNWETTER AUFGERUFEN WURDE UND RADAR NOCH VERARBEITET WERDEN!!!!
+		/*	if (paramArray.wtype != "radar"){
+		// display the timestamp of the last request in the legend
+		let splittedTimestamp = Date(currentTimestamp).split("(");
+		let formattedTimestamp = splittedTimestamp[0];
+		let timestampLastRequest = document.getElementById("timestampLastRequest");
+		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+		*/
+		// ***************************************************************************************************************
+
+
+		//
 		map.addSource("rainradar", {
 			"type": "geojson",
 			"data": result.geometry
 		});
+
 		map.addLayer({
 			"id": "rainradar",
 			"type": "fill",
@@ -373,7 +398,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	let currentTimestamp = Date.now();
-	
+
 	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
 		currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
 		try {
@@ -396,22 +421,22 @@ function requestNewAndDisplayCurrentUnwetters(map){
 	})
 
 	// if the request is done successfully, ...
-		.done(function (result) {
-			// ... give a notice on the console that the AJAX request for inserting many items has succeeded
-			console.log("AJAX request (finding and inserting tweets) is done successfully.");
-			displayCurrentUnwetters(result.events);
-		})
+	.done(function (result) {
+		// ... give a notice on the console that the AJAX request for inserting many items has succeeded
+		console.log("AJAX request (finding and inserting tweets) is done successfully.");
+		displayCurrentUnwetters(result.events);
+	})
 
-		// if the request has failed, ...
-		.fail(function (xhr, status, error) {
-			// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
-			console.log("AJAX request (finding and inserting tweets) has failed.", error);
+	// if the request has failed, ...
+	.fail(function (xhr, status, error) {
+		// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+		console.log("AJAX request (finding and inserting tweets) has failed.", error);
 
-			// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-			if (error === "timeout") {
-				//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
-			}
-		});
+		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+		if (error === "timeout") {
+			//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
+		}
+	});
 
 	// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN RADAR-LEGENDE REIN,
 	// FALLS NACH UNWETTER-MENÜ-AUFRUF DIREKT RADAR AUFGERUFEN WURDE UND UNWETTER NOCH VERARBEITET WERDEN!!!!
@@ -422,12 +447,6 @@ function requestNewAndDisplayCurrentUnwetters(map){
 		let timestampLastRequest = document.getElementById("timestampLastRequest");
 		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
 	}
-
-	// TODO: für RADARFUNKTION folgendes verwenden:
-	/*
-  let dataTimestamp = document.getElementById("dataTimestamp");
-  dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br> TODO"; // TODO: hier timestamp of radar data aus DB anfügen
-  */
 }
 
 
@@ -441,76 +460,76 @@ function requestNewAndDisplayCurrentUnwetters(map){
 */
 function displayCurrentUnwetters(currentUnwetters) {
 
-		// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
-		let unwetterFeature;
+	// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
+	let unwetterFeature;
 
-		// *************************************************************************************************************
+	// *************************************************************************************************************
 
-		// remove layer and source of those Unwetter which are expired from map and remove its layerID from customLayerIds
-		findAndRemoveOldLayerIDs(currentUnwetters);
-
-
-		// iteration over all Unwetter in the database
-		for (let i = 0; i < currentUnwetters.length; i++) {
-
-			let currentUnwetterEvent = currentUnwetters[i];
-
-			// TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
+	// remove layer and source of those Unwetter which are expired from map and remove its layerID from customLayerIds
+	findAndRemoveOldLayerIDs(currentUnwetters);
 
 
-			let searchWords = [];
+	// iteration over all Unwetter in the database
+	for (let i = 0; i < currentUnwetters.length; i++) {
+
+		let currentUnwetterEvent = currentUnwetters[i];
+
+		// TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
 
 
-			// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
-			// FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
-			// FALLS JA, DANN FARBEN IN fill-color ANPASSEN
+		let searchWords = [];
 
-			//
-			let layerGroup = "undefined";
-			let ii = currentUnwetterEvent.properties.ec_ii;
-			// choose the correct group identifier for the Unwetter and set the searchwords for the tweetrequest accordingly
-			switch (ii) {
-				case (ii >= 61) && (ii <= 66):
-				layerGroup = "rain";
-				searchWords.push("Starkregen", "Dauerregen");
-				break;
-				case (ii >= 70) && (ii <= 78):
-				layerGroup = "snowfall";
-				searchWords.push("Schneefall");
-				break;
-				case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
-				layerGroup = "thunderstorm";
-				searchWords.push("Gewitter");
-				break;
-				case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
-				layerGroup = "blackice";
-				searchWords.push("Blitzeis", "Glätte", "Glatteis");
-				break;
-				// TODO: alles für layer other später löschen
-				default:
-				layerGroup = "other";
-				// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-				searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
-				break;
-			}
 
-			//
-			for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
-				let currentPolygon = currentUnwetterEvent.geometry[i];
-				// make a GeoJSON Feature out of the current Unwetter
-				unwetterFeature = {
-					"type": "FeatureCollection",
-					"features": [{
-						"type": "Feature",
-						"geometry": currentPolygon,
-						"properties": currentUnwetterEvent.properties
-					}]
-				};
-				unwetterFeature.features[0].properties.searchWords = searchWords;
-				//
-				displayEvent(map, "unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
-			}
+		// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
+		// FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
+		// FALLS JA, DANN FARBEN IN fill-color ANPASSEN
+
+		//
+		let layerGroup = "undefined";
+		let ii = currentUnwetterEvent.properties.ec_ii;
+		// choose the correct group identifier for the Unwetter and set the searchwords for the tweetrequest accordingly
+		switch (ii) {
+			case (ii >= 61) && (ii <= 66):
+			layerGroup = "rain";
+			searchWords.push("Starkregen", "Dauerregen");
+			break;
+			case (ii >= 70) && (ii <= 78):
+			layerGroup = "snowfall";
+			searchWords.push("Schneefall");
+			break;
+			case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
+			layerGroup = "thunderstorm";
+			searchWords.push("Gewitter");
+			break;
+			case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
+			layerGroup = "blackice";
+			searchWords.push("Blitzeis", "Glätte", "Glatteis");
+			break;
+			// TODO: alles für layer other später löschen
+			default:
+			layerGroup = "other";
+			// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
+			searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
+			break;
 		}
+
+		//
+		for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
+			let currentPolygon = currentUnwetterEvent.geometry[i];
+			// make a GeoJSON Feature out of the current Unwetter
+			unwetterFeature = {
+				"type": "FeatureCollection",
+				"features": [{
+					"type": "Feature",
+					"geometry": currentPolygon,
+					"properties": currentUnwetterEvent.properties
+				}]
+			};
+			unwetterFeature.features[0].properties.searchWords = searchWords;
+			//
+			displayEvent(map, "unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
+		}
+	}
 }
 
 
@@ -731,7 +750,7 @@ function findAndRemoveOldLayerIDs(currentUnwetters){
 			}
 		}
 	}
-//	console.log(customLayerIds);
+	//	console.log(customLayerIds);
 }
 
 
@@ -777,79 +796,79 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 					}
 				}
 
-					let query = {
-						twitterSearchQuery: {
-							geometry: source._data.features[0].geometry,
-							searchWords: source._data.features[0].properties.searchWords
-						},
-						eventID: layerIDSplit[2],
-						currentTimestamp: currentTimestamp
-					};
-					$.ajax({
-						// use a http POST request
-						type: "POST",
-						// URL to send the request to
-						url: "/Twitter/tweets/",
-						// type of the data that is sent to the server
-						contentType: "application/json; charset=utf-8",
-						// data to send to the server
-						data: JSON.stringify(query),
-						// timeout set to 15 seconds
-						timeout: 15000,
-						// update the status display
-						success: function() {
-									$('#information').html("Trying to find and insert fitting tweets");
-								}
-					})
+				let query = {
+					twitterSearchQuery: {
+						geometry: source._data.features[0].geometry,
+						searchWords: source._data.features[0].properties.searchWords
+					},
+					eventID: layerIDSplit[2],
+					currentTimestamp: currentTimestamp
+				};
+				$.ajax({
+					// use a http POST request
+					type: "POST",
+					// URL to send the request to
+					url: "/Twitter/tweets/",
+					// type of the data that is sent to the server
+					contentType: "application/json; charset=utf-8",
+					// data to send to the server
+					data: JSON.stringify(query),
+					// timeout set to 15 seconds
+					timeout: 15000,
+					// update the status display
+					success: function() {
+						$('#information').html("Trying to find and insert fitting tweets");
+					}
+				})
 
-					// if the request is done successfully, ...
-						.done(function (result) {
-							// ... give a notice on the console that the AJAX request for inserting many items has succeeded
-							console.log("AJAX request (finding and inserting tweets) is done successfully.");
+				// if the request is done successfully, ...
+				.done(function (result) {
+					// ... give a notice on the console that the AJAX request for inserting many items has succeeded
+					console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
-							if(typeof result !== "undefined") {
-								try {
-									let turfPolygon = turf.polygon(polygon.geometry.coordinates);
-									// create an empty featurecollection for the tweets
-									let tweetFeatureCollection = {
-										"type": "FeatureCollection",
-										"features": []
-									};
-									// add the tweets in the result to the featurecollection
-									result.forEach(function (item) {
-										if (item.id && item.location_actual !== null) {
-											let tweetLocation = turf.point(item.location_actual.coordinates);
-											if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
-												let tweetFeature = {
-													"type": "Feature",
-													"geometry": item.location_actual,
-													"properties": item
-												};
-												tweetFeatureCollection.features.push(tweetFeature);
-											}
-										}
-									});
-									// add the tweets to the map
-									if (tweetFeatureCollection.features.length > 0) {
-										displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
+					if(typeof result !== "undefined") {
+						try {
+							let turfPolygon = turf.polygon(polygon.geometry.coordinates);
+							// create an empty featurecollection for the tweets
+							let tweetFeatureCollection = {
+								"type": "FeatureCollection",
+								"features": []
+							};
+							// add the tweets in the result to the featurecollection
+							result.forEach(function (item) {
+								if (item.id && item.location_actual !== null) {
+									let tweetLocation = turf.point(item.location_actual.coordinates);
+									if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
+										let tweetFeature = {
+											"type": "Feature",
+											"geometry": item.location_actual,
+											"properties": item
+										};
+										tweetFeatureCollection.features.push(tweetFeature);
 									}
-								} catch (e) {
-									console.dir("There was an error while processing the tweets from the database", e);
-									// TODO: error catchen und dann hier auch den error ausgeben?
 								}
+							});
+							// add the tweets to the map
+							if (tweetFeatureCollection.features.length > 0) {
+								displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
 							}
-						})
+						} catch (e) {
+							console.dir("There was an error while processing the tweets from the database", e);
+							// TODO: error catchen und dann hier auch den error ausgeben?
+						}
+					}
+				})
 
-						// if the request has failed, ...
-						.fail(function (xhr, status, error) {
-							// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
-							console.log("AJAX request (finding and inserting tweets) has failed.", error);
+				// if the request has failed, ...
+				.fail(function (xhr, status, error) {
+					// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+					console.log("AJAX request (finding and inserting tweets) has failed.", error);
 
-							// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-							if (error === "timeout") {
-								//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
-							}
-						});
+					// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+					if (error === "timeout") {
+						//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
+					}
+				});
 			}
 			// change visibility of unwetter layer
 			map.setLayoutProperty(layerID, 'visibility', visibility);
