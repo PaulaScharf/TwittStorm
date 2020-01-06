@@ -166,6 +166,12 @@ document.getElementById('timestamp').textContent = usedTimestamps[timestamp];
 
 var usedTimestamps = [];
 
+var outputArray = [];
+
+first = [];
+second = [];
+third = [];
+
 function loadPreviousWeather(map){
 
 $.ajax({
@@ -200,6 +206,7 @@ $.ajax({
 
     for (let i = 0; i < result[key][j].geometry.length; i++) {
 
+
       let currentPolygon = result[key][j].geometry[i];
       // make a GeoJSON Feature out of the current Unwetter
       unwetterFeature = {
@@ -211,13 +218,65 @@ $.ajax({
         }]
       };
 
-      displayPrevious(map, key + result[key][j]._id + i ,  unwetterFeature);
+      previousPush  = {
+            "type": "MultiPolygon",
+              "geometry": currentPolygon,
+              "timestamp": key
+          };
+
+
+
+outputArray.push(previousPush)
+
+
+first = {
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "geometry": currentPolygon,
+    "timestamp": key
+  }]
+};
+
+second = {
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "geometry": currentPolygon,
+    "timestamp": key
+  }]
+};
+
+for (let i = 0; i < usedTimestamps.length; i++){
+if (usedTimestamps[i] == previousPush.timestamp){
+  if (i == 0){
+  first.features.push(outputArray)
+  //console.log(first);
+  }
+  if (i == 1){
+
+  second.features.push(outputArray)
+  //console.log(second);
+  }
+
+
+}
+}
+
+      displayPrevious(map, key + result[key][j]._id + i ,  second);
+      
+      //console.log(unwetterFeature);
 
     };
 
   };
+
+
   };
-}})
+}
+
+
+})
 
   // if the request has failed, ...
   .fail(function (xhr, status, error) {
@@ -230,7 +289,7 @@ $.ajax({
 function displayPrevious(map, layerIDs, previousFeatureCollection){
   // TODO: falls diese Funktion auch für Radardaten verwendet wird, dann Kommentare anpassen
   //
-console.log(previousFeatureCollection.features[0].timestamp);
+//console.log(previousFeatureCollection.features[0].timestamp);
     // ... add the given eventFeatureCollection withits given layerID as a Source to the map (and add it afterwards as a Layer to the map)
     map.addSource(layerIDs, {
       type: 'geojson',
