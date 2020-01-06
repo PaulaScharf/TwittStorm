@@ -87,6 +87,7 @@ window.twttr = (function(d, s, id) {
 // shows and hides the current status of an ajax call
 $(document).ajaxSend(function(){
     $('#loading').fadeIn(250);
+		console.log(Date.now());
 });
 $(document).ajaxComplete(function(){
     $('#loading').fadeOut(250);
@@ -316,6 +317,7 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 	$('#information').html("Retrieving the requested " + product + " radar product");
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
+		console.log(result);
 
 		//result is array of rainRadar JSONs
 		//result[result.length - 1] is most recent one -- insert variable
@@ -527,6 +529,7 @@ function displayCurrentUnwetters(currentUnwetters) {
 * @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of ......
 */
 function displayEvent(map, layerID, eventFeatureCollection) {
+	console.log(eventFeatureCollection);
 
 	// TODO: falls diese Funktion auch für Radardaten verwendet wird, dann Kommentare anpassen
 	//

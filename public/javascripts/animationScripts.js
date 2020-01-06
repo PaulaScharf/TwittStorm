@@ -1,7 +1,4 @@
-/**
-* refers to the mapbox map element
-* @type {mapbox_map}
-*/
+
 
 
 function automate(){
@@ -87,7 +84,7 @@ function showAnimationMap(style) {
 
 
   // create new map with variable zoom and center
-  map = new mapboxgl.Map({
+  let map = new mapboxgl.Map({
     container: 'map',
     style: style,
     // TODO: basemap durch Nutzer änderbar machen: https://docs.mapbox.com/mapbox-gl-js/example/setstyle/
@@ -144,105 +141,111 @@ function showAnimationMap(style) {
     // enable drawing the area-of-interest-polygons
     drawForAOI(map);
 
+    loadPreviousWeather(map);
+
+    document
+    .getElementById('slider')
+    .addEventListener('input', function(e) {
+      //the number of the timestamp
+    var timestampNum = parseInt(e.target.value, 10);
+    filterBy(timestampNum);
+    });
+
 });
 };
 
-////////////////////////////////////////////////////////////////////////////////Stuff for the current placeholder data
+currentTimestamp = Date.now();
 
-var months = [
-'January',
-'February',
-'March',
-'April',
-'May',
-'June',
-'July',
-'August',
-'September',
-'October',
-'November',
-'December'
-];
-
-function filterBy(month) {
-var filters = ['==', 'month', month];
-map.setFilter('earthquake-circles', filters);
-map.setFilter('earthquake-labels', filters);
+function filterBy(timestamp) {
+var filters = ['==', usedTimestamps, timestamp];
+map.setFilter(layerIDs, filters);
 
 // Set the label to the month
-document.getElementById('month').textContent = months[month];
+document.getElementById('timestamp').textContent = usedTimestamps[timestamp];
 }
 
-var url = 'https://docs.mapbox.com/mapbox-gl-js/assets/significant-earthquakes-2015.geojson';
+var usedTimestamps = [];
 
-$.getJSON(url, function(result) {
-  result.features = result.features.map(function(d) {
-d.properties.month = new Date(d.properties.time).getMonth();
-return d;
-});
+function loadPreviousWeather(map){
 
-map.addSource('earthquakes', {
-'type': 'geojson',
-data: result
-});
+$.ajax({
+  // use a http GET request
+  type: "GET",
+  // URL to send the request to
+  url: "/previousWeather/" + "unwetter/" + currentTimestamp,
+  // type of the data that is sent to the server
+  contentType: "application/json; charset=utf-8",
+  // timeout set to 15 seconds
+  timeout: 15000,
 
-map.addLayer({
-'id': 'earthquake-circles',
-'type': 'circle',
-'source': 'earthquakes',
+  success: function() {
+        $('#information').html("Retrieving previous weather events");
+      }
+})
+// if the request is done successfully, ...
+  .done(function (result) {
+  //  console.log(result);
+    // ... give a notice on the console that the AJAX request for inserting many items has succeeded
+    for (let key in result) {
+      if (key == "type"){
+      }
+      else {
+        usedTimestamps.push(key)
+        console.log(result);
+        console.log(usedTimestamps);
+
+
+
+  for (let j = 0; j < result[key].length; j++){
+
+    for (let i = 0; i < result[key][j].geometry.length; i++) {
+
+      let currentPolygon = result[key][j].geometry[i];
+      // make a GeoJSON Feature out of the current Unwetter
+      unwetterFeature = {
+        "type": "FeatureCollection",
+        "features": [{
+          "type": "Feature",
+          "geometry": currentPolygon,
+          "timestamp": key
+        }]
+      };
+
+      displayPrevious(map, key + result[key][j]._id + i ,  unwetterFeature);
+
+    };
+
+  };
+  };
+}})
+
+  // if the request has failed, ...
+  .fail(function (xhr, status, error) {
+    // ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+    console.log("Requesting previous events has failed.", error);
+  });
+}
+
+
+function displayPrevious(map, layerIDs, previousFeatureCollection){
+  // TODO: falls diese Funktion auch für Radardaten verwendet wird, dann Kommentare anpassen
+  //
+console.log(previousFeatureCollection.features[0].timestamp);
+    // ... add the given eventFeatureCollection withits given layerID as a Source to the map (and add it afterwards as a Layer to the map)
+    map.addSource(layerIDs, {
+      type: 'geojson',
+      data: previousFeatureCollection
+    });
+
+    map.addLayer({
+'id': layerIDs,
+'type': 'fill',
+'source': layerIDs,
+'layout': {},
 'paint': {
-'circle-color': [
-'interpolate',
-['linear'],
-['get', 'mag'],
-6,
-'#FCA107',
-8,
-'#7F3121'
-],
-'circle-opacity': 0.75,
-'circle-radius': [
-'interpolate',
-['linear'],
-['get', 'mag'],
-6,
-20,
-8,
-40
-]
-}
-});
+'fill-color': '#f08',
+'fill-opacity': 0.1
+}});
 
-map.addLayer({
-'id': 'earthquake-labels',
-'type': 'symbol',
-'source': 'earthquakes',
-'layout': {
-'text-field': [
-'concat',
-['to-string', ['get', 'mag']],
-'m'
-],
-'text-font': [
-'Open Sans Bold',
-'Arial Unicode MS Bold'
-],
-'text-size': 12
-},
-'paint': {
-'text-color': 'rgba(0,0,0,0.5)'
-}
-});
 
-// Set filter to first month of the year
-// 0 = January
-filterBy(0);
-
-document
-.getElementById('slider')
-.addEventListener('change', function(e) {
-var month = parseInt(e.target.value, 10);
-filterBy(month);
-});
 }
-);
