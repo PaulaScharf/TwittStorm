@@ -412,6 +412,8 @@ function requestNewAndDisplayCurrentUnwetters(map){
 			currentTimestamp = Date.now();
 		}
 	}
+	
+	$('#information').html("Retrieving the requested warnings");
 
 	$.ajax({
 		// use a http GET request
@@ -800,55 +802,61 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 					}
 				}
 
-				let query = {
-					twitterSearchQuery: {
-						geometry: source._data.features[0].geometry,
-						searchWords: source._data.features[0].properties.searchWords
-					},
-					eventID: layerIDSplit[2],
-					currentTimestamp: currentTimestamp
-				};
-				$.ajax({
-					// use a http POST request
-					type: "POST",
-					// URL to send the request to
-					url: "/Twitter/tweets/",
-					// type of the data that is sent to the server
-					contentType: "application/json; charset=utf-8",
-					// data to send to the server
-					data: JSON.stringify(query),
-					// timeout set to 15 seconds
-					timeout: 15000,
-					// update the status display
-					success: function() {
-						$('#information').html("Trying to find and insert fitting tweets");
-					}
-				})
+					let query = {
+						twitterSearchQuery: {
+							geometry: source._data.features[0].geometry,
+							searchWords: source._data.features[0].properties.searchWords
+						},
+						dwd_id: layerIDSplit[2],
+						currentTimestamp: currentTimestamp
+					};
+					$.ajax({
+						// use a http POST request
+						type: "POST",
+						// URL to send the request to
+						url: "/Twitter/tweets/",
+						// type of the data that is sent to the server
+						contentType: "application/json; charset=utf-8",
+						// data to send to the server
+						data: JSON.stringify(query),
+						// timeout set to 15 seconds
+						timeout: 15000,
+						// update the status display
+						success: function() {
+									$('#information').html("Trying to find and insert fitting tweets");
+								}
+					})
 
-				// if the request is done successfully, ...
-				.done(function (result) {
-					// ... give a notice on the console that the AJAX request for inserting many items has succeeded
-					console.log("AJAX request (finding and inserting tweets) is done successfully.");
+					// if the request is done successfully, ...
+						.done(function (result) {
+							// ... give a notice on the console that the AJAX request for inserting many items has succeeded
+							console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
-					if(typeof result !== "undefined") {
-						try {
-							let turfPolygon = turf.polygon(polygon.geometry.coordinates);
-							// create an empty featurecollection for the tweets
-							let tweetFeatureCollection = {
-								"type": "FeatureCollection",
-								"features": []
-							};
-							// add the tweets in the result to the featurecollection
-							result.forEach(function (item) {
-								if (item.id && item.location_actual !== null) {
-									let tweetLocation = turf.point(item.location_actual.coordinates);
-									if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
-										let tweetFeature = {
-											"type": "Feature",
-											"geometry": item.location_actual,
-											"properties": item
-										};
-										tweetFeatureCollection.features.push(tweetFeature);
+							if(typeof result !== "undefined") {
+								try {
+									let turfPolygon = turf.polygon(polygon.geometry.coordinates);
+									// create an empty featurecollection for the tweets
+									let tweetFeatureCollection = {
+										"type": "FeatureCollection",
+										"features": []
+									};
+									// add the tweets in the result to the featurecollection
+									result.forEach(function (item) {
+										if (item.id && item.location_actual !== null) {
+											let tweetLocation = turf.point(item.location_actual.coordinates);
+											if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
+												let tweetFeature = {
+													"type": "Feature",
+													"geometry": item.location_actual,
+													"properties": item
+												};
+												tweetFeatureCollection.features.push(tweetFeature);
+											}
+										}
+									});
+									// add the tweets to the map
+									if (tweetFeatureCollection.features.length > 0) {
+										displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
 									}
 								}
 							});

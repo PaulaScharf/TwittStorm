@@ -115,14 +115,14 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
  * @param res
  */
 const searchTweetsForEvent = function(req, res) {
-    let validParams = checkParamsSearch(req.params);
+    let validParams = checkParamsSearch(req.body);
 
     if (validParams.err_message !== "") {
         res.status(422).send(validParams);
     } else {
-        checkForExistingTweets(req.body.eventID, req.body.currentTimestamp, req.db)
+        checkForExistingTweets(req.body.dwd_id, req.body.currentTimestamp, req.db)
             .catch(function (error) {
-                res.status(500).send({err_msg: error});
+                res.status(500).send({err_msg: error, while: "checking if there are already tweets available for this request"});
             })
             .then(function (response) {
                 if (!response) {
@@ -150,12 +150,12 @@ const searchTweetsForEvent = function(req, res) {
                         q: searchTerm,
                         geocode: enclosingCircleAsString,
                         result_type: "recent",
-                        count: 20
+                        count: 100
                     };
 
                     promiseToGetTweetsFromTwitter(searchQuery)
                         .catch(function (error) {
-                            res.status(500).send({err_msg: error});
+                            res.status(500).send({err_msg: error, while: "retrieving new tweets through the twitter client"});
                         })
                         .then(function (tweets) {
                             try {
@@ -187,7 +187,7 @@ const searchTweetsForEvent = function(req, res) {
                                                     },
                                                     timestamp: currentFeature.created_at,
                                                     location_actual: currentFeature.coordinates,
-                                                    dwd_id: req.body.eventID,
+                                                    dwd_id: req.body.dwd_id,
                                                     requestTime: req.body.currentTimestamp
                                                 };
                                                 arrayOfTweets.push(currentStatus);
@@ -198,34 +198,36 @@ const searchTweetsForEvent = function(req, res) {
                                 if (arrayOfTweets.length === 0) {
                                     let emptyTweet = {
                                         type: "Tweet",
-                                        dwd_id: req.body.eventID,
+                                        dwd_id: req.body.dwd_id,
                                         requestTime: req.body.currentTimestamp
                                     };
                                     arrayOfTweets.push(emptyTweet);
                                 }
                                 promiseToPostItems(arrayOfTweets, req.db)
-                                    .catch(console.error)
+                                    .catch(function (error) {
+																			res.status(500).send({err_msg: error, while: "posting tweets to the database"});
+																		})
                                     .then(function () {
-                                        let query = {type: "Tweet", dwd_id: req.body.eventID};
+                                        let query = {type: "Tweet", dwd_id: req.body.dwd_id};
                                         promiseToGetItems(query, req.db)
                                             .catch(function (error) {
-                                                res.status(500).send({err_msg: error});
+                                                res.status(500).send({err_msg: error, while: "getting tweets from the database"});
                                             })
                                             .then(function (response) {
                                                 res.send(response);
                                             });
                                     });
                             } catch (error) {
-                                res.status(500).send({err_msg: error});
+                                res.status(500).send({err_msg: error, while: "processing the newly retrieved tweets"});
                             }
                         }, function (error) {
-                            res.status(500).send({err_msg: error});
+                            res.status(500).send({err_msg: error, while: "retrieving new tweets through the twitter client"});
                         });
                 } else {
-                    let query = {type: "Tweet", dwd_id: req.body.eventID};
+                    let query = {type: "Tweet", dwd_id: req.body.dwd_id};
                     promiseToGetItems(query, req.db)
                         .catch(function (error) {
-                            res.status(500).send({err_msg: error});
+                            res.status(500).send({err_msg: error, while: "getting tweets from the database"});
                         })
                         .then(function (response) {
                             res.send(response);
@@ -233,58 +235,56 @@ const searchTweetsForEvent = function(req, res) {
 
                 }
             }, function (error) {
-                console.dir(error);
                 res.status(500).send({err_msg: error});
             });
     }
 };
 
 function checkParamsSearch(params) {
-    switch (params) {
-        case (!params.eventID):
-            return {
-                err_message: "'dwd_id' is not defined"
-            };
-        case (!params.currentTimestamp):
-            return {
-                err_message: "'currentTimestamp' is not defined"
-            };
-        case (!params.twitterSearchQuery):
-            return {
-                err_message: "'twitterSearchQuery' is not defined"
-            };
-        case (!params.twitterSearchQuery.geometry):
-            return {
-                err_message: "'twitterSearchQuery.geometry' is not defined"
-            };
-        case (!params.twitterSearchQuery.searchWords):
-            return {
-                err_message: "'twitterSearchQuery.searchWords' is not defined"
-            };
-        case (typeof params.twitterSearchQuery.searchWords !== "object"):
-            return {
-                err_message: "'twitterSearchQuery.searchWords' has to contain an array"
-            };
-        default:
-            return {
-                err_message: ""
-            };
-    }
+	if (!params.dwd_id) {
+		return {
+			err_message: "'dwd_id' is not defined"
+		};
+	} else if (!params.currentTimestamp) {
+		return {
+			err_message: "'currentTimestamp' is not defined"
+		};
+	} if (!params.twitterSearchQuery) {
+		return {
+			err_message: "'twitterSearchQuery' is not defined"
+		};
+	} if (!params.twitterSearchQuery.geometry) {
+		return {
+			err_message: "'twitterSearchQuery.geometry' is not defined"
+		};
+	} if (!params.twitterSearchQuery.searchWords) {
+		return {
+			err_message: "'twitterSearchQuery.searchWords' is not defined"
+		};
+	} if (typeof params.twitterSearchQuery.searchWords !== "object") {
+		return {
+			err_message: "'twitterSearchQuery.searchWords' has to contain an array"
+		};
+	}
+
+	return {
+			err_message: ""
+	};
 }
 
 const deleteTweet = function(req, res) {
     if (!req.id) {
-        res.status(500).send({err_msg: error});
+        res.status(422).send({err_msg: "id is not defined"});
     }
     promiseToDeleteItems(req.id, req.db)
         .catch(function(error) {
-            res.status(500).send({err_msg: error});
+            res.status(500).send({err_msg: error, while: "deleting a tweet from the database"});
         })
         .then(function(){
             res.send();
         },function(error) {
-            res.status(500).send({err_msg: error});
-        });
+            res.status(500).send({err_msg: error, while: "deleting a tweet from the database"});
+        })
 };
 
 router.route("/tweets").post(searchTweetsForEvent);
