@@ -1,49 +1,6 @@
 
 
 
-function automate(){
-  let automationIntervall;
-  // flush the intervall
-  console.log(automationIntervall);
-  // value of the slider (the position)
-  val = document.getElementById('slider').value
-  // maximum of the slider
-  var max = document.getElementById('slider').max;
-  // first value of the slider
-  var min = document.getElementById('slider').min;
-
-  if (automationIntervall == undefined){
-
-  // name the intervall to have access to it for stopping
-   automationIntervall = setInterval(function(){
-    console.log(val);
-
-    // if the maximum value is not reached increase value to the next int
-  if (val < max) {
-    val ++;
-    // set the sliders value according to the current one
-    $("#slider").prop("value", val)
-      // in this case earthquakes from the demo json which are sorted by months
-      var month = val;
-      filterBy(month);
-    }
-   // if the maximum is reached set the value to the minimum
-  else {
-    val = min;
-    var month = val;
-    filterBy(month);
-      };
-        },2000);
-}
-
-else {
-  return
-};
-
-$("#stopButton").click(function() {
-    clearInterval(automationIntervall);
-  });
-};
 
 
 /**
@@ -148,30 +105,114 @@ function showAnimationMap(style) {
     .addEventListener('input', function(e) {
       //the number of the timestamp
     var timestampNum = parseInt(e.target.value, 10);
-    filterBy(timestampNum);
-    });
+loadAnimation(timestampNum, map)
+  });
 
 });
+automate(map);
+
 };
+
+
+function automate(map){
+  let automationIntervall;
+
+  $("#playButton").click(function() {
+  // flush the intervall
+  console.log(automationIntervall);
+  // value of the slider (the position)
+  val = document.getElementById('slider').value
+  // maximum of the slider
+  var max = document.getElementById('slider').max;
+  // first value of the slider
+  var min = document.getElementById('slider').min;
+
+  if (automationIntervall == undefined){
+
+  // name the intervall to have access to it for stopping
+   automationIntervall = setInterval(function(){
+    console.log(val);
+
+    // if the maximum value is not reached increase value to the next int
+  if (val < max) {
+    val ++;
+    // set the sliders value according to the current one
+    $("#slider").prop("value", val)
+      // in this case earthquakes from the demo json which are sorted by months
+      loadAnimation(val, map);
+    }
+   // if the maximum is reached set the value to the minimum
+  else {
+    val = min;
+    loadAnimation(val, map);
+      };
+        },2000);
+}
+
+else {
+  return
+};
+});
+
+$("#stopButton").click(function() {
+    clearInterval(automationIntervall);
+  });
+};
+
+
 
 currentTimestamp = Date.now();
 
-function filterBy(timestamp) {
-var filters = ['==', usedTimestamps, timestamp];
-map.setFilter(layerIDs, filters);
-
-// Set the label to the month
-document.getElementById('timestamp').textContent = usedTimestamps[timestamp];
-}
 
 var usedTimestamps = [];
 
 var outputArray = [];
 
+var allLayers = [];
+
+function loadAnimation(position, map){
+  var posMarker = usedTimestamps[position];
+
+
+  var time = new Date(+posMarker);
+
+  document.getElementById('timestamp').textContent = time.toUTCString();
+
+
+  for(let i = 0; i < allLayers.length; i++){
+    map.removeLayer(allLayers);
+  }
+allLayers = [];
+  map.addLayer({
+'id': posMarker,
+'type': 'fill',
+'source': posMarker,
+'layout': {},
+'paint': {
+'fill-color': '#f08',
+'fill-opacity': 0.1
+}});
+
+allLayers.pop();
+allLayers.push(posMarker);
+
+}
+
 //arrays to store all unwetters from a timestamp
-first = [];
-second = [];
-third = [];
+final = [];
+
+mask = [];
+
+timestampStorage = [];
+
+function addItem(item) {
+  var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp)
+  if (index === -1) {
+    timestampStorage.push(item);
+  }else {
+  }
+}
+
 
 function loadPreviousWeather(map){
 
@@ -191,6 +232,7 @@ $.ajax({
 })
 // if the request is done successfully, ...
   .done(function (result) {
+    console.log(result);
   //  console.log(result);
     // ... give a notice on the console that the AJAX request for inserting many items has succeeded
     for (let key in result) {
@@ -198,13 +240,12 @@ $.ajax({
       }
       else {
         usedTimestamps.push(key)
-        console.log(result);
-        console.log(usedTimestamps);
 
 
-
+// for every entry in the response(10max)
   for (let j = 0; j < result[key].length; j++){
 
+    // take every unwetter
     for (let i = 0; i < result[key][j].geometry.length; i++) {
 
 
@@ -220,10 +261,11 @@ $.ajax({
 
 
 
-outputArray.push(previousPush)
+outputArray.push(currentPolygon)
 
 
-first = {
+mask = {
+  "timestamp": key,
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
@@ -231,45 +273,43 @@ first = {
     "timestamp": key
   }]
 };
-
-second = {
-  "type": "FeatureCollection",
-  "features": [{
-    "type": "Feature",
-    "geometry": currentPolygon,
-    "timestamp": key
-  }]
-};
+//console.log(outputArray);
 
 for (let i = 0; i < usedTimestamps.length; i++){
 if (usedTimestamps[i] == previousPush.timestamp){
   if (i == 0){
-  first.features.push(outputArray)
+  mask.features.push(outputArray)
   //console.log(first);
   }
   if (i == 1){
 
-  second.features.push(outputArray)
-  //console.log(second);
+  mask.features.push(outputArray);
+
+
   }
 
 
 }
+
+
 }
-
-      displayPrevious(map, key + result[key][j]._id + i ,  second);
-
-      //console.log(unwetterFeature);
 
     };
 
   };
+addItem(mask);
+console.log(mask);
+final = timestampStorage;
+
+};
 
 
-  };
 }
+console.log(final);
 
-
+for (i = 0; i < final.length; i++){
+addToSource(map, final[i].timestamp ,  final[i]);
+}
 })
 
   // if the request has failed, ...
@@ -280,25 +320,13 @@ if (usedTimestamps[i] == previousPush.timestamp){
 }
 
 
-function displayPrevious(map, layerIDs, previousFeatureCollection){
-  // TODO: falls diese Funktion auch für Radardaten verwendet wird, dann Kommentare anpassen
-  //
-//console.log(previousFeatureCollection.features[0].timestamp);
-    // ... add the given eventFeatureCollection withits given layerID as a Source to the map (and add it afterwards as a Layer to the map)
+function addToSource(map, layerIDs, previousFeatureCollection){
+
+
     map.addSource(layerIDs, {
       type: 'geojson',
       data: previousFeatureCollection
     });
-
-    map.addLayer({
-'id': layerIDs,
-'type': 'fill',
-'source': layerIDs,
-'layout': {},
-'paint': {
-'fill-color': '#f08',
-'fill-opacity': 0.1
-}});
 
 
 }
