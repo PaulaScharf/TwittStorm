@@ -94,54 +94,65 @@ var previousWeather = function(req, res) {
                 }
             });
           }
+
+          // if searching for old radar data
           if(wtype == "rainRadar") {
 
+            // product handling
+            let prod;
+            // products are accessible after the posted interval (5mins, 60mins, 60mins)
+            let access;
+            // product are accessible after varying processing time
+            let variance;
+
+            currentTimestamp = parseInt(currentTimestamp);
+            // get Timezone offset milliseconds
+            let tz = new Date(currentTimestamp);
+            tz = tz.getTimezoneOffset();
+            tz = tz * 60000;
+            // config.refresh rate is treated as interval for time steps
+            // timestamp needs to be handles accordingly
+            if(config.refresh_rate < 360000) {
+              // when interval < 1h, use ry product
+              prod = "RY";
+              variance = 180000;
+              access = 300000;
+            } else {
+              // when interval > 1h, use rw hourly sum
+              prod = "RW";
+              variance = 1980000;
+              access = 3600000;
+            }
+            // calculate query time from above offsets etc.
+            let lastTimestamp = currentTimestamp + tz + variance - access;
+            // go 10 timesteps back
+            let firstTimestamp = lastTimestamp - 10 * config.refresh_rate;
+
             let query = {
-                "type": wtype
+              "type": wtype,
+              "radarProduct": prod,
+              $and: [
+                {"timestamp": {"$gt": (firstTimestamp)}},
+                {"timestamp": {"$lte": (lastTimestamp)}}
+              ]
             };
+
             promiseToGetItems(query, req.db)
             .catch(function(error) {
                 res.status(500).send({err_msg: error});
             })
             .then(function(result) {
 
-              let lastTimestamp = result[result.length - 1].timestamp;
-              // 10 timesteps in the past
-              let firstTimestamp = lastTimestamp - 10 * config.refresh_rate;
+            let answer = {
+              "type": "previousRainRadar",
+              "length": result.length,
+              "radarImages": result
+            };
 
-              console.log("searching between " + new Date(firstTimestamp) + " and " + new Date(lastTimestamp));
-
-              let query = {
-                "type": wtype,
-                $and: [
-                  {"timestamp": {"$gt": (firstTimestamp)}},
-                  {"timestamp": {"$lte": (lastTimestamp)}}
-                ]
-              };
-
-              promiseToGetItems(query, req.db)
-              .catch(function(error) {
-                  res.status(500).send({err_msg: error});
-              })
-              .then(function(result) {
-
-              let radarImages = [];
-
-              result.forEach(function(image) {
-                  radarImages.push(image);
-              });
-
-              let answer = {
-                "type": "previousRainRadar",
-                "radarImages": radarImages
-              };
-
-              res.json(answer);
-
-              });
+            res.json(answer);
 
             });
-          }
+        }
     }
 };
 
@@ -166,28 +177,5 @@ router.route("/:wtype/:currentTimestamp").get(previousWeather);
 router.route("*").get(function(req, res){
     res.status(404).send({err_msg: "Parameters are not valid"});
 });
-
-var previousRadar = function(req, res) {
-
-  promiseToGetItems(query, req.db)
-  .catch(function(error) {
-      res.status(500).send({err_msg: error});
-  })
-  .then(function(result) {
-    let radarImages = [];
-    result.forEach(function(image) {
-        radarImages.push(image.date);
-    });
-    let answer = {
-      "type": "previousRainRadar",
-      "radarImages": radarImages
-    };
-    res.json(answer);
-
-  });
-
-};
-
-router.route("/radar/:timestamp").get(previousRadar);
 
 module.exports = router;
