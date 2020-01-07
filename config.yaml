@@ -27,3 +27,5 @@ keys:
 dwd:
   warnings: >-
     https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson
+  radar: >-
+    ftp://ftp-cdc.dwd.de/weather/radar/radolan/

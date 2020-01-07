@@ -13,6 +13,9 @@
 var express = require('express');
 var router = express.Router();
 
+const fs = require('fs');
+const yaml = require('js-yaml');
+
 const {promiseToGetItems} = require('./dataPromisesHelpers.js');
 
 
@@ -28,6 +31,7 @@ var previousWeather = function(req, res) {
     if (validParams.err_message !== "") {
         res.status(422).send(validParams);
     } else {
+        const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
         var wtype = req.params.wtype;
         var currentTimestamp = req.params.currentTimestamp;
@@ -37,7 +41,7 @@ var previousWeather = function(req, res) {
             "timestamps": {
                 "$elemMatch": {
                     "$lte": JSON.parse(currentTimestamp),
-                    "$gte": (JSON.parse(currentTimestamp) - 50 * 60000)
+                    "$gte": (JSON.parse(currentTimestamp) - 10 * config.refresh_rate)
                 }
             }
 

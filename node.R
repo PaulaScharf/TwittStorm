@@ -9,32 +9,10 @@ needs(RCurl)
 # TODO implement choosing the radar option depending on input
 attach(input[[1]])
 
-# input handling
-if( radarProduct == "sf") {
-  rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/sf"
-  # scale info
-}
-if( radarProduct == "ry") {
-  rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/ry"
-  # scale info
-}
-if( radarProduct == "rw") {
-  rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/rw"
-  # scale info
-}
+rw_base <- paste(dwdUrl,radarProduct,sep="")
 
 # https://bookdown.org/brry/rdwd/use-case-recent-hourly-radar-files.html
 # radolan see https://www.dwd.de/DE/leistungen/radolan/produktuebersicht/radolan_produktuebersicht_pdf.pdf?__blob=publicationFile&v=7
-# rw hourly, after 30min
-# 1/10 mm/h
-# rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/rw"
-# ry 5min, after 2min
-# 1/100 mm/5min
-# rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/ry"
-# sf (sum) hourly, after 40min
-# 1/10 mm/d
-# rw_base <- "ftp://ftp-cdc.dwd.de/weather/radar/radolan/sf"
-# scale_info = "1/10 mm/d"
 
 rw_urls <- indexFTP(base=rw_base, dir=tempdir(), folder="", quiet=TRUE)
 rw_file <- dataDWD(rw_urls[length(rw_urls)], base=rw_base, joinbf=TRUE, dir=tempdir(), read=FALSE, quiet=TRUE, dbin=TRUE)
