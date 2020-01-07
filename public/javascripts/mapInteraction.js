@@ -162,8 +162,9 @@ function panMapWithButton(directionToPan) {
 	let newCenter;
 
 // TODO: anpassen!!
-let panLong = 20 / paramArray.config.map.zoom;
-let panLat = 15 / paramArray.config.map.zoom;
+// TODO: wie bekomme ich hier den aktuellen mapZoom-Wert aus der URL?
+let panLong = 160 * Math.pow(0.51, paramArray.mapZoom);
+let panLat = 160 * Math.pow(0.51, paramArray.mapZoom);
 
 
 	switch (directionToPan) {

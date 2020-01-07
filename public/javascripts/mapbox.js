@@ -286,6 +286,10 @@ function showMap(style) {
 
 				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - msecsToLastUnwetterRequest;
 
+// ****************************************************************************
+// TODO: alte current unwetter in karte einladen!!!!!
+// ****************************************************************************
+
 				// ... do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
 				// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
 				window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
