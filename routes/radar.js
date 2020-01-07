@@ -364,7 +364,7 @@ var radarRouteLatest = function(req, res) {
     .then(function(response) {
       // when the latest product is not yet in the database
       if(!response) {
-        console.log("no radar " + prod + " data found for requested timestamp, fetching ...");
+        console.log("new " + prod + " radar data available, fetching ...");
         // fetch new data
         promiseToFetchRadarData(prod)
           .catch(console.error)
