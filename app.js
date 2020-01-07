@@ -42,7 +42,7 @@ var indexRouter = require('./routes/index');
 var warningsRouter = require('./routes/warnings');
 var radarRouter = require('./routes/radar');
 var twitterRouter = require('./routes/twitter');
-var configRouter = require('./routes/configuration');
+var configRouter = require('./routes/configuration').router;
 var animationRouter = require('./routes/animation');
 
 
