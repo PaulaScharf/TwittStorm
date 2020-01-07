@@ -5,9 +5,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
- * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
- * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
- */
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
 
 
 const mongodb = require('mongodb');
@@ -21,12 +21,12 @@ let collectionName = config.mongodb.collection_name;
 
 
 /**
- * for posting to the database
- * @author Paula Scharf, matr.: 450334
- * @param arrayOfItems - an array of items which are to be fed to the database
- * @param db - the database
- * @returns {Promise<any>}
- */
+* for posting to the database
+* @author Paula Scharf, matr.: 450334
+* @param arrayOfItems - an array of items which are to be fed to the database
+* @param db - the database
+* @returns {Promise<any>}
+*/
 function promiseToPostItems(arrayOfItems, db) {
 	return new Promise((resolve, reject) => {
 		try {
@@ -50,12 +50,12 @@ function promiseToPostItems(arrayOfItems, db) {
 }
 
 /**
- * for reading from the database
- * @author Paula Scharf, matr.: 450334
- * @param query - defines which items are supposed to be retrieved from the database
- * @param db - the database
- * @returns {Promise<any>}
- */
+* for reading from the database
+* @author Paula Scharf, matr.: 450334
+* @param query - defines which items are supposed to be retrieved from the database
+* @param db - the database
+* @returns {Promise<any>}
+*/
 function promiseToGetItems(query, db) {
 	return new Promise((resolve, reject) => {
 		try {
@@ -81,13 +81,13 @@ function promiseToGetItems(query, db) {
 
 
 /**
- * for updating itmes in the database
- * @author Paula Scharf, matr.: 450334
- * @param query - defines the items that are supposed to be updated
- * @param update - defines how the items are supposed to be updated
- * @param db - the database
- * @returns {Promise<any>}
- */
+* for updating itmes in the database
+* @author Paula Scharf, matr.: 450334
+* @param query - defines the items that are supposed to be updated
+* @param update - defines how the items are supposed to be updated
+* @param db - the database
+* @returns {Promise<any>}
+*/
 function promiseToUpdateItems(query, update, db) {
 	return new Promise((resolve, reject) => {
 		try {
@@ -112,12 +112,12 @@ function promiseToUpdateItems(query, update, db) {
 }
 
 /**
- * for deleting items in the database
- * @author Paula Scharf, matr.: 450334
- * @param query - defines which items are supposed to be deleted
- * @param db - the database
- * @returns {Promise<any>}
- */
+* for deleting items in the database
+* @author Paula Scharf, matr.: 450334
+* @param query - defines which items are supposed to be deleted
+* @param db - the database
+* @returns {Promise<any>}
+*/
 function promiseToDeleteItems(query, db) {
 	return new Promise((resolve, reject) => {
 		try {
