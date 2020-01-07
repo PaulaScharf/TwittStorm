@@ -156,19 +156,11 @@ function msToMin(ms) {
 */
 function panMapWithButton(directionToPan) {
 
-	// TODO: so noch unsinnig, da Verschiebung um x Grad nicht abhängig von Zoomlevel ist
-
 	let center = map.getCenter();
 	let newCenter;
 
-
-console.log(paramArray.mapZoom);
-
-// TODO: anpassen!!
-// TODO: wie bekomme ich hier den aktuellen mapZoom-Wert aus der URL?
-let panLong = 160 * Math.pow(0.51, paramArray.mapZoom);
-let panLat = 160 * Math.pow(0.51, paramArray.mapZoom);
-
+let panLong = 160 * Math.pow(0.51, map.getZoom());
+let panLat = 90 * Math.pow(0.51, map.getZoom());
 
 	switch (directionToPan) {
 		case (directionToPan = "left"):
@@ -186,7 +178,6 @@ let panLat = 160 * Math.pow(0.51, paramArray.mapZoom);
 	}
 
 	map.panTo(newCenter);
-	// map.panBy();
 }
 
 
