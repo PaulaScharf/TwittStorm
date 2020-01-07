@@ -245,19 +245,14 @@ $.ajax({
 // for every entry in the response(10max)
   for (let j = 0; j < result[key].length; j++){
 
+    outputArray = [];
+
     // take every unwetter
     for (let i = 0; i < result[key][j].geometry.length; i++) {
 
 
       let currentPolygon = result[key][j].geometry[i];
       // make a GeoJSON Feature out of the current Unwetter
-
-
-      previousPush  = {
-            "type": "MultiPolygon",
-              "geometry": currentPolygon,
-              "timestamp": key
-          };
 
 
 
@@ -276,7 +271,7 @@ mask = {
 //console.log(outputArray);
 
 for (let i = 0; i < usedTimestamps.length; i++){
-if (usedTimestamps[i] == previousPush.timestamp){
+if (usedTimestamps[i] == key){
   if (i == 0){
   mask.features.push(outputArray)
   //console.log(first);
