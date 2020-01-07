@@ -131,8 +131,6 @@ function automate(map){
 
   // name the intervall to have access to it for stopping
    automationIntervall = setInterval(function(){
-    console.log(val);
-
     // if the maximum value is not reached increase value to the next int
   if (val < max) {
     val ++;
@@ -173,6 +171,8 @@ var allLayers = [];
 function loadAnimation(position, map){
   var posMarker = usedTimestamps[position];
 
+  console.log(map.style.sourceCaches);
+
 
   var time = new Date(+posMarker);
 
@@ -205,14 +205,6 @@ mask = [];
 
 timestampStorage = [];
 
-function addItem(item) {
-  var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp)
-  if (index === -1) {
-    timestampStorage.push(item);
-  }else {
-  }
-}
-
 
 function loadPreviousWeather(map){
 
@@ -241,35 +233,45 @@ $.ajax({
       else {
         usedTimestamps.push(key)
 
+outputArray = [];
+// for every unwetter in the response
+  for (let j = 0; j < key.length; j++){
+  //  console.log(result[key][j].geometry);
 
-// for every entry in the response(10max)
-  for (let j = 0; j < result[key].length; j++){
 
-    outputArray = [];
+
+//outputArray = [];
 
     // take every unwetter
-    for (let i = 0; i < result[key][j].geometry.length; i++) {
 
+      // and save their coordinates
+      let currentPolygon = result[key][j].geometry;
 
-      let currentPolygon = result[key][j].geometry[i];
-      // make a GeoJSON Feature out of the current Unwetter
-
-
-
+//store them in one array
 outputArray.push(currentPolygon)
+console.log(outputArray);
 
 
+var resulta = {
+  "type": "Feature",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      currentPolygon
+    ]
+  }
+};
+
+//object form for the gjson
 mask = {
   "timestamp": key,
   "type": "FeatureCollection",
-  "features": [{
-    "type": "Feature",
-    "geometry": currentPolygon,
-    "timestamp": key
-  }]
+  "features": []
 };
-//console.log(outputArray);
 
+
+//console.log(outputArray);
+/*
 for (let i = 0; i < usedTimestamps.length; i++){
 if (usedTimestamps[i] == key){
   if (i == 0){
@@ -288,14 +290,13 @@ if (usedTimestamps[i] == key){
 
 
 }
+*/
+mask.features.push(outputArray);
 
-    };
 
   };
 addItem(mask);
-console.log(mask);
 final = timestampStorage;
-
 };
 
 
@@ -312,6 +313,17 @@ addToSource(map, final[i].timestamp ,  final[i]);
     // ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
     console.log("Requesting previous events has failed.", error);
   });
+}
+
+
+//checks if a object with a timestamp is already in
+function addItem(item) {
+  var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp)
+  if (index === -1) {
+    timestampStorage.push(item);
+  }else {
+    console.log("object already exists")
+  }
 }
 
 
