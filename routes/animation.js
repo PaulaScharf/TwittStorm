@@ -10,18 +10,15 @@
  */
 
 
-var express = require('express');
-var router = express.Router();
+ var express = require('express');
+ var router = express.Router();
 
-const fs = require('fs');
-const yaml = require('js-yaml');
+ // yaml configuration
+ const fs = require('fs');
+ const yaml = require('js-yaml');
+ var config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
-const {promiseToGetItems} = require('./dataPromisesHelpers.js');
-
-// yaml configuration
-const fs = require('fs');
-const yaml = require('js-yaml');
-var config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+ const {promiseToGetItems} = require('./dataPromisesHelpers.js');
 
 
 /**
