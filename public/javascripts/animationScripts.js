@@ -1,52 +1,19 @@
-/**
-* refers to the mapbox map element
-* @type {mapbox_map}
-*/
+// ****************************** global variables *****************************
 
 
-function automate(){
-  let automationIntervall;
-  // flush the intervall
-  console.log(automationIntervall);
-  // value of the slider (the position)
-  val = document.getElementById('slider').value
-  // maximum of the slider
-  var max = document.getElementById('slider').max;
-  // first value of the slider
-  var min = document.getElementById('slider').min;
+currentTimestamp = Date.now();
 
-  if (automationIntervall == undefined){
+var usedTimestamps = [];
 
-  // name the intervall to have access to it for stopping
-   automationIntervall = setInterval(function(){
-    console.log(val);
+var outputArray = [];
 
-    // if the maximum value is not reached increase value to the next int
-  if (val < max) {
-    val ++;
-    // set the sliders value according to the current one
-    $("#slider").prop("value", val)
-      // in this case earthquakes from the demo json which are sorted by months
-      var month = val;
-      filterBy(month);
-    }
-   // if the maximum is reached set the value to the minimum
-  else {
-    val = min;
-    var month = val;
-    filterBy(month);
-      };
-        },2000);
-}
+final = [];
 
-else {
-  return
-};
+mask = [];
 
-$("#stopButton").click(function() {
-    clearInterval(automationIntervall);
-  });
-};
+allLayers = [];
+
+timestampStorage = [];
 
 
 /**
@@ -87,7 +54,7 @@ function showAnimationMap(style) {
 
 
   // create new map with variable zoom and center
-  map = new mapboxgl.Map({
+  let map = new mapboxgl.Map({
     container: 'map',
     style: style,
     // TODO: basemap durch Nutzer änderbar machen: https://docs.mapbox.com/mapbox-gl-js/example/setstyle/
@@ -144,105 +111,254 @@ function showAnimationMap(style) {
     // enable drawing the area-of-interest-polygons
     drawForAOI(map);
 
+    loadPreviousWeather(map);
+
+    document
+    .getElementById('slider')
+    .addEventListener('input', function(e) {
+      //the number of the timestamp
+    var timestampNum = parseInt(e.target.value, 10);
+loadAnimation(timestampNum, map)
+  });
+
 });
+automate(map);
+
 };
 
-////////////////////////////////////////////////////////////////////////////////Stuff for the current placeholder data
 
-var months = [
-'January',
-'February',
-'March',
-'April',
-'May',
-'June',
-'July',
-'August',
-'September',
-'October',
-'November',
-'December'
-];
+/**
+* @desc adds functionality to the slider and to the pause and play buttons
+* @param map links to the map
+* @author Benjamin Rieke
+*/
+function automate(map){
+  // to refer to the intervall
+  let automationIntervall;
 
-function filterBy(month) {
-var filters = ['==', 'month', month];
-map.setFilter('earthquake-circles', filters);
-map.setFilter('earthquake-labels', filters);
+  // on playbutton click
+  $("#playButton").click(function() {
+    // flush the intervall
 
-// Set the label to the month
-document.getElementById('month').textContent = months[month];
+    automationIntervall = undefined;
+  // value of the slider (the position)
+  val = document.getElementById('slider').value
+  // maximum of the slider
+  document.getElementById('slider').max = usedTimestamps.length-1;
+
+  var max = document.getElementById('slider').max;
+  // first value of the slider
+  var min = document.getElementById('slider').min;
+
+  if (automationIntervall == undefined){
+
+  // name the intervall to have access to it for stopping
+   automationIntervall = setInterval(function(){
+    // if the maximum value is not reached increase value to the next int
+  if (val < max) {
+    val ++;
+    // set the sliders value according to the current one
+    $("#slider").prop("value", val)
+      // in this case earthquakes from the demo json which are sorted by months
+      loadAnimation(val, map);
+    }
+   // if the maximum is reached set the value to the minimum
+  else {
+    val = min;
+    $("#slider").prop("value", val)
+
+    loadAnimation(val, map);
+      };
+        },2000);
 }
 
-var url = 'https://docs.mapbox.com/mapbox-gl-js/assets/significant-earthquakes-2015.geojson';
-
-$.getJSON(url, function(result) {
-  result.features = result.features.map(function(d) {
-d.properties.month = new Date(d.properties.time).getMonth();
-return d;
+else {
+  return
+};
 });
 
-map.addSource('earthquakes', {
-'type': 'geojson',
-data: result
-});
+$("#stopButton").click(function() {
+    clearInterval(automationIntervall);
+  });
+};
 
-map.addLayer({
-'id': 'earthquake-circles',
-'type': 'circle',
-'source': 'earthquakes',
+
+/**
+* @desc Adds the desired layer, removes the others and displays the date according to the timestamp
+* @param position checks at which position each timestamp is supposed to be displayed
+* @author Benjamin Rieke
+*/
+function loadAnimation(position, map){
+
+  // set a "marker" for the wanted position based on the available timestamps
+  var posMarker = usedTimestamps[position];
+
+  // transform the time from millseconds to date
+  var time = new Date(+posMarker);
+  // add to ui
+  document.getElementById('timestamp').textContent = time.toUTCString();
+
+  //check if a layer is shown
+  for(let i = 0; i < allLayers.length; i++){
+    // if yes remove them
+    map.removeLayer(allLayers);
+  }
+  //flus array in case
+allLayers = [];
+
+// add the correct layer
+  map.addLayer({
+'id': posMarker,
+'type': 'fill',
+'source': posMarker,
 'paint': {
-'circle-color': [
-'interpolate',
-['linear'],
-['get', 'mag'],
-6,
-'#FCA107',
-8,
-'#7F3121'
-],
-'circle-opacity': 0.75,
-'circle-radius': [
-'interpolate',
-['linear'],
-['get', 'mag'],
-6,
-20,
-8,
-40
-]
-}
-});
+'fill-color': 'red',
+'fill-opacity': 0.5
+}});
 
-map.addLayer({
-'id': 'earthquake-labels',
-'type': 'symbol',
-'source': 'earthquakes',
-'layout': {
-'text-field': [
-'concat',
-['to-string', ['get', 'mag']],
-'m'
-],
-'text-font': [
-'Open Sans Bold',
-'Arial Unicode MS Bold'
-],
-'text-size': 12
-},
-'paint': {
-'text-color': 'rgba(0,0,0,0.5)'
+// put something in the array for the for loop to check for emptiness
+allLayers.push(posMarker);
 }
-});
 
-// Set filter to first month of the year
-// 0 = January
-filterBy(0);
 
-document
-.getElementById('slider')
-.addEventListener('change', function(e) {
-var month = parseInt(e.target.value, 10);
-filterBy(month);
-});
+/**
+* @desc Performs the actual db call to retrieve the previousWeather data
+* and fits every event according to its timestamp into an array
+* @param map Links to the map
+* @author Benjamin Rieke
+*/
+function loadPreviousWeather(map){
+
+$.ajax({
+  // use a http GET request
+  type: "GET",
+  // URL to send the request to
+  url: "/previousWeather/" + "unwetter/" + currentTimestamp,
+  // type of the data that is sent to the server
+  contentType: "application/json; charset=utf-8",
+  // timeout set to 15 seconds
+  timeout: 15000,
+
+  success: function() {
+        $('#information').html("Retrieving previous weather events");
+      }
+})
+// if the request is done successfully, ...
+  .done(function (result) {
+    console.log(result);
+
+    // for every timestamp
+    for (let key in result) {
+      if (key == "type"){
+      }
+      else {
+        //log the individual timestamp to refer to them later
+        usedTimestamps.push(key)
+
+        // flush the outputarray with each call
+        outputArray = [];
+
+// for every unwetter in the response
+  for (let j = 0; j < key.length; j++){
+
+      // take every unwetter and save its coordinates
+      let currentUnwetter = result[key][j].geometry;
+
+// gjson structure
+var mask = {
+"timestamp": key,
+"type": "Animation",
+"geometry": {
+"type": "FeatureCollection",
+    }
+};
+
+// put every polygon from a unwetterwarning into one array
+for (let i = 0; i < currentUnwetter.length; i++ ){
+  //transform the polygon into geojson
+  var polygon = goGeoJson(currentUnwetter[i].coordinates, key);
+      // array to save every timestamp´s polygon
+    outputArray.push(polygon);
 }
-);
+
+// add the current events to the geojson for each timestamp
+mask.geometry.features = outputArray;
+
+
+  };
+
+  // add all filled geojsons to one array
+addItem(mask);
+//for dramatic purposes have the data stored in final object
+final = timestampStorage;
+};
+
+}
+
+console.log(final);
+// for every timestamp in the final object
+for (i = 0; i < final.length; i++){
+  //add the according data to an mapbox source
+  addToSource(map, final[i].timestamp ,  final[i]);
+}
+})
+
+  // if the request has failed, ...
+  .fail(function (xhr, status, error) {
+    // ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+    console.log("Requesting previous events has failed.", error);
+  });
+}
+
+/**
+  * function to return a GeoJSON formatted Polygon
+  * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+  * @param object the individual polygons of an event, containing the coords of a polygon
+  * @param time timestamp of the data
+  */
+function goGeoJson(object, time) {
+//console.log(object);
+//  console.log(object.geometry);
+  var result = {
+    "type":"Feature",
+    "properties": {
+    "class": time
+  },
+    "geometry": {
+      "type":"Polygon",
+      "coordinates": object[0]
+    }
+  };
+  return result;
+}
+
+/**
+* @desc Checks if a part of an Object is already in an array
+* @param item geojson object
+* @author Benjamin Rieke
+*/
+function addItem(item) {
+  var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp)
+  if (index === -1) {
+    timestampStorage.push(item);
+  }else {
+    console.log("object already exists")
+  }
+}
+
+/**
+* @desc Adds a GEOJSON to the map as a source
+* @param map glinks to the map
+* @param layerID to be id of the source. in this case the timestamp
+* @param previousFeatureCollection the geojson featurecollection
+* @author Benjamin Rieke
+*/
+function addToSource(map, layerID, previousFeatureCollection){
+
+    map.addSource(layerID, {
+      type: 'geojson',
+      data: previousFeatureCollection.geometry
+    });
+
+}
