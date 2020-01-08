@@ -69,12 +69,12 @@ var previousWeather = function(req, res) {
                             }
                         })
                     });
+                  arrayOfTimestamps.sort(function (a, b) {
+                    return a - b
+                  });
                     // if the response includes more than 10 timestamp only choose the 10 most recent ones
                     if (arrayOfTimestamps.length > 10) {
-                        arrayOfTimestamps.sort(function (a, b) {
-                            return a - b
-                        });
-                        arrayOfTimestamps = arrayOfTimestamps.slice(0, 9);
+                        arrayOfTimestamps = arrayOfTimestamps.slice(0, 10);
                     }
                     arrayOfTimestamps.forEach(function (timestamp) {
                         if (!weatherEvents[timestamp]) {
@@ -82,8 +82,8 @@ var previousWeather = function(req, res) {
                         }
                         response.forEach(function (event) {
                             if (event.timestamps.includes(timestamp) &&
-                            (event.properties.onset) ? true : (event.properties.onset <= timestamp) &&
-                            (event.properties.expires) ? true : (event.properties.expires > timestamp)) {
+                              ((event.properties.onset) ? true : (event.properties.onset <= timestamp)) &&
+                              ((event.properties.expires) ? true : (event.properties.expires > timestamp))) {
                                 weatherEvents[timestamp].push(event);
                             }
                         });
