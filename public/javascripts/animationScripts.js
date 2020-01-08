@@ -1,6 +1,19 @@
+// ****************************** global variables *****************************
 
 
+currentTimestamp = Date.now();
 
+var usedTimestamps = [];
+
+var outputArray = [];
+
+final = [];
+
+mask = [];
+
+allLayers = [];
+
+timestampStorage = [];
 
 
 /**
@@ -114,15 +127,25 @@ automate(map);
 };
 
 
+/**
+* @desc adds functionality to the slider and to the pause and play buttons
+* @param map links to the map
+* @author Benjamin Rieke
+*/
 function automate(map){
+  // to refer to the intervall
   let automationIntervall;
 
+  // on playbutton click
   $("#playButton").click(function() {
-  // flush the intervall
-  console.log(automationIntervall);
+    // flush the intervall
+
+    automationIntervall = undefined;
   // value of the slider (the position)
   val = document.getElementById('slider').value
   // maximum of the slider
+  document.getElementById('slider').max = usedTimestamps.length-1;
+
   var max = document.getElementById('slider').max;
   // first value of the slider
   var min = document.getElementById('slider').min;
@@ -142,6 +165,8 @@ function automate(map){
    // if the maximum is reached set the value to the minimum
   else {
     val = min;
+    $("#slider").prop("value", val)
+
     loadAnimation(val, map);
       };
         },2000);
@@ -158,54 +183,50 @@ $("#stopButton").click(function() {
 };
 
 
-
-currentTimestamp = Date.now();
-
-
-var usedTimestamps = [];
-
-var outputArray = [];
-
-var allLayers = [];
-
+/**
+* @desc Adds the desired layer, removes the others and displays the date according to the timestamp
+* @param position checks at which position each timestamp is supposed to be displayed
+* @author Benjamin Rieke
+*/
 function loadAnimation(position, map){
+
+  // set a "marker" for the wanted position based on the available timestamps
   var posMarker = usedTimestamps[position];
 
-  console.log(map.style.sourceCaches);
-
-
+  // transform the time from millseconds to date
   var time = new Date(+posMarker);
-
+  // add to ui
   document.getElementById('timestamp').textContent = time.toUTCString();
 
-
+  //check if a layer is shown
   for(let i = 0; i < allLayers.length; i++){
+    // if yes remove them
     map.removeLayer(allLayers);
   }
+  //flus array in case
 allLayers = [];
+
+// add the correct layer
   map.addLayer({
 'id': posMarker,
 'type': 'fill',
 'source': posMarker,
-'layout': {},
 'paint': {
-'fill-color': '#f08',
-'fill-opacity': 0.1
+'fill-color': 'red',
+'fill-opacity': 0.5
 }});
 
-allLayers.pop();
+// put something in the array for the for loop to check for emptiness
 allLayers.push(posMarker);
-
 }
 
-//arrays to store all unwetters from a timestamp
-final = [];
 
-mask = [];
-
-timestampStorage = [];
-
-
+/**
+* @desc Performs the actual db call to retrieve the previousWeather data
+* and fits every event according to its timestamp into an array
+* @param map Links to the map
+* @author Benjamin Rieke
+*/
 function loadPreviousWeather(map){
 
 $.ajax({
@@ -225,86 +246,60 @@ $.ajax({
 // if the request is done successfully, ...
   .done(function (result) {
     console.log(result);
-  //  console.log(result);
-    // ... give a notice on the console that the AJAX request for inserting many items has succeeded
+
+    // for every timestamp
     for (let key in result) {
       if (key == "type"){
       }
       else {
+        //log the individual timestamp to refer to them later
         usedTimestamps.push(key)
 
-outputArray = [];
+        // flush the outputarray with each call
+        outputArray = [];
+
 // for every unwetter in the response
   for (let j = 0; j < key.length; j++){
-  //  console.log(result[key][j].geometry);
 
+      // take every unwetter and save its coordinates
+      let currentUnwetter = result[key][j].geometry;
 
-
-//outputArray = [];
-
-    // take every unwetter
-
-      // and save their coordinates
-      let currentPolygon = result[key][j].geometry;
-
-//store them in one array
-outputArray.push(currentPolygon)
-console.log(outputArray);
-
-
-var resulta = {
-  "type": "Feature",
-  "geometry": {
-    "type": "Polygon",
-    "coordinates": [
-      currentPolygon
-    ]
-  }
+// gjson structure
+var mask = {
+"timestamp": key,
+"type": "Animation",
+"geometry": {
+"type": "FeatureCollection",
+    }
 };
 
-//object form for the gjson
-mask = {
-  "timestamp": key,
-  "type": "FeatureCollection",
-  "features": []
-};
-
-
-//console.log(outputArray);
-/*
-for (let i = 0; i < usedTimestamps.length; i++){
-if (usedTimestamps[i] == key){
-  if (i == 0){
-  mask.features.push(outputArray)
-  //console.log(first);
-  }
-  if (i == 1){
-
-  mask.features.push(outputArray);
-
-
-  }
-
-
+// put every polygon from a unwetterwarning into one array
+for (let i = 0; i < currentUnwetter.length; i++ ){
+  //transform the polygon into geojson
+  var polygon = goGeoJson(currentUnwetter[i].coordinates, key);
+      // array to save every timestamp´s polygon
+    outputArray.push(polygon);
 }
 
-
-}
-*/
-mask.features.push(outputArray);
+// add the current events to the geojson for each timestamp
+mask.geometry.features = outputArray;
 
 
   };
+
+  // add all filled geojsons to one array
 addItem(mask);
+//for dramatic purposes have the data stored in final object
 final = timestampStorage;
 };
 
-
 }
-console.log(final);
 
+console.log(final);
+// for every timestamp in the final object
 for (i = 0; i < final.length; i++){
-addToSource(map, final[i].timestamp ,  final[i]);
+  //add the according data to an mapbox source
+  addToSource(map, final[i].timestamp ,  final[i]);
 }
 })
 
@@ -315,8 +310,34 @@ addToSource(map, final[i].timestamp ,  final[i]);
   });
 }
 
+/**
+  * function to return a GeoJSON formatted Polygon
+  * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+  * @param object the individual polygons of an event, containing the coords of a polygon
+  * @param time timestamp of the data
+  */
+function goGeoJson(object, time) {
+//console.log(object);
+//  console.log(object.geometry);
+  var result = {
+    "type":"Feature",
+    "properties": {
+    "class": time
+  },
+    "geometry": {
+      "type":"Polygon",
+      "coordinates": object[0]
+    }
+  };
+  return result;
+}
 
-//checks if a object with a timestamp is already in
+/**
+* @desc Checks if a part of an Object is already in an array
+* @param item geojson object
+* @author Benjamin Rieke
+*/
 function addItem(item) {
   var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp)
   if (index === -1) {
@@ -326,14 +347,18 @@ function addItem(item) {
   }
 }
 
+/**
+* @desc Adds a GEOJSON to the map as a source
+* @param map glinks to the map
+* @param layerID to be id of the source. in this case the timestamp
+* @param previousFeatureCollection the geojson featurecollection
+* @author Benjamin Rieke
+*/
+function addToSource(map, layerID, previousFeatureCollection){
 
-function addToSource(map, layerIDs, previousFeatureCollection){
-
-
-    map.addSource(layerIDs, {
+    map.addSource(layerID, {
       type: 'geojson',
-      data: previousFeatureCollection
+      data: previousFeatureCollection.geometry
     });
-
 
 }
