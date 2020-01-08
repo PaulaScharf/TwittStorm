@@ -157,8 +157,6 @@ function connectMongoDb() {
 // call function above to connect to MongoDB
 connectMongoDb();
 
-
-
 // ********************************** JSNLog ***********************************
 
 // "ensure that the JSON objects received from the client get parsed correctly"

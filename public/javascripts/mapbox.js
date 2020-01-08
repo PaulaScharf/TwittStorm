@@ -324,33 +324,22 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
-		//console.log(result);
-
-		//result is array of rainRadar JSONs
-		//result[result.length - 1] is most recent one -- insert variable
-		//console.log(result[result.length - 1]);
-
 
 		// show timestamp of current radar data in legend
 		let dataTimestamp = document.getElementById("dataTimestamp");
 		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + new Date(result.timestamp);
 
-
 		// ***************************************************************************************************************
-		// TODO: folgendes anpassen, dazu currentTimestamp der requestAndDisplayAllRainRadar übergeben!!!
 		// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN UNWETTER-LEGENDE REIN,
 		// FALLS NACH RADAR-MENÜ-AUFRUF DIREKT UNWETTER AUFGERUFEN WURDE UND RADAR NOCH VERARBEITET WERDEN!!!!
-		/*	if (paramArray.wtype != "radar"){
-		// display the timestamp of the last request in the legend
-		let splittedTimestamp = Date(currentTimestamp).split("(");
-		let formattedTimestamp = splittedTimestamp[0];
+
+		let now = Date.now();
 		let timestampLastRequest = document.getElementById("timestampLastRequest");
-		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
-		*/
+		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + new Date(now);
 		// ***************************************************************************************************************
 
 
-		//
+		// display
 		map.addSource("rainradar", {
 			"type": "geojson",
 			"data": result.geometry
@@ -379,6 +368,29 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 }
 // *****************************************************************************************************
 
+function intervalRainRadar() {
+	let refresh = paramArray.config.refresh_rate;
+	let prod;
+	if(refresh < 3600000) {
+		prod = "ry";
+	} else {
+		prod = "rw";
+	}
+
+	// pause for 30sec
+	window.setTimeout(callRainRadar, 20000, prod);
+}
+
+function callRainRadar(prod) {
+	$('#information').html("Retrieving the requested " + prod + " radar product");
+	// make call
+	let url = "/radar/" + prod + "/latest";
+	$.getJSON(url, function(result) {
+		console.log("automatically requested new rainRadar data");
+	});
+}
+
+setInterval(intervalRainRadar, paramArray.config.refresh_rate);
 
 /**
 * @desc

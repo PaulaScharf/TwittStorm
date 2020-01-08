@@ -113,7 +113,7 @@ var previousWeather = function(req, res) {
             tz = tz * 60000;
             // config.refresh rate is treated as interval for time steps
             // timestamp needs to be handles accordingly
-            if(config.refresh_rate < 360000) {
+            if(config.refresh_rate < 3600000) {
               // when interval < 1h, use ry product
               prod = "RY";
               variance = 180000;
