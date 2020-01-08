@@ -56,24 +56,14 @@ router.post("/", (req, res) => {
 *
 * @author Katharina Poppinga
 * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
-* @param {String} typeOfData - "Unwetter" or "Radar"
 */
-function updateCurrentTimestampInConfigYaml(currentTimestamp, typeOfData){
+function updateCurrentTimestampInConfigYaml(currentTimestamp){
 
-	console.log("test");
-
-	if (typeOfData === "Unwetter") {
-		config["timestamp_last_Unwetter_request"] = currentTimestamp;
-		let yamlStr = yaml.safeDump(config);
-		fs.writeFileSync('config.yaml', yamlStr, 'utf8');
-	}
-
-	if (typeOfData === "Radar") {
-		config["timestamp_last_radar_request"] = currentTimestamp;
-		let yamlStr = yaml.safeDump(config);
-		fs.writeFileSync('config.yaml', yamlStr, 'utf8');
-	}
+	config["timestamp_last_warnings_request"] = currentTimestamp;
+	let yamlStr = yaml.safeDump(config);
+	fs.writeFileSync('config.yaml', yamlStr, 'utf8');
 }
+
 
 module.exports.updateCurrentTimestampInConfigYaml = updateCurrentTimestampInConfigYaml;
 

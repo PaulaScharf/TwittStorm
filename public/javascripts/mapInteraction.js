@@ -81,7 +81,7 @@ function showLegend(map, typeOfLegend, product) {
 		paraTypeOfLegend.appendChild(productType);
 
 		//
-		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>TODO"; // TODO: in radar-js-datei den timestamp of radar data aus DB anfügen
+		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>";
 		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>1 km x 1 km";
 
 		let classes = [];
@@ -596,17 +596,22 @@ function showUnwetterPopup(map, e) {
 			// get information about the feature on which it was clicked
 			var picked = map.queryRenderedFeatures(e.point);
 
-			// TODO: Sommerzeit im Sommer??
-
-			// TODO: später source im Popup herauslöschen, momentan nur nötig für entwicklung
-
 			if (picked[0].source.includes("unwetter")) {
+
+				// formatting timestamp for cutting the textual description of timestamp
+				let onset = new Date(picked[0].properties.onset);
+				let expires = new Date(picked[0].properties.expires);
+				let onsetStrings = onset.toString().split("(");
+				let expiresStrings = expires.toString().split("(");
+				let formattedOnsetTimestamp = onsetStrings[0];
+				let formattedExpiresTimestamp = expiresStrings[0];
+
 				// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
 				if (picked[0].properties.instruction !== "null") {
 					// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
 					new mapboxgl.Popup()
 						.setLngLat(e.lngLat)
-						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires) + "<br>" + picked[0].properties.instruction)
+						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + formattedOnsetTimestamp + "<br><b>expires: </b>" + formattedExpiresTimestamp + "<br>" + picked[0].properties.instruction)
 						.addTo(map);
 				}
 				// if a instruction is not given by the DWD ...
@@ -614,7 +619,7 @@ function showUnwetterPopup(map, e) {
 					// ... create a popup with above information without an instruction
 					new mapboxgl.Popup()
 						.setLngLat(e.lngLat)
-						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + new Date(picked[0].properties.onset) + "<br><b>expires: </b>" + new Date(picked[0].properties.expires))
+						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + formattedOnsetTimestamp + "<br><b>expires: </b>" + formattedExpiresTimestamp)
 						.addTo(map);
 				}
 			}

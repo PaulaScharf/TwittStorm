@@ -58,7 +58,7 @@ function updateURL(param, newString) {
 	* @desc
 	* function to read a specified parameter from the current URL
 	* @author Jonathan Bahlmann
-	* @param string Parameter to be returned
+	* @param {String} param Parameter to be returned
 	* @returns parameter value
 	*/
 function readURL(param) {

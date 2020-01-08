@@ -86,11 +86,11 @@ window.twttr = (function(d, s, id) {
 
 // shows and hides the current status of an ajax call
 $(document).ajaxSend(function(){
-    $('#loading').fadeIn(250);
-		console.log(Date.now());
+	$('#loading').fadeIn(250);
+	console.log(Date.now());
 });
 $(document).ajaxComplete(function(){
-    $('#loading').fadeOut(250);
+	$('#loading').fadeOut(250);
 });
 
 /**
@@ -140,9 +140,6 @@ function showMap(style) {
 	map = new mapboxgl.Map({
 		container: 'map',
 		style: style,
-		// TODO: basemap durch Nutzer änderbar machen: https://docs.mapbox.com/mapbox-gl-js/example/setstyle/
-		// style: 'mapbox://styles/mapbox/satellite-v9',
-		// style: 'mapbox://styles/mapbox/streets-v11',
 		zoom: zoomURL,
 		center: centerURL
 	});
@@ -195,6 +192,7 @@ function showMap(style) {
 		drawForAOI(map);
 
 
+		// TODO: folgendes if durch (readURL("wtype") == "radar") ersetzen? etc...
 		// Rain Radar Data
 		if (paramArray.wtype == "radar") {
 			// set the flag to radar
@@ -268,10 +266,10 @@ function showMap(style) {
 			showLegend(map, "unwetter");
 
 			// the last Unwetter request was "hm"-milliseconds ago
-			let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_Unwetter_request;
+			let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
 
 			// if the timestamp of the last Unwetter request is empty (no request so far) or equal to or older than "paramArray.config.refresh_rate" ...
-			if ((paramArray.config.timestamp_last_Unwetter_request == null) || (msecsToLastUnwetterRequest >= paramArray.config.refresh_rate)) {
+			if ((paramArray.config.timestamp_last_warnings_request == null) || (msecsToLastUnwetterRequest >= paramArray.config.refresh_rate)) {
 
 				// ... do a new Unwetter request right now ...
 				requestNewAndDisplayCurrentUnwetters(map);
@@ -307,6 +305,8 @@ function showMap(style) {
 
 
 // ************************************* block about rain radar ****************************************
+
+// TODO: timestamp-parameter aus dieser funktion löschen
 /**
 * @desc This function requests and displays Rain Radar data
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
@@ -325,60 +325,70 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 	$.getJSON(url, function(result) {
 
 		// ***************************************************************************************************************
-		// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN UNWETTER-LEGENDE REIN,
-		// FALLS NACH RADAR-MENÜ-AUFRUF DIREKT UNWETTER AUFGERUFEN WURDE UND RADAR NOCH VERARBEITET WERDEN!!!!
+		// for displaying the radar stuff only in the map for radar and not in the map for severe weather warnings
+		if (readURL("wtype") == "radar") {
 
-		// show timestamp of current radar data in legend
-		let dataTimestamp = document.getElementById("dataTimestamp");
-		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + new Date(result.timestamp);
+			// show timestamp of current radar data in legend
+			let timestampData = new Date(result.timestamp);
+			let splittedDataTimestamp = timestampData.toString().split("(");
+			let formattedDataTimestamp = splittedDataTimestamp[0];
+			let dataTimestamp = document.getElementById("dataTimestamp");
+			dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + formattedDataTimestamp;
 
-		let now = Date.now();
-		let timestampLastRequest = document.getElementById("timestampLastRequest");
-		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + new Date(now);
-		// ***************************************************************************************************************
+			// TODO: muss noch timestamp of request werden und nicht timestamp of display in map
+			// show timestamp of the last request in legend
+			let currentTimestamp = Date.now();
+			let currentTimestampAsDate = new Date(currentTimestamp);
+			let splittedRequestTimestamp = currentTimestampAsDate.toString().split("(");
+			let formattedRequestTimestamp = splittedRequestTimestamp[0];
+			let timestampLastRequest = document.getElementById("timestampLastRequest");
+			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedRequestTimestamp;
+			// ***************************************************************************************************************
 
-		//see if layer needs to be updated or added
-		let sourceObject = map.getSource("rainradar");
-		// if there is already an existing Source of this map with the given layerID ...
-		if (typeof sourceObject !== 'undefined') {
-			// reset data
-			sourceObject.setData(result.geometry);
-			//if data is not yet in map
-		} else {
-		// display
-		map.addSource("rainradar", {
-			"type": "geojson",
-			"data": result.geometry
-		});
+			//see if layer needs to be updated or added
+			let sourceObject = map.getSource("rainradar");
+			// if there is already an existing Source of this map with the given layerID ...
+			if (typeof sourceObject !== 'undefined') {
+				// reset data
+				sourceObject.setData(result.geometry);
+				//if data is not yet in map
+			} else {
+				// display
+				map.addSource("rainradar", {
+					"type": "geojson",
+					"data": result.geometry
+				});
 
-		map.addLayer({
-			"id": "rainradar",
-			"type": "fill",
-			"source": "rainradar",
-			"layout": {"visibility": "visible"},
-			"paint": {
-				"fill-color" : {
-					"property": "class",
-					"stops": [
-						[1, '#b3cde0'],
-						[2, '#6497b1'],
-						[3, '#03396c'],
-						[4, '#011f4b']
-					]
-				},
-				"fill-opacity": 0.4
+				map.addLayer({
+					"id": "rainradar",
+					"type": "fill",
+					"source": "rainradar",
+					"layout": {"visibility": "visible"},
+					"paint": {
+						"fill-color" : {
+							"property": "class",
+							"stops": [
+								[1, '#b3cde0'],
+								[2, '#6497b1'],
+								[3, '#03396c'],
+								[4, '#011f4b']
+							]
+						},
+						"fill-opacity": 0.4
+					}
+				});
+				customLayerIds.push('rainradar');
 			}
-		});
-		customLayerIds.push('rainradar');
-	}
+		}
 	});
 }
-// *****************************************************************************************************
+
+
 
 /**
-	* function that sets a timeout for the start of the radar-requesting routine
-	* @author Jonathan Bahlmann
-	*/
+* function that sets a timeout for the start of the radar-requesting routine
+* @author Jonathan Bahlmann
+*/
 function intervalRainRadar() {
 	let refresh = paramArray.config.refresh_rate;
 	let prod;
@@ -393,9 +403,9 @@ function intervalRainRadar() {
 }
 
 /**
-	* callback for timeout. handles the API call and updates map if necessary
-	* @author Jonathan Bahlmann
-	*/
+* callback for timeout. handles the API call and updates map if necessary
+* @author Jonathan Bahlmann
+*/
 function callRainRadar(prod) {
 	// progress update info
 	$('#information').html("Retrieving the requested " + prod + " radar product");
@@ -416,6 +426,7 @@ function callRainRadar(prod) {
 setInterval(intervalRainRadar, paramArray.config.refresh_rate);
 
 // *****************************************************************************************************
+
 
 /**
 * @desc
@@ -467,31 +478,32 @@ function requestNewAndDisplayCurrentUnwetters(map){
 
 	// if the request is done successfully, ...
 	.done(function (result) {
-		// ... give a notice on the console that the AJAX request for inserting many items has succeeded
-		console.log("AJAX request (finding and inserting tweets) is done successfully.");
-		displayCurrentUnwetters(result.events);
+		// ... give a notice on the console that the AJAX request for ........... has succeeded
+		console.log("AJAX request (????) is done successfully.");
+
+		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
+		if (readURL("wtype") == "unwetter") {
+			// display the timestamp of the last request in the legend
+			let splittedTimestamp = Date(currentTimestamp).split("(");
+			let formattedTimestamp = splittedTimestamp[0];
+			let timestampLastRequest = document.getElementById("timestampLastRequest");
+			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+
+			//
+			displayCurrentUnwetters(result.events);
+		}
 	})
 
 	// if the request has failed, ...
 	.fail(function (xhr, status, error) {
-		// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
-		console.log("AJAX request (finding and inserting tweets) has failed.", error);
+		// ... give a notice that the AJAX request for .......... has failed and show the error on the console
+		console.log("AJAX request (?????) has failed.", error);
 
 		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 		if (error === "timeout") {
 			//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
 		}
 	});
-
-	// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN RADAR-LEGENDE REIN,
-	// FALLS NACH UNWETTER-MENÜ-AUFRUF DIREKT RADAR AUFGERUFEN WURDE UND UNWETTER NOCH VERARBEITET WERDEN!!!!
-	if (paramArray.wtype != "radar"){
-		// display the timestamp of the last request in the legend
-		let splittedTimestamp = Date(currentTimestamp).split("(");
-		let formattedTimestamp = splittedTimestamp[0];
-		let timestampLastRequest = document.getElementById("timestampLastRequest");
-		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
-	}
 }
 
 
@@ -508,11 +520,8 @@ function displayCurrentUnwetters(currentUnwetters) {
 	// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
 	let unwetterFeature;
 
-	// *************************************************************************************************************
-
 	// remove layer and source of those Unwetter which are expired from map and remove its layerID from customLayerIds
 	findAndRemoveOldLayerIDs(currentUnwetters);
-
 
 	// iteration over all Unwetter in the database
 	for (let i = 0; i < currentUnwetters.length; i++) {
@@ -520,10 +529,7 @@ function displayCurrentUnwetters(currentUnwetters) {
 		let currentUnwetterEvent = currentUnwetters[i];
 
 		// TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
-
-
 		let searchWords = [];
-
 
 		// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
 		// FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
@@ -592,7 +598,6 @@ function displayCurrentUnwetters(currentUnwetters) {
 function displayEvent(map, layerID, eventFeatureCollection) {
 	console.log(eventFeatureCollection);
 
-	// TODO: falls diese Funktion auch für Radardaten verwendet wird, dann Kommentare anpassen
 	//
 	let sourceObject = map.getSource(layerID);
 
@@ -719,24 +724,6 @@ function displayEvent(map, layerID, eventFeatureCollection) {
 		addLayerToMenu(layerID); // TODO: auch hier alte entfernen, oder passiert das eh automatisch?
 		customLayerIds.push(layerID);
 	}
-
-	// https://github.com/mapbox/mapbox-gl-js/issues/908#issuecomment-254577133
-	// https://docs.mapbox.com/help/how-mapbox-works/map-design/#data-driven-styles
-	// https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/
-
-
-	// TODO: oder wie folgt die Farben verwenden, die vom DWD direkt mitgegeben werden, aber diese passen vermutlich nicht zu unserem Rest?
-	/*
-	map.addLayer({
-	"id": layerID,
-	"type": "fill",
-	"source": layerID,
-	"paint": {
-	"fill-color": ["get", "color"],
-	"fill-opacity": 0.3
-}
-});
-*/
 }
 
 
@@ -850,6 +837,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 					dwd_id: layerIDSplit[2],
 					currentTimestamp: currentTimestamp
 				};
+
 				$.ajax({
 					// use a http POST request
 					type: "POST",

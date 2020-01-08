@@ -11,9 +11,7 @@ map:
     - 51.2
   zoom: 5
 refresh_rate: 300000
-timestamp_last_Unwetter_request: 1578502403008
-timestamp_last_radar_request: null
-max_difference_timestamp: 3000000
+timestamp_last_warnings_request: null
 max_age_tweets: null
 keys:
   twitter:

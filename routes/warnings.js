@@ -38,8 +38,8 @@ const getWarningsForTime = function(req, res, next) {
 
     // TODO: überprüfen, ob < oder > oder = passt (serverseitig)
 
-    // 10 timesteps = 50 minutes = 3000000 milliseconds
-    let timestampDeleting = currentTimestamp - config.max_difference_timestamp;
+    // timestampDeleting = currentTimestamp - 10 timesteps
+    let timestampDeleting = currentTimestamp - (config.refresh_rate * 10);
 
     promiseToUpdateItems({type: "unwetter"}, {"$pull": {"timestamps": {"$lt": timestampDeleting}}},
     req.db)
@@ -51,7 +51,7 @@ const getWarningsForTime = function(req, res, next) {
         for (let u = 0; u < response.length; u++) {
           oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
         }
-        // if there are old Unwetter existing (older than 50 minutes),
+        // if there are old Unwetter existing (older than 10 timesteps),
         // delete them and their corresponding tweets
         if (oldUnwetterIDs.length > 0) {
           promiseToDeleteItems({$and: [{"$or": [{"type": "unwetter"}, {"type": "tweet"}]}, {"$or": oldUnwetterIDs}]}, req.db)
@@ -88,9 +88,7 @@ const getWarningsForTime = function(req, res, next) {
     processUnwettersFromDWD(currentTimestamp, req.db)
     .then(function () {
 
-      // TODO: serverseitig currentTimestamp in config-yaml speichern!!
-      // TODO: auch für radar machen
-      updateCurrentTimestampInConfigYaml(currentTimestamp, "Unwetter");
+      updateCurrentTimestampInConfigYaml(currentTimestamp);
 
       // JSON with the query for getting only all current Unwetter out of database
       let query = {
