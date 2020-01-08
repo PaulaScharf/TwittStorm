@@ -340,13 +340,10 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 		// TODO: folgendes anpassen, dazu currentTimestamp der requestAndDisplayAllRainRadar übergeben!!!
 		// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN UNWETTER-LEGENDE REIN,
 		// FALLS NACH RADAR-MENÜ-AUFRUF DIREKT UNWETTER AUFGERUFEN WURDE UND RADAR NOCH VERARBEITET WERDEN!!!!
-		/*	if (paramArray.wtype != "radar"){
-		// display the timestamp of the last request in the legend
-		let splittedTimestamp = Date(currentTimestamp).split("(");
-		let formattedTimestamp = splittedTimestamp[0];
+
+		let now = Date.now();
 		let timestampLastRequest = document.getElementById("timestampLastRequest");
-		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
-		*/
+		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + new Date(now);
 		// ***************************************************************************************************************
 
 
