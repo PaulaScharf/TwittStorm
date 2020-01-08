@@ -15,6 +15,8 @@ allLayers = [];
 
 timestampStorage = [];
 
+wtypeFlag = []
+
 
 /**
 * @desc Based on the showMap function in the mapbox.js file.
@@ -111,7 +113,82 @@ function showAnimationMap(style) {
     // enable drawing the area-of-interest-polygons
     drawForAOI(map);
 
-    loadPreviousWeather(map);
+    if (paramArray.wtype == "radar") {
+			// set the flag to radar
+			wtypeFlag = "radar";
+
+			// toggle the menu tabs for radar and severe weather to active or not active
+			var rasterMenuToggle = document.getElementById('raster');
+			rasterMenuToggle.classList.toggle("active");
+			var severeWeatherMenuToggle = document.getElementById('severeWeather');
+			severeWeatherMenuToggle.classList.remove("active");
+
+			// if timestamp undefined
+			if (paramArray.timestamp == undefined) {
+				let now = Date.now();
+				// define it to now
+				paramArray.timestamp = now;
+				updateURL("timestamp", now);
+			}
+			updateURL("timestamp", paramArray.timestamp);
+      if (paramArray.rasterProduct !== undefined) {
+
+        //showLegend(map, "radar", paramArray.rasterProduct);
+
+        // display rain radar
+      //  requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.timestamp);
+
+        // check the checkbox of the radar submenu according to the chosen product
+        if (paramArray.rasterProduct === "ry") {
+          var innerRasterCheckToggle1 = document.getElementById('radio1');
+          innerRasterCheckToggle1.checked = true;
+        }
+        if (paramArray.rasterProduct === "rw") {
+          let innerRasterCheckToggle2 = document.getElementById('radio2');
+          innerRasterCheckToggle2.checked = true;
+        }
+        if (paramArray.rasterProduct === "sf") {
+          var innerRasterCheckToggle3 = document.getElementById('radio3');
+          innerRasterCheckToggle3.checked = true;
+        }
+loadPreviousWeather(map, wtypeFlag)
+      }
+      // if radarproduct is undefined
+      else {
+        // default radar case (rw)
+      //  showLegend(map, "radar", "rw");
+        loadPreviousWeather(map, wtypeFlag);
+
+        updateURL("rasterProduct", "rw");
+        let innerRasterCheckToggle2 = document.getElementById('radio2');
+        innerRasterCheckToggle2.checked = true;
+      }
+    }
+    if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
+
+			//set URL to requested wtype
+			updateURL("wtype", "unwetter");
+			updateURL("radProd", "");
+
+			// set the flag to severe weather
+			wtypeFlag = "severeWeather";
+
+			// toggle the menu tabs for radar and severe weather to active or not active
+			var rasterMenuToggle = document.getElementById('raster');
+			rasterMenuToggle.classList.remove("active");
+			var severeWeatherMenuToggle = document.getElementById('severeWeather');
+			severeWeatherMenuToggle.classList.add("active");
+
+			showLegend(map, "unwetter");
+
+			// the last Unwetter request was "hm"-milliseconds ago
+			let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_Unwetter_request;
+      loadPreviousWeather(map, wtypeFlag);
+
+
+    }
+
+
 
     document
     .getElementById('slider')
@@ -125,6 +202,9 @@ loadAnimation(timestampNum, map)
 automate(map);
 
 };
+
+
+
 
 
 /**
@@ -205,8 +285,29 @@ function loadAnimation(position, map){
   }
   //flus array in case
 allLayers = [];
-
 // add the correct layer
+if (wtypeFlag =="radar"){
+map.addLayer({
+  "id": posMarker,
+  "type": "fill",
+  "source": posMarker,
+  "layout": {"visibility": "visible"},
+  "paint": {
+    "fill-color" : {
+      "property": "class",
+      "stops": [
+        [1, '#b3cde0'],
+        [2, '#6497b1'],
+        [3, '#03396c'],
+        [4, '#011f4b']
+      ]
+    },
+    "fill-opacity": 0.4
+  }
+});
+}
+
+if (wtypeFlag =="severeWeather"){
   map.addLayer({
 'id': posMarker,
 'type': 'fill',
@@ -215,6 +316,8 @@ allLayers = [];
 'fill-color': 'red',
 'fill-opacity': 0.5
 }});
+}
+
 
 // put something in the array for the for loop to check for emptiness
 allLayers.push(posMarker);
@@ -227,13 +330,23 @@ allLayers.push(posMarker);
 * @param map Links to the map
 * @author Benjamin Rieke
 */
-function loadPreviousWeather(map){
+function loadPreviousWeather(map, weatherEv){
+  console.log(weatherEv);
+var weatherEvent;
+if(weatherEv == "radar"){
+  weatherEvent = "rainRadar/"
+
+}
+if (weatherEv == "severeWeather"){
+  weatherEvent = "unwetter/"
+
+}
 
 $.ajax({
   // use a http GET request
   type: "GET",
   // URL to send the request to
-  url: "/previousWeather/" + "unwetter/" + currentTimestamp,
+  url: "/previousWeather/" + weatherEvent + currentTimestamp,
   // type of the data that is sent to the server
   contentType: "application/json; charset=utf-8",
   // timeout set to 15 seconds
@@ -249,7 +362,7 @@ $.ajax({
 
     // for every timestamp
     for (let key in result) {
-      if (key == "type"){
+      if (key == "type" || key=="length"){
       }
       else {
         //log the individual timestamp to refer to them later
@@ -257,33 +370,41 @@ $.ajax({
 
         // flush the outputarray with each call
         outputArray = [];
+        console.log(key);
 
 // for every unwetter in the response
-  for (let j = 0; j < key.length; j++){
+  for (let j = 0; j < result[key].length; j++){
 
       // take every unwetter and save its coordinates
-      let currentUnwetter = result[key][j].geometry;
-
+       let currentUnwetter = result[key][j].geometry;
+console.log(currentUnwetter);
 // gjson structure
 var mask = {
 "timestamp": key,
-"type": "Animation",
+"type": weatherEvent,
 "geometry": {
 "type": "FeatureCollection",
     }
 };
-
+console.log(currentUnwetter);
 // put every polygon from a unwetterwarning into one array
-for (let i = 0; i < currentUnwetter.length; i++ ){
+
+if (weatherEv == "severeWeather"){
+  for (let i = 0; i < currentUnwetter.length; i++ ){
   //transform the polygon into geojson
   var polygon = goGeoJson(currentUnwetter[i].coordinates, key);
       // array to save every timestamp´s polygon
     outputArray.push(polygon);
 }
-
-// add the current events to the geojson for each timestamp
 mask.geometry.features = outputArray;
 
+}
+
+// add the current events to the geojson for each timestamp
+if (weatherEv == "radar"){
+
+mask.geometry.features = currentUnwetter;
+}
 
   };
 
@@ -355,10 +476,22 @@ function addItem(item) {
 * @author Benjamin Rieke
 */
 function addToSource(map, layerID, previousFeatureCollection){
+  console.log(previousFeatureCollection.type);
 
+
+  if(previousFeatureCollection.type =="rainRadar/"){
     map.addSource(layerID, {
       type: 'geojson',
-      data: previousFeatureCollection.geometry
+      data: previousFeatureCollection.geometry.features
     });
+}
+
+if(previousFeatureCollection.type =="unwetter/"){
+  console.log(previousFeatureCollection);
+  map.addSource(layerID, {
+    type: 'geojson',
+    data: previousFeatureCollection.geometry
+  });
+}
 
 }
