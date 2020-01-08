@@ -156,28 +156,28 @@ function msToMin(ms) {
 */
 function panMapWithButton(directionToPan) {
 
-	// TODO: so noch unsinnig, da Verschiebung um x Grad nicht abhängig von Zoomlevel ist
-
 	let center = map.getCenter();
 	let newCenter;
 
+let panLong = 160 * Math.pow(0.51, map.getZoom());
+let panLat = 90 * Math.pow(0.51, map.getZoom());
+
 	switch (directionToPan) {
 		case (directionToPan = "left"):
-		newCenter = [center.lng - 1, center.lat];
+		newCenter = [center.lng - panLong, center.lat];
 		break;
 		case (directionToPan = "right"):
-		newCenter = [center.lng + 1, center.lat];
+		newCenter = [center.lng + panLong, center.lat];
 		break;
 		case (directionToPan = "up"):
-		newCenter = [center.lng, center.lat + 1];
+		newCenter = [center.lng, center.lat + panLat];
 		break;
 		case (directionToPan = "down"):
-		newCenter = [center.lng, center.lat - 1];
+		newCenter = [center.lng, center.lat - panLat];
 		break;
 	}
 
 	map.panTo(newCenter);
-	// map.panBy();
 }
 
 
