@@ -243,7 +243,7 @@ function showMap(style) {
 				// default radar case (rw)
 				showLegend(map, "radar", "rw");
 				requestAndDisplayAllRainRadar(map, 'rw', paramArray.timestamp);
-				updateURL("rasterProduct", "rw");
+				updateURL("radProd", "rw");
 				let innerRasterCheckToggle2 = document.getElementById('radio2');
 				innerRasterCheckToggle2.checked = true;
 			}
@@ -255,7 +255,6 @@ function showMap(style) {
 
 			//set URL to requested wtype
 			updateURL("wtype", "unwetter");
-			updateURL("radProd", "");
 
 			// set the flag to severe weather
 			wtypeFlag = "severeWeather";
@@ -325,20 +324,27 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
 
-		// show timestamp of current radar data in legend
-		let dataTimestamp = document.getElementById("dataTimestamp");
-		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + new Date(result.timestamp);
-
 		// ***************************************************************************************************************
 		// TODO: PROBLEM: FOLGENDES SCHREIBT AUCH IN UNWETTER-LEGENDE REIN,
 		// FALLS NACH RADAR-MENÜ-AUFRUF DIREKT UNWETTER AUFGERUFEN WURDE UND RADAR NOCH VERARBEITET WERDEN!!!!
+
+		// show timestamp of current radar data in legend
+		let dataTimestamp = document.getElementById("dataTimestamp");
+		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + new Date(result.timestamp);
 
 		let now = Date.now();
 		let timestampLastRequest = document.getElementById("timestampLastRequest");
 		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + new Date(now);
 		// ***************************************************************************************************************
 
-
+		//see if layer needs to be updated or added
+		let sourceObject = map.getSource("rainradar");
+		// if there is already an existing Source of this map with the given layerID ...
+		if (typeof sourceObject !== 'undefined') {
+			// reset data
+			sourceObject.setData(result.geometry);
+			//if data is not yet in map
+		} else {
 		// display
 		map.addSource("rainradar", {
 			"type": "geojson",
@@ -364,10 +370,15 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 			}
 		});
 		customLayerIds.push('rainradar');
+	}
 	});
 }
 // *****************************************************************************************************
 
+/**
+	* function that sets a timeout for the start of the radar-requesting routine
+	* @author Jonathan Bahlmann
+	*/
 function intervalRainRadar() {
 	let refresh = paramArray.config.refresh_rate;
 	let prod;
@@ -377,20 +388,34 @@ function intervalRainRadar() {
 		prod = "rw";
 	}
 
-	// pause for 30sec
+	// pause for 20sec
 	window.setTimeout(callRainRadar, 20000, prod);
 }
 
+/**
+	* callback for timeout. handles the API call and updates map if necessary
+	* @author Jonathan Bahlmann
+	*/
 function callRainRadar(prod) {
+	// progress update info
 	$('#information').html("Retrieving the requested " + prod + " radar product");
 	// make call
 	let url = "/radar/" + prod + "/latest";
 	$.getJSON(url, function(result) {
 		console.log("automatically requested new rainRadar data");
+		// read from url
+		let wtype = readURL("wtype");
+		// if radar is currently shown, update the map
+		if(wtype == "radar") {
+			requestAndDisplayAllRainRadar(map, prod, 1);
+		}
 	});
 }
 
+// set Interval to accumulate radar data for the animation
 setInterval(intervalRainRadar, paramArray.config.refresh_rate);
+
+// *****************************************************************************************************
 
 /**
 * @desc

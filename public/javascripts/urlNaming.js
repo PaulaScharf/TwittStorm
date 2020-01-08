@@ -9,7 +9,7 @@
 	* @author Jonathan Bahlmann
 	* @param param the parameter to be updated/inserted
 	* @param newString the value to above mentioned parameter
-	* @example updateURL("wtype", "newType");
+	* @example updateURL("wtype", "radar");
 	*/
 function updateURL(param, newString) {
 	let toInsert = param + "=" + newString;
@@ -52,4 +52,33 @@ function updateURL(param, newString) {
 
 	//write this to url
 	history.pushState({}, '', newURL);
+}
+
+/**
+	* @desc
+	* function to read a specified parameter from the current URL
+	* @author Jonathan Bahlmann
+	* @param string Parameter to be returned
+	* @returns parameter value
+	*/
+function readURL(param) {
+	// result
+	let value;
+
+	let oldURL = document.location.href;
+	let index = oldURL.indexOf(param);
+	let url = oldURL.slice(index, oldURL.length);
+	let indexOfEqual = url.search("=");
+	let indexOfAnd = url.search("&");
+	// if and is not found, it is end of string
+	if(indexOfAnd < 0) {
+		indexOfAnd = url.length;
+	}
+
+	if(index > 0) {
+		value = url.slice(indexOfEqual + 1, indexOfAnd);
+		return value;
+	} else {
+		return "parameter not found."
+	}
 }
