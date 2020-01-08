@@ -10,7 +10,7 @@
 */
 
 // list of parameters, possibly for input checking
-let paramList = "wtype, radProd, radClass, mapZoom, mapCenter, timestamp, aoi, base";
+let paramList = "wtype, radProd, mapZoom, mapCenter, timestamp, aoi, base";
 
 
 var express = require('express');
