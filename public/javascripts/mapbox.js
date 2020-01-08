@@ -324,7 +324,7 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
-		console.log(result);
+		//console.log(result);
 
 		//result is array of rainRadar JSONs
 		//result[result.length - 1] is most recent one -- insert variable
@@ -333,7 +333,7 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 
 		// show timestamp of current radar data in legend
 		let dataTimestamp = document.getElementById("dataTimestamp");
-		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + Date(result.timestamp);
+		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + new Date(result.timestamp);
 
 
 		// ***************************************************************************************************************
