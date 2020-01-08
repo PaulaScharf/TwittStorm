@@ -35,7 +35,6 @@ router.get('/map', function(req, res, next) {
     "aoi": req.query.aoi,
     "wtype": req.query.wtype,
     "rasterProduct": req.query.radProd,
-    "rasterClassification": req.query.radClass,
     "base": req.query.base,
     "mapZoom": req.query.mapZoom,
     "mapCenter": req.query.mapCenter,
