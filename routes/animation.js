@@ -147,8 +147,12 @@ var previousWeather = function(req, res) {
             let answer = {
               "type": "previousRainRadar",
               "length": result.length,
-              "radarImages": result
+              //"radarImages": result
             };
+
+            result.forEach(function(image) {
+              answer[image.timestamp] = [image];
+            });
 
             res.json(answer);
 
