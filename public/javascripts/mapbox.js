@@ -144,7 +144,7 @@ function showMap(style) {
 	// if not yet in URL, get value from config.yaml
 	if (paramArray.mapZoom == undefined) {
 		zoomURL = paramArray.config.map.zoom;
-		updateURL("mapZoom", "zoomURL");
+		updateURL("mapZoom", zoomURL);
 		// otherwise use value from URL
 	} else {
 		zoomURL = paramArray.mapZoom;
@@ -153,7 +153,7 @@ function showMap(style) {
 	// if not yet in URL, get value from config.yaml
 	if (paramArray.mapCenter == undefined) {
 		centerURL = paramArray.config.map.center;
-		updateURL("mapCenter", "centerURL");
+		updateURL("mapCenter", centerURL);
 		// otherwise use value from URL
 	} else {
 		centerURL = JSON.parse(paramArray.mapCenter);
@@ -224,15 +224,18 @@ function showMap(style) {
 
 		// ************************* load Rain Radar data **************************
 
+let rasterMenuToggle;
+let severeWeatherMenuToggle;
+
 		// TODO: folgendes if durch (readURL("wtype") == "radar") ersetzen? etc...
 		if (paramArray.wtype == "radar") {
 			// set the flag to radar
 			wtypeFlag = "radar";
 
 			// toggle the menu tabs for radar and severe weather to active or not active
-			var rasterMenuToggle = document.getElementById('raster');
+			rasterMenuToggle = document.getElementById('raster');
 			rasterMenuToggle.classList.toggle("active");
-			var severeWeatherMenuToggle = document.getElementById('severeWeather');
+			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
 			// if timestamp undefined
@@ -291,9 +294,9 @@ function showMap(style) {
 			wtypeFlag = "severeWeather";
 
 			// toggle the menu tabs for radar and severe weather to active or not active
-			var rasterMenuToggle = document.getElementById('raster');
+			rasterMenuToggle = document.getElementById('raster');
 			rasterMenuToggle.classList.remove("active");
-			var severeWeatherMenuToggle = document.getElementById('severeWeather');
+			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.add("active");
 
 			showLegend(map, "unwetter");

@@ -11,26 +11,26 @@
 
 // ****************************** global variables *****************************
 
-currentTimestamp = Date.now();
+let currentTimestamp = Date.now();
 
-var usedTimestamps = [];
+let usedTimestamps = [];
 
-var outputArray = [];
+let outputArray = [];
 
-final = [];
+let final = [];
 
-mask = [];
+let mask = [];
 
-allLayers = [];
+let allLayers = [];
 
-timestampStorage = [];
+let timestampStorage = [];
 
 wtypeFlag = [];
 
 
 /**
 * @desc Based on the showMap function in the mapbox.js file.
-*minimized to fulfill the animationsmap purpose
+* minimized to fulfill the animationsmap purpose
 * This function is called, when "animation.ejs" is loaded.
 * @author Katharina Poppinga, Jonathan Bahlmann, Benjamin Rieke
 */
@@ -120,14 +120,18 @@ function showAnimationMap(style) {
     // enable drawing the area-of-interest-polygons
     drawForAOI(map);
 
+
+    let rasterMenuToggle;
+    let severeWeatherMenuToggle;
+
     if (paramArray.wtype == "radar") {
       // set the flag to radar
       wtypeFlag = "radar";
 
       // toggle the menu tabs for radar and severe weather to active or not active
-      var rasterMenuToggle = document.getElementById('raster');
+      rasterMenuToggle = document.getElementById('raster');
       rasterMenuToggle.classList.toggle("active");
-      var severeWeatherMenuToggle = document.getElementById('severeWeather');
+      severeWeatherMenuToggle = document.getElementById('severeWeather');
       severeWeatherMenuToggle.classList.remove("active");
 
       // if timestamp undefined
@@ -181,9 +185,9 @@ function showAnimationMap(style) {
       wtypeFlag = "severeWeather";
 
       // toggle the menu tabs for radar and severe weather to active or not active
-      var rasterMenuToggle = document.getElementById('raster');
+      rasterMenuToggle = document.getElementById('raster');
       rasterMenuToggle.classList.remove("active");
-      var severeWeatherMenuToggle = document.getElementById('severeWeather');
+      severeWeatherMenuToggle = document.getElementById('severeWeather');
       severeWeatherMenuToggle.classList.add("active");
 
       showLegend(map, "unwetter");
@@ -221,7 +225,7 @@ function automate(map){
 
     automationIntervall = undefined;
     // value of the slider (the position)
-    val = document.getElementById('slider').value;
+    let val = document.getElementById('slider').value;
     // maximum of the slider
     document.getElementById('slider').max = usedTimestamps.length-1;
 
@@ -379,7 +383,7 @@ function loadAnimation(position, map){
             let currentUnwetter = result[key][j].geometry;
             console.log(currentUnwetter);
             // gjson structure
-            var mask = {
+            mask = {
               "timestamp": key,
               "type": weatherEvent,
               "geometry": {
@@ -415,7 +419,7 @@ function loadAnimation(position, map){
 
       console.log(final);
       // for every timestamp in the final object
-      for (i = 0; i < final.length; i++){
+      for (let i = 0; i < final.length; i++){
         //add the according data to an mapbox source
         addToSource(map, final[i].timestamp ,  final[i]);
       }
