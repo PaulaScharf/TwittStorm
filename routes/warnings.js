@@ -91,8 +91,8 @@ const getWarningsForTime = function(req, res, next) {
       updateCurrentTimestampInConfigYaml(currentTimestamp);
 
 
-// TODO: hier nicht als promise nötig??
-getWarningsFromDB(currentTimestamp, req.db, res, next);
+      // TODO: hier nicht als promise nötig??
+      getWarningsFromDB(currentTimestamp, req.db, res, next);
 
 
     }, function (error) {
@@ -400,26 +400,20 @@ function groupByArray(xs, key) {
 
 
 
-
-
-
 // TODO: konform mit API Doc ??????
 /**
 *
-* @author
+* @author Katharina Poppinga
 * @param req
 * @param res
 * @param next
 * @returns {*}
 */
 const readWarningsForTime = function(req, res, next) {
+
   try {
-
-//let timestampLastWarningsRequest = JSON.parse(req.params.timestampLastWarningsRequest);
-let timestampLastWarningsRequest = JSON.parse(req.params.timestamp);
-
-getWarningsFromDB(timestampLastWarningsRequest, req.db, res, next) ;
-
+    let timestampLastWarningsRequest = JSON.parse(req.params.timestamp);
+    getWarningsFromDB(timestampLastWarningsRequest, req.db, res, next) ;
 
   } catch (error) {
     error.httpStatusCode = 500;
@@ -428,8 +422,9 @@ getWarningsFromDB(timestampLastWarningsRequest, req.db, res, next) ;
 };
 
 
-
 router.route("/:timestamp").get(getWarningsForTime);
+
+// TODO: route umbenennen !!!!!!!!!!!!!!!!!!
 router.route("/test/:timestamp").get(readWarningsForTime);
 
 module.exports = router;

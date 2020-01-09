@@ -159,8 +159,8 @@ function panMapWithButton(directionToPan) {
 	let center = map.getCenter();
 	let newCenter;
 
-let panLong = 160 * Math.pow(0.51, map.getZoom());
-let panLat = 90 * Math.pow(0.51, map.getZoom());
+	let panLong = 160 * Math.pow(0.51, map.getZoom());
+	let panLat = 90 * Math.pow(0.51, map.getZoom());
 
 	switch (directionToPan) {
 		case (directionToPan = "left"):
@@ -284,8 +284,8 @@ function openMenu(button, menu) {
 	}
 	// if severe weather is selected automatically open up the severe weather submenu
 	else {
-			var innerUnwetterMenuToggle = document.getElementById('menu');
-			innerUnwetterMenuToggle.style.display = "block";
+		var innerUnwetterMenuToggle = document.getElementById('menu');
+		innerUnwetterMenuToggle.style.display = "block";
 	};
 
 
@@ -467,25 +467,25 @@ function removeUnwetter(){
 		// layerIdParts[0] contains the type of layer-element
 		if (layerIdParts[0] === "unwetter") {
 
-				// remove the corresponding layer and source from map for not displaying this Unwetter any longer
-				map.removeLayer(layerID);
-				map.removeSource(layerID);
-				console.log("removed unwetter");
+			// remove the corresponding layer and source from map for not displaying this Unwetter any longer
+			map.removeLayer(layerID);
+			map.removeSource(layerID);
+			console.log("removed unwetter");
 
-				// removes 1 element at index i from Array customLayerIds
-				customLayerIds.splice(i, 1);
+			// removes 1 element at index i from Array customLayerIds
+			customLayerIds.splice(i, 1);
 
-				// for not omitting one layerID in this for-loop after removing one
-				i--;
+			// for not omitting one layerID in this for-loop after removing one
+			i--;
 
-			};
-}
-// remove the active attribute from the severe weather tab
-var menuToggle = document.getElementById('severeWeather');
-menuToggle.classList.remove("active");
-// hide the svere weather sub menu
-var selectionToggle = document.getElementById('menu');
-selectionToggle.style.display = "none";
+		};
+	}
+	// remove the active attribute from the severe weather tab
+	var menuToggle = document.getElementById('severeWeather');
+	menuToggle.classList.remove("active");
+	// hide the svere weather sub menu
+	var selectionToggle = document.getElementById('menu');
+	selectionToggle.style.display = "none";
 
 }
 
@@ -599,28 +599,24 @@ function showUnwetterPopup(map, e) {
 			if (picked[0].source.includes("unwetter")) {
 
 				// formatting timestamp for cutting the textual description of timestamp
-				let onset = new Date(picked[0].properties.onset);
-				let expires = new Date(picked[0].properties.expires);
-				let onsetStrings = onset.toString().split("(");
-				let expiresStrings = expires.toString().split("(");
-				let formattedOnsetTimestamp = onsetStrings[0];
-				let formattedExpiresTimestamp = expiresStrings[0];
+				let formattedOnsetTimestamp = timestampFormatting(picked[0].properties.onset);
+				let formattedExpiresTimestamp = timestampFormatting(picked[0].properties.expires);
 
 				// if an instruction (to the citizen, for acting/behaving) is given by the DWD ...
 				if (picked[0].properties.instruction !== "null") {
 					// ... create a popup with the following information: event-type, description, onset and expires timestamp (as MEZ) and an instruction
 					new mapboxgl.Popup()
-						.setLngLat(e.lngLat)
-						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + formattedOnsetTimestamp + "<br><b>expires: </b>" + formattedExpiresTimestamp + "<br>" + picked[0].properties.instruction)
-						.addTo(map);
+					.setLngLat(e.lngLat)
+					.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + formattedOnsetTimestamp + "<br><b>expires: </b>" + formattedExpiresTimestamp + "<br>" + picked[0].properties.instruction)
+					.addTo(map);
 				}
 				// if a instruction is not given by the DWD ...
 				else {
 					// ... create a popup with above information without an instruction
 					new mapboxgl.Popup()
-						.setLngLat(e.lngLat)
-						.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + formattedOnsetTimestamp + "<br><b>expires: </b>" + formattedExpiresTimestamp)
-						.addTo(map);
+					.setLngLat(e.lngLat)
+					.setHTML("<b>" + picked[0].properties.event + "</b>" + "<br>" + picked[0].properties.description + "<br><b>onset: </b>" + formattedOnsetTimestamp + "<br><b>expires: </b>" + formattedExpiresTimestamp)
+					.addTo(map);
 				}
 			}
 		}
@@ -645,9 +641,9 @@ function showTweetPopup(map, e) {
 			let idAsString = pickedTweet[0].properties.idstr;
 			// ... create a popup with the following information: ........
 			new mapboxgl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML("<div id='" + idAsString + "'></div>")
-				.addTo(map);
+			.setLngLat(e.lngLat)
+			.setHTML("<div id='" + idAsString + "'></div>")
+			.addTo(map);
 			twttr.widgets.createTweet(
 				idAsString,
 				document.getElementById(idAsString),

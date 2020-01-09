@@ -327,18 +327,14 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 		if (readURL("wtype") == "radar") {
 
 			// show timestamp of current radar data in legend
-			let timestampData = new Date(result.timestamp);
-			let splittedDataTimestamp = timestampData.toString().split("(");
-			let formattedDataTimestamp = splittedDataTimestamp[0];
+			let formattedDataTimestamp = timestampFormatting(result.timestamp);
 			let dataTimestamp = document.getElementById("dataTimestamp");
 			dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + formattedDataTimestamp;
 
 			// TODO: muss noch timestamp of request werden und nicht timestamp of display in map
 			// show timestamp of the last request in legend
 			let currentTimestamp = Date.now();
-			let currentTimestampAsDate = new Date(currentTimestamp);
-			let splittedRequestTimestamp = currentTimestampAsDate.toString().split("(");
-			let formattedRequestTimestamp = splittedRequestTimestamp[0];
+			let formattedRequestTimestamp = timestampFormatting(currentTimestamp);
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedRequestTimestamp;
 			// ***************************************************************************************************************
@@ -481,9 +477,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 		if (readURL("wtype") == "unwetter") {
 
 			// display the timestamp of the last request in the legend
-			let timestampDate = new Date(currentTimestamp);
-			let splittedTimestamp = timestampDate.toString().split("(");
-			let formattedTimestamp = splittedTimestamp[0];
+			let formattedTimestamp = timestampFormatting(currentTimestamp);
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
 
@@ -515,47 +509,45 @@ function requestNewAndDisplayCurrentUnwetters(map){
 */
 function readAndDisplayCurrentUnwetters(map, timestampLastWarningsRequest) {
 
-$.ajax({
-	// use a http GET request
-	type: "GET",
-	// URL to send the request to
-	// TODO: route , aus der dann getItems aus DB aufgerufen wird ??
-	url: "/warnings/test/" + timestampLastWarningsRequest,
-	// type of the data that is sent to the server
-	contentType: "application/json; charset=utf-8",
-	// timeout set to 15 seconds
-	timeout: 15000
-})
+	$.ajax({
+		// use a http GET request
+		type: "GET",
+		// URL to send the request to
+		// TODO: route umbenennen !!!!!!!!!!!!!!!!!!
+		url: "/warnings/test/" + timestampLastWarningsRequest,
+		// type of the data that is sent to the server
+		contentType: "application/json; charset=utf-8",
+		// timeout set to 15 seconds
+		timeout: 15000
+	})
 
-// if the request is done successfully, ...
-.done(function (result) {
-	// ... give a notice on the console that the AJAX request for ........... has succeeded
-	console.log("AJAX request (reading current warnings) is done successfully.");
+	// if the request is done successfully, ...
+	.done(function (result) {
+		// ... give a notice on the console that the AJAX request for ........... has succeeded
+		console.log("AJAX request (reading current warnings) is done successfully.");
 
-	// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
-	if (readURL("wtype") == "unwetter") {
+		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
+		if (readURL("wtype") == "unwetter") {
 
-		// display the timestamp of the last request in the legend
-		let timestampDate = new Date(timestampLastWarningsRequest);
-		let splittedTimestamp = timestampDate.toString().split("(");
-		let formattedTimestamp = splittedTimestamp[0];
-		let timestampLastRequest = document.getElementById("timestampLastRequest");
-		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+			// display the timestamp of the last request in the legend
+			let formattedTimestamp = timestampFormatting(timestampLastWarningsRequest);
+			let timestampLastRequest = document.getElementById("timestampLastRequest");
+			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
 
-		displayCurrentUnwetters(result.events);
-	}
-})
+			displayCurrentUnwetters(result.events);
+		}
+	})
 
-// if the request has failed, ...
-.fail(function (xhr, status, error) {
-	// ... give a notice that the AJAX request for .......... has failed and show the error on the console
-	console.log("AJAX request (reading current warnings) has failed.", error);
+	// if the request has failed, ...
+	.fail(function (xhr, status, error) {
+		// ... give a notice that the AJAX request for .......... has failed and show the error on the console
+		console.log("AJAX request (reading current warnings) has failed.", error);
 
-	// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-	if (error === "timeout") {
-		//JL("...").fatalException("ajax: '/...' timeout");
-	}
-});
+		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+		if (error === "timeout") {
+			//JL("...").fatalException("ajax: '/...' timeout");
+		}
+	});
 }
 
 
@@ -648,7 +640,7 @@ function displayCurrentUnwetters(currentUnwetters) {
 * @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of ......
 */
 function displayEvent(map, layerID, eventFeatureCollection) {
-	console.log(eventFeatureCollection);
+	//console.log(eventFeatureCollection);
 
 	//
 	let sourceObject = map.getSource(layerID);
@@ -1012,5 +1004,7 @@ function forEachLayer(cb) {
 */
 function timestampFormatting(timestamp) {
 
-
+	let timestampDate = new Date(timestamp);
+	let splittedTimestamp = timestampDate.toString().split("(");
+	return (splittedTimestamp[0]);
 }
