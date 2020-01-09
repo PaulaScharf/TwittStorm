@@ -440,7 +440,7 @@ function callRainRadar(prod) {
 	// make call
 	let url = "/radar/" + prod + "/latest";
 	$.getJSON(url, function(result) {
-		console.log("automatically requested new rainRadar data");
+		console.log("Automatically requested new rain radar data.");
 		// read from url
 		let wtype = readURL("wtype");
 		// if radar is currently shown, update the map

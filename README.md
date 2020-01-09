@@ -9,8 +9,11 @@ The Webpages are in the views folder and are in the .ejs format which can be use
 ## How to set things up
 To start the application via npm, navigate to the app's folder, open your commandprompt and enter <br/>
 `npm install`, `npm start` or <br/> `nodemon start` for dynamic changes.<br/>
-The application can be found with your browser at http://localhost:3000. <br/>
+The application can be found with your browser at http://localhost:3000.<br/>
+<br/>
 To start the application via docker, navigate to the app's folder in a dockershell and enter
-`docker-compose up --build`
-The application can be found with your browser at your IP:port. Eg: http://192.168.99.100:3000/. Your IP will be shown on start of the dockershell
+`docker-compose up --build`.<br/>
+The application can be found with your browser at your IP:port. E.g.: http://192.168.99.100:3000/.<br/>
+Your IP will be shown on start of the dockershell.<br/>
+ANPASSEN
 ## Tests
