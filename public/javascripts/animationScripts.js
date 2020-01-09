@@ -117,10 +117,6 @@ function showAnimationMap(style) {
     customLayerIds.push('boundaryGermany');
 
 
-    // enable drawing the area-of-interest-polygons
-    drawForAOI(map);
-
-
     let rasterMenuToggle;
     let severeWeatherMenuToggle;
 
