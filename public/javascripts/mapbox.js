@@ -286,6 +286,10 @@ function showMap(style) {
 		// TODO: folgendes if durch (readURL("wtype") == "unwetter") ersetzen? etc...
 		if (paramArray.wtype === "unwetter") {
 
+
+// TODO: radProd=# aus URL entfernen
+
+
 			// TODO: unnötig?
 			// set URL to requested wtype
 			updateURL("wtype", "unwetter");

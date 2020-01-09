@@ -51,18 +51,17 @@ function drawForAOI(map) {
 		});
 		draw.delete(pids);
 
+		// TODO: AOI in URL schreiben und auch aus URL auslesen und anzeigen in map muss möglich sein
+		let coordinatesAOI = e.features[0].geometry.coordinates[0];
+
 		zoomToCoordinates(e.features[0].geometry.coordinates[0]);
 		onlyShowUnwetterAndTweetsInPolygon(turf.polygon(e.features[0].geometry.coordinates));
 	});
-
-
-	// TODO: Absprechen, was passieren soll, wenn mehrere Polygone eingezeichnet werden
 
 	// if a polygon is deleted ...
 	map.on('draw.delete', function (e) {
 		showAllUnwetterAndNoTweets();
 	});
-
 
 	// if a polygon is edited/updated ...
 	map.on('draw.update', function (e) {
@@ -70,15 +69,14 @@ function drawForAOI(map) {
 		onlyShowUnwetterAndTweetsInPolygon(turf.polygon(e.features[0].geometry.coordinates));
 	});
 
-
 	// if a polygon is selected or deselected ...
 	map.on('draw.selectionchange', function (e) {
 		console.log("drawnPolygons-selectionchanged:");
 		console.log(e.features);
 	});
 
-// 
+	//
 	map.on('draw.modechange', function (e) {
-			popupsEnabled = (e.mode !== "draw_polygon");
+		popupsEnabled = (e.mode !== "draw_polygon");
 	})
 }
