@@ -28,6 +28,8 @@ let timestampStorage = [];
 wtypeFlag = [];
 
 
+
+
 /**
 * @desc Based on the showMap function in the mapbox.js file.
 * minimized to fulfill the animationsmap purpose
@@ -117,6 +119,50 @@ function showAnimationMap(style) {
     customLayerIds.push('boundaryGermany');
 
 
+    // add functionality for menu selection on radar product call
+    $("#radio1").click(function() {
+      updateURL("wtype", "radar")
+      updateURL("radProd", "ry")
+      wtypeFlag = "radar";
+      showLegend(map, "radar", "rw");
+      loadPreviousWeather(map, wtypeFlag);
+
+      //change the menu
+      var rasterMenuToggle = document.getElementById('raster');
+      rasterMenuToggle.classList.add("active");
+      var menuToggle = document.getElementById('severeWeatherAnimation');
+      menuToggle.classList.remove("active");
+    });
+
+
+    // add functionality for menu selection on severeweather call
+    $("#severeWeatherAnimation").click(function() {
+      updateURL("wtype", "unwetter")
+      wtypeFlag = "severeWeather";
+      showLegend(map, "unwetter");
+      loadPreviousWeather(map, wtypeFlag);
+
+      // update the menu
+      var rasterMenuToggle = document.getElementById('raster');
+      rasterMenuToggle.classList.remove("active");
+      var innerRasterMenuToggle = document.getElementById('rasterMenu');
+      innerRasterMenuToggle.style.display = "none";
+
+      //uncheck all raster products
+      var innerRasterCheckToggle1 = document.getElementById('radio1');
+      innerRasterCheckToggle1.checked = false;
+      var innerRasterCheckToggle2 = document.getElementById('radio2');
+      innerRasterCheckToggle1.checked = false;
+      var innerRasterCheckToggle3 = document.getElementById('radio3');
+      innerRasterCheckToggle3.checked = false;
+
+
+      // activate the severe weather tab
+      var severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
+      severeWeatherMenuToggle.classList.add("active");
+    });
+
+
     let rasterMenuToggle;
     let severeWeatherMenuToggle;
 
@@ -127,8 +173,8 @@ function showAnimationMap(style) {
       // toggle the menu tabs for radar and severe weather to active or not active
       rasterMenuToggle = document.getElementById('raster');
       rasterMenuToggle.classList.toggle("active");
-      severeWeatherMenuToggle = document.getElementById('severeWeather');
-      severeWeatherMenuToggle.classList.remove("active");
+      severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
+        severeWeatherMenuToggle.classList.remove("active");
 
       // if timestamp undefined
       if (paramArray.timestamp == undefined) {
@@ -140,7 +186,7 @@ function showAnimationMap(style) {
       updateURL("timestamp", paramArray.timestamp);
       if (paramArray.rasterProduct !== undefined) {
 
-        //showLegend(map, "radar", paramArray.rasterProduct);
+      //  showLegend(map, "radar", paramArray.rasterProduct);
 
         // display rain radar
         //  requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.timestamp);
@@ -163,7 +209,7 @@ function showAnimationMap(style) {
       // if radarproduct is undefined
       else {
         // default radar case (rw)
-        //  showLegend(map, "radar", "rw");
+        showLegend(map, "radar", "rw");
         loadPreviousWeather(map, wtypeFlag);
 
         updateURL("rasterProduct", "rw");
@@ -175,7 +221,6 @@ function showAnimationMap(style) {
 
       //set URL to requested wtype
       updateURL("wtype", "unwetter");
-      updateURL("radProd", "");
 
       // set the flag to severe weather
       wtypeFlag = "severeWeather";
@@ -183,7 +228,7 @@ function showAnimationMap(style) {
       // toggle the menu tabs for radar and severe weather to active or not active
       rasterMenuToggle = document.getElementById('raster');
       rasterMenuToggle.classList.remove("active");
-      severeWeatherMenuToggle = document.getElementById('severeWeather');
+      severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
       severeWeatherMenuToggle.classList.add("active");
 
       showLegend(map, "unwetter");
@@ -330,7 +375,11 @@ function loadAnimation(position, map){
   * @author Benjamin Rieke
   */
   function loadPreviousWeather(map, weatherEv){
-    console.log(weatherEv);
+    //flush the storage arrays
+    usedTimestamps = [];
+    timestampStorage = [];
+    console.log(final);
+
     var weatherEvent;
     if(weatherEv == "radar"){
       weatherEvent = "rainRadar/";
@@ -349,6 +398,7 @@ function loadAnimation(position, map){
       contentType: "application/json; charset=utf-8",
       // timeout set to 15 seconds
       timeout: 15000,
+
       success: function() {
         $('#information').html("Retrieving previous weather events");
       }
@@ -369,14 +419,12 @@ function loadAnimation(position, map){
 
           // flush the outputarray with each call
           outputArray = [];
-          console.log(key);
 
           // for every unwetter in the response
           for (let j = 0; j < result[key].length; j++){
 
             // take every unwetter and save its coordinates
             let currentUnwetter = result[key][j].geometry;
-            console.log(currentUnwetter);
             // gjson structure
             mask = {
               "timestamp": key,
@@ -385,7 +433,6 @@ function loadAnimation(position, map){
                 "type": "FeatureCollection",
               }
             };
-            console.log(currentUnwetter);
 
             // put every polygon from a unwetterwarning into one array
             if (weatherEv == "severeWeather"){
@@ -424,11 +471,6 @@ function loadAnimation(position, map){
     .fail(function (xhr, status, error) {
       // ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
       console.log("Requesting previous events has failed.", error);
-
-      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-      if (error === "timeout") {
-        JL("ajaxAnimationTimeout").fatalException("ajax: '/previousWeather/weatherEvent/currentTimestamp' timeout");
-      }
     });
   }
 
@@ -481,7 +523,6 @@ function loadAnimation(position, map){
   * @author Benjamin Rieke
   */
   function addToSource(map, layerID, previousFeatureCollection){
-    console.log(previousFeatureCollection.type);
 
     if(previousFeatureCollection.type =="rainRadar/"){
       map.addSource(layerID, {
@@ -491,7 +532,6 @@ function loadAnimation(position, map){
     }
 
     if(previousFeatureCollection.type =="unwetter/"){
-      console.log(previousFeatureCollection);
       map.addSource(layerID, {
         type: 'geojson',
         data: previousFeatureCollection.geometry
