@@ -11,6 +11,7 @@
   <link rel="stylesheet" type="text/css" href="/css/project.css">
   <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/mapbox/mapbox-gl.css"/>
+  <link rel="stylesheet" href="/mapbox-draw/mapbox-gl-draw.css"/>
   <link rel="stylesheet" href="/leaflet/leaflet.css"/>
 </head>
 
@@ -41,20 +42,20 @@
         <!-- Product selection menu -->
         <div id="productMenu" style="display:none">
           <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)" title="Request radar data">Radar</a>
-          <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu); loadSevereWeather();" title="Request severe weather data">Severe Weather</a>
+          <a href="#" id="severeWeatherAnimation" class="active" title="Request severe weather data">Severe Weather</a>
         </div>
 
         <!-- Raster selection menu -->
         <!-- Add functions for raster display here -->
         <div id="rasterMenu" class="inputGroup" style="display:none">
           <div>
-            <input id="radio1" name="radio" type="radio" onclick="loadRaster('ry');"> 5 Minutes</input>
+            <input id="radio1" name="radio" type="radio"> 5 Minutes</input>
           </div>
           <div>
-            <input id="radio2" name="radio" type="radio" onclick="loadRaster('rw');"> 60 Minutes</input>
+            <input id="radio2" name="radio" type="radio"> 60 Minutes</input>
           </div>
           <div>
-            <input id="radio3" name="radio" type="radio" onclick="loadRaster('sf');"> 24 Hours</input>
+            <input id="radio3" name="radio" type="radio" onclick="loadRaster('sf');">24 Hours</input>
           </div>
         </div>
 
@@ -156,8 +157,9 @@
   <script src="/popper/umd/popper.js"></script>
   <script src="/bootstrap/js/bootstrap.js"></script>
   <script src="/mapbox/mapbox-gl.js"></script>
+  <script src="/mapbox-draw/mapbox-gl-draw.js"></script>
   <script src="/leaflet/leaflet.js"></script>
-  <script src="/jsnlog/jsnlog.min.js"></script>
+  <script src="/turf/turf/turf.min.js"></script>
 
   <script>
     var paramArray = <%- JSON.stringify(paramArray) %>;
@@ -165,6 +167,7 @@
 
   <script src="/javascripts/urlNaming.js"></script>
   <script src="/javascripts/mapInteraction.js"></script>
-  <script src="/javascripts/germanyBoundary.js"></script>
+  <script src="/javascripts/mapboxDraw.js"></script>
   <script src="/javascripts/mapbox.js"></script>
+  <script src="/javascripts/germanyBoundary.js"></script>
   <script src="/javascripts/animationScripts.js"></script>
