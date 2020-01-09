@@ -11,6 +11,10 @@
 
 // TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
 
+
+// IN PARAM.ARRAY STEHEN DIE WERTE, DIE BEIM LADEN DER SEITE DRIN STANDEN, NICHT DIE, DIE ZWISCHENDURCH IN DIE URL AKTUALISIERT WURDEN
+
+
 // TODO: löschen, da nicht benötigt??
 mapboxgl.accessToken = paramArray.config.keys.mapbox.access_key;
 
@@ -116,13 +120,31 @@ function showMap(style) {
 	// enables the ability to choose between different mapstyles
 	styleSelector();
 
-	// declare var
+	let baseURL;
 	let zoomURL;
 	let centerURL;
+
+	// hier paramArray Änderung nötig, da zu Beginn die Parameter in URL noch nicht drin sind!!
+
+	// if not yet in URL, take and update to default streets
+	if (paramArray.base == undefined) {
+		style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+		updateURL("base", "streets");
+		// otherwise use value from URL
+	} else {
+		baseURL = paramArray.base;
+		if (baseURL === "streets") {
+			style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+		}
+		if (baseURL === "satellite") {
+			style = "mapbox://styles/mapbox/satellite-v9";
+		}
+	}
 
 	// if not yet in URL, get value from config.yaml
 	if (paramArray.mapZoom == undefined) {
 		zoomURL = paramArray.config.map.zoom;
+		updateURL("mapZoom", "zoomURL");
 		// otherwise use value from URL
 	} else {
 		zoomURL = paramArray.mapZoom;
@@ -131,6 +153,7 @@ function showMap(style) {
 	// if not yet in URL, get value from config.yaml
 	if (paramArray.mapCenter == undefined) {
 		centerURL = paramArray.config.map.center;
+		updateURL("mapCenter", "centerURL");
 		// otherwise use value from URL
 	} else {
 		centerURL = JSON.parse(paramArray.mapCenter);
@@ -138,7 +161,8 @@ function showMap(style) {
 
 	// if not yet in URL, use default warnings
 	if (paramArray.wtype == undefined) {
-		paramArray.wtype = "unwetter";
+		updateURL("wtype", "unwetter");
+		paramArray.wtype = "unwetter"; // TODO: dieses löschen, wenn weiter unten auch angepasst an readURL()...
 	}
 
 
@@ -448,7 +472,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	let currentTimestamp = Date.now();
 
-// TODO: was macht folgendes??
+	// TODO: was macht folgendes??
 	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
 		currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
 		try {

@@ -7,8 +7,8 @@
 	* @desc function to alter the URL, in order to keep it updated
 	* can change the value of a parameter or add it to the existing url
 	* @author Jonathan Bahlmann
-	* @param param the parameter to be updated/inserted
-	* @param newString the value to above mentioned parameter
+	* @param {String} param the parameter to be updated/inserted
+	* @param {String} newString the value to above mentioned parameter
 	* @example updateURL("wtype", "radar");
 	*/
 function updateURL(param, newString) {
