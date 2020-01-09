@@ -40,7 +40,7 @@
         <!-- Product selection menu -->
         <div id="productMenu" style="display:none">
           <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)" title="Request radar data">Radar</a>
-          <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu); loadSevereWeather();" title="Request severe weather data">Severe Weather</a>
+          <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu);" title="Request severe weather data">Severe Weather</a>
         </div>
 
         <!-- Raster selection menu -->
@@ -136,14 +136,13 @@
   <script src="/mapbox-draw/mapbox-gl-draw.js"></script>
   <script src="/leaflet/leaflet.js"></script>
   <script src="/turf/turf/turf.min.js"></script>
-  <script src="/jsnlog/jsnlog.min.js"></script>
 
   <script>
     var paramArray = <%- JSON.stringify(paramArray) %>;
   </script>
 
   <script src="/javascripts/urlNaming.js"></script>
-  <script src="/javascripts/germanyBoundary.js"></script>
   <script src="/javascripts/mapInteraction.js"></script>
   <script src="/javascripts/mapboxDraw.js"></script>
   <script src="/javascripts/mapbox.js"></script>
+  <script src="/javascripts/germanyBoundary.js"></script>
