@@ -353,7 +353,6 @@ function loadAnimation(position, map){
       contentType: "application/json; charset=utf-8",
       // timeout set to 15 seconds
       timeout: 15000,
-
       success: function() {
         $('#information').html("Retrieving previous weather events");
       }
@@ -429,6 +428,11 @@ function loadAnimation(position, map){
     .fail(function (xhr, status, error) {
       // ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
       console.log("Requesting previous events has failed.", error);
+
+      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+      if (error === "timeout") {
+        JL("ajaxAnimationTimeout").fatalException("ajax: '/previousWeather/weatherEvent/currentTimestamp' timeout");
+      }
     });
   }
 
