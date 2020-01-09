@@ -119,10 +119,6 @@ function showAnimationMap(style) {
     customLayerIds.push('boundaryGermany');
 
 
-    // enable drawing the area-of-interest-polygons
-    drawForAOI(map);
-
-
     // add functionality for menu selection on radar product call
     $("#radio1").click(function() {
       updateURL("wtype", "radar")
