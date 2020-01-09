@@ -91,8 +91,8 @@ window.twttr = (function(d, s, id) {
 // shows and hides the current status of an ajax call
 $(document).ajaxSend(function(){
 	$('#loading').fadeIn(250);
-	console.log(Date.now());
 });
+
 $(document).ajaxComplete(function(){
 	$('#loading').fadeOut(250);
 });
@@ -224,8 +224,8 @@ function showMap(style) {
 
 		// ************************* load Rain Radar data **************************
 
-let rasterMenuToggle;
-let severeWeatherMenuToggle;
+		let rasterMenuToggle;
+		let severeWeatherMenuToggle;
 
 		// TODO: folgendes if durch (readURL("wtype") == "radar") ersetzen? etc...
 		if (paramArray.wtype == "radar") {
@@ -476,6 +476,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 	let currentTimestamp = Date.now();
 
 	// TODO: was macht folgendes??
+	// FUER DEMODATEN
 	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
 		currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
 		try {

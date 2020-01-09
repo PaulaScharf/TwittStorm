@@ -90,7 +90,6 @@ const getWarningsForTime = function(req, res, next) {
 
       updateCurrentTimestampInConfigYaml(currentTimestamp);
 
-
       // TODO: hier nicht als promise nötig??
       getWarningsFromDB(currentTimestamp, req.db, res, next);
 
@@ -367,9 +366,7 @@ function getWarningsFromDB(currentTimestamp, db, res, next) {
     }
   })
 
-  // TODO: wozu gehören die ganzen einzelnen catchs??
-
-  // TODO: wozu gehört dieses catch? muss das auch in getWarningsFromDB() ?????????????????????????
+  // TODO: wozu gehört dieses catch?
   .catch(function (error) {
     error.httpStatusCode = 500;
     return next(error);
