@@ -93,6 +93,7 @@ $(document).ajaxComplete(function(){
 	$('#loading').fadeOut(250);
 });
 
+
 /**
 * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
 * and all current Unwetter ................ and ................
@@ -118,21 +119,26 @@ function showMap(style) {
 	// declare var
 	let zoomURL;
 	let centerURL;
-	// if not yet in URL, use standard
+
+	// if not yet in URL, get value from config.yaml
 	if (paramArray.mapZoom == undefined) {
-		//get value from config.yaml
 		zoomURL = paramArray.config.map.zoom;
 		// otherwise use value from URL
 	} else {
 		zoomURL = paramArray.mapZoom;
 	}
-	// see above
+
+	// if not yet in URL, get value from config.yaml
 	if (paramArray.mapCenter == undefined) {
-		//get value from config.yaml
 		centerURL = paramArray.config.map.center;
+		// otherwise use value from URL
 	} else {
-		centerURL = paramArray.mapCenter;
-		centerURL = JSON.parse(centerURL);
+		centerURL = JSON.parse(paramArray.mapCenter);
+	}
+
+	// if not yet in URL, use default warnings
+	if (paramArray.wtype == undefined) {
+		paramArray.wtype = "unwetter";
 	}
 
 
@@ -192,8 +198,9 @@ function showMap(style) {
 		drawForAOI(map);
 
 
+		// ************************* load Rain Radar data **************************
+
 		// TODO: folgendes if durch (readURL("wtype") == "radar") ersetzen? etc...
-		// Rain Radar Data
 		if (paramArray.wtype == "radar") {
 			// set the flag to radar
 			wtypeFlag = "radar";
@@ -247,10 +254,13 @@ function showMap(style) {
 		}
 
 
-		// 2.oder-fall (undefined): to be able to still use localhost:3000/ TODO: später löschen oder als default lassen?)
-		if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
+		// ****************** load severe weather warnings data ********************
 
-			//set URL to requested wtype
+		// TODO: folgendes if durch (readURL("wtype") == "unwetter") ersetzen? etc...
+		if (paramArray.wtype === "unwetter") {
+
+			// TODO: unnötig?
+			// set URL to requested wtype
 			updateURL("wtype", "unwetter");
 
 			// set the flag to severe weather
@@ -264,42 +274,35 @@ function showMap(style) {
 
 			showLegend(map, "unwetter");
 
-			// the last Unwetter request was "hm"-milliseconds ago
+			// the last Unwetter request was msecsToLastUnwetterRequest-milliseconds ago
 			let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
 
 			// if the timestamp of the last Unwetter request is empty (no request so far) or equal to or older than "paramArray.config.refresh_rate" ...
 			if ((paramArray.config.timestamp_last_warnings_request == null) || (msecsToLastUnwetterRequest >= paramArray.config.refresh_rate)) {
-
 				// ... do a new Unwetter request right now ...
 				requestNewAndDisplayCurrentUnwetters(map);
-
 				// TODO: wird folgendes immer wieder ausgeführt, auch wenn Bedingung in if sich ändert?
 				// ... and afterwards request Unwetter each "paramArray.config.refresh_rate" again
 				requestNewAndDisplayCurrentUnwettersEachInterval(map, paramArray.config.refresh_rate);
 
-
 				// if the last Unwetter request is less than "paramArray.config.refresh_rate" ago ...
 			} else {
-
-				// TODO: alte current unwetter in karte einladen!!!!!
+				// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
 				readAndDisplayCurrentUnwetters(map, paramArray.config.timestamp_last_warnings_request);
-
+				// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
 				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - msecsToLastUnwetterRequest;
 
-				// ... do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
+				// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
 				// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
 				window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
-
 				// ... and afterwards each "paramArray.config.refresh_rate" again
 				window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
 			}
 		}
 
-
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 	});
 }
-
 
 
 // ************************************* block about rain radar ****************************************
@@ -445,6 +448,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	let currentTimestamp = Date.now();
 
+// TODO: was macht folgendes??
 	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
 		currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
 		try {
@@ -641,7 +645,6 @@ function displayCurrentUnwetters(currentUnwetters) {
 */
 function displayEvent(map, layerID, eventFeatureCollection) {
 	//console.log(eventFeatureCollection);
-
 	//
 	let sourceObject = map.getSource(layerID);
 
@@ -962,7 +965,6 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 }
 
 
-
 /**
 * This function ensures, that all unwetters but no tweets are visible.
 * @author Paula Scharf
@@ -976,7 +978,6 @@ function showAllUnwetterAndNoTweets() {
 		}
 	});
 }
-
 
 
 /**
