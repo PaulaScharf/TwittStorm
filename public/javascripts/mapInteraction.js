@@ -490,7 +490,9 @@ function removeUnwetter(){
 }
 
 
-
+$("#severeWeather").click(function() {
+loadSevereWeather();
+});
 /**
 * @desc Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
 * @author Benjamin Rieke
