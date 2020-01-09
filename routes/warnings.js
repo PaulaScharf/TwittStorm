@@ -91,34 +91,10 @@ const getWarningsForTime = function(req, res, next) {
       updateCurrentTimestampInConfigYaml(currentTimestamp);
 
 
+// TODO: hier nicht als promise nötig??
+getWarningsFromDB(currentTimestamp, req.db, res, next);
 
 
-// TODO: hier aufteilen für auch nur aus DB lesen und in map laden???
-
-
-
-
-      // JSON with the query for getting only all current Unwetter out of database
-      let query = {
-        "type": "unwetter",
-        "properties.onset": {"$lt": JSON.parse(currentTimestamp)},
-        "properties.expires": {"$gt":  JSON.parse(currentTimestamp)}
-      };
-
-      promiseToGetItems(query, req.db)
-      .then(function (response) {
-        response = {
-          type: "SevereWeatherWarnings",
-          events: response
-        };
-        if(!res.headersSent) {
-          res.send(response);
-        }
-      })
-      .catch(function (error) {
-        error.httpStatusCode = 500;
-        return next(error);
-      });
     }, function (error) {
       error.httpStatusCode = 500;
       return next(error);
@@ -237,7 +213,7 @@ function processUnwettersFromDWD(currentTimestamp, db) {
 * @param {Object} currentFeature - JSON of one specific Unwetter taken from DWD response
 * @param {Array} arrayOfGroupedUnwetters -
 * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
-* @param db
+* @param db - database
 */
 function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, currentTimestamp, db){
 
@@ -361,6 +337,47 @@ function createUnwetterForDB(currentFeature, currentTimestamp){
 }
 
 
+
+/**
+* @desc .
+*
+* @author Paula Scharf, Katharina Poppinga
+* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
+* @param db - database
+* @param res -
+* @param next -
+*/
+function getWarningsFromDB(currentTimestamp, db, res, next) {
+
+  // JSON with the query for getting only all current Unwetter out of database
+  let query = {
+    "type": "unwetter",
+    "properties.onset": {"$lt": JSON.parse(currentTimestamp)},
+    "properties.expires": {"$gt":  JSON.parse(currentTimestamp)}
+  };
+
+  promiseToGetItems(query, db)
+  .then(function (response) {
+    response = {
+      type: "SevereWeatherWarnings",
+      events: response
+    };
+    if(!res.headersSent) {
+      res.send(response);
+    }
+  })
+
+  // TODO: wozu gehören die ganzen einzelnen catchs??
+
+  // TODO: wozu gehört dieses catch? muss das auch in getWarningsFromDB() ?????????????????????????
+  .catch(function (error) {
+    error.httpStatusCode = 500;
+    return next(error);
+  });
+}
+
+
+
 /**
 * @desc Groups an array of objects by a given key (attribute)
 * @param xs - array which is to be grouped
@@ -381,6 +398,38 @@ function groupByArray(xs, key) {
   }, []);
 }
 
+
+
+
+
+
+// TODO: konform mit API Doc ??????
+/**
+*
+* @author
+* @param req
+* @param res
+* @param next
+* @returns {*}
+*/
+const readWarningsForTime = function(req, res, next) {
+  try {
+
+//let timestampLastWarningsRequest = JSON.parse(req.params.timestampLastWarningsRequest);
+let timestampLastWarningsRequest = JSON.parse(req.params.timestamp);
+
+getWarningsFromDB(timestampLastWarningsRequest, req.db, res, next) ;
+
+
+  } catch (error) {
+    error.httpStatusCode = 500;
+    return next(error);
+  }
+};
+
+
+
 router.route("/:timestamp").get(getWarningsForTime);
+router.route("/test/:timestamp").get(readWarningsForTime);
 
 module.exports = router;

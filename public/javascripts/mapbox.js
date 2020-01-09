@@ -438,7 +438,6 @@ function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 }
 
 
-
 /**
 * @desc
 *
@@ -476,12 +475,14 @@ function requestNewAndDisplayCurrentUnwetters(map){
 	// if the request is done successfully, ...
 	.done(function (result) {
 		// ... give a notice on the console that the AJAX request for ........... has succeeded
-		console.log("AJAX request (????) is done successfully.");
+		console.log("AJAX request (requesting and processing warnings from DWD) is done successfully.");
 
 		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
 		if (readURL("wtype") == "unwetter") {
+
 			// display the timestamp of the last request in the legend
-			let splittedTimestamp = Date(currentTimestamp).split("(");
+			let timestampDate = new Date(currentTimestamp);
+			let splittedTimestamp = timestampDate.toString().split("(");
 			let formattedTimestamp = splittedTimestamp[0];
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
@@ -494,7 +495,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 	// if the request has failed, ...
 	.fail(function (xhr, status, error) {
 		// ... give a notice that the AJAX request for .......... has failed and show the error on the console
-		console.log("AJAX request (?????) has failed.", error);
+		console.log("AJAX request (requesting and processing warnings from DWD) has failed.", error);
 
 		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 		if (error === "timeout") {
@@ -514,15 +515,12 @@ function requestNewAndDisplayCurrentUnwetters(map){
 */
 function readAndDisplayCurrentUnwetters(map, timestampLastWarningsRequest) {
 
-
-// TODO: currentUnwetters aus DB lesen, dazu server-route nötig
-
 $.ajax({
 	// use a http GET request
 	type: "GET",
 	// URL to send the request to
 	// TODO: route , aus der dann getItems aus DB aufgerufen wird ??
-	url:
+	url: "/warnings/test/" + timestampLastWarningsRequest,
 	// type of the data that is sent to the server
 	contentType: "application/json; charset=utf-8",
 	// timeout set to 15 seconds
@@ -538,13 +536,12 @@ $.ajax({
 	if (readURL("wtype") == "unwetter") {
 
 		// display the timestamp of the last request in the legend
-		// TODO: überprüfen, ob so schon richtig oder new Date noch nötig?  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		let splittedTimestamp = Date(timestampLastWarningsRequest).split("(");
+		let timestampDate = new Date(timestampLastWarningsRequest);
+		let splittedTimestamp = timestampDate.toString().split("(");
 		let formattedTimestamp = splittedTimestamp[0];
 		let timestampLastRequest = document.getElementById("timestampLastRequest");
 		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
 
-		// TODO: hier die aus DB gelesenen currentUnwetters übergeben
 		displayCurrentUnwetters(result.events);
 	}
 })
@@ -1001,4 +998,19 @@ function forEachLayer(cb) {
 
 		cb(layer);
 	});
+}
+
+
+
+/**
+* @desc
+*
+* @author Katharina Poppinga
+* @private
+* @param {number} timestamp - timestamp in Epoch milliseconds
+* @returns {String} formatted timestamp for displaying in browser
+*/
+function timestampFormatting(timestamp) {
+
+
 }
