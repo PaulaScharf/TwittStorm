@@ -286,6 +286,10 @@ function showMap(style) {
 		// TODO: folgendes if durch (readURL("wtype") == "unwetter") ersetzen? etc...
 		if (paramArray.wtype === "unwetter") {
 
+
+// TODO: radProd=# aus URL entfernen
+
+
 			// TODO: unnötig?
 			// set URL to requested wtype
 			updateURL("wtype", "unwetter");
@@ -436,7 +440,7 @@ function callRainRadar(prod) {
 	// make call
 	let url = "/radar/" + prod + "/latest";
 	$.getJSON(url, function(result) {
-		console.log("automatically requested new rainRadar data");
+		console.log("Automatically requested new rain radar data.");
 		// read from url
 		let wtype = readURL("wtype");
 		// if radar is currently shown, update the map
@@ -525,7 +529,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 
 		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 		if (error === "timeout") {
-			//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
+			JL("ajaxRetrievingWarningsTimeout").fatalException("ajax: '/warnings/currentTimestamp' timeout");
 		}
 	});
 }
@@ -577,7 +581,7 @@ function readAndDisplayCurrentUnwetters(map, timestampLastWarningsRequest) {
 
 		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 		if (error === "timeout") {
-			//JL("...").fatalException("ajax: '/...' timeout");
+			JL("ajaxReadingWarningsTimeout").fatalException("ajax: '/warnings/test/currentTimestamp' timeout");
 		}
 	});
 }
@@ -917,7 +921,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 					// use a http POST request
 					type: "POST",
 					// URL to send the request to
-					url: "/Twitter/tweets/",
+					url: "/Twitter/tweets",
 					// type of the data that is sent to the server
 					contentType: "application/json; charset=utf-8",
 					// data to send to the server
@@ -975,7 +979,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 
 					// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 					if (error === "timeout") {
-						//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
+						JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/Twitter/tweets' timeout");
 					}
 				});
 			}
