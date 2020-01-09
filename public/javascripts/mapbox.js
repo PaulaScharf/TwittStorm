@@ -159,7 +159,7 @@ function showMap(style) {
 	map.addControl(new mapboxgl.NavigationControl());
 
 
-	// ************************ adding boundary of Germany *************************
+	// ************************ adding boundary of Germany ***********************
 	// TODO: evtl. in eigene Funktion auslagern, der Übersicht halber
 
 	// this event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
@@ -186,7 +186,7 @@ function showMap(style) {
 			}
 		});
 		customLayerIds.push('boundaryGermany');
-
+		// *************************************************************************
 
 		// enable drawing the area-of-interest-polygons
 		drawForAOI(map);
@@ -234,7 +234,6 @@ function showMap(style) {
 					var innerRasterCheckToggle3 = document.getElementById('radio3');
 					innerRasterCheckToggle3.checked = true;
 				}
-
 			}
 			// if radarproduct is undefined
 			else {
@@ -282,11 +281,10 @@ function showMap(style) {
 				// if the last Unwetter request is less than "paramArray.config.refresh_rate" ago ...
 			} else {
 
-				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - msecsToLastUnwetterRequest;
-
-				// ****************************************************************************
 				// TODO: alte current unwetter in karte einladen!!!!!
-				// ****************************************************************************
+				readAndDisplayCurrentUnwetters(map, paramArray.config.timestamp_last_warnings_request);
+
+				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - msecsToLastUnwetterRequest;
 
 				// ... do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
 				// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
@@ -436,7 +434,6 @@ setInterval(intervalRainRadar, paramArray.config.refresh_rate);
 * @param {number} interval -
 */
 function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
-
 	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map);
 }
 
@@ -504,6 +501,64 @@ function requestNewAndDisplayCurrentUnwetters(map){
 			//JL("ajaxInsertingManyItemsTimeout").fatalException("ajax: '/addMany' timeout");
 		}
 	});
+}
+
+
+
+/**
+* @desc
+*
+* @author Katharina Poppinga
+* @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
+* @param {number} timestampLastWarningsRequest - timestamp of the last warnings request to DWD (in Epoch milliseconds)
+*/
+function readAndDisplayCurrentUnwetters(map, timestampLastWarningsRequest) {
+
+
+// TODO: currentUnwetters aus DB lesen, dazu server-route nötig
+
+$.ajax({
+	// use a http GET request
+	type: "GET",
+	// URL to send the request to
+	// TODO: route , aus der dann getItems aus DB aufgerufen wird ??
+	url:
+	// type of the data that is sent to the server
+	contentType: "application/json; charset=utf-8",
+	// timeout set to 15 seconds
+	timeout: 15000
+})
+
+// if the request is done successfully, ...
+.done(function (result) {
+	// ... give a notice on the console that the AJAX request for ........... has succeeded
+	console.log("AJAX request (reading current warnings) is done successfully.");
+
+	// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
+	if (readURL("wtype") == "unwetter") {
+
+		// display the timestamp of the last request in the legend
+		// TODO: überprüfen, ob so schon richtig oder new Date noch nötig?  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		let splittedTimestamp = Date(timestampLastWarningsRequest).split("(");
+		let formattedTimestamp = splittedTimestamp[0];
+		let timestampLastRequest = document.getElementById("timestampLastRequest");
+		timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+
+		// TODO: hier die aus DB gelesenen currentUnwetters übergeben
+		displayCurrentUnwetters(result.events);
+	}
+})
+
+// if the request has failed, ...
+.fail(function (xhr, status, error) {
+	// ... give a notice that the AJAX request for .......... has failed and show the error on the console
+	console.log("AJAX request (reading current warnings) has failed.", error);
+
+	// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+	if (error === "timeout") {
+		//JL("...").fatalException("ajax: '/...' timeout");
+	}
+});
 }
 
 

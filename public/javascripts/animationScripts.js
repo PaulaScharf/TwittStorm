@@ -69,9 +69,6 @@ function showAnimationMap(style) {
   let map = new mapboxgl.Map({
     container: 'map',
     style: style,
-    // TODO: basemap durch Nutzer änderbar machen: https://docs.mapbox.com/mapbox-gl-js/example/setstyle/
-    // style: 'mapbox://styles/mapbox/satellite-v9',
-    // style: 'mapbox://styles/mapbox/streets-v11',
     zoom: zoomURL,
     center: centerURL
   });

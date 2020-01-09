@@ -90,6 +90,14 @@ const getWarningsForTime = function(req, res, next) {
 
       updateCurrentTimestampInConfigYaml(currentTimestamp);
 
+
+
+
+// TODO: hier aufteilen für auch nur aus DB lesen und in map laden???
+
+
+
+
       // JSON with the query for getting only all current Unwetter out of database
       let query = {
         "type": "unwetter",
@@ -154,21 +162,16 @@ function processUnwettersFromDWD(currentTimestamp, db) {
     };
 
     https.get(endpoint, options, (httpResponse) => {
-
       var body = "";
-
       httpResponse.on('data', (chunk) => {
         body += chunk;
       });
-
       httpResponse.on("end", async () => {
 
         try {
           let data = JSON.parse(body);
 
-
           // ***** formatting the Unwetter which will be inserted into the database afterwards: *****
-
           //
           let groupedData = groupByArray(data.features, 'id');
 
@@ -201,15 +204,8 @@ function processUnwettersFromDWD(currentTimestamp, db) {
             // make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
             let expires = Date.parse(currentFeature.properties.EXPIRES);
 
-
             // use only the notifications that are actual reports and not just tests
             if ((currentFeature.properties.STATUS === "Actual") && (onset <= currentTimestamp) && (expires >= currentTimestamp)) {
-
-              // TODO: WEITERE MÖGLICHE FILTER
-              // TODO: Filter teilweise hier und teilweise nutzerspezifisch nach der Datenbank einfügen
-              //      allUnwetter[i].properties.RESPONSETYPE
-              //      allUnwetter[i].properties.URGENCY === "Immediate"
-
 
               // check whether exactly this Unwetter is already stored in the database
               // and, depending on its MSGTYPE (Alert, Update, Cancel), add, update or delete if to/from database
@@ -246,7 +242,6 @@ function processUnwettersFromDWD(currentTimestamp, db) {
 function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, currentTimestamp, db){
 
   // TODO: auch auf einzelne vorhandene geometrys überprüfen
-
   //
   return new Promise((resolve, reject) => {
     // JSON with the ID of the current Unwetter, needed for following database-check
@@ -290,7 +285,6 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, cur
           // TODO: delete this Unwetter from database?? (rückwirkend, da Meldung ein Irrtum ist??)
         }
 
-
         // if this Unwetter does NOT EXIST in the database ...
       } else {
         // ... and if its MSGTYPE is "Alert" or "Update" ...
@@ -312,9 +306,7 @@ function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, cur
         }
 
         // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter
-
       }
-      //
     })
     .catch(function(error) {
       reject(error);
