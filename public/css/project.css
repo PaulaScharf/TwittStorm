@@ -2,6 +2,8 @@
 * Project: TwittStorm, Geosoftware 2, WiSe 2019/2020
 * Authors: Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 ----------------------------------------------------------*/
+
+
 /* Animation Overlay */
 .animation-overlay {
   font-family: 'Open Sans', sans-serif;
@@ -22,8 +24,6 @@ border-radius: 3px;
 padding: 25px;
 margin-bottom: 30px;
 }
-
-
 
 .animation-overlay input {
 background-color: transparent;
@@ -87,8 +87,6 @@ cursor: ew-resize;
                -1px -1px 1px black;
 }
 
-
-
 .loading:not(:required):after {
   content: '';
   display: block;
@@ -122,6 +120,7 @@ cursor: ew-resize;
     transform: rotate(360deg);
   }
 }
+
 @-moz-keyframes spinner {
   0% {
     -webkit-transform: rotate(0deg);
@@ -138,6 +137,7 @@ cursor: ew-resize;
     transform: rotate(360deg);
   }
 }
+
 @-o-keyframes spinner {
   0% {
     -webkit-transform: rotate(0deg);
@@ -154,6 +154,7 @@ cursor: ew-resize;
     transform: rotate(360deg);
   }
 }
+
 @keyframes spinner {
   0% {
     -webkit-transform: rotate(0deg);
@@ -373,8 +374,7 @@ right: 11px;
   background-color: lightgrey;
 }
 
-/* **********************************Menubutton**************************************** */
-
+/* *******************************Menubutton********************************* */
 
 #menuButton {
   top: 185px;
@@ -396,8 +396,7 @@ right: 11px;
   height: 10px;
 }
 
-
-/* **********************************Productmenu**************************************** */
+/* ********************************Productmenu******************************* */
 
 #productMenu {
   background: #fff;
@@ -442,7 +441,7 @@ right: 11px;
   background: grey;
 }
 
-/* **********************************Rastermenu**************************************** */
+/* ******************************Rastermenu********************************** */
 
 #rasterMenu {
   background: #fff;
@@ -487,7 +486,7 @@ right: 11px;
   background: grey;
 }
 
-/* ********************************* Germany Menu Button ********************************* */
+/* **************************** Germany Menu Button ************************* */
 
 #germanyButton{
   position: absolute;
@@ -541,7 +540,6 @@ right: 11px;
 #typeOfLegend {
   font-size: 16px;
   text-align: center;
-  /*line-height: 2;*/
 }
 
 #productType {
