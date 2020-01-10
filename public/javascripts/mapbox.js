@@ -519,7 +519,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		if (readURL("wtype") == "unwetter") {
 
 			// display the timestamp of the last request in the legend
-			let formattedTimestamp = timestampFormatting(paramArray.config.timestamp_last_warnings_request);
+			let formattedTimestamp = timestampFormatting(
+				((currentTimestamp - paramArray.config.timestamp_last_warnings_request) >= paramArray.config.refresh_rate) ?
+					currentTimestamp : paramArray.config.timestamp_last_warnings_request);
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
 
