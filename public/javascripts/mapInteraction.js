@@ -536,7 +536,7 @@ function loadSevereWeather(){
 	var innerRasterCheckToggle1 = document.getElementById('radio1');
 	innerRasterCheckToggle1.checked = false;
 	var innerRasterCheckToggle2 = document.getElementById('radio2');
-	innerRasterCheckToggle1.checked = false;
+	innerRasterCheckToggle2.checked = false;
 	var innerRasterCheckToggle3 = document.getElementById('radio3');
 	innerRasterCheckToggle3.checked = false;
 
