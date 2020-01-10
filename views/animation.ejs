@@ -41,7 +41,7 @@
 
         <!-- Product selection menu -->
         <div id="productMenu" style="display:none">
-          <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)" title="Request radar data">Radar</a>
+          <a href="#" id="raster" class="selector" title="Request radar data">Radar</a>
           <a href="#" id="severeWeatherAnimation" class="active" title="Request severe weather data">Severe Weather</a>
         </div>
 
@@ -60,7 +60,7 @@
         </div>
 
         <!-- button to open up the menu. image taken from https://freeicons.io/user-interface-and-electronics/layer-up-down-screen-multiple-interface-ui-d-cd-icon-892 -->
-        <nav id="menuButton" class="button" onclick="openMenu(this, productMenu);" title="Change Layers">
+        <nav id="menuButton" class="button" onclick="openMenu(this, productMenu, 'animation');" title="Change Layers">
           <div id="buttonIcon">
             <img src="/css/Layer-Icon.png"/>
           </div>
@@ -125,7 +125,7 @@
         <div class="animation-overlay top">
           <div class="animation-overlay-inner">
             <h2>Last 10 Timesteps</h2>
-            <label id="timestamp"></label>
+            <label id="timestamp">Click play to start the animation</label>
             <input id="slider" type="range" min="0" max="8" step="0" value="0" />
 
 

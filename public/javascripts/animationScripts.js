@@ -49,6 +49,31 @@ function showAnimationMap(style) {
   // declare var
   let zoomURL;
   let centerURL;
+  let baseURL;
+
+var checkedStreets = document.getElementById('navigation-guidance-day-v4')
+var checkedSat = document.getElementById('satellite-v9')
+
+  // if not yet in URL, take and update to default streets
+	if (paramArray.base == undefined) {
+		style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+		updateURL("base", "streets");
+		// otherwise use value from URL
+	} else {
+		baseURL = paramArray.base;
+		if (baseURL === "streets") {
+			style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+			checkedStreets.checked ='checked';
+		}
+		if (baseURL === "satellite") {
+			style = "mapbox://styles/mapbox/satellite-v9";
+			checkedSat.checked ='checked';
+
+		}
+	}
+
+
+
   // if not yet in URL, use standard
   if (paramArray.mapZoom == undefined) {
     //get value from config.yaml
@@ -120,11 +145,13 @@ function showAnimationMap(style) {
 
 
     // add functionality for menu selection on radar product call
-    $("#radio1").click(function() {
+    $("#raster").click(function() {
+      removeAllSource(map);
+
       updateURL("wtype", "radar")
       updateURL("radProd", "ry")
       wtypeFlag = "radar";
-      showLegend(map, "radar", "rw");
+      showLegend(map, "radar", "ry");
       loadPreviousWeather(map, wtypeFlag);
 
       //change the menu
@@ -132,6 +159,7 @@ function showAnimationMap(style) {
       rasterMenuToggle.classList.add("active");
       var menuToggle = document.getElementById('severeWeatherAnimation');
       menuToggle.classList.remove("active");
+
     });
 
 
@@ -148,18 +176,13 @@ function showAnimationMap(style) {
       var innerRasterMenuToggle = document.getElementById('rasterMenu');
       innerRasterMenuToggle.style.display = "none";
 
-      //uncheck all raster products
-      var innerRasterCheckToggle1 = document.getElementById('radio1');
-      innerRasterCheckToggle1.checked = false;
-      var innerRasterCheckToggle2 = document.getElementById('radio2');
-      innerRasterCheckToggle1.checked = false;
-      var innerRasterCheckToggle3 = document.getElementById('radio3');
-      innerRasterCheckToggle3.checked = false;
 
 
       // activate the severe weather tab
       var severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
       severeWeatherMenuToggle.classList.add("active");
+      removeAllSource(map);
+
     });
 
 
@@ -191,19 +214,6 @@ function showAnimationMap(style) {
         // display rain radar
         //  requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.timestamp);
 
-        // check the checkbox of the radar submenu according to the chosen product
-        if (paramArray.rasterProduct === "ry") {
-          var innerRasterCheckToggle1 = document.getElementById('radio1');
-          innerRasterCheckToggle1.checked = true;
-        }
-        if (paramArray.rasterProduct === "rw") {
-          let innerRasterCheckToggle2 = document.getElementById('radio2');
-          innerRasterCheckToggle2.checked = true;
-        }
-        if (paramArray.rasterProduct === "sf") {
-          var innerRasterCheckToggle3 = document.getElementById('radio3');
-          innerRasterCheckToggle3.checked = true;
-        }
         loadPreviousWeather(map, wtypeFlag);
       }
       // if radarproduct is undefined
@@ -213,8 +223,6 @@ function showAnimationMap(style) {
         loadPreviousWeather(map, wtypeFlag);
 
         updateURL("rasterProduct", "rw");
-        let innerRasterCheckToggle2 = document.getElementById('radio2');
-        innerRasterCheckToggle2.checked = true;
       }
     }
     if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
@@ -313,7 +321,6 @@ function automate(map){
 * @author Benjamin Rieke
 */
 function loadAnimation(position, map){
-
   // set a "marker" for the wanted position based on the available timestamps
   var posMarker = usedTimestamps[position];
 
@@ -365,6 +372,7 @@ function loadAnimation(position, map){
 
     // put something in the array for the for loop to check for emptiness
     allLayers.push(posMarker);
+
   }
 
 
@@ -378,7 +386,6 @@ function loadAnimation(position, map){
     //flush the storage arrays
     usedTimestamps = [];
     timestampStorage = [];
-    console.log(final);
 
     var weatherEvent;
     if(weatherEv == "radar"){
@@ -460,11 +467,13 @@ function loadAnimation(position, map){
       }
 
       console.log(final);
+
       // for every timestamp in the final object
       for (let i = 0; i < final.length; i++){
         //add the according data to an mapbox source
         addToSource(map, final[i].timestamp ,  final[i]);
       }
+
     })
 
     // if the request has failed, ...
@@ -513,6 +522,37 @@ function loadAnimation(position, map){
       console.log("object already exists");
     }
   }
+
+
+  /**
+  * @desc removes all weather sources and layers from the map on wtype change
+  * @param map links to the map
+  * @author Benjamin Rieke
+  */
+  function removeAllSource(map) {
+  var sources = map.style.sourceCaches
+  var layers = map.getStyle().layers
+
+    for (let key in sources){
+      // checks if the sources contain a numbered id
+      if (!isNaN(key)){
+
+      // if they are already in the layers
+    for (let lays in layers){
+      if(layers[lays].id == key){
+        //remove them
+      map.removeLayer(key)
+    }
+  }
+
+  map.removeSource(key)
+  }
+}
+}
+
+
+
+
 
 
   /**

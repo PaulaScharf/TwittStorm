@@ -112,6 +112,9 @@ $(document).ajaxComplete(function(){
 */
 function showMap(style) {
 
+	// set Interval to accumulate radar data for the animation
+	setInterval(intervalRainRadar, paramArray.config.refresh_rate);
+
 	// Checks whether the layer menu DOM is empty and if not flushes the dom
 	while (layers.firstChild) {
 		layers.removeChild(layers.firstChild);
@@ -125,6 +128,8 @@ function showMap(style) {
 	let centerURL;
 
 	// hier paramArray Änderung nötig, da zu Beginn die Parameter in URL noch nicht drin sind!!
+	var checkedStreets = document.getElementById('navigation-guidance-day-v4');
+	var checkedSat = document.getElementById('satellite-v9');
 
 	// if not yet in URL, take and update to default streets
 	if (paramArray.base == undefined) {
@@ -135,9 +140,12 @@ function showMap(style) {
 		baseURL = paramArray.base;
 		if (baseURL === "streets") {
 			style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+			checkedStreets.checked ='checked';
 		}
 		if (baseURL === "satellite") {
 			style = "mapbox://styles/mapbox/satellite-v9";
+			checkedSat.checked ='checked';
+
 		}
 	}
 
@@ -407,6 +415,7 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 function intervalRainRadar() {
 	let refresh = paramArray.config.refresh_rate;
 	let prod;
+	// if refresh-rate < 1 hour
 	if(refresh < 3600000) {
 		prod = "ry";
 	} else {
@@ -436,9 +445,6 @@ function callRainRadar(prod) {
 		}
 	});
 }
-
-// set Interval to accumulate radar data for the animation
-setInterval(intervalRainRadar, paramArray.config.refresh_rate);
 
 // *****************************************************************************************************
 
@@ -471,7 +477,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
-			console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.")
+			console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.");
 			currentTimestamp = Date.now();
 		}
 	}
