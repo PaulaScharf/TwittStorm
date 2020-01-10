@@ -183,12 +183,22 @@ function showMap(style) {
 	});
 
 
+	// if there is an AOI given in the URL, then show it in map and start Tweet-search ???????????????????????
+	if (paramArray.aoi !== undefined) {
+		console.log("AOI in URL");
+
+		let aoiString = paramArray.aoi;
+
+		// TODO ...
+	}
+
+
 	// event to update URL
 	// TODO: get initial map postion also from url
 	map.on('moveend', function() {
 		updateURL('mapZoom', map.getZoom());
 		let center = map.getCenter();
-		let centerString = "[" + center.lng + ", " + center.lat + "]";
+		let centerString = "[" + center.lng + "," + center.lat + "]";
 		updateURL('mapCenter', centerString);
 	});
 
@@ -296,7 +306,7 @@ function showMap(style) {
 		if (paramArray.wtype === "unwetter") {
 
 
-// TODO: radProd=# aus URL entfernen
+			// TODO: radProd=# aus URL entfernen
 
 
 			// TODO: unnötig?
@@ -314,16 +324,16 @@ function showMap(style) {
 
 			showLegend(map, "unwetter");
 
-				// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
+			// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
 			requestNewAndDisplayCurrentUnwetters(map);
-				// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
-				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - (Date.now() - paramArray.config.timestamp_last_warnings_request);
+			// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
+			let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - (Date.now() - paramArray.config.timestamp_last_warnings_request);
 
-				// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
-				// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
-				window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
-				// ... and afterwards each "paramArray.config.refresh_rate" again
-				window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
+			// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
+			// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
+			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
+			// ... and afterwards each "paramArray.config.refresh_rate" again
+			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
 
 		}
 

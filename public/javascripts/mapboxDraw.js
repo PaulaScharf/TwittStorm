@@ -51,11 +51,23 @@ function drawForAOI(map) {
 		});
 		draw.delete(pids);
 
-		// TODO: AOI in URL schreiben und auch aus URL auslesen und anzeigen in map muss möglich sein
-		// z.B. als doppeltes Array mit allen Punkten für AOI
 		let coordinatesAOI = e.features[0].geometry.coordinates[0];
 
-		zoomToCoordinates(e.features[0].geometry.coordinates[0]);
+		// *************************************************************************
+		// putting together the AOI-string for URL (for permalink-functionality) and write this AOI-string into URL:
+		let aoiString =	"[[" + coordinatesAOI[0].toString() + "]";
+
+		for (let i = 1; i < coordinatesAOI.length; i++) {
+			aoiString = aoiString + ",[" + coordinatesAOI[i].toString() + "]";
+		}
+		aoiString = aoiString + "]";
+
+		// TODO: oder nach zoomToCoordinates erst??
+		updateURL("aoi", aoiString);
+		// *************************************************************************
+
+		//
+		zoomToCoordinates(coordinatesAOI);
 		onlyShowUnwetterAndTweetsInPolygon(turf.polygon(e.features[0].geometry.coordinates));
 	});
 
