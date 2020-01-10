@@ -439,8 +439,11 @@ function callRainRadar(prod) {
 		console.log("Automatically requested new rain radar data.");
 		// read from url
 		let wtype = readURL("wtype");
+		let urlProd = readURL("radProd");
 		// if radar is currently shown, update the map
-		if(wtype == "radar") {
+		if(wtype == "radar" && urlProd == prod) {
+
+			// TODO hier evtl display modularisieren um nicht noch ein request zu machen
 			requestAndDisplayAllRainRadar(map, prod, 1);
 		}
 	});
