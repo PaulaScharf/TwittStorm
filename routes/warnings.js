@@ -20,7 +20,7 @@ const updateCurrentTimestampInConfigYaml = require('./configuration.js').updateC
 // yaml configuration
 const fs = require('fs');
 const yaml = require('js-yaml');
-const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+let config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 
 /**
@@ -32,6 +32,7 @@ const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 * @returns {*}
 */
 const getWarningsForTime = function(req, res, next) {
+  config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
   try {
     // timestamp (in Epoch milliseconds) for this whole specific request
     let currentTimestamp = JSON.parse(req.params.timestamp);

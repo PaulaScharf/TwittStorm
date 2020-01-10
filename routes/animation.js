@@ -27,6 +27,7 @@
  * @param res - result
  */
 var previousWeather = function(req, res) {
+  config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
     let validParams = checkParams(req.params);
 

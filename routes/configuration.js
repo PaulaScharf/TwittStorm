@@ -19,6 +19,7 @@ let config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 //
 router.post("/", (req, res) => {
+	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 	try {
 		for (let key in req.body) {
 			if (req.body.hasOwnProperty(key)) {
@@ -59,6 +60,7 @@ router.post("/", (req, res) => {
 */
 function updateCurrentTimestampInConfigYaml(currentTimestamp){
 
+	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 	config["timestamp_last_warnings_request"] = currentTimestamp;
 	let yamlStr = yaml.safeDump(config);
 	fs.writeFileSync('config.yaml', yamlStr, 'utf8');

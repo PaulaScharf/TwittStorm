@@ -343,6 +343,7 @@ function checkDatabase(prod, timestampString, db) {
   * @param res the response object
   */
 var radarRouteLatest = function(req, res) {
+  config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
   let prod = req.params.radarProduct.toLowerCase();
 

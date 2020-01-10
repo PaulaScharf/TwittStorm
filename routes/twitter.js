@@ -23,7 +23,7 @@ var Twitter = require('twitter');
 // yaml configuration
 const fs = require('fs');
 const yaml = require('js-yaml');
-const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+let config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 var client = new Twitter({
 	consumer_key: config.keys.twitter.consumer_key,
@@ -115,6 +115,7 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
  * @param res
  */
 const searchTweetsForEvent = function(req, res) {
+	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
     let validParams = checkParamsSearch(req.body);
 
     if (validParams.err_message !== "") {
