@@ -112,6 +112,9 @@ $(document).ajaxComplete(function(){
 */
 function showMap(style) {
 
+	// set Interval to accumulate radar data for the animation
+	setInterval(intervalRainRadar, paramArray.config.refresh_rate);
+
 	// Checks whether the layer menu DOM is empty and if not flushes the dom
 	while (layers.firstChild) {
 		layers.removeChild(layers.firstChild);
@@ -425,6 +428,7 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 function intervalRainRadar() {
 	let refresh = paramArray.config.refresh_rate;
 	let prod;
+	// if refresh-rate < 1 hour
 	if(refresh < 3600000) {
 		prod = "ry";
 	} else {
@@ -454,9 +458,6 @@ function callRainRadar(prod) {
 		}
 	});
 }
-
-// set Interval to accumulate radar data for the animation
-setInterval(intervalRainRadar, paramArray.config.refresh_rate);
 
 // *****************************************************************************************************
 
@@ -491,7 +492,7 @@ function requestNewAndDisplayCurrentUnwetters(map){
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
-			console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.")
+			console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.");
 			currentTimestamp = Date.now();
 		}
 	}

@@ -52,6 +52,7 @@ function drawForAOI(map) {
 		draw.delete(pids);
 
 		// TODO: AOI in URL schreiben und auch aus URL auslesen und anzeigen in map muss möglich sein
+		// z.B. als doppeltes Array mit allen Punkten für AOI
 		let coordinatesAOI = e.features[0].geometry.coordinates[0];
 
 		zoomToCoordinates(e.features[0].geometry.coordinates[0]);
