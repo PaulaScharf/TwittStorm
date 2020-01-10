@@ -273,11 +273,15 @@ function addLayerToMenu(layerID) {
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X
 * @param button Links the button to the function
 * @param menu Id of the menu that is supposed to open/close
+* @param site the requested site index or animation
 * @author Benjamin Rieke
 */
-function openMenu(button, menu) {
+function openMenu(button, menu, site) {
 
 	// if a radar product is selected automatically open up the radar submenu
+	if (site == 'index') {
+
+	
 	if (wtypeFlag == "radar") {
 		var innerRasterMenuToggle = document.getElementById('rasterMenu');
 		innerRasterMenuToggle.style.display = "block";
@@ -287,7 +291,7 @@ function openMenu(button, menu) {
 		var innerUnwetterMenuToggle = document.getElementById('menu');
 		innerUnwetterMenuToggle.style.display = "block";
 	};
-
+}
 
 	// displays the germany boundary button if is not visible
 	var boundaryButtonToggle = document.getElementById('germanyButton');
