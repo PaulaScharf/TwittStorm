@@ -277,6 +277,7 @@ function showMap(style) {
 					innerRasterCheckToggle3.checked = true;
 				}
 			}
+			// TODO: folgendes löschen, wenn URL immer gefixt?
 			// if radarproduct is undefined
 			else {
 				// default radar case (rw)
