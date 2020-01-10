@@ -125,6 +125,8 @@ function showMap(style) {
 	let centerURL;
 
 	// hier paramArray Änderung nötig, da zu Beginn die Parameter in URL noch nicht drin sind!!
+	var checkedStreets = document.getElementById('navigation-guidance-day-v4');
+	var checkedSat = document.getElementById('satellite-v9');
 
 	// if not yet in URL, take and update to default streets
 	if (paramArray.base == undefined) {
@@ -135,9 +137,12 @@ function showMap(style) {
 		baseURL = paramArray.base;
 		if (baseURL === "streets") {
 			style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+			checkedStreets.checked ='checked';
 		}
 		if (baseURL === "satellite") {
 			style = "mapbox://styles/mapbox/satellite-v9";
+			checkedSat.checked ='checked';
+
 		}
 	}
 
