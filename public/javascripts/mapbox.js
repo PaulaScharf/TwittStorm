@@ -314,30 +314,17 @@ function showMap(style) {
 
 			showLegend(map, "unwetter");
 
-			// the last Unwetter request was msecsToLastUnwetterRequest-milliseconds ago
-			let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
-
-			// if the timestamp of the last Unwetter request is empty (no request so far) or equal to or older than "paramArray.config.refresh_rate" ...
-			if ((paramArray.config.timestamp_last_warnings_request == null) || (msecsToLastUnwetterRequest >= paramArray.config.refresh_rate)) {
-				// ... do a new Unwetter request right now ...
-				requestNewAndDisplayCurrentUnwetters(map);
-				// TODO: wird folgendes immer wieder ausgeführt, auch wenn Bedingung in if sich ändert?
-				// ... and afterwards request Unwetter each "paramArray.config.refresh_rate" again
-				requestNewAndDisplayCurrentUnwettersEachInterval(map, paramArray.config.refresh_rate);
-
-				// if the last Unwetter request is less than "paramArray.config.refresh_rate" ago ...
-			} else {
 				// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
-				readAndDisplayCurrentUnwetters(map, paramArray.config.timestamp_last_warnings_request);
+			requestNewAndDisplayCurrentUnwetters(map);
 				// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
-				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - msecsToLastUnwetterRequest;
+				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - (Date.now() - paramArray.config.timestamp_last_warnings_request);
 
 				// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
 				// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
 				window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
 				// ... and afterwards each "paramArray.config.refresh_rate" again
 				window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
-			}
+
 		}
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -453,8 +440,11 @@ function callRainRadar(prod) {
 		console.log("Automatically requested new rain radar data.");
 		// read from url
 		let wtype = readURL("wtype");
+		let urlProd = readURL("radProd");
 		// if radar is currently shown, update the map
-		if(wtype == "radar") {
+		if(wtype == "radar" && urlProd == prod) {
+
+			// TODO hier evtl display modularisieren um nicht noch ein request zu machen
 			requestAndDisplayAllRainRadar(map, prod, 1);
 		}
 	});
@@ -474,19 +464,17 @@ function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map);
 }
 
-
 /**
 * @desc
 *
-* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
+* @author Katharina Poppinga, Paula Scharf
 * @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
+* @param {number} timestampLastWarningsRequest - timestamp of the last warnings request to DWD (in Epoch milliseconds)
 */
-function requestNewAndDisplayCurrentUnwetters(map){
-
+function requestNewAndDisplayCurrentUnwetters(map) {
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	let currentTimestamp = Date.now();
 
-	// TODO: was macht folgendes??
 	// FUER DEMODATEN
 	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
 		currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
@@ -504,60 +492,8 @@ function requestNewAndDisplayCurrentUnwetters(map){
 		// use a http GET request
 		type: "GET",
 		// URL to send the request to
-		url: "/warnings/" + currentTimestamp,
-		// type of the data that is sent to the server
-		contentType: "application/json; charset=utf-8",
-		// timeout set to 15 seconds
-		timeout: 15000
-	})
-
-	// if the request is done successfully, ...
-	.done(function (result) {
-		// ... give a notice on the console that the AJAX request for ........... has succeeded
-		console.log("AJAX request (requesting and processing warnings from DWD) is done successfully.");
-
-		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
-		if (readURL("wtype") == "unwetter") {
-
-			// display the timestamp of the last request in the legend
-			let formattedTimestamp = timestampFormatting(currentTimestamp);
-			let timestampLastRequest = document.getElementById("timestampLastRequest");
-			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
-
-			//
-			displayCurrentUnwetters(result.events);
-		}
-	})
-
-	// if the request has failed, ...
-	.fail(function (xhr, status, error) {
-		// ... give a notice that the AJAX request for .......... has failed and show the error on the console
-		console.log("AJAX request (requesting and processing warnings from DWD) has failed.", error);
-
-		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-		if (error === "timeout") {
-			JL("ajaxRetrievingWarningsTimeout").fatalException("ajax: '/warnings/currentTimestamp' timeout");
-		}
-	});
-}
-
-
-
-/**
-* @desc
-*
-* @author Katharina Poppinga
-* @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
-* @param {number} timestampLastWarningsRequest - timestamp of the last warnings request to DWD (in Epoch milliseconds)
-*/
-function readAndDisplayCurrentUnwetters(map, timestampLastWarningsRequest) {
-
-	$.ajax({
-		// use a http GET request
-		type: "GET",
-		// URL to send the request to
 		// TODO: route umbenennen !!!!!!!!!!!!!!!!!!
-		url: "/warnings/test/" + timestampLastWarningsRequest,
+		url: "/warnings/" + currentTimestamp,
 		// type of the data that is sent to the server
 		contentType: "application/json; charset=utf-8",
 		// timeout set to 15 seconds
@@ -573,7 +509,7 @@ function readAndDisplayCurrentUnwetters(map, timestampLastWarningsRequest) {
 		if (readURL("wtype") == "unwetter") {
 
 			// display the timestamp of the last request in the legend
-			let formattedTimestamp = timestampFormatting(timestampLastWarningsRequest);
+			let formattedTimestamp = timestampFormatting(paramArray.config.timestamp_last_warnings_request);
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
 
