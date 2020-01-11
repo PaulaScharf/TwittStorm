@@ -102,15 +102,15 @@ function convertTimestamp(radarProduct, timestampString) {
       tz = tz * 60000;
 
       if(prod == 'SF') {
-        variance = 1560000;
+        variance = 1620000;
         access = 3600000;
       }
       if(prod == 'RW') {
-        variance = 1980000;
+        variance = 2040000;
         access = 3600000;
       }
       if(prod == 'RY') {
-        variance = 180000;
+        variance = 120000;
         access = 300000;
       }
 
