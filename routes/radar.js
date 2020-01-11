@@ -53,66 +53,24 @@ function GeoJSONPolygon(object) {
   return result;
 }
 
-function findLastTimestamp(product, timestampString) {
+/**
+  * function to fetch the available radar files from DWD server
+  * @author Jonathan Bahlmann
+  * @param product radarProductCode such as sf, rw or ry
+  * @returns {promise} promises to resolve to fileList
+  */
+function findLastTimestamp(product) {
     return new Promise((resolve, reject) => {
       R("./getFileList.R")
         .data({ "radarProduct": product, "dwdUrl": config.dwd.radar })
         .call(function(err, fileList) {
           if(err) throw err;
 
-          // from returned file list
-          // parse the latest available product
-
-
-          let latest = fileList[fileList.length - 1].slice(16,26);
-          console.log(latest);
-          latest = "20" + latest.slice(0, 2) + "-" + latest.slice(2, 4) + "-" + latest.slice(4, 6) + " " +
-          latest.slice(6, 8) + ":" + latest.slice(8, 10);
-          let latestDate = new Date(latest);
-          let latestDateStamp = latestDate.getTime();
-          console.log(latest);
-
-          // and also parse the second latest available product
-          let secondLatest = fileList[fileList.length - 2].slice(16,26);
-          secondLatest = "20" + secondLatest.slice(0, 2) + "-" + secondLatest.slice(2, 4) + "-" + secondLatest.slice(4, 6) + " " +
-          secondLatest.slice(6, 8) + ":" + secondLatest.slice(8, 10);
-          let secondLatestDate = new Date(secondLatest);
-          let secondLatestDateStamp = secondLatestDate.getTime();
-          console.log(secondLatest);
-
-          // now handle input
-          // and parse the timestamp that we need a product for
-          let prod = product.toUpperCase();
-          let timestamp = parseInt(timestampString);
-          let timestampDate = new Date(timestamp);
-          console.log("ts: " + timestampDate);
-
-          // now there are different cases
-
-
-          // SF or RW products
-          if(prod === 'SF' || prod === 'RW') {
-            let until = 50;
-
-            while(timestampDate.getMinutes() !== until) {
-              timestampDate.setMinutes(timestampDate.getMinutes() - 1);
-            }
-          }
-          if(prod === 'RY') {
-            let mod = 5;
-            while(timestampDate.getMinutes() % mod !== 0) {
-              console.log(timestampDate.getMinutes());
-              timestampDate.setMinutes(timestampDate.getMinutes() - 1);
-            }
-          }
-          console.log("fnd:" + timestampDate);
-
-
 
           if(fileList) {
             resolve(fileList);
           } else {
-            let e = "Couldn't fetch fileList from DWD server.";
+            let e = "Couldn't fetch Filelist from DWD server.";
             console.log(e);
             reject(e);
           }
@@ -121,15 +79,16 @@ function findLastTimestamp(product, timestampString) {
       });
 }
 
-
 /**
+  * @desc this function returns converts given timestamps and a radar product toa timespan in which the
+  * timestamp of the actual radarproduct must lay
   * @author Paula Scharf, Jonathan Bahlmann
   * @param {string} radarProduct
   * @param timestamp
   * @param db
+  * @returns array containing timespan
   */
-function checkForExistingRadar(radarProduct, timestampString, db) {
-  return new Promise((resolve, reject) => {
+function convertTimestamp(radarProduct, timestampString) {
       // prod is uppercase product code
       let prod = radarProduct.toUpperCase();
       let timestamp = parseInt(timestampString);
@@ -155,33 +114,13 @@ function checkForExistingRadar(radarProduct, timestampString, db) {
         access = 300000;
       }
 
-      let reqTime = timestamp + tz + variance - access + 1000;
+      let reqTime = timestamp + tz + variance - access;
       let reqTimeLower = reqTime - access;
 
-      console.log("timestamp   : " + new Date(timestamp) + " // " + timestamp);
-      console.log("timestamp is: " + timestamp);
+      console.log("converting " + new Date(timestamp) + " .. to sequence: " + new Date(reqTime));
+      console.log(" from [lower border] " + new Date(reqTimeLower));
 
-      // query with calculated timespan
-      let query = {
-        type: "rainRadar",
-        radarProduct: prod,
-        $and: [
-          {"timestamp": {"$gt": (reqTimeLower)}},
-          {"timestamp": {"$lt": (reqTime)}}
-        ]
-      };
-    promiseToGetItems(query, db)
-      .catch(function (error) {
-        reject(error);
-      })
-      .then(function (result) {
-        if (result.length > 0) {
-          resolve(result);
-        } else {
-          resolve(false);
-        }
-      });
-  });
+      return [reqTimeLower, reqTime];
 }
 
 var promiseToFetchRadarData = function(radarProduct) {
@@ -224,117 +163,6 @@ var promiseToFetchRadarData = function(radarProduct) {
     });
 };
 
-var radarDataRoute = function(req, res) {
-  checkForExistingRadar(req.params.radarProduct, req.params.timestamp, req.db)
-    .catch(console.error)
-    .then(function(response) {
-
-      findLastTimestamp(req.params.radarProduct, req.params.timestamp);
-      // if no data is cached in db
-      if(!response) {
-        console.log("no radar " + req.params.radarProduct + " data found for requested timestamp, fetching ...");
-        // fetch new data
-        promiseToFetchRadarData(req.params.radarProduct)
-          .catch(console.error)
-          .then(function(radarPolygonsJSON) {
-            try {
-              // post it to DB
-              promiseToPostItems([radarPolygonsJSON], req.db)
-                .catch(console.error)
-                .then( function() {
-                  // and send the JSON to the endpoint as response
-                  res.send(radarPolygonsJSON);
-                }
-              );
-            } catch (e) {
-              console.dir(e);
-              res.status(500).send(e);
-            }
-          });
-      }
-      // if data is cached in db
-      else {
-        console.log("radar data found, forwarding ...");
-        try {
-          if(response.length > 3) {
-            let e = "Error: multiple radar Files found for the requested timestamp";
-            console.dir(e);
-            res.status(500).send(e);
-          } else {
-          // forward to response
-          res.send(response[0]);
-          }
-        } catch (e) {
-          console.dir(e);
-          res.status(500).send(e);
-        }
-      }
-    });
-};
-
-// make route call the function
-//router.route("/:radarProduct/:timestamp").get(radarDataRoute);
-
-/**
-  * function to fetch the available radar files from DWD server
-  * @author Jonathan Bahlmann
-  * @param product radarProductCode such as sf, rw or ry
-  * @returns {promise} promises to resolve to fileList
-  */
-function findLastTimestamp(product) {
-    return new Promise((resolve, reject) => {
-      R("./getFileList.R")
-        .data({ "radarProduct": product, "dwdUrl": config.dwd.radar })
-        .call(function(err, fileList) {
-          if(err) throw err;
-
-
-          if(fileList) {
-            resolve(fileList);
-          } else {
-            let e = "Couldn't fetch Filelist from DWD server.";
-            console.log(e);
-            reject(e);
-          }
-
-        });
-      });
-}
-
-/**
-  * function that checks the database for a radarProduct with an exact timestampString
-  * @author Paula Scharf, Jonathan Bahlmann
-  * @param prod radarProductCode of searched item
-  * @param timestampString the exact timestamp of the product you're looking for
-  * @param db reference to the db
-  */
-function checkDatabase(prod, timestampString, db) {
-  return new Promise((resolve, reject) => {
-      // prod is uppercase product code
-      prod = prod.toUpperCase();
-      let timestamp = parseInt(timestampString);
-
-      // query with given timestamp
-      let query = {
-        type: "rainRadar",
-        radarProduct: prod,
-        timestamp: timestamp
-      };
-
-    promiseToGetItems(query, db)
-      .catch(function (error) {
-        reject(error);
-      })
-      .then(function (result) {
-        if (result.length > 0) {
-          resolve(result);
-        } else {
-          resolve(false);
-        }
-      });
-  });
-}
-
 /**
   * function in variable to execute the "radar-latest" route
   * posts to req.res
@@ -342,10 +170,14 @@ function checkDatabase(prod, timestampString, db) {
   * @param req the request object
   * @param res the response object
   */
-var radarRouteLatest = function(req, res) {
-  config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+var radarRoute = function(req, res) {
 
   let prod = req.params.radarProduct.toLowerCase();
+
+  // calculate timespan
+  let interval = convertTimestamp(prod, req.params.timestamp);
+  let reqTimeUpper = interval[1];
+  let reqTimeLower = interval[0];
 
   // get a filelist of all available radar data
   findLastTimestamp(prod)
@@ -357,57 +189,80 @@ var radarRouteLatest = function(req, res) {
     latest = "20" + latest.slice(0, 2) + "-" + latest.slice(2, 4) + "-" + latest.slice(4, 6) + " " +
     latest.slice(6, 8) + ":" + latest.slice(8, 10);
     let latestDate = new Date(latest);
-    let latestDateStamp = latestDate.getTime();
+    let latestTimestamp = latestDate.getTime();
 
-    // check the database for that latest radar product
-    checkDatabase(prod, latestDateStamp, req.db)
-    .catch(console.error)
-    .then(function(response) {
-      // when the latest product is not yet in the database
-      if(!response) {
-        console.log("new " + prod + " radar data available, fetching ...");
-        // fetch new data
-        promiseToFetchRadarData(prod)
-          .catch(console.error)
-          .then(function(radarPolygonsJSON) {
-            try {
-              // post it to DB
-              promiseToPostItems([radarPolygonsJSON], req.db)
-                .catch(console.error)
-                .then( function() {
-                  // and send the JSON to the endpoint as response
-                  res.send(radarPolygonsJSON);
-                }
-              );
-            } catch (e) {
-              console.dir(e);
-              res.status(500).send(e);
-            }
-          });
-      }
+    // future
+    if(reqTimeUpper > latestTimestamp && reqTimeLower > latestTimestamp) {
+      console.log("the requested timestamp lies in the future somehow");
+    }
+    // if not, we can already check the database
+    let query = {
+      type: "rainRadar",
+      radarProduct: prod.toUpperCase(),
+      $and: [
+        {"timestamp": {"$gt": (reqTimeLower)}},
+        {"timestamp": {"$lte": (reqTimeUpper)}}
+      ]
+    };
+    // db request
+    promiseToGetItems(query, req.db)
+      .catch(console.error)
+      .then(function(result) {
 
-      // if the data is found in the database
-      else {
-        console.log("radar data found, forwarding ...");
-        try {
-          // in case there are multiple files found, write message in console
-          if(response.length > 1) {
-            let e = "Multiple radar Files found for the requested timestamp";
-            console.dir(e);
+        console.log("result from database length: " + result.length);
+
+        // if no data found
+        if(result.length < 1) {
+          // see if the newest image is meant by the requested timestamp
+          if(reqTimeUpper > latestTimestamp && reqTimeLower < latestTimestamp) {
+            // we dont have the newest, we should fetch it
+            console.log("newest data is fetched ...");
+            promiseToFetchRadarData(prod)
+            .catch(console.error)
+            .then(function(radarPolygonsJSON) {
+              try {
+                // post it to DB
+                promiseToPostItems([radarPolygonsJSON], req.db)
+                  .catch(console.error)
+                  .then( function() {
+                    // and send the JSON to the endpoint as response
+                    res.send(radarPolygonsJSON);
+                  }
+                );
+              } catch (e) {
+                console.dir(e);
+                res.status(500).send(e);
+              }
+            });
           }
-          // forward to response
-          res.send(response[0]);
-        } catch (e) {
-          console.dir(e);
+          // somesting from the past is requested that we cannot find in the db
+          else {
+            res.status(404).send({err_msg: "radar Product not found."});
+          }
+        }
+        // if one data found
+        if(result.length == 1) {
+          // if we found something we can return it without anything else
+          console.log("radar data found in db, forwarding ...");
+          console.log(result[0].date);
+          res.send(result[0]);
+        }
+        // multiple files found
+        if(result.length > 1) {
+          let array = [];
+          result.forEach(function(image) {
+            array.push(image.date);
+          });
+          let e = "multiple images found";
           res.status(500).send(e);
         }
-      }
-    });
+
+      });
   });
 };
 
 // make this route available to the router
-router.route("/:radarProduct/latest").get(radarRouteLatest);
+router.route("/:radarProduct/:timestamp").get(radarRoute);
 
 router.route("*").get(function(req, res){
   res.status(404).send({err_msg: "Parameters are not valid"});
