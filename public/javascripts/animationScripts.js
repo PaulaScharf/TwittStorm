@@ -27,7 +27,7 @@ let timestampStorage = [];
 
 wtypeFlag = [];
 
-var yo = [];
+var gifArray = [];
 
 
 
@@ -305,9 +305,8 @@ function automate(map){
           $("#slider").prop("value", val);
 
           loadAnimation(val, map);
-          console.log(yo);
-createGif(yo)
-yo = [];
+          createGif(gifArray)
+          gifArray = [];
 };
       }, 2000);
     }
@@ -381,18 +380,19 @@ function loadAnimation(position, map){
 
     // put something in the array for the for loop to check for emptiness
     allLayers.push(posMarker);
-    var  c = map.getCanvas().toDataURL();
-    var output=c.replace(/^data:image\/(png|jpg);base64,/, "");
-console.log(output);
-    var image = new Image();
-   image.src = c;
+    var  gifImage = map.getCanvas().toDataURL();
 
-
-    yo.push(c);
+    gifArray.push(gifImage);
 
 
   }
 
+
+  /**
+  * @desc Function provided from gif libary Gifshot
+  * @param array image containig array
+  * @author Benjamin Rieke
+  */
   function createGif(array) {
       gifshot.createGIF({
           images: array,
@@ -400,9 +400,9 @@ console.log(output);
 
       }, function (obj) {
           if (!obj.error) {
-              var image2 = obj.image,
+              var image = obj.image,
                   animatedImage = document.createElement('img');
-              animatedImage.src = image2;
+              animatedImage.src = image;
               document.body.appendChild(animatedImage);
           }
       });
