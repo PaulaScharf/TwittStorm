@@ -15,6 +15,11 @@ refresh_rate: 300000
 timestamp_last_warnings_request: 1579088650057
 
 max_age_tweets: null
+demos:
+  a:
+    timestamp_start: 1234
+    timestamp_end: 1235
+    location: ~/demos/a
 keys:
   twitter:
     consumer_key: MrvR3iGRtOYWEHvyX1GQvbgbn

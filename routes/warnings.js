@@ -86,25 +86,46 @@ const getWarningsForTime = function(req, res, next) {
           return next(error);
         });
 
-      // ".then" is used here, to ensure that the .......... has finished and a result is available
-      // saves new requested Unwetter in database
-      processUnwettersFromDWD(currentTimestamp, req.db)
-        .then(function () {
+      if ((currentTimestamp >= config.demos.a.timestamp_start && currentTimestamp <= config.demos.a.timestamp_end)
+        || (currentTimestamp >= config.demos.a.timestamp_start && currentTimestamp <= config.demos.a.timestamp_end)) {
+        proccessUnwettersFromLocal(currentTimestamp, req.db)
+          .then(function () {
 
-          updateCurrentTimestampInConfigYaml(currentTimestamp);
+            updateCurrentTimestampInConfigYaml(currentTimestamp);
 
-          // TODO: hier nicht als promise nötig??
-          getWarningsFromDB(currentTimestamp, req.db, res, next);
+            // TODO: hier nicht als promise nötig??
+            getWarningsFromDB(currentTimestamp, req.db, res, next);
 
 
-        }, function (error) {
-          error.httpStatusCode = 500;
-          return next(error);
-        })
-        .catch(function (error) {
-          error.httpStatusCode = 500;
-          return next(error);
-        });
+          }, function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          })
+          .catch(function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          });
+      } else {
+        // ".then" is used here, to ensure that the .......... has finished and a result is available
+        // saves new requested Unwetter in database
+        processUnwettersFromDWD(currentTimestamp, req.db)
+          .then(function () {
+
+            updateCurrentTimestampInConfigYaml(currentTimestamp);
+
+            // TODO: hier nicht als promise nötig??
+            getWarningsFromDB(currentTimestamp, req.db, res, next);
+
+
+          }, function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          })
+          .catch(function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          });
+      }
     } else {
       // TODO: hier nicht als promise nötig??
       getWarningsFromDB(currentTimestamp, req.db, res, next);
@@ -114,7 +135,20 @@ const getWarningsForTime = function(req, res, next) {
     return next(error);
   }
 };
+/**
+ * @desc This function retrieves the current Unwetter-Polygons from the local instance of the server and
+ * then posts all polygons to the database.
+ *
+ * @author Paula Scharf
+ * @param {number} currentTimestamp - timestamp in Epoch milliseconds
+ * @param db - database reference
+ */
+function proccessUnwettersFromLocal(currentTimestamp, db) {
+  //
+  return new Promise((resolve, reject) => {
 
+  });
+}
 
 /**
 * @desc This function retrieves the current Unwetter-Polygons from the DWD and
