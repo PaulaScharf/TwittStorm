@@ -256,22 +256,13 @@ function showMap(style) {
 			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-			// if timestamp undefined
-			if (paramArray.timestamp == undefined) {
-				let now = Date.now();
-				// define it to now
-				paramArray.timestamp = now;
-				updateURL("timestamp", now);
-			}
-			updateURL("timestamp", paramArray.timestamp);
-
 			//if rasterProduct is defined
 			if (paramArray.rasterProduct !== undefined) {
 
 				showLegend(map, "radar", paramArray.rasterProduct);
 
 				// display rain radar
-				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.timestamp);
+				requestAndDisplayAllRainRadar(map, paramArray.rasterProduct);
 
 				// check the checkbox of the radar submenu according to the chosen product
 				if (paramArray.rasterProduct === "ry") {
@@ -292,7 +283,7 @@ function showMap(style) {
 			else {
 				// default radar case (rw)
 				showLegend(map, "radar", "rw");
-				requestAndDisplayAllRainRadar(map, 'rw', paramArray.timestamp);
+				requestAndDisplayAllRainRadar(map, 'rw');
 				updateURL("radProd", "rw");
 				let innerRasterCheckToggle2 = document.getElementById('radio2');
 				innerRasterCheckToggle2.checked = true;
@@ -352,9 +343,19 @@ function showMap(style) {
 * @param product the radarProduct, see API wiki on github
 * @param timestamp see API wiki on GitHub
 */
-function requestAndDisplayAllRainRadar(map, product, timestamp) {
+function requestAndDisplayAllRainRadar(map, product) {
 
-	let url = "/radar/" + product + "/latest";
+	// is there a timestamp?
+	let timestamp;
+	if(paramArray.timestamp == undefined) {
+		// none found, create "now"
+		timestamp = Date.now();
+	} else {
+		// found, use historic one
+		timestamp = paramArray.timestamp;
+	}
+
+	let url = "/radar/" + product + "/" + timestamp;
 
 	// update the status display
 	$('#information').html("Retrieving the requested " + product + " radar product");
@@ -444,8 +445,19 @@ function intervalRainRadar() {
 function callRainRadar(prod) {
 	// progress update info
 	$('#information').html("Retrieving the requested " + prod + " radar product");
+
+	// is there a timestamp?
+	let timestamp;
+	if(paramArray.timestamp == undefined) {
+		// none found, create "now"
+		timestamp = Date.now();
+	} else {
+		// found, use historic one
+		timestamp = paramArray.timestamp;
+	}
+
 	// make call
-	let url = "/radar/" + prod + "/latest";
+	let url = "/radar/" + prod + "/" + timestamp;
 	$.getJSON(url, function(result) {
 		console.log("Automatically requested new rain radar data.");
 		// read from url
@@ -455,7 +467,7 @@ function callRainRadar(prod) {
 		if(wtype == "radar" && urlProd == prod) {
 
 			// TODO hier evtl display modularisieren um nicht noch ein request zu machen
-			requestAndDisplayAllRainRadar(map, prod, 1);
+			requestAndDisplayAllRainRadar(map, prod);
 		}
 	});
 }

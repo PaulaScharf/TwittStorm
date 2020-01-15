@@ -281,7 +281,7 @@ function openMenu(button, menu, site) {
 	// if a radar product is selected automatically open up the radar submenu
 	if (site == 'index') {
 
-	
+
 	if (wtypeFlag == "radar") {
 		var innerRasterMenuToggle = document.getElementById('rasterMenu');
 		innerRasterMenuToggle.style.display = "block";
@@ -437,14 +437,14 @@ function loadRaster(product){
 	// if no rainradar data is displayed load the requested product
 	if (map.style.sourceCaches.rainradar == undefined){
 
-		requestAndDisplayAllRainRadar(map, product, "dwd");
+		requestAndDisplayAllRainRadar(map, product);
 	}
 	// if a radar product is already on display remove it first
 	else {
 		map.removeLayer('rainradar')
 		map.removeSource('rainradar')
 
-		requestAndDisplayAllRainRadar(map, product, "dwd");
+		requestAndDisplayAllRainRadar(map, product);
 	};
 
 	// add active attribute to radar tab
