@@ -7,11 +7,35 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-            <a class="nav-item nav-link <%if(active=="home"){%> active<%}%>" href="/">Map</a>
-            <a class="nav-item nav-link <%if(active=="animation"){%> active<%}%>" href="/animation">Animation</a>
-            <a class="nav-item nav-link <%if(active=="config"){%> active<%}%>" href="/configuration">Configuration</a>
-            <a class="nav-item nav-link <%if(active=="help"){%> active<%}%>" href="/help">Help</a>
-        </div>
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown <%if(active=="home"){%> active<%}%>">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Map
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/map">Live</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/map?timestamp=1234">Demo 1</a>
+                    <a class="dropdown-item" href="/map?timestamp=2345">Demo 2</a>
+                </div>
+            <li class="nav-item dropdown <%if(active=="animation"){%> active<%}%>">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Animation
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/animation">Live</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/animation?timestamp=1234">Demo 1</a>
+                    <a class="dropdown-item" href="/animation?timestamp=2345">Demo 2</a>
+                </div>
+            <li class="nav-item <%if(active=="config"){%> active<%}%>">
+                <a class="nav-link" href="/configuration">
+                    Configuration
+                </a></li>
+            <li class="nav-item <%if(active=="help"){%> active<%}%>">
+                <a class="nav-link" href="/help">
+                    Help
+                </a></li>
+        </ul>
     </div>
 </nav>
