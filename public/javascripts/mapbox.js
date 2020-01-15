@@ -905,8 +905,7 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 				.done(function (result) {
 					// ... give a notice on the console that the AJAX request for inserting many items has succeeded
 					console.log("AJAX request (finding and inserting tweets) is done successfully.");
-
-					if(typeof result !== "undefined") {
+					if(typeof result !== "undefined" && result.statuses.length > 0) {
 						try {
 							let turfPolygon = turf.polygon(polygon.geometry.coordinates);
 							// create an empty featurecollection for the tweets

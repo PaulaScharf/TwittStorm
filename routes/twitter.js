@@ -215,7 +215,9 @@ const searchTweetsForEvent = function(req, res) {
                                                 res.status(500).send({err_msg: error, while: "getting tweets from the database"});
                                             })
                                             .then(function (response) {
-                                                res.send(response);
+                                                res.send({
+																									statuses: response
+																								});
                                             });
                                     });
                             } catch (error) {
