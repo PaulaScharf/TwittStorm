@@ -191,73 +191,93 @@ var radarRoute = function(req, res) {
     let latestDate = new Date(latest);
     let latestTimestamp = latestDate.getTime();
 
+    console.log("latestDate = " + latestDate);
+
     // future
+    // when a new product should be available, but isn't due to dwd update difficulties
     if(reqTimeUpper > latestTimestamp && reqTimeLower > latestTimestamp) {
       console.log("the requested timestamp lies in the future somehow");
+      // query for last available prod
+      let query = {
+        type: "rainRadar",
+        radarProduct: prod.toUpperCase(),
+        $and: [
+          {"timestamp": {"$lt": (reqTimeLower)}}
+        ]
+      };
+      promiseToGetItems(query, req.db)
+      .catch(console.error)
+      .then(function(result) {
+        // forward it to response
+        res.send(result[result.length - 1]);
+      });
+
     }
     // if not, we can already check the database
-    let query = {
-      type: "rainRadar",
-      radarProduct: prod.toUpperCase(),
-      $and: [
-        {"timestamp": {"$gt": (reqTimeLower)}},
-        {"timestamp": {"$lte": (reqTimeUpper)}}
-      ]
-    };
-    // db request
-    promiseToGetItems(query, req.db)
+    else {
+      let query = {
+        type: "rainRadar",
+        radarProduct: prod.toUpperCase(),
+        $and: [
+          {"timestamp": {"$gt": (reqTimeLower)}},
+          {"timestamp": {"$lte": (reqTimeUpper)}}
+        ]
+      };
+      // db request
+      promiseToGetItems(query, req.db)
       .catch(console.error)
       .then(function(result) {
 
-        console.log("result from database length: " + result.length);
+          console.log("result from database length: " + result.length);
 
-        // if no data found
-        if(result.length < 1) {
-          // see if the newest image is meant by the requested timestamp
-          if(reqTimeUpper > latestTimestamp && reqTimeLower < latestTimestamp) {
-            // we dont have the newest, we should fetch it
-            console.log("newest data is fetched ...");
-            promiseToFetchRadarData(prod)
-            .catch(console.error)
-            .then(function(radarPolygonsJSON) {
-              try {
-                // post it to DB
-                promiseToPostItems([radarPolygonsJSON], req.db)
-                  .catch(console.error)
-                  .then( function() {
-                    // and send the JSON to the endpoint as response
-                    res.send(radarPolygonsJSON);
-                  }
-                );
-              } catch (e) {
-                console.dir(e);
-                res.status(500).send(e);
-              }
+          // if no data found
+          if(result.length < 1) {
+            // see if the newest image is meant by the requested timestamp
+            if(reqTimeUpper > latestTimestamp && reqTimeLower < latestTimestamp) {
+              // we dont have the newest, we should fetch it
+              console.log("newest data is fetched ...");
+              promiseToFetchRadarData(prod)
+              .catch(console.error)
+              .then(function(radarPolygonsJSON) {
+                try {
+                  // post it to DB
+                  promiseToPostItems([radarPolygonsJSON], req.db)
+                    .catch(console.error)
+                    .then( function() {
+                      // and send the JSON to the endpoint as response
+                      res.send(radarPolygonsJSON);
+                    }
+                  );
+                } catch (e) {
+                  console.dir(e);
+                  res.status(500).send(e);
+                }
+              });
+            }
+            // somesting from the past is requested that we cannot find in the db
+            else {
+              res.status(404).send({err_msg: "radar Product not found."});
+            }
+          }
+          // if one data found
+          if(result.length == 1) {
+            // if we found something we can return it without anything else
+            console.log("radar data found in db, forwarding ...");
+            console.log(result[0].date);
+            res.send(result[0]);
+          }
+          // multiple files found
+          if(result.length > 1) {
+            let array = [];
+            result.forEach(function(image) {
+              array.push(image.date);
             });
+            console.log("multiple images found" + array);
+            res.send(result[0]);
           }
-          // somesting from the past is requested that we cannot find in the db
-          else {
-            res.status(404).send({err_msg: "radar Product not found."});
-          }
-        }
-        // if one data found
-        if(result.length == 1) {
-          // if we found something we can return it without anything else
-          console.log("radar data found in db, forwarding ...");
-          console.log(result[0].date);
-          res.send(result[0]);
-        }
-        // multiple files found
-        if(result.length > 1) {
-          let array = [];
-          result.forEach(function(image) {
-            array.push(image.date);
-          });
-          let e = "multiple images found";
-          res.status(500).send(e);
-        }
 
       });
+    }
   });
 };
 
