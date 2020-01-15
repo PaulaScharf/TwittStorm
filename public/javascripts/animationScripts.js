@@ -10,26 +10,28 @@
 
 
 // ****************************** global variables *****************************
-
+// the current date
 let currentTimestamp = Date.now();
-
+// a list of the current timestamps
 let usedTimestamps = [];
-
+// all individual events from a timestamp get temporally stored in here
 let outputArray = [];
-
+// contains the sources in geojson format
 let final = [];
-
+// a geojson mask
 let mask = [];
-
+// an array where all active layers are stored
 let allLayers = [];
-
+// stores all geojsons with their timestamps
 let timestampStorage = [];
-
+// indicates which weathertype is requested
 wtypeFlag = [];
-
+// adds up canvasshots from the map in base64 format
+var imageArray = [];
+// the final output to create a gif from
 var gifArray = [];
-
-
+// the intervall that is started with the animation and used to stop it
+var automationIntervall;
 
 
 
@@ -150,12 +152,18 @@ var checkedSat = document.getElementById('satellite-v9')
 
     // add functionality for menu selection on radar product call
     $("#raster").click(function() {
+      // when another animation is running stop it first
+      clearInterval(automationIntervall);
+      // remove all old sources
       removeAllSource(map);
-
+      //update the URL
       updateURL("wtype", "radar")
       updateURL("radProd", "ry")
+      // set the weathertype
       wtypeFlag = "radar";
+      //display the legend
       showLegend(map, "radar", "ry");
+      //request the previous weather
       loadPreviousWeather(map, wtypeFlag);
 
       //change the menu
@@ -164,14 +172,42 @@ var checkedSat = document.getElementById('satellite-v9')
       var menuToggle = document.getElementById('severeWeatherAnimation');
       menuToggle.classList.remove("active");
 
+      // set the animation slider to the first position
+      $("#slider").prop("value", 0);
+      // in case the weathertype is changed during the animation unbind the button
+      $("#playButton").unbind();
+      // change image to play icon
+      $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
+      //and reset everything
+      automate(map);
+      //flush the image array
+      imageArray = [];
+      //flush the layer array
+      allLayers =[];
+      //flush the gif array
+      gifArray = [];
+      // reset the downloadbutton and its popups
+      $("#downloadButton").css({'background-color': 'darkgrey'});
+      $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
+      $('#downloadPopup').html('You have to wait for one animation cycle!');
+      $("#downloadPopup").css({'background-color': 'DimGray'});
+
     });
 
 
     // add functionality for menu selection on severeweather call
     $("#severeWeatherAnimation").click(function() {
+      // when another animation is running stop it first
+      clearInterval(automationIntervall);
+      // remove all old sources
+      removeAllSource(map);
+      //update the URL
       updateURL("wtype", "unwetter")
+      // set the weathertype
       wtypeFlag = "severeWeather";
+      //display the legend
       showLegend(map, "unwetter");
+      //request the previous weather
       loadPreviousWeather(map, wtypeFlag);
 
       // update the menu
@@ -181,11 +217,28 @@ var checkedSat = document.getElementById('satellite-v9')
       innerRasterMenuToggle.style.display = "none";
 
 
-
       // activate the severe weather tab
       var severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
       severeWeatherMenuToggle.classList.add("active");
-      removeAllSource(map);
+      // set the animation slider to the first position
+      $("#slider").prop("value", 0);
+      // in case the weathertype is changed during the animation unbind the button
+      $("#playButton").unbind();
+      // change image to play icon
+      $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
+      //and reset everything
+      automate(map);
+      //flush the image array
+      imageArray = [];
+      //flush the layer array
+      allLayers = [];
+      //flush the gif array
+      gifArray = [];
+      // reset the downloadbutton and its popups
+      $("#downloadButton").css({'background-color': 'darkgrey'});
+      $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
+      $('#downloadPopup').html('You have to wait for one animation cycle!');
+      $("#downloadPopup").css({'background-color': 'DimGray'});
 
     });
 
@@ -203,22 +256,15 @@ var checkedSat = document.getElementById('satellite-v9')
       severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
         severeWeatherMenuToggle.classList.remove("active");
 
-      //  showLegend(map, "radar", paramArray.rasterProduct);
+        showLegend(map, "radar", "rw");
 
         // display rain radar
         //  requestAndDisplayAllRainRadar(map, paramArray.rasterProduct);
 
         loadPreviousWeather(map, wtypeFlag);
       }
-      // if radarproduct is undefined
-      else {
-        // default radar case (rw)
-        showLegend(map, "radar", "rw");
-        loadPreviousWeather(map, wtypeFlag);
 
-        updateURL("radProd", "rw");
-      }
-    }
+
     if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
 
       //set URL to requested wtype
@@ -232,38 +278,38 @@ var checkedSat = document.getElementById('satellite-v9')
       rasterMenuToggle.classList.remove("active");
       severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
       severeWeatherMenuToggle.classList.add("active");
-
+      //display the legend according to the weathertype
       showLegend(map, "unwetter");
 
       // the last Unwetter request was "hm"-milliseconds ago
       let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
       loadPreviousWeather(map, wtypeFlag);
     }
-
+    // add manual functionality for the slider
     document
     .getElementById('slider')
     .addEventListener('input', function(e) {
       //the number of the timestamp
       var timestampNum = parseInt(e.target.value, 10);
       loadAnimation(timestampNum, map);
+      });
     });
-  });
+    //enable the animation functionality
   automate(map);
-}
+};
 
 
 
 /**
-* @desc adds functionality to the slider and to the pause and play buttons
+* @desc adds functionality to the slider and to the pause, play and download buttons
 * @param map links to the map
 * @author Benjamin Rieke
 */
 function automate(map){
-  // to refer to the intervall
-  let automationIntervall;
 
   // on playbutton click
-  $("#playButton").click(function() {
+  $("#playButton").click(function play() {
+
     // flush the intervall
 
     automationIntervall = undefined;
@@ -276,7 +322,8 @@ function automate(map){
     // first value of the slider
     var min = document.getElementById('slider').min;
 
-    if (automationIntervall == undefined){
+    // initialize the animation
+    loadAnimation(0, map);
 
       // name the intervall to have access to it for stopping
       automationIntervall = setInterval(function(){
@@ -287,6 +334,9 @@ function automate(map){
           $("#slider").prop("value", val);
           // in this case earthquakes from the demo json which are sorted by months
           loadAnimation(val, map);
+          //save the current map canvas as a base64 formatted array entry
+          var gifImage = map.getCanvas().toDataURL();
+          imageArray.push(gifImage);
         }
         // if the maximum is reached set the value to the minimum
         else {
@@ -295,23 +345,73 @@ function automate(map){
           $("#slider").prop("value", val);
 
           loadAnimation(val, map);
-          createGif(gifArray)
-          gifArray = [];
-};
-      }, 2000);
-    }
+          var gifImage = map.getCanvas().toDataURL();
+          imageArray.push(gifImage);
+          // when the imageArray has as many entries as the animation does
+          if (imageArray.length == usedTimestamps.length){
+            // adjust the button and the popup
+            $("#downloadButton").css({'background-color': 'white'});
+            $('#downloadButton').prop('title', 'Download the current animation');
+            $('#downloadPopup').html('Now you can click to download');
+            $("#downloadPopup").css({'background-color': 'green'});
 
-    else {
-      return;
-    }
+            // pass the results to a new array for the conversion to a gif file
+            gifArray = imageArray;
+            // flush the array so there are never more images than timestempsa
+            imageArray = [];
+          };
+            };
+                  }, 2000);
+
+
+    // after using the playpausebutton once unbind its function
+    $("#playButton").unbind();
+    // change image to pause icon
+    $("#pauseplay").attr("src", "/css/iconfinder_icon-pause.svg");
+
+    // add new functionality to it so it stops the animation
+    $("#playButton").click(function() {
+      clearInterval(automationIntervall);
+          // unbind its function again
+        $("#playButton").unbind();
+        // change image to play icon
+        $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
+        // and afterwards set it back to its original functionality
+          $("#playButton").click(function() {
+              play();
+            });
+
   });
 
+  }
 
+);
 
-  $("#stopButton").click(function() {
-    clearInterval(automationIntervall);
-  });
 }
+
+    // functionality for the download button
+    $("#downloadButton").click(function() {
+      // set reference for the popup
+      var popup = document.getElementById("downloadPopup");
+      // if the gifarray is not empty
+      if(gifArray.length){
+        // create a gif with the images from the last displayed animation cycle
+        createGif(gifArray)
+        $('#downloadPopup').html('Your animation download will start in a few seconds');
+      }
+
+      //avoid multiple click events
+      if(popup.classList[1] != "show"){
+        // show the popup
+      popup.classList.toggle("show");
+      // hide the popup after some time
+      setTimeout(function(){
+        popup.classList.toggle("show");
+          }, 4000);
+        }
+    });
+
+
 
 
 /**
@@ -370,12 +470,8 @@ function loadAnimation(position, map){
 
     // put something in the array for the for loop to check for emptiness
     allLayers.push(posMarker);
-    var  gifImage = map.getCanvas().toDataURL();
 
-    gifArray.push(gifImage);
-
-
-  }
+  };
 
 
   /**
@@ -384,18 +480,25 @@ function loadAnimation(position, map){
   * @author Benjamin Rieke
   */
   function createGif(array) {
+    var date = new Date();
+    var utc = date.toJSON().slice(0,10).replace(/-/g,'/');
+    var time = date.toLocaleTimeString();
+    var filename = utc + '/'+time;
       gifshot.createGIF({
           images: array,
           'frameDuration': 10,
+          'gifWidth': 400,
+          'gifHeight': 400,
 
       }, function (obj) {
           if (!obj.error) {
-              var image = obj.image,
-                  animatedImage = document.createElement('img');
-              animatedImage.src = image;
-              document.body.appendChild(animatedImage);
+              var image = obj.image
+
+          download(image, filename, 'image/gif')
+
           }
       });
+
   }
 
   /**
@@ -571,9 +674,6 @@ function loadAnimation(position, map){
   }
 }
 }
-
-
-
 
 
 

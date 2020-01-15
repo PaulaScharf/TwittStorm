@@ -131,19 +131,26 @@
 
             <!-- Buttons to start and stop the animation -->
 
-            <!-- icon taken from https://www.iconfinder.com/icons/211876/play_icon -->
+            <!-- play icon taken from https://www.iconfinder.com/icons/211876/play_icon -->
+            <!-- pause icon taken from https://www.iconfinder.com/icons/211871/pause_icon -->
 
-            <nav id="playButton" class="button" title="Play Animation">
-              <img src="/css/iconfinder_icon-play.svg" width="20" height="20"/>
+
+            <nav id="playButton" class="button" title="Play animation">
+              <img src="/css/iconfinder_icon-play.svg" id ="pauseplay" width="20" height="20"/>
             </nav>
 
-            <!-- icon taken from https://www.iconfinder.com/icons/211871/pause_icon -->
+            <!-- dowmload icon taken from https://www.iconfinder.com/icons/326639/download_file_icon -->
 
-            <nav id="stopButton" class="button" title="Stop Animation">
-              <img src="/css/iconfinder_icon-pause.svg" width="20" height="20"/>
+            <nav id="downloadButton" class="button" title="Please wait for one animation cycle">
+              <span class="popuptext" id="downloadPopup">You have to wait for one animation cycle!</span>
+              <img src="/css/iconfinder_icon-download.svg" width="20" height="20"/>
             </nav>
+
+
           </div>
       </div>
+
+
 
 
     </main>
@@ -161,6 +168,8 @@
   <script src="/leaflet/leaflet.js"></script>
   <script src="/turf/turf/turf.min.js"></script>
   <script src="/gifshot/gifshot.js"></script>
+  <script src="/downloadjs/download.js"></script>
+
 
 
   <script>
