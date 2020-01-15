@@ -213,6 +213,14 @@ var radarRoute = function(req, res) {
       });
 
     }
+    // past
+    if(reqTimeUpper < latestTimestamp) {
+      // make 10 * refresh to see if demo data is meant
+      let pastBorder = config.refresh_rate * 10;
+      pastBorder = latestTimestamp - pastBorder;
+      console.log("radar: historic data requested because timestamp of req lies before " + new Date(pastBorder));
+      //TODO then write data from file into db // return it or something
+    }
     // if not, we can already check the database
     else {
       let query = {
