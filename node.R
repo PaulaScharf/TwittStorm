@@ -19,7 +19,14 @@ rw_file <- dataDWD(rw_urls[length(rw_urls)], base=rw_base, joinbf=TRUE, dir=temp
 
 # data & reproject
 rw_orig <- dwdradar::readRadarFile(rw_file)
-rw_proj <- projectRasterDWD(raster::raster(rw_orig$dat), extent="radolan", quiet=TRUE)
+# flip RY
+if( radarProduct == "ry" ) {
+  ras <- raster(rw_orig$dat)
+  flipped <- flip(ras, "y")
+  rw_proj <- projectRasterDWD(flipped, extent="radolan", quiet = TRUE)
+} else {
+  rw_proj <- projectRasterDWD(raster::raster(rw_orig$dat), extent="radolan", quiet=TRUE)
+}
 
 # reclassify
 # replace < 0 and 0 with NA, so they're no part of the final product
