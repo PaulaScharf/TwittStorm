@@ -325,15 +325,15 @@ function showMap(style) {
 			showLegend(map, "unwetter");
 
 			// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
-			requestNewAndDisplayCurrentUnwetters(map);
+			requestNewAndDisplayCurrentUnwetters(map, paramArray.timestamp);
 			// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
 			let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - (Date.now() - paramArray.config.timestamp_last_warnings_request);
 
 			// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
 			// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
-			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
+			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map, paramArray.timestamp);
 			// ... and afterwards each "paramArray.config.refresh_rate" again
-			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
+			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.timestamp, paramArray.config.refresh_rate);
 
 		}
 
@@ -354,6 +354,8 @@ function showMap(style) {
 */
 function requestAndDisplayAllRainRadar(map, product, timestamp) {
 
+	let currentTimestamp = (timestamp) ? timestamp : Date.now();
+
 	let url = "/radar/" + product + "/latest";
 
 	// update the status display
@@ -373,7 +375,6 @@ function requestAndDisplayAllRainRadar(map, product, timestamp) {
 
 			// TODO: muss noch timestamp of request werden und nicht timestamp of display in map
 			// show timestamp of the last request in legend
-			let currentTimestamp = Date.now();
 			let formattedRequestTimestamp = timestampFormatting(currentTimestamp);
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedRequestTimestamp;
@@ -446,6 +447,7 @@ function callRainRadar(prod) {
 	$('#information').html("Retrieving the requested " + prod + " radar product");
 	// make call
 	let url = "/radar/" + prod + "/latest";
+	/*
 	$.getJSON(url, function(result) {
 		console.log("Automatically requested new rain radar data.");
 		// read from url
@@ -458,6 +460,7 @@ function callRainRadar(prod) {
 			requestAndDisplayAllRainRadar(map, prod, 1);
 		}
 	});
+	*/
 }
 
 // *****************************************************************************************************
@@ -469,9 +472,10 @@ function callRainRadar(prod) {
 * @author Katharina Poppinga
 * @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
 * @param {number} interval -
+* @param {number} timestamp -
 */
-function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
-	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map);
+function requestNewAndDisplayCurrentUnwettersEachInterval(map, timestamp, interval) {
+	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map, timestamp);
 }
 
 /**
@@ -481,9 +485,9 @@ function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 * @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
 * @param {number} timestampLastWarningsRequest - timestamp of the last warnings request to DWD (in Epoch milliseconds)
 */
-function requestNewAndDisplayCurrentUnwetters(map) {
+function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	// timestamp (in Epoch milliseconds) for this whole specific request
-	let currentTimestamp = Date.now();
+	let currentTimestamp = (timestamp) ? timestamp : Date.now();
 
 	// FUER DEMODATEN
 	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
