@@ -17,6 +17,7 @@
     "dotenv": "^8.2.0",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
+    "gifshot": "^0.4.5",
     "http-errors": "~1.6.3",
     "jquery": "^3.4.1",
     "js-yaml": "^3.13.1",

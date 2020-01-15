@@ -27,6 +27,9 @@ let timestampStorage = [];
 
 wtypeFlag = [];
 
+var gifArray = [];
+
+
 
 
 
@@ -97,7 +100,8 @@ var checkedSat = document.getElementById('satellite-v9')
     container: 'map',
     style: style,
     zoom: zoomURL,
-    center: centerURL
+    center: centerURL,
+    preserveDrawingBuffer: true
   });
 
 
@@ -296,11 +300,14 @@ function automate(map){
         }
         // if the maximum is reached set the value to the minimum
         else {
+
           val = min;
           $("#slider").prop("value", val);
 
           loadAnimation(val, map);
-        }
+          createGif(gifArray)
+          gifArray = [];
+};
       }, 2000);
     }
 
@@ -308,6 +315,8 @@ function automate(map){
       return;
     }
   });
+
+
 
   $("#stopButton").click(function() {
     clearInterval(automationIntervall);
@@ -369,12 +378,35 @@ function loadAnimation(position, map){
       }});
     }
 
-
     // put something in the array for the for loop to check for emptiness
     allLayers.push(posMarker);
+    var  gifImage = map.getCanvas().toDataURL();
+
+    gifArray.push(gifImage);
+
 
   }
 
+
+  /**
+  * @desc Function provided from gif libary Gifshot
+  * @param array image containig array
+  * @author Benjamin Rieke
+  */
+  function createGif(array) {
+      gifshot.createGIF({
+          images: array,
+          'frameDuration': 10,
+
+      }, function (obj) {
+          if (!obj.error) {
+              var image = obj.image,
+                  animatedImage = document.createElement('img');
+              animatedImage.src = image;
+              document.body.appendChild(animatedImage);
+          }
+      });
+  }
 
   /**
   * @desc Performs the actual db call to retrieve the previousWeather data
