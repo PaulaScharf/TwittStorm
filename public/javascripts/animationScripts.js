@@ -199,20 +199,10 @@ var checkedSat = document.getElementById('satellite-v9')
       severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
         severeWeatherMenuToggle.classList.remove("active");
 
-      // if timestamp undefined
-      if (paramArray.timestamp == undefined) {
-        let now = Date.now();
-        // define it to now
-        paramArray.timestamp = now;
-        updateURL("timestamp", now);
-      }
-      updateURL("timestamp", paramArray.timestamp);
-      if (paramArray.rasterProduct !== undefined) {
-
       //  showLegend(map, "radar", paramArray.rasterProduct);
 
         // display rain radar
-        //  requestAndDisplayAllRainRadar(map, paramArray.rasterProduct, paramArray.timestamp);
+        //  requestAndDisplayAllRainRadar(map, paramArray.rasterProduct);
 
         loadPreviousWeather(map, wtypeFlag);
       }
@@ -222,7 +212,7 @@ var checkedSat = document.getElementById('satellite-v9')
         showLegend(map, "radar", "rw");
         loadPreviousWeather(map, wtypeFlag);
 
-        updateURL("rasterProduct", "rw");
+        updateURL("radProd", "rw");
       }
     }
     if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
