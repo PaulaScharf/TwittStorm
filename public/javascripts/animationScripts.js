@@ -292,6 +292,8 @@ var checkedSat = document.getElementById('satellite-v9')
       //the number of the timestamp
       var timestampNum = parseInt(e.target.value, 10);
       loadAnimation(timestampNum, map);
+      //reset the imageArray
+      imageArray = [];
       });
     });
     //enable the animation functionality
@@ -337,6 +339,8 @@ function automate(map){
           //save the current map canvas as a base64 formatted array entry
           var gifImage = map.getCanvas().toDataURL();
           imageArray.push(gifImage);
+          // activate the downloadbutton if ready
+            setToReady();
         }
         // if the maximum is reached set the value to the minimum
         else {
@@ -347,19 +351,8 @@ function automate(map){
           loadAnimation(val, map);
           var gifImage = map.getCanvas().toDataURL();
           imageArray.push(gifImage);
-          // when the imageArray has as many entries as the animation does
-          if (imageArray.length == usedTimestamps.length){
-            // adjust the button and the popup
-            $("#downloadButton").css({'background-color': 'white'});
-            $('#downloadButton').prop('title', 'Download the current animation');
-            $('#downloadPopup').html('Now you can click to download');
-            $("#downloadPopup").css({'background-color': 'green'});
-
-            // pass the results to a new array for the conversion to a gif file
-            gifArray = imageArray;
-            // flush the array so there are never more images than timestempsa
-            imageArray = [];
-          };
+          // activate the downloadbutton if ready
+            setToReady();
             };
                   }, 2000);
 
@@ -389,6 +382,7 @@ function automate(map){
 
 }
 
+
     // functionality for the download button
     $("#downloadButton").click(function() {
       // set reference for the popup
@@ -411,6 +405,27 @@ function automate(map){
         }
     });
 
+
+    /**
+    * @desc   check if the imageArray is uptodate with the amount of used
+    * timestamps and if so set the download in a ready state
+    * @author Benjamin Rieke
+    */
+    function setToReady(){
+      // when the imageArray has as many entries as the animation does
+      if (imageArray.length == usedTimestamps.length){
+        // adjust the button and the popup
+        $("#downloadButton").css({'background-color': 'white'});
+        $('#downloadButton').prop('title', 'Download the current animation');
+        $('#downloadPopup').html('Now you can click to download');
+        $("#downloadPopup").css({'background-color': 'green'});
+
+        // pass the results to a new array for the conversion to a gif file
+        gifArray = imageArray;
+        // flush the array so there are never more images than timestempsa
+        imageArray = [];
+      };
+    }
 
 
 
