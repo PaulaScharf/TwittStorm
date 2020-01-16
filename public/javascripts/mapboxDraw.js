@@ -17,19 +17,9 @@
 *
 * @author Katharina Poppinga
 * @param {mapbox-map} map mapbox-map in which the polygons shall be drawn
+* @param {} draw
 */
-function drawForAOI(map) {
-
-	// specify and add a control for DRAWING A POLYGON into the map
-	var draw = new MapboxDraw({
-		displayControlsDefault: false, // all controls to be off by default for self-specifiying the controls as follows
-		controls: {
-			polygon: true,
-			trash: true // for deleting a drawn polygon
-		}
-	});
-	map.addControl(draw);
-
+function drawForAOI(map, draw) {
 
 	// ************************ events for drawn polygons ************************
 	// https://github.com/mapbox/mapbox-gl-draw/blob/master/docs/API.md
