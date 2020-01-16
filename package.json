@@ -38,6 +38,7 @@
     "request": "^2.88.0",
     "twitter": "^1.7.1",
     "underscore": "^1.9.1",
-    "util": "^0.12.1"
+    "util": "^0.12.1",
+    "xmlhttprequest": "^1.8.0"
   }
 }

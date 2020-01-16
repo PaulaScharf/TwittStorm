@@ -39,44 +39,21 @@ const getWarningsForTime = function(req, res, next) {
 
     // TODO: überprüfen, ob < oder > oder = passt (serverseitig)
 
-    if (config.timestamp_last_warnings_request ? ((currentTimestamp - config.timestamp_last_warnings_request) >= config.refresh_rate) : true) {
+    if ((currentTimestamp >= config.demo.timestamp_start && currentTimestamp <= config.demo.timestamp_end)) {
+      proccessUnwettersFromLocal(currentTimestamp, req.db)
+        .then(function (response) {
 
-      // timestampDeleting = currentTimestamp - 10 timesteps
-      let timestampDeleting = currentTimestamp - (config.refresh_rate * 10);
+          updateCurrentTimestampInConfigYaml(currentTimestamp);
 
-      promiseToUpdateItems({type: "unwetter"}, {"$pull": {"timestamps": {"$lt": timestampDeleting}}},
-        req.db)
-        .then(function () {
-          promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 0}}]}, req.db)
-            .then(function (response) {
-              let oldUnwetterIDs = [];
-              // put together all JSON-objects of old Unwetter dwd_ids in one array
-              for (let u = 0; u < response.length; u++) {
-                oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
-              }
-              // if there are old Unwetter existing (older than 10 timesteps),
-              // delete them and their corresponding tweets
-              if (oldUnwetterIDs.length > 0) {
-                promiseToDeleteItems({$and: [{"$or": [{"type": "unwetter"}, {"type": "tweet"}]}, {"$or": oldUnwetterIDs}]}, req.db)
-                  .then(function () {
-                    },
-                    function (error) {
-                      error.httpStatusCode = 500;
-                      return next(error);
-                    })
-                  .catch(function (error) {
-                    error.httpStatusCode = 500;
-                    return next(error);
-                  });
-              }
-            }, function (error) {
-              error.httpStatusCode = 500;
-              return next(error);
-            })
-            .catch(function (error) {
-              error.httpStatusCode = 500;
-              return next(error);
-            });
+          response = {
+            type: "SevereWeatherWarnings",
+            events: response
+          };
+          if(!res.headersSent) {
+            res.send(response);
+          }
+
+
         }, function (error) {
           error.httpStatusCode = 500;
           return next(error);
@@ -85,18 +62,46 @@ const getWarningsForTime = function(req, res, next) {
           error.httpStatusCode = 500;
           return next(error);
         });
+    } else {
 
-      if ((currentTimestamp >= config.demos.a.timestamp_start && currentTimestamp <= config.demos.a.timestamp_end)
-        || (currentTimestamp >= config.demos.a.timestamp_start && currentTimestamp <= config.demos.a.timestamp_end)) {
-        proccessUnwettersFromLocal(currentTimestamp, req.db)
+      if (config.timestamp_last_warnings_request ? ((currentTimestamp - config.timestamp_last_warnings_request) >= config.refresh_rate) : true) {
+
+        // timestampDeleting = currentTimestamp - 10 timesteps
+        let timestampDeleting = currentTimestamp - (config.refresh_rate * 10);
+
+        promiseToUpdateItems({type: "unwetter"}, {"$pull": {"timestamps": {"$lt": timestampDeleting}}},
+          req.db)
           .then(function () {
-
-            updateCurrentTimestampInConfigYaml(currentTimestamp);
-
-            // TODO: hier nicht als promise nötig??
-            getWarningsFromDB(currentTimestamp, req.db, res, next);
-
-
+            promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 0}}]}, req.db)
+              .then(function (response) {
+                let oldUnwetterIDs = [];
+                // put together all JSON-objects of old Unwetter dwd_ids in one array
+                for (let u = 0; u < response.length; u++) {
+                  oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
+                }
+                // if there are old Unwetter existing (older than 10 timesteps),
+                // delete them and their corresponding tweets
+                if (oldUnwetterIDs.length > 0) {
+                  promiseToDeleteItems({$and: [{"$or": [{"type": "unwetter"}, {"type": "tweet"}]}, {"$or": oldUnwetterIDs}]}, req.db)
+                    .then(function () {
+                      },
+                      function (error) {
+                        error.httpStatusCode = 500;
+                        return next(error);
+                      })
+                    .catch(function (error) {
+                      error.httpStatusCode = 500;
+                      return next(error);
+                    });
+                }
+              }, function (error) {
+                error.httpStatusCode = 500;
+                return next(error);
+              })
+              .catch(function (error) {
+                error.httpStatusCode = 500;
+                return next(error);
+              });
           }, function (error) {
             error.httpStatusCode = 500;
             return next(error);
@@ -105,7 +110,7 @@ const getWarningsForTime = function(req, res, next) {
             error.httpStatusCode = 500;
             return next(error);
           });
-      } else {
+
         // ".then" is used here, to ensure that the .......... has finished and a result is available
         // saves new requested Unwetter in database
         processUnwettersFromDWD(currentTimestamp, req.db)
@@ -125,10 +130,10 @@ const getWarningsForTime = function(req, res, next) {
             error.httpStatusCode = 500;
             return next(error);
           });
+      } else {
+        // TODO: hier nicht als promise nötig??
+        getWarningsFromDB(currentTimestamp, req.db, res, next);
       }
-    } else {
-      // TODO: hier nicht als promise nötig??
-      getWarningsFromDB(currentTimestamp, req.db, res, next);
     }
   } catch (error) {
     error.httpStatusCode = 500;
@@ -144,9 +149,41 @@ const getWarningsForTime = function(req, res, next) {
  * @param db - database reference
  */
 function proccessUnwettersFromLocal(currentTimestamp, db) {
-  //
   return new Promise((resolve, reject) => {
+    let query = {
+      type: "unwetter",
+      "timestamps": {
+        "$elemMatch": {
+          "$lte": JSON.parse(config.demo.timestamp_end),
+          "$gte": JSON.parse(config.demo.timestamp_start)
+        }
+      }
+    };
 
+    //
+    promiseToGetItems(query, db)
+      .then(function(response) {
+        if (typeof response !== "undefined" && response.length > 0) {
+          resolve(response);
+        } else {
+          fs.readFile( './demo/warnings.txt', 'utf8', function (err, data) {
+            if (err) {
+              throw err;
+            }
+              // Success!
+              var arrayOfItems = JSON.parse(data);
+              promiseToPostItems(arrayOfItems, db)
+                .then(function () {
+                  resolve(arrayOfItems)
+                })
+                .catch(function (error) {
+                  reject(error);
+                });
+            });
+      }})
+      .catch(function (error) {
+        reject(error);
+      });
   });
 }
 

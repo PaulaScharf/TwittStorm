@@ -10,9 +10,20 @@
 
 
 // ****************************** global variables *****************************
-// the current date
+
+// is there a timestamp?
 let currentTimestamp = Date.now();
-// a list of the current timestamps
+if(typeof paramArray.timestamp !== "undefined") {
+  // none found, create "now"
+  currentTimestamp = paramArray.timestamp;
+  try {
+    Date.parse(currentTimestamp);
+  } catch {
+    console.log("The url is erroneous. Please try a different value for 'timestamp'.")
+    currentTimestamp = Date.now();
+  }
+}
+
 let usedTimestamps = [];
 // all individual events from a timestamp get temporally stored in here
 let outputArray = [];
@@ -263,8 +274,7 @@ var checkedSat = document.getElementById('satellite-v9')
 
         loadPreviousWeather(map, wtypeFlag);
       }
-
-
+    
     if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
 
       //set URL to requested wtype

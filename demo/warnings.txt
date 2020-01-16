@@ -1,0 +1,68 @@
+[
+  {
+    "type": "unwetter",
+    "dwd_id": "1234",
+    "timestamps": [1234],
+    "geometry":
+    [{"type":"MultiPolygon","coordinates":
+    [
+      [
+        [
+          [
+            7.55859375,
+            53.51418452077113
+          ],
+          [
+            6.2841796875,
+            50.261253827584724
+          ],
+          [
+            7.8662109375,
+            47.69497434186282
+          ],
+          [
+            12.7001953125,
+            47.78363463526376
+          ],
+          [
+            14.809570312499998,
+            51.31688050404585
+          ],
+          [
+            13.7109375,
+            54.059387886623576
+          ],
+          [
+            9.3603515625,
+            54.77534585936447
+          ],
+          [
+            7.55859375,
+            53.51418452077113
+          ]
+        ]
+      ]
+    ]
+    }],
+    "properties": {
+      "ec_Group": "NEBEL",
+      "event": "NEBEL",
+      "ec_ii": "1",
+      "name": "NEBEL",
+      "responseType": "Prepare",
+      "urgency": "Immediate",
+      "severity": "Moderate",
+      "parameter": null,
+      "certainty": "Likely",
+      "description": "description",
+      "instruction": "instruction",
+      "color": "#000000",
+      "sent": 1575977950,
+      "onset": 1475977950,
+      "effective": 1575977950,
+      "expires": 1675977950,
+      "altitude": "1312.336",
+      "ceiling": "2624.672"
+    }
+  }
+]
