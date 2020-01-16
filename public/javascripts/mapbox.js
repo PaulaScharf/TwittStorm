@@ -232,68 +232,12 @@ function showMap(style) {
 		});
 		map.addControl(draw);
 
-		// process the drawn polygon
+		// process drawn polygons
 		drawForAOI(map, draw);
 
-		// if there is an AOI given in the URL, then show it in map and start Tweet-search
+		// if there is an AOI given in the URL, then show it in map and do Tweet-search
 		if (paramArray.aoi !== undefined) {
-			console.log("AOI in URL");
-
-			let aoiString = paramArray.aoi;
-
-			// turning the AOI-String gotten from URL into the needed coordinates-array for adding it to mapbox-draw afterwards
-			let restAoiString = "";
-			let splittedAoiString = "";
-			let long, lat;
-			let pointArray = [];
-			let polygonArray = [];
-
-			restAoiString = aoiString.substring(1);
-			splittedAoiString = restAoiString.split(",");
-
-			// for-loop "over" coordinates that are contained in the AOI-String from URL
-			// just loop until inclusively penultimate coordinate-pair
-			for (let i = 0; i < splittedAoiString.length - 2; i = i + 2) {
-				long = splittedAoiString[i].substring(1);
-				lat = splittedAoiString[i+1].substring(0, splittedAoiString[i+1].length-1);
-				long = JSON.parse(long);
-				lat = JSON.parse(lat);
-				pointArray.push(long, lat);
-				polygonArray.push(pointArray);
-				pointArray = [];
-			}
-
-			// adding last coordinate-pair to coordinates-array (different to previous ones because of two "]]" at the end)
-			long = splittedAoiString[splittedAoiString.length-2].substring(1);
-			lat = splittedAoiString[splittedAoiString.length-1].substring(0, splittedAoiString[splittedAoiString.length-1].length-2);
-			long = JSON.parse(long);
-			lat = JSON.parse(lat);
-			pointArray.push(long, lat);
-			polygonArray.push(pointArray);
-
-			console.log(polygonArray);
-
-			// add AOI to mapbox-draw-features and therefore into map
-			draw.set({
-				type: "FeatureCollection",
-				features: [{
-					type: "Feature",
-					properties: {},
-					id: "AOIfromURL",
-					geometry: {
-						type: 'Polygon',
-						coordinates: [
-							polygonArray
-						]
-					}
-				}]
-			});
-			
-			//zoomToCoordinates(polygonArray);
-
-			let aoiForTweetSearch = [polygonArray];
-			// TODO: ausprobieren, ob funktionert!!!!
-			onlyShowUnwetterAndTweetsInPolygon(turf.polygon(aoiForTweetSearch));
+			getAndUseAOIFromURL(draw);
 		}
 
 		// ************************* load Rain Radar data **************************
@@ -352,8 +296,8 @@ function showMap(style) {
 		// TODO: folgendes if durch (readURL("wtype") == "unwetter") ersetzen? etc...
 		if (paramArray.wtype === "unwetter") {
 
-
 			// TODO: radProd=# aus URL entfernen
+			deleteFromURL("radProd");
 
 
 			// TODO: unnötig?
@@ -381,12 +325,76 @@ function showMap(style) {
 			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map, paramArray.timestamp);
 			// ... and afterwards each "paramArray.config.refresh_rate" again
 			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.timestamp, paramArray.config.refresh_rate);
-
 		}
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 	});
 }
+
+
+
+/**
+* @desc
+*
+* @author Katharina Poppinga
+* @param {MapboxDraw} draw -
+*/
+function getAndUseAOIFromURL(draw) {
+
+	let aoiString = paramArray.aoi;
+
+	// turning the AOI-String gotten from URL into the needed coordinates-array for adding it to mapbox-draw afterwards
+	let restAoiString = "";
+	let splittedAoiString = "";
+	let long, lat;
+	let pointArray = [];
+	let polygonArray = [];
+
+	restAoiString = aoiString.substring(1);
+	splittedAoiString = restAoiString.split(",");
+
+	// for-loop "over" coordinates that are contained in the AOI-String from URL
+	// just loop until inclusively penultimate coordinate-pair
+	for (let i = 0; i < splittedAoiString.length - 2; i = i + 2) {
+		long = splittedAoiString[i].substring(1);
+		lat = splittedAoiString[i+1].substring(0, splittedAoiString[i+1].length-1);
+		long = JSON.parse(long);
+		lat = JSON.parse(lat);
+		pointArray.push(long, lat);
+		polygonArray.push(pointArray);
+		pointArray = [];
+	}
+
+	// adding last coordinate-pair to coordinates-array (different to previous ones because of two "]]" at the end)
+	long = splittedAoiString[splittedAoiString.length-2].substring(1);
+	lat = splittedAoiString[splittedAoiString.length-1].substring(0, splittedAoiString[splittedAoiString.length-1].length-2);
+	long = JSON.parse(long);
+	lat = JSON.parse(lat);
+	pointArray.push(long, lat);
+	polygonArray.push(pointArray);
+
+	// add AOI to mapbox-draw-features and therefore into map
+	draw.set({
+		type: "FeatureCollection",
+		features: [{
+			type: "Feature",
+			properties: {},
+			id: "AOIfromURL",
+			geometry: {
+				type: 'Polygon',
+				coordinates: [
+					polygonArray
+				]
+			}
+		}]
+	});
+	//zoomToCoordinates(polygonArray);
+
+	let aoiForTweetSearch = [polygonArray];
+	// TODO: ausprobieren, ob funktionert!!!!
+	onlyShowUnwetterAndTweetsInPolygon(turf.polygon(aoiForTweetSearch));
+}
+
 
 
 // ************************************* block about rain radar ****************************************

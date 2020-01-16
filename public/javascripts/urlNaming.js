@@ -4,6 +4,13 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
+
+
+
+/**
 	* @desc function to alter the URL, in order to keep it updated
 	* can change the value of a parameter or add it to the existing url
 	* @author Jonathan Bahlmann
@@ -54,12 +61,12 @@ function updateURL(param, newString) {
 	history.pushState({}, '', newURL);
 }
 
+
 /**
 	* @desc
 	* function to read a specified parameter from the current URL
 	* @author Jonathan Bahlmann
 	* @param {String} param Parameter to be returned
-	* @returns parameter value
 	*/
 function readURL(param) {
 	// result
@@ -81,4 +88,16 @@ function readURL(param) {
 	} else {
 		return "parameter not found."
 	}
+}
+
+
+/**
+	* @desc
+	*
+	* @author Jonathan Bahlmann
+	* @param {String} param Parameter to delete
+	*/
+function deleteFromURL(param) {
+
+
 }

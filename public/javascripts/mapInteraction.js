@@ -201,6 +201,10 @@ function zoomToCoordinates(coordinates) {
 	map.fitBounds(bounds, {
 		padding: 20
 	});
+
+	let center = map.getCenter();
+	let centerString = "[" + center.lng + "," + center.lat + "]";
+	updateURL('mapCenter', centerString);
 }
 
 
