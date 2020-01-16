@@ -502,8 +502,8 @@ function loadAnimation(position, map){
       gifshot.createGIF({
           images: array,
           'frameDuration': 10,
-          'gifWidth': 400,
-          'gifHeight': 400,
+          'gifWidth': 800,
+          'gifHeight': 800,
 
       }, function (obj) {
           if (!obj.error) {
