@@ -30,7 +30,6 @@
     </div>
 
     <!-- map -->
-    <div class="container-fluid">
       <div id="map">
         <!-- DWD selection menu -->
         <div id="menu" style="display:none"></div>
@@ -119,8 +118,13 @@
             <img src="/css/pan.png"/>
           </div>
         </nav>
-      </div>
 
+        <!-- Tweetfilter -->
+        <div class="green-border-focus tweetfilter">
+          <textarea id="tweetfilter-ta" rows="3" placeholder="filter tweets by words..."></textarea>
+          <button id="tweetfilter-btn" type="button" class="btn" onclick="filterTweets()">Submit</button>
+        </div>
+      </div>
 
     </main>
 

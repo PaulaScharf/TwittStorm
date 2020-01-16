@@ -63,6 +63,8 @@ let initTimestamp = Date.now();
 */
 let wtypeFlag = "";
 
+let filterwords;
+
 
 // TODO: folgendes in eine Funktion schreiben:
 // TODO: was macht dieser code?
@@ -431,6 +433,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 	$('#information').html("Retrieving the requested " + product + " radar product");
 
 	// Rain Radar Data
+	/*
 	$.getJSON(url, function(result) {
 
 		// ***************************************************************************************************************
@@ -485,6 +488,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 			}
 		}
 	});
+	*/
 }
 
 
@@ -533,6 +537,7 @@ function callRainRadar(prod) {
 
 	// make call
 	let url = "/radar/" + prod + "/" + currentTimestamp;
+	/*
 	$.getJSON(url, function(result) {
 		console.log("Automatically requested new rain radar data.");
 		// read from url
@@ -545,6 +550,7 @@ function callRainRadar(prod) {
 			requestAndDisplayAllRainRadar(map, prod);
 		}
 	});
+	*/
 }
 
 // *****************************************************************************************************
@@ -1047,19 +1053,20 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	}
 
 
-	/**
-	* This function ensures, that all unwetters but no tweets are visible.
-	* @author Paula Scharf
-	*/
-	function showAllUnwetterAndNoTweets() {
-		customLayerIds.forEach(function(layerID) {
-			if(layerID.includes("Tweet")) {
-				map.setLayoutProperty(layerID, 'visibility', 'none');
-			} else {
-				map.setLayoutProperty(layerID, 'visibility', 'visible');
-			}
-		});
-	}
+/**
+* This function ensures, that all unwetters but no tweets are visible.
+* @author Paula Scharf
+*/
+function showAllUnwetterAndNoTweets() {
+	customLayerIds.forEach(function(layerID) {
+		if(layerID.includes("Tweet")) {
+			map.removeSource(layerID);
+			customLayerIds.remove(layerID);
+		} else {
+			map.setLayoutProperty(layerID, 'visibility', 'visible');
+		}
+	});
+}
 
 
 	/**
@@ -1091,3 +1098,81 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 		let splittedTimestamp = timestampDate.toString().split("(");
 		return (splittedTimestamp[0]);
 	}
+
+/**
+ *
+ * @author Paula Scharf
+ * @param id
+ */
+function deleteTweet(id) {
+	return function(id) {
+		$.ajax({
+			// use a http DELETE request
+			type: "DELETE",
+			// URL to send the request to
+			url: "/twitter/tweet",
+			// type of the data that is sent to the server
+			contentType: "application/json; charset=utf-8",
+			// timeout set to 15 seconds
+			timeout: 15000
+		})
+
+		// if the request is done successfully, ...
+			.done(function () {
+				// ... give a notice on the console that the AJAX request for ........... has succeeded
+				console.log("AJAX request (deleting a tweet) is done successfully.");
+				let popupDiv = document.getElementById(id);
+				popupDiv.remove();
+			})
+
+			// if the request has failed, ...
+			.fail(function (xhr, status, error) {
+				// ... give a notice that the AJAX request for .......... has failed and show the error on the console
+				console.log("AJAX request (deleting a tweet) has failed.", error);
+
+				// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+				if (error === "timeout") {
+					JL("ajaxReadingWarningsTimeout").fatalException("ajax: '/twitter/tweet' timeout");
+				}
+			});
+	}
+}
+
+/**
+ *
+ */
+function filterTweets() {
+	let textarea = document.getElementById("tweetfilter-ta");
+	filterwords = textarea.value.split(";");
+	filterTweetPopups();
+}
+
+/**
+ *
+ * @param coordinates
+ */
+function filterTweetPopups() {
+	customLayerIds.forEach(function(id) {
+		if (id.includes("Tweet")) {
+			let tweet = map.getSource(id);
+			filterwords.forEach(function(phrase) {
+				if (tweet.properties.statusmessage.includes(phrase)) {
+					map.setLayoutProperty(id, 'visibility', 'visible');
+				} else {
+					map.setLayoutProperty(id, 'visibility', 'none');
+				}
+			})
+		}
+	})
+}
+
+Array.prototype.remove = function() {
+	var what, a = arguments, L = a.length, ax;
+	while (L && this.length) {
+		what = a[--L];
+		while ((ax = this.indexOf(what)) !== -1) {
+			this.splice(ax, 1);
+		}
+	}
+	return this;
+};
