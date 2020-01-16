@@ -15,6 +15,7 @@
     "buffer": "^5.4.3",
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
+    "downloadjs": "^1.4.7",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "gifshot": "^0.4.5",
