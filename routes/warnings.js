@@ -41,12 +41,17 @@ const getWarningsForTime = function(req, res, next) {
 
     if ((currentTimestamp >= config.demo.timestamp_start && currentTimestamp <= config.demo.timestamp_end)) {
       proccessUnwettersFromLocal(currentTimestamp, req.db)
-        .then(function () {
+        .then(function (response) {
 
           updateCurrentTimestampInConfigYaml(currentTimestamp);
 
-          // TODO: hier nicht als promise nötig??
-          getWarningsFromDB(currentTimestamp, req.db, res, next);
+          response = {
+            type: "SevereWeatherWarnings",
+            events: response
+          };
+          if(!res.headersSent) {
+            res.send(response);
+          }
 
 
         }, function (error) {
@@ -149,8 +154,8 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
       type: "unwetter",
       "timestamps": {
         "$elemMatch": {
-          "$lte": JSON.parse(config.demo.timestamp_start),
-          "$gte": JSON.parse(config.demo.timestamp_end)
+          "$lte": JSON.parse(config.demo.timestamp_end),
+          "$gte": JSON.parse(config.demo.timestamp_start)
         }
       }
     };
@@ -161,21 +166,21 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
         if (typeof response !== "undefined" && response.length > 0) {
           resolve(response);
         } else {
-          $.getJSON("../demo/warnings.json", function (arrayOfItems) {
-            //
-            promiseToPostItems(arrayOfItems, db)
-              .then(function () {
-                resolve(arrayOfItems)
-              })
-              .catch(function (error) {
-                reject(error);
-              });
-          })
-            .error(function (error) {
-              reject(error);
+          fs.readFile( './demo/warnings.txt', 'utf8', function (err, data) {
+            if (err) {
+              throw err;
+            }
+              // Success!
+              var arrayOfItems = JSON.parse(data);
+              promiseToPostItems(arrayOfItems, db)
+                .then(function () {
+                  resolve(arrayOfItems)
+                })
+                .catch(function (error) {
+                  reject(error);
+                });
             });
-        }
-      })
+      }})
       .catch(function (error) {
         reject(error);
       });

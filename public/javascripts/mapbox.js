@@ -346,13 +346,19 @@ function showMap(style) {
 function requestAndDisplayAllRainRadar(map, product) {
 
 	// is there a timestamp?
-	let timestamp;
-	if(paramArray.timestamp == undefined) {
+	let currentTimestamp = Date.now();
+	if(typeof paramArray.timestamp === "undefined") {
 		// none found, create "now"
-		timestamp = Date.now();
+		currentTimestamp = Date.now();
 	} else {
 		// found, use historic one
-		timestamp = paramArray.timestamp;
+		currentTimestamp = paramArray.timestamp + (currentTimestamp - initTimestamp);
+		try {
+			Date.parse(currentTimestamp);
+		} catch {
+			console.log("The url is erroneous. Please try a different value for 'timestamp'.")
+			currentTimestamp = Date.now();
+		}
 	}
 
 	let url = "/radar/" + product + "/" + timestamp;
@@ -446,17 +452,23 @@ function callRainRadar(prod) {
 	$('#information').html("Retrieving the requested " + prod + " radar product");
 
 	// is there a timestamp?
-	let timestamp;
-	if(paramArray.timestamp == undefined) {
+	let currentTimestamp = Date.now();
+	if(typeof paramArray.timestamp === "undefined") {
 		// none found, create "now"
-		timestamp = Date.now();
+		currentTimestamp = Date.now();
 	} else {
 		// found, use historic one
-		timestamp = paramArray.timestamp;
+		currentTimestamp = paramArray.timestamp + (currentTimestamp - initTimestamp);
+		try {
+			Date.parse(currentTimestamp);
+		} catch {
+			console.log("The url is erroneous. Please try a different value for 'timestamp'.")
+			currentTimestamp = Date.now();
+		}
 	}
 
 	// make call
-	let url = "/radar/" + prod + "/" + timestamp;
+	let url = "/radar/" + prod + "/" + currentTimestamp;
 	$.getJSON(url, function(result) {
 		console.log("Automatically requested new rain radar data.");
 		// read from url
@@ -864,13 +876,18 @@ function onlyShowUnwetterAndTweetsInPolygon(polygon) {
 				visibility = 'none';
 			} else {
 				visibility = 'visible';
+				// is there a timestamp?
 				let currentTimestamp = Date.now();
-				if (paramArray.config.current_time && paramArray.config.current_time !== null) {
-					currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
+				if(typeof paramArray.timestamp === "undefined") {
+					// none found, create "now"
+					currentTimestamp = Date.now();
+				} else {
+					// found, use historic one
+					currentTimestamp = paramArray.timestamp + (currentTimestamp - initTimestamp);
 					try {
 						Date.parse(currentTimestamp);
 					} catch {
-						console.log("The config.yaml is erroneous. Please try a different value for 'current_time'.")
+						console.log("The url is erroneous. Please try a different value for 'timestamp'.")
 						currentTimestamp = Date.now();
 					}
 				}

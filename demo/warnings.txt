@@ -1,8 +1,8 @@
 [
   {
-    "type": "Unwetter",
+    "type": "unwetter",
     "dwd_id": "1234",
-    "timestamps": [1575978150],
+    "timestamps": [1234],
     "geometry":
     [{"type":"MultiPolygon","coordinates":
     [

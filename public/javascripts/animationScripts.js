@@ -11,7 +11,18 @@
 
 // ****************************** global variables *****************************
 
+// is there a timestamp?
 let currentTimestamp = Date.now();
+if(typeof paramArray.timestamp !== "undefined") {
+  // none found, create "now"
+  currentTimestamp = paramArray.timestamp;
+  try {
+    Date.parse(currentTimestamp);
+  } catch {
+    console.log("The url is erroneous. Please try a different value for 'timestamp'.")
+    currentTimestamp = Date.now();
+  }
+}
 
 let usedTimestamps = [];
 
@@ -218,7 +229,6 @@ var checkedSat = document.getElementById('satellite-v9')
 
         updateURL("radProd", "rw");
       }
-    }
     if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
 
       //set URL to requested wtype
