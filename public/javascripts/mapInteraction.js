@@ -658,6 +658,13 @@ function showTweetPopup(map, e) {
 					dnt: true
 				}
 			);
+			let popupDiv = document.getElementById(idAsString);
+			let deleteBtn = document.createElement("button");
+			deleteBtn.setAttribute("id", "deleteBtn");
+			deleteBtn.setAttribute("class", "btn btn-danger");
+			deleteBtn.onclick = deleteTweet(idAsString);
+			deleteBtn.innerText = "delete";
+			popupDiv.appendChild(deleteBtn);
 		}
 	}
 }

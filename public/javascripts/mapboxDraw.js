@@ -71,6 +71,10 @@ function drawForAOI(map) {
 		onlyShowUnwetterAndTweetsInPolygon(turf.polygon(e.features[0].geometry.coordinates));
 	});
 
+	map.on("draw.aoi", function() {
+
+	});
+
 	// if a polygon is deleted ...
 	map.on('draw.delete', function (e) {
 		showAllUnwetterAndNoTweets();
