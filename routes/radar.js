@@ -193,37 +193,94 @@ var radarRoute = function(req, res) {
 
     console.log("latestDate = " + latestDate);
 
-    // past
-    let pastBorder = config.refresh_rate * 10;
+    // historic data?
+    let pastBorder = 3700000;
     pastBorder = latestTimestamp - pastBorder;
-    if(pastBorder < latestTimestamp) {
-      console.log("radar: historic data requested because timestamp of req lies before " + new Date(pastBorder));
-      //TODO then write data from file into db // return it or something
-    }
-    
-    // future
-    // when a new product should be available, but isn't due to dwd update difficulties
-    if(reqTimeUpper > latestTimestamp && reqTimeLower > latestTimestamp) {
-      console.log("the requested timestamp lies in the future somehow");
-      // query for last available prod
+
+    if(pastBorder > reqTimeLower) {
+      console.log("radar: historic data requested");
+
       let query = {
         type: "rainRadar",
         radarProduct: prod.toUpperCase(),
         $and: [
-          {"timestamp": {"$lt": (reqTimeLower)}}
+          {"timestamp": {"$gt": (reqTimeLower)}},
+          {"timestamp": {"$lte": (reqTimeUpper)}}
         ]
       };
-      promiseToGetItems(query, req.db)
-      .catch(console.error)
-      .then(function(result) {
-        // forward it to response
-        res.send(result[result.length - 1]);
-      });
 
+      // look for historic data in db
+      try {
+        promiseToGetItems(query, req.db)
+        .catch(console.error)
+        .then(function(result) {
+          if(result.length == 1) {
+            res.send(result[0]);
+          }
+          if(result.length > 1) {
+            let e = "multiple files found.";
+            res.status(500).send(e);
+          }
+          // if not found in db
+          if(result.length < 1) {
+            // read from hist data file
+            fs.readFile( './demo/radars.txt', 'utf8', function (err, data) {
+              if(err) {
+                throw err;
+              }
+              else {
+                let allProducts = JSON.parse(data);
+                // post them to db
+                try {
+                  promiseToPostItems(allProducts, req.db)
+                  .catch(console.error)
+                  .then(function() {
+
+                    let query = {
+                      type: "rainRadar",
+                      radarProduct: prod.toUpperCase(),
+                      $and: [
+                        {"timestamp": {"$gt": (reqTimeLower)}},
+                        {"timestamp": {"$lte": (reqTimeUpper)}}
+                      ]
+                    };
+
+                    // get them from db
+                    try {
+                      promiseToGetItems(query, req.db)
+                      .catch(console.error)
+                      .then(function(result) {
+                        if(result.length == 1) {
+                          res.send(result[0]);
+                        }
+                        else {
+                          let e = "the requested timestamp lies in the past, with no matching historic data";
+                          console.log(e);
+                          res.status(404).send(e);
+                        }
+                      });
+                    } catch(e) {
+                      console.dir(e);
+                      res.status(500).send(e);
+                    }
+
+                  });
+                } catch(e) {
+                  console.dir(e);
+                  res.status(500).send(e);
+                }
+              }
+            });
+          }
+        });
+      } catch(e) {
+        console.dir(e);
+        res.status(500).send(e);
+      }
     }
-
-    // if not, we can already check the database
+    // not historic data according to timestamps
     else {
+      // if not old we can check db
       let query = {
         type: "rainRadar",
         radarProduct: prod.toUpperCase(),
@@ -233,60 +290,86 @@ var radarRoute = function(req, res) {
         ]
       };
       // db request
-      promiseToGetItems(query, req.db)
-      .catch(console.error)
-      .then(function(result) {
-
-          console.log("result from database length: " + result.length);
-
-          // if no data found
+      try {
+        promiseToGetItems(query, req.db)
+        .catch(console.error)
+        .then(function(result) {
+          if(result.length == 1) {
+            res.send(result[0]);
+          }
+          if(result.length > 1) {
+            let e = "multiple files found.";
+            res.status(500).send(e);
+          }
+          // not found
           if(result.length < 1) {
-            // see if the newest image is meant by the requested timestamp
+            // do we need to fetch the latest?
             if(reqTimeUpper > latestTimestamp && reqTimeLower < latestTimestamp) {
               // we dont have the newest, we should fetch it
               console.log("newest data is fetched ...");
-              promiseToFetchRadarData(prod)
-              .catch(console.error)
-              .then(function(radarPolygonsJSON) {
+              try {
+                promiseToFetchRadarData(prod)
+                .catch(console.error)
+                .then(function(radarPolygonsJSON) {
+                  try {
+                    // post it to DB
+                    promiseToPostItems([radarPolygonsJSON], req.db)
+                      .catch(console.error)
+                      .then( function() {
+                        // and send the JSON to the endpoint as response
+                        res.send(radarPolygonsJSON);
+                      }
+                    );
+                  } catch(e) {
+                    console.dir(e);
+                    res.status(500).send(e);
+                  }
+                });
+              } catch(e) {
+                console.dir(e);
+                res.status(500).send(e);
+              }
+            }
+            // no the latest
+            else {
+              // this could be because of dwd inconsitencies
+              // when a new product should be available, but isn't due to dwd update difficulties
+              if(reqTimeUpper > latestTimestamp && reqTimeLower > latestTimestamp) {
+                console.log("the latest Product is behind the requested timestamp");
+                // query for last available prod
+                let query = {
+                  type: "rainRadar",
+                  radarProduct: prod.toUpperCase(),
+                  $and: [
+                    {"timestamp": {"$lt": (reqTimeLower)}}
+                  ]
+                };
                 try {
-                  // post it to DB
-                  promiseToPostItems([radarPolygonsJSON], req.db)
-                    .catch(console.error)
-                    .then( function() {
-                      // and send the JSON to the endpoint as response
-                      res.send(radarPolygonsJSON);
-                    }
-                  );
-                } catch (e) {
+                  promiseToGetItems(query, req.db)
+                  .catch(console.error)
+                  .then(function(result) {
+                    // forward it to response
+                    res.send(result[result.length - 1]);
+                  });
+                } catch(e) {
                   console.dir(e);
                   res.status(500).send(e);
                 }
-              });
+              }
+              else {
+                // not the future case
+                let e = "end of the radar-route. It is likeley that a timestamp error occured.";
+                res.status(404).send(e);
+              }
             }
-            // somesting from the past is requested that we cannot find in the db
-            else {
-              res.status(404).send({err_msg: "radar Product not found."});
-            }
           }
-          // if one data found
-          if(result.length == 1) {
-            // if we found something we can return it without anything else
-            console.log("radar data found in db, forwarding ...");
-            console.log(result[0].date);
-            res.send(result[0]);
-          }
-          // multiple files found
-          if(result.length > 1) {
-            let array = [];
-            result.forEach(function(image) {
-              array.push(image.date);
-            });
-            console.log("multiple images found" + array);
-            res.send(result[0]);
-          }
-
-      });
+        });
+      } catch(e) {
+        console.dir(e);
+        res.status(500).send(e);
+      }
     }
+
   });
 };
 

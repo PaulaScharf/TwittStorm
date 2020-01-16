@@ -356,12 +356,12 @@ function requestAndDisplayAllRainRadar(map, product) {
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
-			console.log("The url is erroneous. Please try a different value for 'timestamp'.")
+			console.log("The url is erroneous. Please try a different value for timestamp.");
 			currentTimestamp = Date.now();
 		}
 	}
 
-	let url = "/radar/" + product + "/" + timestamp;
+	let url = "/radar/" + product + "/" + currentTimestamp;
 
 	// update the status display
 	$('#information').html("Retrieving the requested " + product + " radar product");
@@ -380,7 +380,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 
 			// TODO: muss noch timestamp of request werden und nicht timestamp of display in map
 			// show timestamp of the last request in legend
-			let formattedRequestTimestamp = timestampFormatting(timestamp);
+			let formattedRequestTimestamp = timestampFormatting(currentTimestamp);
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedRequestTimestamp;
 			// ***************************************************************************************************************
