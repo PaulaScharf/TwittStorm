@@ -513,7 +513,7 @@ function loadAnimation(position, map){
           images: array,
           'frameDuration': 10,
           'gifWidth': 800,
-          'gifHeight': 800,
+          'gifHeight': 400,
 
       }, function (obj) {
           if (!obj.error) {
