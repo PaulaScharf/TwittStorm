@@ -58,7 +58,7 @@ function showLegend(map, typeOfLegend, product) {
 		// set info for data timestamps
 		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>Differs for each warning,<br>see popups in map.";
 		// set positional accuracy
-		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>TODO! local authority level";
+		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>Local authority borders";
 
 		// TODO: BESSER MACHEN, INFOS DIREKT AUS LAYERN NEHMEN?? NICHT DIREKT MÖGLICH, DA JEDER TYPE VIELE LAYER HAT
 		//let allCurrentLayers = map.getStyle().layers;
@@ -649,7 +649,7 @@ function showTweetPopup(map, e) {
 
 		if (pickedTweet[0].source.includes("Tweet")) {
 			let idAsString = pickedTweet[0].properties.idstr;
-			// ... create a popup with the following information: ........
+			// create a popup with the following information:
 			new mapboxgl.Popup()
 			.setLngLat(e.lngLat)
 			.setHTML("<div id='" + idAsString + "'></div>")
