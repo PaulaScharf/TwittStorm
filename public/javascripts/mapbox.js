@@ -628,6 +628,10 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 			if (error === "timeout") {
 				JL("ajaxReadingWarningsTimeout").fatalException("ajax: '/warnings/test/currentTimestamp' timeout");
 			}
+			// TODO: testen, ob so richtig
+			else {
+				JL("ajaxReadingWarningsError").fatalException(error);
+			}
 		});
 	}
 
@@ -722,7 +726,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of ......
 	*/
 	function displayEvent(map, layerID, eventFeatureCollection) {
-		//console.log(eventFeatureCollection);
+
 		//
 		let sourceObject = map.getSource(layerID);
 
@@ -756,7 +760,6 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 
 				// Layer-adding for an Unwetter with a polygon-geometry
 			} else {
-				// TODO: Farben anpassen und stattdessen über ec_ii mit Ziffern unterscheiden?
 				// TODO: Farbdarstellungs- und -unterscheidungsprobleme, wenn mehrere Polygone sich überlagern
 				// add the given Unwetter-event as a layer to the map
 				map.addLayer({
@@ -767,16 +770,10 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 					"paint": {
 						"fill-color": [
 							"match", ["string", ["get", "event"]],
-							"FROST",
-							"grey",
 							"GLÄTTE",						// TODO: Farbe weiß sieht man auf der Straßenkarte mit solch geringer opacity nicht!!
 							"white",
 							"GLATTEIS",
 							"white",
-							"NEBEL",
-							"grey",
-							"WINDBÖEN",
-							"light blue",
 							"GEWITTER",
 							"red",
 							"STARKES GEWITTER",
@@ -835,7 +832,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 							"yellow",
 							"EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
 							"yellow",
-							"black" // sonstiges Event
+							"grey" // sonstiges Event
 							// TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
 							// wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
 						],
@@ -846,7 +843,8 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 
 			//
 			makeLayerInteractive(layerID);
-			addLayerToMenu(layerID); // TODO: auch hier alte entfernen, oder passiert das eh automatisch?
+			//addLayerToMenu(layerID); // TODO: auch hier alte entfernen, oder passiert das eh automatisch?
+			createWarningsCheckboxes();
 			customLayerIds.push(layerID);
 		}
 	}
@@ -984,10 +982,10 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 							$('#information').html("Trying to find and insert fitting tweets");
 						}
 					})
-
+					
 					// if the request is done successfully, ...
 					.done(function (result) {
-						// ... give a notice on the console that the AJAX request for inserting many items has succeeded
+						// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 						console.log("AJAX request (finding and inserting tweets) is done successfully.");
 						if(typeof result !== "undefined" && result.statuses.length > 0) {
 							try {
@@ -1024,12 +1022,16 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 
 					// if the request has failed, ...
 					.fail(function (xhr, status, error) {
-						// ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
+						// ... give a notice that the AJAX request for finding and inserting tweets has failed and show the error on the console
 						console.log("AJAX request (finding and inserting tweets) has failed.", error);
 
 						// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 						if (error === "timeout") {
 							JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/Twitter/tweets' timeout");
+						}
+						// TODO: testen, ob so richtig
+						else {
+							JL("ajaxRetrievingTweetsError").fatalException(error);
 						}
 					});
 				}

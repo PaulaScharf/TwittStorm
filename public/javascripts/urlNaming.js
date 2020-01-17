@@ -122,5 +122,4 @@ function deleteFromURL(param) {
 		// parameter not found
 		return false;
 	}
-
 }

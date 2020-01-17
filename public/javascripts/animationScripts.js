@@ -19,7 +19,7 @@ if(typeof paramArray.timestamp !== "undefined") {
   try {
     Date.parse(currentTimestamp);
   } catch {
-    console.log("The url is erroneous. Please try a different value for 'timestamp'.")
+    console.log("The url is erroneous. Please try a different value for 'timestamp'.");
     currentTimestamp = Date.now();
   }
 }
@@ -67,26 +67,26 @@ function showAnimationMap(style) {
   let centerURL;
   let baseURL;
 
-var checkedStreets = document.getElementById('navigation-guidance-day-v4')
-var checkedSat = document.getElementById('satellite-v9')
+  var checkedStreets = document.getElementById('navigation-guidance-day-v4')
+  var checkedSat = document.getElementById('satellite-v9')
 
   // if not yet in URL, take and update to default streets
-	if (paramArray.base == undefined) {
-		style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
-		updateURL("base", "streets");
-		// otherwise use value from URL
-	} else {
-		baseURL = paramArray.base;
-		if (baseURL === "streets") {
-			style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
-			checkedStreets.checked ='checked';
-		}
-		if (baseURL === "satellite") {
-			style = "mapbox://styles/mapbox/satellite-v9";
-			checkedSat.checked ='checked';
+  if (paramArray.base == undefined) {
+    style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+    updateURL("base", "streets");
+    // otherwise use value from URL
+  } else {
+    baseURL = paramArray.base;
+    if (baseURL === "streets") {
+      style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+      checkedStreets.checked ='checked';
+    }
+    if (baseURL === "satellite") {
+      style = "mapbox://styles/mapbox/satellite-v9";
+      checkedSat.checked ='checked';
 
-		}
-	}
+    }
+  }
 
 
 
@@ -265,16 +265,16 @@ var checkedSat = document.getElementById('satellite-v9')
       rasterMenuToggle = document.getElementById('raster');
       rasterMenuToggle.classList.toggle("active");
       severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
-        severeWeatherMenuToggle.classList.remove("active");
+      severeWeatherMenuToggle.classList.remove("active");
 
-        showLegend(map, "radar", "rw");
+      showLegend(map, "radar", "rw");
 
-        // display rain radar
-        //  requestAndDisplayAllRainRadar(map, paramArray.rasterProduct);
+      // display rain radar
+      //  requestAndDisplayAllRainRadar(map, paramArray.rasterProduct);
 
-        loadPreviousWeather(map, wtypeFlag);
-      }
-    
+      loadPreviousWeather(map, wtypeFlag);
+    }
+
     if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
 
       //set URL to requested wtype
@@ -304,9 +304,9 @@ var checkedSat = document.getElementById('satellite-v9')
       loadAnimation(timestampNum, map);
       //reset the imageArray
       imageArray = [];
-      });
     });
-    //enable the animation functionality
+  });
+  //enable the animation functionality
   automate(map);
 };
 
@@ -337,34 +337,34 @@ function automate(map){
     // initialize the animation
     loadAnimation(0, map);
 
-      // name the intervall to have access to it for stopping
-      automationIntervall = setInterval(function(){
-        // if the maximum value is not reached increase value to the next int
-        if (val < max) {
-          val ++;
-          // set the sliders value according to the current one
-          $("#slider").prop("value", val);
-          // in this case earthquakes from the demo json which are sorted by months
-          loadAnimation(val, map);
-          //save the current map canvas as a base64 formatted array entry
-          var gifImage = map.getCanvas().toDataURL();
-          imageArray.push(gifImage);
-          // activate the downloadbutton if ready
-            setToReady();
-        }
-        // if the maximum is reached set the value to the minimum
-        else {
+    // name the intervall to have access to it for stopping
+    automationIntervall = setInterval(function(){
+      // if the maximum value is not reached increase value to the next int
+      if (val < max) {
+        val ++;
+        // set the sliders value according to the current one
+        $("#slider").prop("value", val);
+        // in this case earthquakes from the demo json which are sorted by months
+        loadAnimation(val, map);
+        //save the current map canvas as a base64 formatted array entry
+        var gifImage = map.getCanvas().toDataURL();
+        imageArray.push(gifImage);
+        // activate the downloadbutton if ready
+        setToReady();
+      }
+      // if the maximum is reached set the value to the minimum
+      else {
 
-          val = min;
-          $("#slider").prop("value", val);
+        val = min;
+        $("#slider").prop("value", val);
 
-          loadAnimation(val, map);
-          var gifImage = map.getCanvas().toDataURL();
-          imageArray.push(gifImage);
-          // activate the downloadbutton if ready
-            setToReady();
-            };
-                  }, 2000);
+        loadAnimation(val, map);
+        var gifImage = map.getCanvas().toDataURL();
+        imageArray.push(gifImage);
+        // activate the downloadbutton if ready
+        setToReady();
+      };
+    }, 2000);
 
 
     // after using the playpausebutton once unbind its function
@@ -375,16 +375,16 @@ function automate(map){
     // add new functionality to it so it stops the animation
     $("#playButton").click(function() {
       clearInterval(automationIntervall);
-          // unbind its function again
-        $("#playButton").unbind();
-        // change image to play icon
-        $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
-        // and afterwards set it back to its original functionality
-          $("#playButton").click(function() {
-              play();
-            });
+      // unbind its function again
+      $("#playButton").unbind();
+      // change image to play icon
+      $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
+      // and afterwards set it back to its original functionality
+      $("#playButton").click(function() {
+        play();
+      });
 
-  });
+    });
 
   }
 
@@ -393,49 +393,49 @@ function automate(map){
 }
 
 
-    // functionality for the download button
-    $("#downloadButton").click(function() {
-      // set reference for the popup
-      var popup = document.getElementById("downloadPopup");
-      // if the gifarray is not empty
-      if(gifArray.length){
-        // create a gif with the images from the last displayed animation cycle
-        createGif(gifArray)
-        $('#downloadPopup').html('Your animation download will start in a few seconds');
-      }
+// functionality for the download button
+$("#downloadButton").click(function() {
+  // set reference for the popup
+  var popup = document.getElementById("downloadPopup");
+  // if the gifarray is not empty
+  if(gifArray.length){
+    // create a gif with the images from the last displayed animation cycle
+    createGif(gifArray)
+    $('#downloadPopup').html('Your animation download will start in a few seconds');
+  }
 
-      //avoid multiple click events
-      if(popup.classList[1] != "show"){
-        // show the popup
+  //avoid multiple click events
+  if(popup.classList[1] != "show"){
+    // show the popup
+    popup.classList.toggle("show");
+    // hide the popup after some time
+    setTimeout(function(){
       popup.classList.toggle("show");
-      // hide the popup after some time
-      setTimeout(function(){
-        popup.classList.toggle("show");
-          }, 4000);
-        }
-    });
+    }, 4000);
+  }
+});
 
 
-    /**
-    * @desc   check if the imageArray is uptodate with the amount of used
-    * timestamps and if so set the download in a ready state
-    * @author Benjamin Rieke
-    */
-    function setToReady(){
-      // when the imageArray has as many entries as the animation does
-      if (imageArray.length == usedTimestamps.length){
-        // adjust the button and the popup
-        $("#downloadButton").css({'background-color': 'white'});
-        $('#downloadButton').prop('title', 'Download the current animation');
-        $('#downloadPopup').html('Now you can click to download');
-        $("#downloadPopup").css({'background-color': 'green'});
+/**
+* @desc   check if the imageArray is uptodate with the amount of used
+* timestamps and if so set the download in a ready state
+* @author Benjamin Rieke
+*/
+function setToReady(){
+  // when the imageArray has as many entries as the animation does
+  if (imageArray.length == usedTimestamps.length){
+    // adjust the button and the popup
+    $("#downloadButton").css({'background-color': 'white'});
+    $('#downloadButton').prop('title', 'Download the current animation');
+    $('#downloadPopup').html('Now you can click to download');
+    $("#downloadPopup").css({'background-color': 'green'});
 
-        // pass the results to a new array for the conversion to a gif file
-        gifArray = imageArray;
-        // flush the array so there are never more images than timestempsa
-        imageArray = [];
-      };
-    }
+    // pass the results to a new array for the conversion to a gif file
+    gifArray = imageArray;
+    // flush the array so there are never more images than timestempsa
+    imageArray = [];
+  };
+}
 
 
 
@@ -509,20 +509,20 @@ function loadAnimation(position, map){
     var utc = date.toJSON().slice(0,10).replace(/-/g,'/');
     var time = date.toLocaleTimeString();
     var filename = utc + '/'+time;
-      gifshot.createGIF({
-          images: array,
-          'frameDuration': 10,
-          'gifWidth': 800,
-          'gifHeight': 800,
+    gifshot.createGIF({
+      images: array,
+      'frameDuration': 10,
+      'gifWidth': 1200,
+      'gifHeight': 600,
 
-      }, function (obj) {
-          if (!obj.error) {
-              var image = obj.image
+    }, function (obj) {
+      if (!obj.error) {
+        var image = obj.image
 
-          download(image, filename, 'image/gif')
+        download(image, filename, 'image/gif')
 
-          }
-      });
+      }
+    });
 
   }
 
@@ -563,6 +563,10 @@ function loadAnimation(position, map){
 
     // if the request is done successfully, ...
     .done(function (result) {
+
+      // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
+      console.log("AJAX request (reading previous weather) is done successfully.");
+
       console.log(result);
 
       // for every timestamp
@@ -628,8 +632,17 @@ function loadAnimation(position, map){
 
     // if the request has failed, ...
     .fail(function (xhr, status, error) {
-      // ... give a notice that the AJAX request for inserting many items has failed and show the error on the console
-      console.log("Requesting previous events has failed.", error);
+      // ... give a notice that the AJAX request for reading previous weather has failed and show the error on the console
+      console.log("Reading previous weather has failed.", error);
+
+      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+      if (error === "timeout") {
+        JL("ajaxReadingPreviousWeatherTimeout").fatalException("ajax: '/previousWeather/weatherEvent/currentTimestamp' timeout");
+      }
+      // TODO: testen, ob so richtig
+      else {
+        JL("ajaxReadingPreviousWeatherError").fatalException(error);
+      }
     });
   }
 
@@ -680,25 +693,25 @@ function loadAnimation(position, map){
   * @author Benjamin Rieke
   */
   function removeAllSource(map) {
-  var sources = map.style.sourceCaches
-  var layers = map.getStyle().layers
+    var sources = map.style.sourceCaches
+    var layers = map.getStyle().layers
 
     for (let key in sources){
       // checks if the sources contain a numbered id
       if (!isNaN(key)){
 
-      // if they are already in the layers
-    for (let lays in layers){
-      if(layers[lays].id == key){
-        //remove them
-      map.removeLayer(key)
+        // if they are already in the layers
+        for (let lays in layers){
+          if(layers[lays].id == key){
+            //remove them
+            map.removeLayer(key)
+          }
+        }
+
+        map.removeSource(key)
+      }
     }
   }
-
-  map.removeSource(key)
-  }
-}
-}
 
 
 
