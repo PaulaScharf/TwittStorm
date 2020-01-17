@@ -409,10 +409,6 @@ function getAndUseAOIFromURL(draw) {
 */
 function requestAndDisplayAllRainRadar(map, product) {
 
-	deleteFromURL("mapZoom");
-	deleteFromURL("radProd");
-	deleteFromURL("aoi");
-
 	// is there a timestamp?
 	let currentTimestamp = Date.now();
 	if(typeof paramArray.timestamp === "undefined") {
