@@ -11,34 +11,21 @@
 
 
 /**
-* @desc Enables drawing polygons in a map, using mapbox-gl-draw.
-* Drawn polygons can be edited and deleted.
-* ...... TWITTERWEITERVERARBEITUNG ......
+* @desc
 *
 * @author Katharina Poppinga
 * @param {mapbox-map} map mapbox-map in which the polygons shall be drawn
+* @param {MapboxDraw} draw -
 */
-function drawForAOI(map) {
-
-	// specify and add a control for DRAWING A POLYGON into the map
-	var draw = new MapboxDraw({
-		displayControlsDefault: false, // all controls to be off by default for self-specifiying the controls as follows
-		controls: {
-			polygon: true,
-			trash: true // for deleting a drawn polygon
-		}
-	});
-	map.addControl(draw);
-
+function drawForAOI(map, draw) {
 
 	// ************************ events for drawn polygons ************************
 	// https://github.com/mapbox/mapbox-gl-draw/blob/master/docs/API.md
 
 	// if a polygon is drawn ...
 	map.on('draw.create', function (e) {
-		// all currently drawn polygons
-		let data = draw.getAll();
 
+		let data = draw.getAll(); // all currently drawn polygons
 		let pids = [];
 
 		// ID of the added feature
@@ -51,45 +38,56 @@ function drawForAOI(map) {
 		});
 		draw.delete(pids);
 
-		let coordinatesAOI = e.features[0].geometry.coordinates[0];
-
-		// *************************************************************************
-		// putting together the AOI-string for URL (for permalink-functionality) and write this AOI-string into URL:
-		let aoiString =	"[[" + coordinatesAOI[0].toString() + "]";
-
-		for (let i = 1; i < coordinatesAOI.length; i++) {
-			aoiString = aoiString + ",[" + coordinatesAOI[i].toString() + "]";
-		}
-		aoiString = aoiString + "]";
-
-		// TODO: oder nach zoomToCoordinates erst??
-		updateURL("aoi", aoiString);
-		// *************************************************************************
-
-		//
-		zoomToCoordinates(coordinatesAOI);
-		onlyShowUnwetterAndTweetsInPolygon(turf.polygon(e.features[0].geometry.coordinates));
+		// write AOI into URL and start Tweet-Search
+		processingAOI(e.features[0].geometry.coordinates);
 	});
 
 	// if a polygon is deleted ...
 	map.on('draw.delete', function (e) {
+
+		deleteFromURL("aoi");
 		showAllUnwetterAndNoTweets();
 	});
 
 	// if a polygon is edited/updated ...
 	map.on('draw.update', function (e) {
-		zoomToCoordinates(e.features[0].geometry.coordinates[0]);
-		onlyShowUnwetterAndTweetsInPolygon(turf.polygon(e.features[0].geometry.coordinates));
-	});
-
-	// if a polygon is selected or deselected ...
-	map.on('draw.selectionchange', function (e) {
-		console.log("drawnPolygons-selectionchanged:");
-		console.log(e.features);
+		// write AOI into URL and start Tweet-Search
+		processingAOI(e.features[0].geometry.coordinates);
 	});
 
 	//
 	map.on('draw.modechange', function (e) {
 		popupsEnabled = (e.mode !== "draw_polygon");
 	})
+}
+
+
+
+/**
+* @desc
+*
+* @author Katharina Poppinga
+* @param {Array} aoiCoordinatesGeoJSON -
+*/
+function processingAOI(aoiCoordinatesGeoJSON) {
+
+	let coordinatesAOI = aoiCoordinatesGeoJSON[0];
+
+	// *************************************************************************
+	// putting together the AOI-string for URL (for permalink-functionality) and write this AOI-string into URL:
+	let aoiString =	"[[" + coordinatesAOI[0].toString() + "]";
+
+	for (let i = 1; i < coordinatesAOI.length; i++) {
+		aoiString = aoiString + ",[" + coordinatesAOI[i].toString() + "]";
+	}
+	aoiString = aoiString + "]";
+
+	updateURL("aoi", aoiString);
+	// *************************************************************************
+
+	//
+	zoomToCoordinates(coordinatesAOI);
+
+	// do Tweet-search
+	onlyShowUnwetterAndTweetsInPolygon(turf.polygon(aoiCoordinatesGeoJSON));
 }
