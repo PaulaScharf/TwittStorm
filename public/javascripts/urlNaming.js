@@ -86,18 +86,41 @@ function readURL(param) {
 		value = url.slice(indexOfEqual + 1, indexOfAnd);
 		return value;
 	} else {
-		return "parameter not found."
+		return false;
 	}
 }
 
 
 /**
 	* @desc
-	*
+	* function to delete a specified parameter from the URL to maintain permalink integrity
 	* @author Jonathan Bahlmann
 	* @param {String} param Parameter to delete
 	*/
 function deleteFromURL(param) {
+	let oldURL = document.location.href;
+	let index = oldURL.indexOf(param);
 
+	if(index > 0) {
+		// parameter found
+		// +1 for " "
+		let firstPart = oldURL.slice(0, index - 1);
+		let cutURL = oldURL.slice(index, oldURL.length);
+		let indexOfNext = cutURL.indexOf("&");
+		let lastPart;
+		if(indexOfNext < 0) {
+			// last one in url
+			lastPart = "";
+		} else {
+			lastPart = cutURL.slice(indexOfNext, cutURL.length);
+		}
+		let newURL = firstPart.concat(lastPart);
+		// write
+			history.pushState({}, '', newURL);
+	}
+	else {
+		// parameter not found
+		return false;
+	}
 
 }
