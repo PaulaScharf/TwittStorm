@@ -621,4 +621,35 @@ right: 11px;
   vertical-align: bottom;
 }
 
+/* ********************************* Tweetfilter ********************************* */
+
+.green-border-focus .form-control:focus {
+  border: 1px solid #8bc34a;
+  box-shadow: 0 0 0 0.2rem rgba(139, 195, 74, .25);
+}
+
+.tweetfilter {
+  position: absolute;
+  z-index: 1;
+  top: 60px;
+  right: 60px;
+  width: 175px;
+}
+
+#tweetfilter-ta {
+  width: 100%;
+  height: 55px;
+}
+
+#tweetfilter-btn {
+  background-color: white;
+  float: right;
+}
+
+textarea {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
 /* ************************************************************************** */

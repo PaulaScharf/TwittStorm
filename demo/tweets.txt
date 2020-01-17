@@ -10,7 +10,7 @@
       "location_home": "Münster"
     },
     "timestamp": 1234,
-    "location_actual": [52.1, 7.5],
+    "location_actual": { "type":"Point", "coordinates":[7.5, 52.1] },
     "dwd_id": 1234,
     "requestTime": 1234
   }

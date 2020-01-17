@@ -652,16 +652,25 @@ function showTweetPopup(map, e) {
 			// ... create a popup with the following information: ........
 			new mapboxgl.Popup()
 			.setLngLat(e.lngLat)
-			.setHTML("<div id='" + idAsString + "'></div>")
+			.setHTML("<div id='" + idAsString + "'><div id='" + idAsString + "twttr'></div><div id='" + idAsString + "btn'></div></div>")
 			.addTo(map);
 			twttr.widgets.createTweet(
 				idAsString,
-				document.getElementById(idAsString),
+				document.getElementById(idAsString + "twttr"),
 				{
 					width: 1000,
 					dnt: true
 				}
 			);
+			let popupDiv = document.getElementById(idAsString + "btn");
+			let deleteBtn = document.createElement("button");
+			deleteBtn.setAttribute("id", "deleteBtn");
+			deleteBtn.setAttribute("class", "btn btn-danger");
+			deleteBtn.addEventListener('click', function(){
+				deleteTweet(idAsString);
+			});
+			deleteBtn.innerText = "delete";
+			popupDiv.appendChild(deleteBtn);
 		}
 	}
 }

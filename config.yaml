@@ -11,11 +11,11 @@ map:
     - 51.2
   zoom: 5
 refresh_rate: 300000
-timestamp_last_warnings_request: 1579259954576
+timestamp_last_warnings_request: 1579191035314
 max_age_tweets: null
 demo:
   timestamp_start: 1234
-  timestamp_end: 1235
+  timestamp_end: 3001234
   location: ../demo/
 keys:
   twitter:
