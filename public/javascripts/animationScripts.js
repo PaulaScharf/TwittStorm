@@ -509,11 +509,11 @@ function loadAnimation(position, map){
     var utc = date.toJSON().slice(0,10).replace(/-/g,'/');
     var time = date.toLocaleTimeString();
     var filename = utc + '/'+time;
-    gifshot.createGIF({
-      images: array,
-      'frameDuration': 10,
-      'gifWidth': 1200,
-      'gifHeight': 600,
+      gifshot.createGIF({
+          images: array,
+          'frameDuration': 10,
+          'gifWidth': 800,
+          'gifHeight': 400,
 
     }, function (obj) {
       if (!obj.error) {
