@@ -318,15 +318,15 @@ function showMap(style) {
 			showLegend(map, "unwetter");
 
 			// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
-			requestNewAndDisplayCurrentUnwetters(map, paramArray.timestamp);
+			requestNewAndDisplayCurrentUnwetters(map, JSON.parse(paramArray.timestamp));
 			// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
 			let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - (Date.now() - paramArray.config.timestamp_last_warnings_request);
 
 			// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
 			// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
-			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map, paramArray.timestamp);
+			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map, JSON.parse(paramArray.timestamp));
 			// ... and afterwards each "paramArray.config.refresh_rate" again
-			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.timestamp, paramArray.config.refresh_rate);
+			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, JSON.parse(paramArray.timestamp), paramArray.config.refresh_rate);
 		}
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -418,7 +418,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 		currentTimestamp = Date.now();
 	} else {
 		// found, use historic one
-		currentTimestamp = paramArray.timestamp + (currentTimestamp - initTimestamp);
+		currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
@@ -526,7 +526,7 @@ function callRainRadar(prod) {
 		currentTimestamp = Date.now();
 	} else {
 		// found, use historic one
-		currentTimestamp = paramArray.timestamp + (currentTimestamp - initTimestamp);
+		currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
@@ -956,7 +956,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 						currentTimestamp = Date.now();
 					} else {
 						// found, use historic one
-						currentTimestamp = paramArray.timestamp + (currentTimestamp - initTimestamp);
+						currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
 						try {
 							Date.parse(currentTimestamp);
 						} catch {
@@ -978,7 +978,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 						// use a http POST request
 						type: "POST",
 						// URL to send the request to
-						url: "/Twitter/tweets",
+						url: "/twitter/tweets",
 						// type of the data that is sent to the server
 						contentType: "application/json; charset=utf-8",
 						// data to send to the server
@@ -1004,7 +1004,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 									"features": []
 								};
 								// add the tweets in the result to the featurecollection
-								result.forEach(function (item) {
+								result.statuses.forEach(function (item) {
 									if (item.id && item.location_actual !== null) {
 										let tweetLocation = turf.point(item.location_actual.coordinates);
 										if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
@@ -1013,14 +1013,11 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 												"geometry": item.location_actual,
 												"properties": item
 											};
-											tweetFeatureCollection.features.push(tweetFeature);
+											tweetFeatureCollection.features = [tweetFeature];
+											displayEvent(map, "Tweet " + item.idstr + " " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
 										}
 									}
 								});
-								// add the tweets to the map
-								if (tweetFeatureCollection.features.length > 0) {
-									displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
-								}
 							} catch (e) {
 								console.dir("There was an error while processing the tweets from the database", e);
 								// TODO: error catchen und dann hier auch den error ausgeben?
@@ -1057,9 +1054,10 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 * This function ensures, that all unwetters but no tweets are visible.
 * @author Paula Scharf
 */
-function showAllUnwetterAndNoTweets() {
+function showAllExcept(keyword) {
 	customLayerIds.forEach(function(layerID) {
-		if(layerID.includes("Tweet")) {
+		if(layerID.includes(keyword)) {
+			map.removeLayer(layerID);
 			map.removeSource(layerID);
 			customLayerIds.remove(layerID);
 		} else {
@@ -1105,7 +1103,9 @@ function showAllUnwetterAndNoTweets() {
  * @param id
  */
 function deleteTweet(id) {
-	return function(id) {
+		let query = {
+			idstr: id
+		};
 		$.ajax({
 			// use a http DELETE request
 			type: "DELETE",
@@ -1113,8 +1113,14 @@ function deleteTweet(id) {
 			url: "/twitter/tweet",
 			// type of the data that is sent to the server
 			contentType: "application/json; charset=utf-8",
+			// data to send to the server
+			data: JSON.stringify(query),
 			// timeout set to 15 seconds
-			timeout: 15000
+			timeout: 15000,
+			// update the status display
+			success: function() {
+				$('#information').html("deleting a tweet");
+			}
 		})
 
 		// if the request is done successfully, ...
@@ -1123,6 +1129,8 @@ function deleteTweet(id) {
 				console.log("AJAX request (deleting a tweet) is done successfully.");
 				let popupDiv = document.getElementById(id);
 				popupDiv.remove();
+				showAllExcept("Tweet " + id);
+				closeAllPopups();
 			})
 
 			// if the request has failed, ...
@@ -1135,7 +1143,6 @@ function deleteTweet(id) {
 					JL("ajaxReadingWarningsTimeout").fatalException("ajax: '/twitter/tweet' timeout");
 				}
 			});
-	}
 }
 
 /**
@@ -1143,7 +1150,7 @@ function deleteTweet(id) {
  */
 function filterTweets() {
 	let textarea = document.getElementById("tweetfilter-ta");
-	filterwords = textarea.value.split(";");
+	filterwords = textarea.value.split("\n");
 	filterTweetPopups();
 }
 
@@ -1155,17 +1162,29 @@ function filterTweetPopups() {
 	customLayerIds.forEach(function(id) {
 		if (id.includes("Tweet")) {
 			let tweet = map.getSource(id);
+			let visibility = 'none'
 			filterwords.forEach(function(phrase) {
-				if (tweet.properties.statusmessage.includes(phrase)) {
-					map.setLayoutProperty(id, 'visibility', 'visible');
-				} else {
-					map.setLayoutProperty(id, 'visibility', 'none');
+				if (tweet._data.features[0].properties.statusmessage.includes(phrase)) {
+					visibility = 'visible';
 				}
-			})
+			});
+			map.setLayoutProperty(id, 'visibility', visibility);
 		}
 	})
 }
 
+/**
+ * closes all mapbox popups
+ */
+function closeAllPopups() {
+	let elements = document.getElementsByClassName("mapboxgl-popup mapboxgl-popup-anchor-bottom");
+		elements[0].parentNode.removeChild(elements[0]);
+}
+
+/**
+ * Removes an element from an array based on its content
+ * @returns {Array}
+ */
 Array.prototype.remove = function() {
 	var what, a = arguments, L = a.length, ax;
 	while (L && this.length) {

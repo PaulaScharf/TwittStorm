@@ -50,7 +50,7 @@ function drawForAOI(map, draw) {
 	map.on('draw.delete', function (e) {
 
 		deleteFromURL("aoi");
-		showAllUnwetterAndNoTweets();
+		showAllExcept("Tweet");
 	});
 
 	// if a polygon is edited/updated ...
