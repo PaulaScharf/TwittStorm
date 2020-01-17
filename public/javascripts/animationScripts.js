@@ -13,13 +13,13 @@
 
 // is there a timestamp?
 let currentTimestamp = Date.now();
-if(typeof paramArray.timestamp !== "undefined") {
+if (typeof paramArray.timestamp !== "undefined") {
   // none found, create "now"
   currentTimestamp = paramArray.timestamp;
   try {
     Date.parse(currentTimestamp);
   } catch {
-    console.log("The url is erroneous. Please try a different value for 'timestamp'.");
+    console.log("The URL is erroneous. Please try a different value for 'timestamp'.");
     currentTimestamp = Date.now();
   }
 }
@@ -67,8 +67,8 @@ function showAnimationMap(style) {
   let centerURL;
   let baseURL;
 
-  var checkedStreets = document.getElementById('navigation-guidance-day-v4')
-  var checkedSat = document.getElementById('satellite-v9')
+  var checkedStreets = document.getElementById('navigation-guidance-day-v4');
+  var checkedSat = document.getElementById('satellite-v9');
 
   // if not yet in URL, take and update to default streets
   if (paramArray.base == undefined) {
@@ -168,8 +168,8 @@ function showAnimationMap(style) {
       // remove all old sources
       removeAllSource(map);
       //update the URL
-      updateURL("wtype", "radar")
-      updateURL("radProd", "ry")
+      updateURL("wtype", "radar");
+      updateURL("radProd", "ry");
       // set the weathertype
       wtypeFlag = "radar";
       //display the legend
@@ -202,7 +202,6 @@ function showAnimationMap(style) {
       $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
       $('#downloadPopup').html('You have to wait for one animation cycle!');
       $("#downloadPopup").css({'background-color': 'DimGray'});
-
     });
 
 
@@ -213,7 +212,7 @@ function showAnimationMap(style) {
       // remove all old sources
       removeAllSource(map);
       //update the URL
-      updateURL("wtype", "unwetter")
+      updateURL("wtype", "unwetter");
       // set the weathertype
       wtypeFlag = "severeWeather";
       //display the legend
@@ -250,7 +249,6 @@ function showAnimationMap(style) {
       $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
       $('#downloadPopup').html('You have to wait for one animation cycle!');
       $("#downloadPopup").css({'background-color': 'DimGray'});
-
     });
 
 
@@ -308,7 +306,7 @@ function showAnimationMap(style) {
   });
   //enable the animation functionality
   automate(map);
-};
+}
 
 
 
@@ -354,7 +352,6 @@ function automate(map){
       }
       // if the maximum is reached set the value to the minimum
       else {
-
         val = min;
         $("#slider").prop("value", val);
 
@@ -363,7 +360,7 @@ function automate(map){
         imageArray.push(gifImage);
         // activate the downloadbutton if ready
         setToReady();
-      };
+      }
     }, 2000);
 
 
@@ -383,13 +380,9 @@ function automate(map){
       $("#playButton").click(function() {
         play();
       });
-
     });
-
   }
-
 );
-
 }
 
 
@@ -400,12 +393,12 @@ $("#downloadButton").click(function() {
   // if the gifarray is not empty
   if(gifArray.length){
     // create a gif with the images from the last displayed animation cycle
-    createGif(gifArray)
+    createGif(gifArray);
     $('#downloadPopup').html('Your animation download will start in a few seconds');
   }
 
   //avoid multiple click events
-  if(popup.classList[1] != "show"){
+  if (popup.classList[1] != "show"){
     // show the popup
     popup.classList.toggle("show");
     // hide the popup after some time
@@ -417,7 +410,7 @@ $("#downloadButton").click(function() {
 
 
 /**
-* @desc   check if the imageArray is uptodate with the amount of used
+* @desc check if the imageArray is uptodate with the amount of used
 * timestamps and if so set the download in a ready state
 * @author Benjamin Rieke
 */
@@ -434,7 +427,7 @@ function setToReady(){
     gifArray = imageArray;
     // flush the array so there are never more images than timestempsa
     imageArray = [];
-  };
+  }
 }
 
 
@@ -495,8 +488,7 @@ function loadAnimation(position, map){
 
     // put something in the array for the for loop to check for emptiness
     allLayers.push(posMarker);
-
-  };
+  }
 
 
   /**
@@ -509,22 +501,20 @@ function loadAnimation(position, map){
     var utc = date.toJSON().slice(0,10).replace(/-/g,'/');
     var time = date.toLocaleTimeString();
     var filename = utc + '/'+time;
+
       gifshot.createGIF({
           images: array,
           'frameDuration': 10,
           'gifWidth': 800,
           'gifHeight': 400,
-
     }, function (obj) {
       if (!obj.error) {
-        var image = obj.image
-
-        download(image, filename, 'image/gif')
-
+        var image = obj.image;
+        download(image, filename, 'image/gif');
       }
     });
-
   }
+
 
   /**
   * @desc Performs the actual db call to retrieve the previousWeather data
@@ -533,14 +523,13 @@ function loadAnimation(position, map){
   * @author Benjamin Rieke
   */
   function loadPreviousWeather(map, weatherEv){
-    //flush the storage arrays
+    // flush the storage arrays
     usedTimestamps = [];
     timestampStorage = [];
 
     var weatherEvent;
     if(weatherEv == "radar"){
       weatherEvent = "rainRadar/";
-
     }
     if (weatherEv == "severeWeather"){
       weatherEvent = "unwetter/";
@@ -563,15 +552,13 @@ function loadAnimation(position, map){
 
     // if the request is done successfully, ...
     .done(function (result) {
-
       // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
       console.log("AJAX request (reading previous weather) is done successfully.");
-
       console.log(result);
 
       // for every timestamp
       for (let key in result) {
-        if (key == "type" || key=="length") {
+        if (key == "type" || key == "length") {
         }
 
         else {
@@ -604,7 +591,6 @@ function loadAnimation(position, map){
                 outputArray.push(polygon);
               }
               mask.geometry.features = outputArray;
-
             }
 
             // add the current events to the geojson for each timestamp
@@ -619,7 +605,6 @@ function loadAnimation(position, map){
           final = timestampStorage;
         }
       }
-
       console.log(final);
 
       // for every timestamp in the final object
@@ -627,7 +612,6 @@ function loadAnimation(position, map){
         //add the according data to an mapbox source
         addToSource(map, final[i].timestamp ,  final[i]);
       }
-
     })
 
     // if the request has failed, ...
@@ -693,8 +677,8 @@ function loadAnimation(position, map){
   * @author Benjamin Rieke
   */
   function removeAllSource(map) {
-    var sources = map.style.sourceCaches
-    var layers = map.getStyle().layers
+    var sources = map.style.sourceCaches;
+    var layers = map.getStyle().layers;
 
     for (let key in sources){
       // checks if the sources contain a numbered id
@@ -704,11 +688,10 @@ function loadAnimation(position, map){
         for (let lays in layers){
           if(layers[lays].id == key){
             //remove them
-            map.removeLayer(key)
+            map.removeLayer(key);
           }
         }
-
-        map.removeSource(key)
+        map.removeSource(key);
       }
     }
   }
