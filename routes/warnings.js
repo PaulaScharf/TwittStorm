@@ -117,10 +117,7 @@ const getWarningsForTime = function(req, res, next) {
           .then(function () {
 
             updateCurrentTimestampInConfigYaml(currentTimestamp);
-
-            // TODO: hier nicht als promise nötig??
             getWarningsFromDB(currentTimestamp, req.db, res, next);
-
 
           }, function (error) {
             error.httpStatusCode = 500;
@@ -131,7 +128,6 @@ const getWarningsForTime = function(req, res, next) {
             return next(error);
           });
       } else {
-        // TODO: hier nicht als promise nötig??
         getWarningsFromDB(currentTimestamp, req.db, res, next);
       }
     }
@@ -443,8 +439,6 @@ function getWarningsFromDB(currentTimestamp, db, res, next) {
       res.send(response);
     }
   })
-
-  // TODO: wozu gehört dieses catch?
   .catch(function (error) {
     error.httpStatusCode = 500;
     return next(error);

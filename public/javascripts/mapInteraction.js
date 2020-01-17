@@ -66,8 +66,6 @@ function showLegend(map, typeOfLegend, product) {
 		// set positional accuracy
 		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>Local authority borders";
 
-		// TODO: BESSER MACHEN, INFOS DIREKT AUS LAYERN NEHMEN?? NICHT DIREKT MÖGLICH, DA JEDER TYPE VIELE LAYER HAT
-		//let allCurrentLayers = map.getStyle().layers;
 		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
 		// TODO: an endgültige Farben und feinere Farbabstufungen anpassen
 		values = ["Rain", "Snowfall", "Thunderstorm", "Black ice", "Other"]
@@ -684,7 +682,6 @@ function makeLayerInteractive(layerID) {
 }
 
 
-// TODO: Popups scrollbar machen oder enthaltenen Text kürzen??
 
 /**
 * @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.

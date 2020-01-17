@@ -12,12 +12,6 @@
 // TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
 
 
-// IN PARAM.ARRAY STEHEN DIE WERTE, DIE BEIM LADEN DER SEITE DRIN STANDEN, NICHT DIE, DIE ZWISCHENDURCH IN DIE URL AKTUALISIERT WURDEN
-
-
-// TODO: löschen, da nicht benötigt??
-mapboxgl.accessToken = paramArray.config.keys.mapbox.access_key;
-
 // ****************************** global variables *****************************
 
 // TODO: JSDoc für globale Variablen
@@ -180,8 +174,7 @@ function showMap(style) {
 		center: centerURL
 	});
 
-	// event to update URL
-	// TODO: get initial map postion also from url
+	// update URL when moving the map
 	map.on('moveend', function() {
 		updateURL('mapZoom', map.getZoom());
 		let center = map.getCenter();
@@ -208,7 +201,7 @@ function showMap(style) {
 				'type': 'geojson',
 				'data': boundaryGermany
 			},
-			'layout': { // TODO: nachlesen, ob layout hier nötig: https://docs.mapbox.com/mapbox-gl-js/style-spec/#types-layout
+			'layout': {
 				'line-join': 'round',
 				'line-cap': 'round',
 				'visibility': 'visible'
@@ -245,8 +238,8 @@ function showMap(style) {
 		let rasterMenuToggle;
 		let severeWeatherMenuToggle;
 
-		// TODO: folgendes if durch (readURL("wtype") == "radar") ersetzen? etc...
-		if (paramArray.wtype == "radar") {
+		// TODO: zweites (paramArray..) in if-bedingung löschen?
+		if ((readURL("wtype") == "radar") || (paramArray.wtype == "radar")) {
 			// set the flag to radar
 			wtypeFlag = "radar";
 
@@ -293,12 +286,10 @@ function showMap(style) {
 
 		// ****************** load severe weather warnings data ********************
 
-		// TODO: folgendes if durch (readURL("wtype") == "unwetter") ersetzen? etc...
-		if (paramArray.wtype === "unwetter") {
+		// TODO: zweites (paramArray..) in if-bedingung löschen?
+		if ((readURL("wtype") == "unwetter") || (paramArray.wtype === "unwetter")) {
 
-			// TODO: radProd=# aus URL entfernen
 			deleteFromURL("radProd");
-
 
 			// TODO: unnötig?
 			// set URL to requested wtype
@@ -399,7 +390,6 @@ function getAndUseAOIFromURL(draw) {
 
 // ************************************* block about rain radar ****************************************
 
-// TODO: timestamp-parameter aus dieser funktion löschen
 /**
 * @desc This function requests and displays Rain Radar data
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
@@ -591,7 +581,6 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 		// use a http GET request
 		type: "GET",
 		// URL to send the request to
-		// TODO: route umbenennen !!!!!!!!!!!!!!!!!!
 		url: "/warnings/" + currentTimestamp,
 		// type of the data that is sent to the server
 		contentType: "application/json; charset=utf-8",
@@ -867,10 +856,6 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 		// iteration over all elements (all layerIDs) in Array customLayerIds
 		for (let i = 0; i < customLayerIds.length; i++) {
 
-			// TODO: für fehlersuche
-			//	console.log(i);
-			//	console.log(customLayerIds.length);
-
 			let layerID = customLayerIds[i];
 
 			// split the String of the layerID by space for getting the type Unwetter and the dwd_ids as isolated elements
@@ -982,7 +967,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 							$('#information').html("Trying to find and insert fitting tweets");
 						}
 					})
-					
+
 					// if the request is done successfully, ...
 					.done(function (result) {
 						// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
@@ -1014,8 +999,8 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 									displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
 								}
 							} catch (e) {
-								console.dir("There was an error while processing the tweets from the database", e);
-								// TODO: error catchen und dann hier auch den error ausgeben?
+								console.dir("There was an error while processing the tweets from the database:", e);
+								console.log(e);
 							}
 						}
 					})

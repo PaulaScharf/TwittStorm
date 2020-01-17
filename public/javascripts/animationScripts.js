@@ -45,6 +45,7 @@ var gifArray = [];
 var automationIntervall;
 
 
+// TODO: showAnimationMap-Funktion modularisieren UND/ODER anpassen an showMap-Funktion, neues von dort übernehmen!!
 
 /**
 * @desc Based on the showMap function in the mapbox.js file.
@@ -52,7 +53,6 @@ var automationIntervall;
 * This function is called, when "animation.ejs" is loaded.
 * @author Katharina Poppinga, Jonathan Bahlmann, Benjamin Rieke
 */
-
 function showAnimationMap(style) {
   // Checks whether the layer menu DOM is empty and if not flushes the dom
   while (layers.firstChild) {
@@ -84,11 +84,8 @@ function showAnimationMap(style) {
     if (baseURL === "satellite") {
       style = "mapbox://styles/mapbox/satellite-v9";
       checkedSat.checked ='checked';
-
     }
   }
-
-
 
   // if not yet in URL, use standard
   if (paramArray.mapZoom == undefined) {
@@ -107,7 +104,6 @@ function showAnimationMap(style) {
     centerURL = JSON.parse(centerURL);
   }
 
-
   // create new map with variable zoom and center
   let map = new mapboxgl.Map({
     container: 'map',
@@ -117,16 +113,13 @@ function showAnimationMap(style) {
     preserveDrawingBuffer: true
   });
 
-
   // event to update URL
-  // TODO: get initial map postion also from url
   map.on('moveend', function() {
     updateURL('mapZoom', map.getZoom());
     let center = map.getCenter();
     let centerString = "[" + center.lng + ", " + center.lat + "]";
     updateURL('mapCenter', centerString);
   });
-
 
   // add zoom and rotation controls to the map
   map.addControl(new mapboxgl.NavigationControl());
@@ -147,7 +140,7 @@ function showAnimationMap(style) {
         'type': 'geojson',
         'data': boundaryGermany
       },
-      'layout': { // TODO: nachlesen, ob layout hier nötig: https://docs.mapbox.com/mapbox-gl-js/style-spec/#types-layout
+      'layout': {
         'line-join': 'round',
         'line-cap': 'round',
         'visibility': 'visible'
