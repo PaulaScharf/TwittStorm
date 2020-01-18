@@ -220,21 +220,8 @@ function zoomToCoordinates(map, coordinates) {
 * @author Benjamin Rieke
 */
 function openMenu(button, menu, site) {
-	// if a radar product is selected automatically open up the radar submenu
-	if (site == 'animation') {
-console.log("wubsi");
+		// if a radar product is selected automatically open up the radar submenu
 
-	if (wtypeFlag == "radar") {
-		var innerRasterMenuToggle = document.getElementById('rasterMenu');
-		innerRasterMenuToggle.style.display = "block";
-	}
-	// if severe weather is selected automatically open up the severe weather submenu
-	else {
-		var innerUnwetterMenuToggle = document.getElementById('menu');
-		innerUnwetterMenuToggle.style.display = "block";
-	};
-}
-	// if a radar product is selected automatically open up the radar submenu
 
 		if (wtypeFlag == "radar") {
 			var innerRasterMenuToggle = document.getElementById('rasterMenu');
@@ -244,31 +231,27 @@ console.log("wubsi");
 		else {
 			var innerUnwetterMenuToggle = document.getElementById('menu');
 			innerUnwetterMenuToggle.style.display = "block";
-
-			// create checkboxes (as a submenu) for all currently existing warning-types to be able to show only checked warning types in the map
+		};
+		// displays the germany boundary button if is not visible
+		var boundaryButtonToggle = document.getElementById('germanyButton');
+		if (boundaryButtonToggle.style.display === "none"){
+			boundaryButtonToggle.style.display = "block";
+		}
+		// the germany button is also used as an indicator to see if the menus are open
+		// if that is the case all menus will be closed when the main layer menu button is pressed
+		else {
+			closeAllMenus();
 		};
 
-
-	// displays the germany boundary button if is not visible
-	var boundaryButtonToggle = document.getElementById('germanyButton');
-	if (boundaryButtonToggle.style.display === "none"){
-		boundaryButtonToggle.style.display = "block";
+		// displays the requested submenus
+		button = document.getElementById(menu.id);
+		if (button.style.display === "none") {
+			button.style.display = "block";
+			boundaryButtonToggle.style.display = "block";
+		} else {
+			button.style.display = "none";
+		};
 	}
-	// the germany button is also used as an indicator to see if the menus are open
-	// if that is the case all menus will be closed when the main layer menu button is pressed
-	else {
-		closeAllMenus();
-	};
-
-	// displays the requested submenus
-	button = document.getElementById(menu.id);
-	if (button.style.display === "none") {
-		button.style.display = "block";
-		boundaryButtonToggle.style.display = "block";
-	} else {
-		button.style.display = "none";
-	};
-}
 
 
 
