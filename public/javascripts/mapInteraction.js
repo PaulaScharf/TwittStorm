@@ -154,7 +154,7 @@ function msToMin(ms) {
 * @param {String} directionToPan - the direction in which the map to pan: "left", "right", "up" or "down"
 */
 function panMapWithButton(map, directionToPan) {
-	console.log(map);
+
 	let center = map.getCenter();
 	let newCenter;
 
@@ -284,8 +284,6 @@ layers.appendChild(link);
 */
 function openMenu(button, menu, map) {
 
-console.log(map);
-
 	// if a radar product is selected automatically open up the radar submenu
 	if (map == "map") {
 
@@ -359,8 +357,6 @@ function closeAllMenus() {
 */
 function removeAddGermany(map){
 
-	console.log(map);
-
 	// uses the visibility attribute of a mapbox layer
 	var visibility = map.getLayoutProperty("boundaryGermany", 'visibility');
 
@@ -383,9 +379,6 @@ function removeAddGermany(map){
 * @param layer - The chosen maplayer style
 */
 function switchLayer(map, layer) {
-
-	console.log(layer);
-	console.log(map);
 
 	const savedLayers = [];
 	const savedSources = {};
@@ -445,15 +438,13 @@ function styleSelector(map){
 */
 function loadRaster(map, product){
 
-console.log(map);
-
 	// set flag to radar
 	wtypeFlag = "radar";
 
 	// hide all severe weather polygons
 	removeSevereWeather(map);
 
-	console.log("Loading your requested radar product.");
+	console.log("Loading your requested " + product + " rain radar.");
 
 	// update the URL
 	updateURL('wtype', 'radar');
@@ -608,7 +599,6 @@ function createWarningsCheckboxes(map) {
 }
 
 
-
 /**
 * @desc Creates a checkbox for ...........
 * A selected/checked checkbox adds its corresponding ..... to ......
@@ -623,7 +613,7 @@ function createWarningsCheckboxes(map) {
 function createWarningsCheckbox(map, warningsMenu, type, checked) {
 
 	// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenuDiv"
-	warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(\"" + map + "\", \"" + type + "\")'" + ((checked) ? "checked" : "") + "> " + type + "<br>";
+	warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(map, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> " + type + "<br>";
 }
 
 
@@ -637,8 +627,6 @@ function createWarningsCheckbox(map, warningsMenu, type, checked) {
 * @param {String} type - type of warnings (equals content of layerGroup), one of the following: (rain, snowfall, thunderstorm, blackice)
 */
 function showHideWarningsType(map, type){
-
-console.log(map);
 
 	// label the warnings-type-checkbox
 	let checkBox = document.getElementById("warningsCheckbox_" + type);

@@ -418,7 +418,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
-			console.log("The url is erroneous. Please try a different value for timestamp.");
+			console.log("The url is erroneous. Please try a different value for 'timestamp'.");
 			currentTimestamp = Date.now();
 		}
 	}
