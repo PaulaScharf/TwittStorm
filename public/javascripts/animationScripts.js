@@ -59,13 +59,10 @@ function showAnimationMap(style) {
     layers.removeChild(layers.firstChild);
   }
 
-  // enables the ability to choose between different mapstyles
-  styleSelector();
-
   // declare var
+  let baseURL;
   let zoomURL;
   let centerURL;
-  let baseURL;
 
   var checkedStreets = document.getElementById('navigation-guidance-day-v4');
   var checkedSat = document.getElementById('satellite-v9');
@@ -87,53 +84,62 @@ function showAnimationMap(style) {
     }
   }
 
-  // if not yet in URL, use standard
+  // if not yet in URL, get value from config.yaml
   if (paramArray.mapZoom == undefined) {
-    //get value from config.yaml
     zoomURL = paramArray.config.map.zoom;
+    updateURL("mapZoom", zoomURL);
     // otherwise use value from URL
   } else {
     zoomURL = paramArray.mapZoom;
   }
-  // see above
+
+  // if not yet in URL, get value from config.yaml
   if (paramArray.mapCenter == undefined) {
-    //get value from config.yaml
     centerURL = paramArray.config.map.center;
+    updateURL("mapCenter", centerURL);
+    // otherwise use value from URL
   } else {
-    centerURL = paramArray.mapCenter;
-    centerURL = JSON.parse(centerURL);
+    centerURL = JSON.parse(paramArray.mapCenter);
+  }
+
+  // if not yet in URL, use default warnings
+  if (paramArray.wtype == undefined) {
+    updateURL("wtype", "unwetter");
+    paramArray.wtype = "unwetter"; // TODO: dieses löschen, wenn weiter unten auch angepasst an readURL()...
   }
 
   // create new map with variable zoom and center
-  let map = new mapboxgl.Map({
-    container: 'map',
+  let animationMap = new mapboxgl.Map({
+    container: 'animationMap',
     style: style,
     zoom: zoomURL,
     center: centerURL,
     preserveDrawingBuffer: true
   });
 
-  // event to update URL
-  map.on('moveend', function() {
-    updateURL('mapZoom', map.getZoom());
-    let center = map.getCenter();
-    let centerString = "[" + center.lng + ", " + center.lat + "]";
+  // update URL when moving the map
+  animationMap.on('moveend', function() {
+    updateURL('mapZoom', animationMap.getZoom());
+    let center = animationMap.getCenter();
+    let centerString = "[" + center.lng + "," + center.lat + "]";
     updateURL('mapCenter', centerString);
   });
 
   // add zoom and rotation controls to the map
-  map.addControl(new mapboxgl.NavigationControl());
+  animationMap.addControl(new mapboxgl.NavigationControl());
 
+  // enables the ability to choose between different mapstyles
+  styleSelector(animationMap);
 
   // ************************ adding boundary of Germany *************************
   // TODO: evtl. in eigene Funktion auslagern, der Übersicht halber
 
   // this event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
-  map.on('load', function() {
+  animationMap.on('load', function() {
     // resize map to full screen
-    map.resize();
+    animationMap.resize();
     // for a better orientation, add the boundary of germany to the map
-    map.addLayer({
+    animationMap.addLayer({
       'id': 'boundaryGermany',
       'type': 'line',
       'source': {
@@ -159,16 +165,16 @@ function showAnimationMap(style) {
       // when another animation is running stop it first
       clearInterval(automationIntervall);
       // remove all old sources
-      removeAllSource(map);
+      removeAllSource(animationMap);
       //update the URL
       updateURL("wtype", "radar");
       updateURL("radProd", "ry");
       // set the weathertype
       wtypeFlag = "radar";
       //display the legend
-      showLegend(map, "radar", "ry");
+      showLegend(animationMap, "radar", "ry");
       //request the previous weather
-      loadPreviousWeather(map, wtypeFlag);
+      loadPreviousWeather(animationMap, wtypeFlag);
 
       //change the menu
       var rasterMenuToggle = document.getElementById('raster');
@@ -183,7 +189,7 @@ function showAnimationMap(style) {
       // change image to play icon
       $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
       //and reset everything
-      automate(map);
+      automate(animationMap);
       //flush the image array
       imageArray = [];
       //flush the layer array
@@ -203,22 +209,21 @@ function showAnimationMap(style) {
       // when another animation is running stop it first
       clearInterval(automationIntervall);
       // remove all old sources
-      removeAllSource(map);
+      removeAllSource(animationMap);
       //update the URL
       updateURL("wtype", "unwetter");
       // set the weathertype
       wtypeFlag = "severeWeather";
       //display the legend
-      showLegend(map, "unwetter");
+      showLegend(animationMap, "unwetter");
       //request the previous weather
-      loadPreviousWeather(map, wtypeFlag);
+      loadPreviousWeather(animationMap, wtypeFlag);
 
       // update the menu
       var rasterMenuToggle = document.getElementById('raster');
       rasterMenuToggle.classList.remove("active");
       var innerRasterMenuToggle = document.getElementById('rasterMenu');
       innerRasterMenuToggle.style.display = "none";
-
 
       // activate the severe weather tab
       var severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
@@ -230,7 +235,7 @@ function showAnimationMap(style) {
       // change image to play icon
       $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
       //and reset everything
-      automate(map);
+      automate(animationMap);
       //flush the image array
       imageArray = [];
       //flush the layer array
@@ -258,12 +263,9 @@ function showAnimationMap(style) {
       severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
       severeWeatherMenuToggle.classList.remove("active");
 
-      showLegend(map, "radar", "rw");
+      showLegend(animationMap, "radar", "rw");
 
-      // display rain radar
-      //  requestAndDisplayAllRainRadar(map, paramArray.rasterProduct);
-
-      loadPreviousWeather(map, wtypeFlag);
+      loadPreviousWeather(animationMap, wtypeFlag);
     }
 
     if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
@@ -280,11 +282,11 @@ function showAnimationMap(style) {
       severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
       severeWeatherMenuToggle.classList.add("active");
       //display the legend according to the weathertype
-      showLegend(map, "unwetter");
+      showLegend(animationMap, "unwetter");
 
       // the last Unwetter request was "hm"-milliseconds ago
       let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
-      loadPreviousWeather(map, wtypeFlag);
+      loadPreviousWeather(animationMap, wtypeFlag);
     }
     // add manual functionality for the slider
     document
@@ -292,13 +294,13 @@ function showAnimationMap(style) {
     .addEventListener('input', function(e) {
       //the number of the timestamp
       var timestampNum = parseInt(e.target.value, 10);
-      loadAnimation(timestampNum, map);
+      loadAnimation(timestampNum, animationMap);
       //reset the imageArray
       imageArray = [];
     });
   });
   //enable the animation functionality
-  automate(map);
+  automate(animationMap);
 }
 
 
@@ -428,6 +430,7 @@ function setToReady(){
 /**
 * @desc Adds the desired layer, removes the others and displays the date according to the timestamp
 * @param position checks at which position each timestamp is supposed to be displayed
+* @param map
 * @author Benjamin Rieke
 */
 function loadAnimation(position, map){
@@ -440,7 +443,7 @@ function loadAnimation(position, map){
   document.getElementById('timestamp').textContent = time.toUTCString();
 
   //check if a layer is shown
-  for(let i = 0; i < allLayers.length; i++){
+  for (let i = 0; i < allLayers.length; i++){
     // if yes remove them
     map.removeLayer(allLayers);
   }
@@ -495,11 +498,11 @@ function loadAnimation(position, map){
     var time = date.toLocaleTimeString();
     var filename = utc + '/'+time;
 
-      gifshot.createGIF({
-          images: array,
-          'frameDuration': 10,
-          'gifWidth': 800,
-          'gifHeight': 400,
+    gifshot.createGIF({
+      images: array,
+      'frameDuration': 10,
+      'gifWidth': 800,
+      'gifHeight': 400,
     }, function (obj) {
       if (!obj.error) {
         var image = obj.image;
@@ -513,6 +516,7 @@ function loadAnimation(position, map){
   * @desc Performs the actual db call to retrieve the previousWeather data
   * and fits every event according to its timestamp into an array
   * @param map Links to the map
+  * @param weatherEv -
   * @author Benjamin Rieke
   */
   function loadPreviousWeather(map, weatherEv){
@@ -521,7 +525,7 @@ function loadAnimation(position, map){
     timestampStorage = [];
 
     var weatherEvent;
-    if(weatherEv == "radar"){
+    if (weatherEv == "radar"){
       weatherEvent = "rainRadar/";
     }
     if (weatherEv == "severeWeather"){
@@ -548,14 +552,14 @@ function loadAnimation(position, map){
       // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
       console.log("AJAX request (reading previous weather) is done successfully.");
       console.log(result);
-
       // for every timestamp
       for (let key in result) {
         if (key == "type" || key == "length") {
+          // TODO: ????
         }
 
         else {
-          //log the individual timestamp to refer to them later
+          // log the individual timestamp to refer to them later
           usedTimestamps.push(key);
 
           // flush the outputarray with each call
@@ -624,7 +628,6 @@ function loadAnimation(position, map){
   }
 
 
-
   /**
   * function to return a GeoJSON formatted Polygon
   * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
@@ -633,8 +636,7 @@ function loadAnimation(position, map){
   * @param time timestamp of the data
   */
   function goGeoJson(object, time) {
-    //console.log(object);
-    //  console.log(object.geometry);
+
     var result = {
       "type":"Feature",
       "properties": {
@@ -690,7 +692,6 @@ function loadAnimation(position, map){
   }
 
 
-
   /**
   * @desc Adds a GEOJSON to the map as a source
   * @param map glinks to the map
@@ -700,14 +701,14 @@ function loadAnimation(position, map){
   */
   function addToSource(map, layerID, previousFeatureCollection){
 
-    if(previousFeatureCollection.type =="rainRadar/"){
+    if (previousFeatureCollection.type =="rainRadar/"){
       map.addSource(layerID, {
         type: 'geojson',
         data: previousFeatureCollection.geometry.features
       });
     }
 
-    if(previousFeatureCollection.type =="unwetter/"){
+    if (previousFeatureCollection.type =="unwetter/"){
       map.addSource(layerID, {
         type: 'geojson',
         data: previousFeatureCollection.geometry

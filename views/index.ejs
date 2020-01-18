@@ -38,8 +38,8 @@
 
         <!-- Product selection menu -->
         <div id="productMenu" style="display:none">
-          <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)" title="Show radar data">Radar</a>
-          <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu);" title="Show severe weather warnings data">Severe Weather Warnings</a>
+          <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu, map)" title="Show radar data">Radar</a>
+          <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu, map);" title="Show severe weather warnings data">Severe Weather Warnings</a>
         </div>
 
         <!-- Raster selection menu -->
@@ -57,7 +57,7 @@
         </div>
 
         <!-- button to open up the menu. image taken from https://freeicons.io/user-interface-and-electronics/layer-up-down-screen-multiple-interface-ui-d-cd-icon-892 -->
-        <nav id="menuButton" class="button" onclick="openMenu(this, productMenu, 'index');" title="Change Layers">
+        <nav id="menuButton" class="button" onclick="openMenu(this, productMenu, map);" title="Change Layers">
           <div id="buttonIcon">
             <img src="/css/Layer-Icon.png"/>
           </div>
@@ -98,22 +98,22 @@
 
         <!-- Pan Buttons -->
         <!-- image taken from https://freeicons.io/user-interface-and-electronics/arrow-backword-back-ui-left-interface-e-da-c-a-icon-811 -->
-        <nav id="panButtonL" class="button" onclick="panMapWithButton('left');" title="Pan map to the left">
+        <nav id="panButtonL" class="button" onclick="panMapWithButton(map, 'left');" title="Pan map to the left">
           <div id="panButton_L_img" class="panButtonImg">
             <img src="/css/pan.png"/>
           </div>
         </nav>
-        <nav id="panButtonR" class="button" onclick="panMapWithButton('right');" title="Pan map to the right">
+        <nav id="panButtonR" class="button" onclick="panMapWithButton(map, 'right');" title="Pan map to the right">
           <div id="panButton_R_img" class="panButtonImg">
             <img src="/css/pan.png"/>
           </div>
         </nav>
-        <nav id="panButtonU" class="button" onclick="panMapWithButton('up');" title="Pan map up">
+        <nav id="panButtonU" class="button" onclick="panMapWithButton(map, 'up');" title="Pan map up">
           <div id="panButton_U_img" class="panButtonImg">
             <img src="/css/pan.png"/>
           </div>
         </nav>
-        <nav id="panButtonD" class="button" onclick="panMapWithButton('down');" title="Pan map down">
+        <nav id="panButtonD" class="button" onclick="panMapWithButton(map, 'down');" title="Pan map down">
           <div id="panButton_D_img" class="panButtonImg">
             <img src="/css/pan.png"/>
           </div>

@@ -11,8 +11,6 @@
   <link rel="stylesheet" type="text/css" href="/css/project.css">
   <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/mapbox/mapbox-gl.css"/>
-  <link rel="stylesheet" href="/mapbox-draw/mapbox-gl-draw.css"/>
-  <link rel="stylesheet" href="/leaflet/leaflet.css"/>
 </head>
 
 <body onload = "showAnimationMap('mapbox://styles/mapbox/navigation-guidance-day-v4')">
@@ -31,10 +29,9 @@
 
     <!-- map -->
     <div class="container-fluid">
-      <div id="map">
+      <div id="animationMap">
         <!-- DWD selection menu -->
         <div id="menu" style="display:none"></div>
-
 
         <!-- Product selection menu -->
         <div id="productMenu" style="display:none">
@@ -57,7 +54,7 @@
         </div>
 
         <!-- button to open up the menu. image taken from https://freeicons.io/user-interface-and-electronics/layer-up-down-screen-multiple-interface-ui-d-cd-icon-892 -->
-        <nav id="menuButton" class="button" onclick="openMenu(this, productMenu, 'animation');" title="Change Layers">
+        <nav id="menuButton" class="button" onclick="openMenu(this, productMenu, animationMap);" title="Change Layers">
           <div id="buttonIcon">
             <img src="/css/Layer-Icon.png"/>
           </div>
@@ -99,27 +96,27 @@
 
         <!-- Pan Buttons -->
         <!-- image taken from https://freeicons.io/user-interface-and-electronics/arrow-backword-back-ui-left-interface-e-da-c-a-icon-811 -->
-        <nav id="panButtonL" class="button" onclick="panMapWithButton('left');" title="Pan map to the left">
+        <nav id="panButtonL" class="button" onclick="panMapWithButton(animationMap, 'left');" title="Pan map to the left">
           <div id="panButton_L_img" class="panButtonImg">
             <img src="/css/pan.png"/>
           </div>
         </nav>
-        <nav id="panButtonR" class="button" onclick="panMapWithButton('right');" title="Pan map to the right">
+        <nav id="panButtonR" class="button" onclick="panMapWithButton(animationMap, 'right');" title="Pan map to the right">
           <div id="panButton_R_img" class="panButtonImg">
             <img src="/css/pan.png"/>
           </div>
         </nav>
-        <nav id="panButtonU" class="button" onclick="panMapWithButton('up');" title="Pan map up">
+        <nav id="panButtonU" class="button" onclick="panMapWithButton(animationMap, 'up');" title="Pan map up">
           <div id="panButton_U_img" class="panButtonImg">
             <img src="/css/pan.png"/>
           </div>
         </nav>
-        <nav id="panButtonD" class="button" onclick="panMapWithButton('down');" title="Pan map down">
+        <nav id="panButtonD" class="button" onclick="panMapWithButton(animationMap, 'down');" title="Pan map down">
           <div id="panButton_D_img" class="panButtonImg">
             <img src="/css/pan.png"/>
           </div>
         </nav>
-        
+
         <div class="animation-overlay top">
           <div class="animation-overlay-inner">
             <h2>Last 10 Timesteps</h2>
@@ -158,8 +155,6 @@
   <script src="/popper/umd/popper.js"></script>
   <script src="/bootstrap/js/bootstrap.js"></script>
   <script src="/mapbox/mapbox-gl.js"></script>
-  <script src="/mapbox-draw/mapbox-gl-draw.js"></script>
-  <script src="/leaflet/leaflet.js"></script>
   <script src="/turf/turf/turf.min.js"></script>
   <script src="/jsnlog/jsnlog.min.js"></script>
   <script src="/gifshot/gifshot.js"></script>
@@ -171,7 +166,6 @@
 
   <script src="/javascripts/urlNaming.js"></script>
   <script src="/javascripts/mapInteraction.js"></script>
-  <script src="/javascripts/mapboxDraw.js"></script>
   <script src="/javascripts/mapbox.js"></script>
   <script src="/javascripts/germanyBoundary.js"></script>
   <script src="/javascripts/animationScripts.js"></script>

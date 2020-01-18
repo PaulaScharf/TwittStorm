@@ -156,10 +156,11 @@ function msToMin(ms) {
 * @desc
 *
 * @author Katharina Poppinga
-* @param {} directionToPan - the direction in which the map to pan: left, right, up or down
+* @param {mapbox-map} map - mapbox-map ....
+* @param {String} directionToPan - the direction in which the map to pan: "left", "right", "up" or "down"
 */
-function panMapWithButton(directionToPan) {
-
+function panMapWithButton(map, directionToPan) {
+console.log(map);
 	let center = map.getCenter();
 	let newCenter;
 
@@ -189,9 +190,10 @@ function panMapWithButton(directionToPan) {
 /**
 * Zoom to the given Coordinates.
 * @author https://gist.github.com/aerispaha/826a9f2fbbdf37983dc01e6074ce7cd7
+* @param {mapbox-map} map mapbox-map
 * @param coordinates
 */
-function zoomToCoordinates(coordinates) {
+function zoomToCoordinates(map, coordinates) {
 
 	// Pass the first coordinates in the Polygon to `lngLatBounds` &
 	// wrap each coordinate pair in `extend` to include them in the bounds
@@ -276,22 +278,20 @@ layers.appendChild(link);
 */
 }
 
-
+// TODO: checkbox-div direkt öffnen bei klick auf "menuButton", wenn severe weather angewählt ist !!!!!
 
 /**
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X
 * @param button Links the button to the function
 * @param menu Id of the menu that is supposed to open/close
 * @param site the requested site index or animation
+* @param map
 * @author Benjamin Rieke
 */
-function openMenu(button, menu, site) {
-
-	// create checkboxes (as a submenu) for all currently existing warning-types to be able to show only checked warning types in the map
-	createWarningsCheckboxes();
+function openMenu(button, menu, map) {
 
 	// if a radar product is selected automatically open up the radar submenu
-	if (site == 'index') {
+	if (map == 'map') {
 
 		if (wtypeFlag == "radar") {
 			var innerRasterMenuToggle = document.getElementById('rasterMenu');
@@ -301,6 +301,9 @@ function openMenu(button, menu, site) {
 		else {
 			var innerUnwetterMenuToggle = document.getElementById('menu');
 			innerUnwetterMenuToggle.style.display = "block";
+
+			// create checkboxes (as a submenu) for all currently existing warning-types to be able to show only checked warning types in the map
+			createWarningsCheckboxes(map);
 		};
 	}
 
@@ -376,15 +379,16 @@ function removeAddGermany(){
 // TODO: wo wird in folgender funktion showMap aufgerufen? (steht zumindest ins JSDoc, sondern ändern)
 /**
 * @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
-* @param layer - The chosen maplayer style
 * @author Benjamin Rieke, Paula Scharf
+* @param {mapbox-map} map mapbox-map ......
+* @param layer - The chosen maplayer style
 */
-function switchLayer(layer) {
+function switchLayer(map, layer) {
 
 	const savedLayers = [];
 	const savedSources = {};
 
-	forEachLayer((layer) => {
+	forEachLayer(map, (layer) => {
 		savedSources[layer.source] = map.getSource(layer.source).serialize();
 		savedLayers.push(layer);
 	});
@@ -414,13 +418,21 @@ function switchLayer(layer) {
 * @desc Uses the styles that are set on the index page to switch between them on click of the switcher field
 * @author Benjamin Rieke
 */
-function styleSelector(){
+function styleSelector(map){
 	// Takes the map styles from the selection on the index page
 	let layerList = document.getElementById('styleMenu');
 	let inputs = layerList.getElementsByTagName('input');
 
+console.log(inputs);
+
 	for (var i = 0; i < inputs.length; i++) {
-		inputs[i].onclick = switchLayer;
+
+	//	inputs[i].onclick = switchLayer(map);
+
+		// add onclick-functionality for clicking on satellite or streets button
+		inputs[i].addEventListener('click', function(){
+                switchLayer(map, streets);
+            });
 	}
 }
 
@@ -533,15 +545,6 @@ function loadSevereWeather(){
 		requestNewAndDisplayCurrentUnwetters(map);
 	};
 
-	/*
-	// show all warnings in map
-	map.style._order.forEach(function(layer) {
-	if (layer.includes("unwetter")) {
-	map.setLayoutProperty(layer, 'visibility', 'visible');
-}
-});
-*/
-
 // deactivate the raster menu
 var rasterMenuToggle = document.getElementById('raster');
 rasterMenuToggle.classList.remove("active");
@@ -568,8 +571,9 @@ severeWeatherMenuToggle.classList.add("active");
 *
 * @private
 * @author Katharina Poppinga
+* @param {} map - map for which ....
 */
-function createWarningsCheckboxes() {
+function createWarningsCheckboxes(map) {
 
 	// get the HTML-div, in which the checkboxes for the warning types will be written
 	let warningsMenu = document.getElementById("menu");
@@ -654,9 +658,10 @@ function showHideWarningsType(type){
 /**
 * This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
 * @author Katharina Poppinga
+* @param {} map -
 * @param {String} layerID - ID of a layer
 */
-function makeLayerInteractive(layerID) {
+function makeLayerInteractive(map, layerID) {
 
 	// ************************ changing of curser style ***********************
 	// https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/

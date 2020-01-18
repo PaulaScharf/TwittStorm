@@ -27,13 +27,6 @@ var layers = document.getElementById('menu');
 
 
 /**
-* refers to the mapbox map element
-* @type {mapbox_map}
-*/
-let map;
-
-
-/**
 * referes to all the layers that are not defaults
 * @type {Array}
 */
@@ -55,7 +48,7 @@ let initTimestamp = Date.now();
 
 
 /**
-* Flag that indicates if a radar product is requested
+* Flag that indicates which weathertype is requested
 * @type {String}
 */
 let wtypeFlag = "";
@@ -79,7 +72,6 @@ window.twttr = (function(d, s, id) {
 
 	return t;
 }(document, "script", "twitter-wjs"));
-
 
 
 
@@ -109,16 +101,10 @@ $(document).ajaxComplete(function(){
 */
 function showMap(style) {
 
-	// set Interval to accumulate radar data for the animation
-	setInterval(intervalRainRadar, paramArray.config.refresh_rate);
-
 	// Checks whether the layer menu DOM is empty and if not flushes the dom
 	while (layers.firstChild) {
 		layers.removeChild(layers.firstChild);
 	}
-
-	// enables the ability to choose between different mapstyles
-	styleSelector();
 
 	let baseURL;
 	let zoomURL;
@@ -187,6 +173,12 @@ function showMap(style) {
 
 	// add zoom and rotation controls to the map
 	map.addControl(new mapboxgl.NavigationControl());
+
+	// enables the ability to choose between different mapstyles
+	styleSelector(map);
+
+	// set Interval to accumulate radar data for the animation
+	setInterval(intervalRainRadar, paramArray.config.refresh_rate, map);
 
 
 	// ************************ adding boundary of Germany ***********************
@@ -382,11 +374,10 @@ function getAndUseAOIFromURL(draw) {
 			}
 		}]
 	});
-	//zoomToCoordinates(polygonArray);
 
 	let aoiForTweetSearch = [polygonArray];
 	// TODO: ausprobieren, ob funktionert!!!!
-	onlyShowUnwetterAndTweetsInPolygon(turf.polygon(aoiForTweetSearch));
+	onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiForTweetSearch));
 }
 
 
@@ -398,7 +389,6 @@ function getAndUseAOIFromURL(draw) {
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
 * @param map the map to display data in
 * @param product the radarProduct, see API wiki on github
-* @param timestamp see API wiki on GitHub
 */
 function requestAndDisplayAllRainRadar(map, product) {
 
@@ -485,8 +475,9 @@ function requestAndDisplayAllRainRadar(map, product) {
 /**
 * function that sets a timeout for the start of the radar-requesting routine
 * @author Jonathan Bahlmann
+* @param map
 */
-function intervalRainRadar() {
+function intervalRainRadar(map) {
 	let refresh = paramArray.config.refresh_rate;
 	let prod;
 	// if refresh-rate < 1 hour
@@ -497,14 +488,16 @@ function intervalRainRadar() {
 	}
 
 	// pause for 20sec
-	window.setTimeout(callRainRadar, 20000, prod);
+	window.setTimeout(callRainRadar, 20000, map, prod);
 }
 
 /**
 * callback for timeout. handles the API call and updates map if necessary
 * @author Jonathan Bahlmann
+* @param map
+* @param prod
 */
-function callRainRadar(prod) {
+function callRainRadar(map, prod) {
 	// progress update info
 	$('#information').html("Retrieving the requested " + prod + " radar product");
 
@@ -607,7 +600,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 				let timestampLastRequest = document.getElementById("timestampLastRequest");
 				timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
 
-				displayCurrentUnwetters(result.events);
+				displayCurrentUnwetters(map, result.events);
 			}
 		})
 
@@ -633,16 +626,16 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	* @desc
 	*
 	* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
-	* @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
+	* @param {mapbox-map} map - mapbox-map in which to display the current Unwetters
 	* @param {number} currentTimestamp - in Epoch milliseconds
 	*/
-	function displayCurrentUnwetters(currentUnwetters) {
+	function displayCurrentUnwetters(map, currentUnwetters) {
 
 		// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
 		let unwetterFeature;
 
 		// remove layer and source of those Unwetter which are expired from map and remove its layerID from customLayerIds
-		findAndRemoveOldLayerIDs(currentUnwetters);
+		findAndRemoveOldLayerIDs(map, currentUnwetters);
 
 		// iteration over all Unwetter in the database
 		for (let i = 0; i < currentUnwetters.length; i++) {
@@ -666,25 +659,21 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 				layerGroup = "Rain";
 				searchWords.push("Starkregen", "Dauerregen");
 			}
-
 			// if the current Unwetter is of type SNOWFALL ...
 			else if ((ii >= 70) && (ii <= 78)) {
 				layerGroup = "Snowfall";
 				searchWords.push("Schneefall");
 			}
-
 			// if the current Unwetter is of type THUNDERSTORM ..
 			else if (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96))) {
 				layerGroup = "Thunderstorm";
 				searchWords.push("Gewitter");
 			}
-
 			// if the current Unwetter is of type BLACK ICE ..
 			else if ((ii === 24) || ((ii >= 84) && (ii <= 87))) {
 				layerGroup = "Black ice";
 				searchWords.push("Blitzeis", "Glätte", "Glatteis");
 			}
-
 			// TODO: später löschen, da nur zum Ausprobieren
 			// alle anderen Unwetter-Event-Typen:
 			else {
@@ -692,7 +681,6 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 				// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
 				searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
 			}
-
 
 			//
 			for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
@@ -843,9 +831,9 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 			}
 
 			//
-			makeLayerInteractive(layerID);
+			makeLayerInteractive(map, layerID);
 			//addLayerToMenu(layerID); // TODO: auch hier alte entfernen, oder passiert das eh automatisch?
-			createWarningsCheckboxes();
+			createWarningsCheckboxes(map);
 			customLayerIds.push(layerID);
 		}
 	}
@@ -858,9 +846,10 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	*
 	* @author Katharina Poppinga
 	* @private
+	* @param {} map -
 	* @param {Array} currentUnwetters -
 	*/
-	function findAndRemoveOldLayerIDs(currentUnwetters){
+	function findAndRemoveOldLayerIDs(map, currentUnwetters){
 
 		// Array in which the layerIDs of the Unwetter which shall not longer be displayed in the map will be collected (for deleting them from Array customLayerIds afterwards)
 		let layerIDsToRemove = [];
@@ -903,17 +892,18 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 				}
 			}
 		}
-		//	console.log(customLayerIds);
 	}
+
 
 
 	/**
 	* This function makes only Unwetters and its tweets visible, if the include a polygon that is fully contained by the given
 	* polygon. Attention: Turf is very inaccurate.
 	* @author Paula Scharf
+  * @param {mapbox-map} map mapbox-map in ......
 	* @param polygon - a turf polygon (eg the aoi)
 	*/
-	function onlyShowUnwetterAndTweetsInPolygon(polygon) {
+	function onlyShowUnwetterAndTweetsInPolygon(map, polygon) {
 		customLayerIds.forEach(function(layerID) {
 			// make sure to only check layers which contain an Unwetter
 			if (layerID.includes("unwetter")) {
@@ -930,7 +920,6 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 				});
 				// change visibility of corresponding tweet layer
 				let layerIDSplit = layerID.split(/[ ]+/);
-
 
 				let visibility;
 				// decide if the unwetter is gonna be visible or not
@@ -1049,8 +1038,9 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	/**
 	* This function ensures, that all unwetters but no tweets are visible.
 	* @author Paula Scharf
+	* @param {mapbox-map} map mapbox-map ......
 	*/
-	function showAllUnwetterAndNoTweets() {
+	function showAllUnwetterAndNoTweets(map) {
 		customLayerIds.forEach(function(layerID) {
 			if(layerID.includes("Tweet")) {
 				map.setLayoutProperty(layerID, 'visibility', 'none');
@@ -1064,9 +1054,10 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	/**
 	* Calls a given function (cb) for all layers of the map.
 	* @author Paula Scharf
+	* @param {mapbox-map} map mapbox-map ......
 	* @param cb - function to perform for each layer
 	*/
-	function forEachLayer(cb) {
+	function forEachLayer(map, cb) {
 		map.getStyle().layers.forEach((layer) => {
 			if (!customLayerIds.includes(layer.id)) return;
 

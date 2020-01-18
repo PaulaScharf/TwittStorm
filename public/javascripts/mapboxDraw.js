@@ -39,20 +39,20 @@ function drawForAOI(map, draw) {
 		draw.delete(pids);
 
 		// write AOI into URL and start Tweet-Search
-		processingAOI(e.features[0].geometry.coordinates);
+		processingAOI(map, e.features[0].geometry.coordinates);
 	});
 
 	// if a polygon is deleted ...
 	map.on('draw.delete', function (e) {
 
 		deleteFromURL("aoi");
-		showAllUnwetterAndNoTweets();
+		showAllUnwetterAndNoTweets(map);
 	});
 
 	// if a polygon is edited/updated ...
 	map.on('draw.update', function (e) {
 		// write AOI into URL and start Tweet-Search
-		processingAOI(e.features[0].geometry.coordinates);
+		processingAOI(map, e.features[0].geometry.coordinates);
 	});
 
 	//
@@ -67,9 +67,10 @@ function drawForAOI(map, draw) {
 * @desc
 *
 * @author Katharina Poppinga
+* @param {mapbox-map} map mapbox-map in ......
 * @param {Array} aoiCoordinatesGeoJSON -
 */
-function processingAOI(aoiCoordinatesGeoJSON) {
+function processingAOI(map, aoiCoordinatesGeoJSON) {
 
 	let coordinatesAOI = aoiCoordinatesGeoJSON[0];
 
@@ -86,8 +87,8 @@ function processingAOI(aoiCoordinatesGeoJSON) {
 	// *************************************************************************
 
 	//
-	zoomToCoordinates(coordinatesAOI);
+	zoomToCoordinates(map, coordinatesAOI);
 
 	// do Tweet-search
-	onlyShowUnwetterAndTweetsInPolygon(turf.polygon(aoiCoordinatesGeoJSON));
+	onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
 }

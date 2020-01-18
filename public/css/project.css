@@ -278,7 +278,7 @@
 
 /* ******************************** MAP ************************************* */
 
-#map {
+#map, #animationMap {
   width: 100%;
   height: 750px;
   position: relative;
