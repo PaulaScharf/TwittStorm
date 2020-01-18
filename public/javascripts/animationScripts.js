@@ -415,7 +415,7 @@ $("#downloadButton").click(function() {
 */
 function takeScreenshot(){
   //save the current map canvas as a base64 formatted array entry
-  html2canvas(document.querySelector("#map")).then(function(canvas){
+  html2canvas(document.querySelector("#animationMap")).then(function(canvas){
     var gifImage = canvas.toDataURL('image/jpeg');
     imageArray.push(gifImage);
     // activate the downloadbutton if ready
@@ -656,7 +656,6 @@ function loadPreviousWeather(map, weatherEv){
 
         // for every unwetter in the response
         for (let j = 0; j < result[key].length; j++){
-
           // take every unwetter and save its coordinates
           let currentUnwetter = result[key][j].geometry;
           // gjson structure
@@ -670,9 +669,11 @@ function loadPreviousWeather(map, weatherEv){
 
           // put every polygon from a unwetterwarning into one array
           if (weatherEv == "severeWeather"){
+            // also save the according weather event
+            let currentEvent = result[key][j].properties.event
             for (let i = 0; i < currentUnwetter.length; i++){
               //transform the polygon into geojson
-              var polygon = goGeoJson(currentUnwetter[i].coordinates, key);
+              var polygon = goGeoJson(currentUnwetter[i].coordinates, key, currentEvent);
               // array to save every timestamp´s polygon
               outputArray.push(polygon);
             }
@@ -724,12 +725,13 @@ function loadPreviousWeather(map, weatherEv){
 * @param object the individual polygons of an event, containing the coords of a polygon
 * @param time timestamp of the data
 */
-function goGeoJson(object, time) {
+function goGeoJson(object, time, eventName) {
 
   var result = {
     "type":"Feature",
     "properties": {
-      "class": time
+      "class": time,
+      "event": eventName,
     },
     "geometry": {
       "type":"Polygon",

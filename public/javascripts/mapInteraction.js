@@ -209,7 +209,6 @@ function zoomToCoordinates(map, coordinates) {
 
 
 
-// TODO: checkbox-div direkt öffnen bei klick auf "menuButton", wenn severe weather angewählt ist !!!!!
 
 /**
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X
@@ -221,6 +220,7 @@ function zoomToCoordinates(map, coordinates) {
 */
 function openMenu(button, menu, site) {
 		// if a radar product is selected automatically open up the radar submenu
+		if (site == 'index') {
 
 
 		if (wtypeFlag == "radar") {
@@ -232,6 +232,8 @@ function openMenu(button, menu, site) {
 			var innerUnwetterMenuToggle = document.getElementById('menu');
 			innerUnwetterMenuToggle.style.display = "block";
 		};
+	}
+
 		// displays the germany boundary button if is not visible
 		var boundaryButtonToggle = document.getElementById('germanyButton');
 		if (boundaryButtonToggle.style.display === "none"){
