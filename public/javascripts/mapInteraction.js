@@ -452,11 +452,12 @@ function removeSevereWeather(map){
 * @param {mapbox-map} map - mapbox-map
 */
 function loadSevereWeather(map){
-	console.log(wtypeFlag);
 	// if there was the rainradar data shown before, change the legend
 	if (wtypeFlag == "radar") {
 
 		showLegend(map, "unwetter");
+
+
 	}
 
 	// set flag to severeWeather
@@ -477,7 +478,6 @@ function loadSevereWeather(map){
 	// if rainradar-data is displayed, remove this data first
 	else {
 
-		console.log("done");
 		map.removeLayer('rainradar');
 		map.removeSource('rainradar');
 		requestNewAndDisplayCurrentUnwetters(map, paramArray.timestamp);
@@ -501,9 +501,7 @@ function loadSevereWeather(map){
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
 
-	//show the severeweather submenu
-	var innerUnwetterMenuToggle = document.getElementById('menu');
-	innerUnwetterMenuToggle.style.display = "block";
+
 
 }
 

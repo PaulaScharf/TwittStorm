@@ -141,6 +141,12 @@ function showMap(style) {
 		}
 	}
 
+	// if not yet in URL, use default warnings
+	if (paramArray.wtype == undefined) {
+		updateURL("wtype", "unwetter");
+		paramArray.wtype = "unwetter"; // TODO: dieses löschen, wenn weiter unten auch angepasst an readURL()...
+	}
+
 	// if not yet in URL, get value from config.yaml
 	if (paramArray.mapZoom == undefined) {
 		zoomURL = paramArray.config.map.zoom;
@@ -159,11 +165,7 @@ function showMap(style) {
 		centerURL = JSON.parse(paramArray.mapCenter);
 	}
 
-	// if not yet in URL, use default warnings
-	if (paramArray.wtype == undefined) {
-		updateURL("wtype", "unwetter");
-		paramArray.wtype = "unwetter"; // TODO: dieses löschen, wenn weiter unten auch angepasst an readURL()...
-	}
+
 
 	// create new map with variable zoom and center
 	map = new mapboxgl.Map({
