@@ -12,7 +12,6 @@
 // list of parameters, possibly for input checking
 let paramList = "wtype, radProd, mapZoom, mapCenter, timestamp, aoi, base";
 
-
 var express = require('express');
 var router = express.Router();
 

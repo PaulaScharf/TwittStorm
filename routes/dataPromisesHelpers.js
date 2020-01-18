@@ -9,7 +9,6 @@
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 */
 
-
 const mongodb = require('mongodb');
 
 // yaml configuration

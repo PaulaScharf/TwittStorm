@@ -170,7 +170,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
               var arrayOfItems = JSON.parse(data);
               promiseToPostItems(arrayOfItems, db)
                 .then(function () {
-                  resolve(arrayOfItems)
+                  resolve(arrayOfItems);
                 })
                 .catch(function (error) {
                   reject(error);

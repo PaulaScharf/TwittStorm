@@ -9,7 +9,6 @@
  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
  */
 
-
  var express = require('express');
  var router = express.Router();
 
@@ -68,10 +67,10 @@ var previousWeather = function(req, res) {
                             if (!arrayOfTimestamps.includes(timestamp)) {
                                 arrayOfTimestamps.push(timestamp);
                             }
-                        })
+                        });
                     });
                   arrayOfTimestamps.sort(function (a, b) {
-                    return a - b
+                    return a - b;
                   });
                     // if the response includes more than 10 timestamp only choose the 10 most recent ones
                     if (arrayOfTimestamps.length > 10) {

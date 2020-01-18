@@ -8,6 +8,9 @@
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 */
 
+// an API access token is required for using mapbox GL JS
+mapboxgl.accessToken = paramArray.config.keys.mapbox.access_key;
+
 
 // TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
 
@@ -656,31 +659,40 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 			//
 			let layerGroup = "undefined";
 			let ii = currentUnwetterEvent.properties.ec_ii;
-			// choose the correct group identifier for the Unwetter and set the searchwords for the tweetrequest accordingly
-			switch (ii) {
-				case (ii >= 61) && (ii <= 66):
-				layerGroup = "rain";
+			// choose the correct group identifier for the Unwetter and set the searchwords for the tweetrequest accordingly:
+
+			// if the current Unwetter is of type RAIN ...
+			if ((ii >= 61) && (ii <= 66)) {
+				layerGroup = "Rain";
 				searchWords.push("Starkregen", "Dauerregen");
-				break;
-				case (ii >= 70) && (ii <= 78):
-				layerGroup = "snowfall";
+			}
+
+			// if the current Unwetter is of type SNOWFALL ...
+			else if ((ii >= 70) && (ii <= 78)) {
+				layerGroup = "Snowfall";
 				searchWords.push("Schneefall");
-				break;
-				case ((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)):
-				layerGroup = "thunderstorm";
+			}
+
+			// if the current Unwetter is of type THUNDERSTORM ..
+			else if (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96))) {
+				layerGroup = "Thunderstorm";
 				searchWords.push("Gewitter");
-				break;
-				case ((ii === 24) || ((ii >= 84) && (ii <= 87))):
-				layerGroup = "blackice";
+			}
+
+			// if the current Unwetter is of type BLACK ICE ..
+			else if ((ii === 24) || ((ii >= 84) && (ii <= 87))) {
+				layerGroup = "Black ice";
 				searchWords.push("Blitzeis", "Glätte", "Glatteis");
-				break;
-				// TODO: alles für layer other später löschen
-				default:
+			}
+
+			// TODO: später löschen, da nur zum Ausprobieren
+			// alle anderen Unwetter-Event-Typen:
+			else {
 				layerGroup = "other";
 				// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
 				searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
-				break;
 			}
+
 
 			//
 			for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
@@ -760,9 +772,9 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 						"fill-color": [
 							"match", ["string", ["get", "event"]],
 							"GLÄTTE",						// TODO: Farbe weiß sieht man auf der Straßenkarte mit solch geringer opacity nicht!!
-							"white",
+							"yellow",
 							"GLATTEIS",
-							"white",
+							"yellow",
 							"GEWITTER",
 							"red",
 							"STARKES GEWITTER",
@@ -804,24 +816,24 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 							"EXTREM HEFTIGER STARKREGEN",
 							"blue",
 							"LEICHTER SCHNEEFALL",
-							"yellow",
+							"darkviolet",
 							"SCHNEEFALL",
-							"yellow",
+							"darkviolet",
 							"STARKER SCHNEEFALL",
-							"yellow",
+							"darkviolet",
 							"EXTREM STARKER SCHNEEFALL",
-							"yellow",
+							"darkviolet",
 							"SCHNEEVERWEHUNG",
-							"yellow",
+							"darkviolet",
 							"STARKE SCHNEEVERWEHUNG",
-							"yellow",
+							"darkviolet",
 							"SCHNEEFALL und SCHNEEVERWEHUNG",
-							"yellow",
+							"darkviolet",
 							"STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-							"yellow",
+							"darkviolet",
 							"EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-							"yellow",
-							"grey" // sonstiges Event
+							"darkviolet",
+							"black" // sonstiges Event
 							// TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
 							// wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
 						],

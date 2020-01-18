@@ -69,7 +69,7 @@ function showLegend(map, typeOfLegend, product) {
 		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
 		// TODO: an endgültige Farben und feinere Farbabstufungen anpassen
 		values = ["Rain", "Snowfall", "Thunderstorm", "Black ice", "Other"]
-		colors = ["blue", "yellow", "red", "white", "grey"];
+		colors = ["blue", "darkviolet", "red", "yellow", "black"];
 	}
 
 
@@ -580,10 +580,10 @@ function createWarningsCheckboxes() {
 	// the second strings (boolean) indicate whether this warnings-type already has a corresponding checkbox in the menu
 	let warningsTypes = [
 		["other", "false"],
-		["rain", "false"],
-		["snowfall", "false"],
-		["thunderstorm", "false"],
-		["blackice", "false"]
+		["Rain", "false"],
+		["Snowfall", "false"],
+		["Thunderstorm", "false"],
+		["Black ice", "false"]
 	];
 
 	//

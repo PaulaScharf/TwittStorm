@@ -1,3 +1,9 @@
+// jshint esversion: 8
+// jshint node: true
+// jshint maxerr: 1000
+
+"use strict";
+
 /*
  * Smallest enclosing circle - Library (JavaScript)
  *
@@ -18,8 +24,6 @@
  * along with this program (see COPYING.txt and COPYING.LESSER.txt).
  * If not, see <http://www.gnu.org/licenses/>.
  */
-
-"use strict";
 
 
 /*

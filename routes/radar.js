@@ -66,7 +66,6 @@ function findLastTimestamp(product) {
         .call(function(err, fileList) {
           if(err) throw err;
 
-
           if(fileList) {
             resolve(fileList);
           } else {
@@ -74,7 +73,6 @@ function findLastTimestamp(product) {
             console.log(e);
             reject(e);
           }
-
         });
       });
 }
@@ -162,6 +160,7 @@ var promiseToFetchRadarData = function(radarProduct) {
       });
     });
 };
+
 
 /**
   * function in variable to execute the "radar-latest" route
@@ -369,7 +368,6 @@ var radarRoute = function(req, res) {
         res.status(500).send(e);
       }
     }
-
   });
 };
 

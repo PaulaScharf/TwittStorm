@@ -9,7 +9,6 @@
  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
  */
 
-
 var express = require('express');
 var router = express.Router();
 
@@ -287,7 +286,7 @@ const deleteTweet = function(req, res) {
             res.send();
         },function(error) {
             res.status(500).send({err_msg: error, while: "deleting a tweet from the database"});
-        })
+        });
 };
 
 router.route("/tweets").post(searchTweetsForEvent);
