@@ -19,11 +19,19 @@ mapboxgl.accessToken = paramArray.config.keys.mapbox.access_key;
 
 // TODO: JSDoc für globale Variablen
 
+
+/**
+* refers to the layer menu
+* @type {mapbox_map}
+*/
+let map;
+
+
 /**
 * refers to the layer menu
 * @type {}
 */
-var layers = document.getElementById('menu');
+let layers = document.getElementById('menu');
 
 
 /**
@@ -176,6 +184,13 @@ function showMap(style) {
 
 	// enables the ability to choose between different mapstyles
 	styleSelector(map);
+
+
+	// TODO: HIER RICHTIG?? BENNY FRAGEN - SOWAS AUCH FÜR LOAD RASTER ??????
+	$("#severeWeather").click(function() {
+		loadSevereWeather(map);
+	});
+
 
 	// set Interval to accumulate radar data for the animation
 	setInterval(intervalRainRadar, paramArray.config.refresh_rate, map);

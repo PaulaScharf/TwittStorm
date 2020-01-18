@@ -18,12 +18,6 @@
 
 // ******************************** functions **********************************
 
-// TODO: JSDoc hierzu fehlt noch
-$("#severeWeather").click(function() {
-	loadSevereWeather();
-});
-
-
 
 /**
 * @desc
@@ -160,7 +154,7 @@ function msToMin(ms) {
 * @param {String} directionToPan - the direction in which the map to pan: "left", "right", "up" or "down"
 */
 function panMapWithButton(map, directionToPan) {
-console.log(map);
+	console.log(map);
 	let center = map.getCenter();
 	let newCenter;
 
@@ -285,13 +279,15 @@ layers.appendChild(link);
 * @param button Links the button to the function
 * @param menu Id of the menu that is supposed to open/close
 * @param site the requested site index or animation
-* @param map
+* @param {mapbox-map} map - mapbox-map
 * @author Benjamin Rieke
 */
 function openMenu(button, menu, map) {
 
+console.log(map);
+
 	// if a radar product is selected automatically open up the radar submenu
-	if (map == 'map') {
+	if (map == "map") {
 
 		if (wtypeFlag == "radar") {
 			var innerRasterMenuToggle = document.getElementById('rasterMenu');
@@ -359,8 +355,11 @@ function closeAllMenus() {
 /**
 * @desc Removes or adds the boundary of germany on click
 * @author Benjamin Rieke
+* @param {mapbox-map} map - mapbox-map
 */
-function removeAddGermany(){
+function removeAddGermany(map){
+
+	console.log(map);
 
 	// uses the visibility attribute of a mapbox layer
 	var visibility = map.getLayoutProperty("boundaryGermany", 'visibility');
@@ -385,6 +384,9 @@ function removeAddGermany(){
 */
 function switchLayer(map, layer) {
 
+	console.log(layer);
+	console.log(map);
+
 	const savedLayers = [];
 	const savedSources = {};
 
@@ -393,7 +395,7 @@ function switchLayer(map, layer) {
 		savedLayers.push(layer);
 	});
 
-	//Takes the id from the layer and calls the showMap function
+	// takes the id from the layer and calls the showMap function
 	var layerId = layer.target.id;
 	map.setStyle('mapbox://styles/mapbox/' + layerId);
 
@@ -417,40 +419,42 @@ function switchLayer(map, layer) {
 /**
 * @desc Uses the styles that are set on the index page to switch between them on click of the switcher field
 * @author Benjamin Rieke
+* @param {mapbox-map} map - mapbox-map
 */
 function styleSelector(map){
-	// Takes the map styles from the selection on the index page
+
+	// takes the map styles from the selection on the corresponding ejs-page
 	let layerList = document.getElementById('styleMenu');
 	let inputs = layerList.getElementsByTagName('input');
 
-console.log(inputs);
-
 	for (var i = 0; i < inputs.length; i++) {
-
-	//	inputs[i].onclick = switchLayer(map);
-
 		// add onclick-functionality for clicking on satellite or streets button
-		inputs[i].addEventListener('click', function(){
-                switchLayer(map, streets);
-            });
+		inputs[i].addEventListener('click', function(layer){
+			switchLayer(map, layer);
+		});
 	}
 }
+
 
 
 /**
 * @desc Loads the chosen radar product, updates the url, and hides previous selected layers
 * @author Benjamin Rieke
-* @param product -The desired radar product. CHeck the github wiki for further informations
+* @param {mapbox-map} map - mapbox-map
+* @param product - the desired radar product (check the GitHub-Wiki for further information)
 */
-function loadRaster(product){
+function loadRaster(map, product){
+
+console.log(map);
 
 	// set flag to radar
 	wtypeFlag = "radar";
 
 	// hide all severe weather polygons
-	removeUnwetter();
+	removeSevereWeather(map);
 
-	console.log("Loading your requested radar product");
+	console.log("Loading your requested radar product.");
+
 	// update the URL
 	updateURL('wtype', 'radar');
 	updateURL('radProd', product);
@@ -478,10 +482,11 @@ function loadRaster(product){
 
 
 /**
-* @desc Hides the Unwetter polygons, based on the findAndRemoveOldLayerIDs function. Also changes the severeweather Tab to not active
+* @desc Hides the warning-polygons, based on the findAndRemoveOldLayerIDs function. Also changes the severeweather Tab to not active
 * @author Benjamin Rieke, Katharina Poppinga
+* @param {mapbox-map} map - mapbox-map
 */
-function removeUnwetter(){
+function removeSevereWeather(map){
 
 	// remove every available severe weather polygon
 	for (let i = 0; i < customLayerIds.length; i++) {
@@ -494,10 +499,10 @@ function removeUnwetter(){
 		// layerIdParts[0] contains the type of layer-element
 		if (layerIdParts[0] === "unwetter") {
 
-			// remove the corresponding layer and source from map for not displaying this Unwetter any longer
+			// remove the corresponding layer and source from map for not displaying this warning any longer
 			map.removeLayer(layerID);
 			map.removeSource(layerID);
-			console.log("removed unwetter");
+			console.log("Removed Severe Weather Warnings.");
 
 			// removes 1 element at index i from Array customLayerIds
 			customLayerIds.splice(i, 1);
@@ -519,8 +524,9 @@ function removeUnwetter(){
 /**
 * @desc Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
 * @author Benjamin Rieke
+* @param {mapbox-map} map - mapbox-map
 */
-function loadSevereWeather(){
+function loadSevereWeather(map){
 
 	// if there was the rainradar data shown before, change the legend
 	if (wtypeFlag =! "severeWeather") {
@@ -545,23 +551,23 @@ function loadSevereWeather(){
 		requestNewAndDisplayCurrentUnwetters(map);
 	};
 
-// deactivate the raster menu
-var rasterMenuToggle = document.getElementById('raster');
-rasterMenuToggle.classList.remove("active");
-var innerRasterMenuToggle = document.getElementById('rasterMenu');
-innerRasterMenuToggle.style.display = "none";
+	// deactivate the raster menu
+	var rasterMenuToggle = document.getElementById('raster');
+	rasterMenuToggle.classList.remove("active");
+	var innerRasterMenuToggle = document.getElementById('rasterMenu');
+	innerRasterMenuToggle.style.display = "none";
 
-// uncheck all raster products
-var innerRasterCheckToggle1 = document.getElementById('radio1');
-innerRasterCheckToggle1.checked = false;
-var innerRasterCheckToggle2 = document.getElementById('radio2');
-innerRasterCheckToggle2.checked = false;
-var innerRasterCheckToggle3 = document.getElementById('radio3');
-innerRasterCheckToggle3.checked = false;
+	// uncheck all raster products
+	var innerRasterCheckToggle1 = document.getElementById('radio1');
+	innerRasterCheckToggle1.checked = false;
+	var innerRasterCheckToggle2 = document.getElementById('radio2');
+	innerRasterCheckToggle2.checked = false;
+	var innerRasterCheckToggle3 = document.getElementById('radio3');
+	innerRasterCheckToggle3.checked = false;
 
-// activate the severe weather tab
-var severeWeatherMenuToggle = document.getElementById('severeWeather');
-severeWeatherMenuToggle.classList.add("active");
+	// activate the severe weather tab
+	var severeWeatherMenuToggle = document.getElementById('severeWeather');
+	severeWeatherMenuToggle.classList.add("active");
 }
 
 
@@ -571,7 +577,7 @@ severeWeatherMenuToggle.classList.add("active");
 *
 * @private
 * @author Katharina Poppinga
-* @param {} map - map for which ....
+* @param {mapbox-map} map - mapbox-map
 */
 function createWarningsCheckboxes(map) {
 
@@ -594,7 +600,7 @@ function createWarningsCheckboxes(map) {
 	map.style._order.forEach(function(layer) {
 		for (let i = 0; i < warningsTypes.length; i++) {
 			if ((layer.includes("unwetter " + warningsTypes[i][0])) && (warningsTypes[i][1] === "false")) {
-				createWarningsCheckbox(warningsMenu, warningsTypes[i][0], true);
+				createWarningsCheckbox(map, warningsMenu, warningsTypes[i][0], true);
 				warningsTypes[i][1] = "true";
 			}
 		}
@@ -609,13 +615,15 @@ function createWarningsCheckboxes(map) {
 * A deselected checkbox removes its corresponding ... from .....
 * @private
 * @author Katharina Poppinga
+* @param {mapbox-map} map - mapbox-map
+* @param {} warningsMenu -
 * @param {String} type - type of warnings (equals content of layerGroup), one of the following: (rain, snowfall, thunderstorm, blackice)
 * @param {boolean} checked - indicate if a route is selected
 */
-function createWarningsCheckbox(warningsMenu, type, checked) {
+function createWarningsCheckbox(map, warningsMenu, type, checked) {
 
 	// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenuDiv"
-	warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(\"" + type + "\")'" + ((checked) ? "checked" : "") + "> " + type + "<br>";
+	warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(\"" + map + "\", \"" + type + "\")'" + ((checked) ? "checked" : "") + "> " + type + "<br>";
 }
 
 
@@ -625,9 +633,12 @@ function createWarningsCheckbox(warningsMenu, type, checked) {
 *
 * @private
 * @author Katharina Poppinga
+* @param {mapbox-map} map - mapbox-map
 * @param {String} type - type of warnings (equals content of layerGroup), one of the following: (rain, snowfall, thunderstorm, blackice)
 */
-function showHideWarningsType(type){
+function showHideWarningsType(map, type){
+
+console.log(map);
 
 	// label the warnings-type-checkbox
 	let checkBox = document.getElementById("warningsCheckbox_" + type);
@@ -658,7 +669,7 @@ function showHideWarningsType(type){
 /**
 * This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
 * @author Katharina Poppinga
-* @param {} map -
+* @param {mapbox-map} map - mapbox-map
 * @param {String} layerID - ID of a layer
 */
 function makeLayerInteractive(map, layerID) {
@@ -762,5 +773,3 @@ function showTweetPopup(map, e) {
 		}
 	}
 }
-
-// *****************************************************************************

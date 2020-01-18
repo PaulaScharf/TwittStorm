@@ -11,6 +11,7 @@
 
 // ****************************** global variables *****************************
 
+// TODO: dies in Funktion schreiben??
 // is there a timestamp?
 let currentTimestamp = Date.now();
 if (typeof paramArray.timestamp !== "undefined") {
@@ -23,6 +24,16 @@ if (typeof paramArray.timestamp !== "undefined") {
     currentTimestamp = Date.now();
   }
 }
+
+
+/**
+* refers to the layer menu
+* @type {mapbox_map}
+*/
+let animationMap;
+
+
+// TODO: JSDoc für globale Variablen
 
 let usedTimestamps = [];
 // all individual events from a timestamp get temporally stored in here
@@ -109,7 +120,7 @@ function showAnimationMap(style) {
   }
 
   // create new map with variable zoom and center
-  let animationMap = new mapboxgl.Map({
+   animationMap = new mapboxgl.Map({
     container: 'animationMap',
     style: style,
     zoom: zoomURL,

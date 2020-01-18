@@ -35,8 +35,8 @@
 
         <!-- Product selection menu -->
         <div id="productMenu" style="display:none">
-          <a href="#" id="raster" class="selector" title="Request radar data">Radar</a>
-          <a href="#" id="severeWeatherAnimation" class="active" title="Request severe weather data">Severe Weather</a>
+          <a href="#" id="raster" class="selector" title="Show radar data">Radar</a>
+          <a href="#" id="severeWeatherAnimation" class="active" title="Show severe weather warnings data">Severe Weather Warnings</a>
         </div>
 
         <!-- Raster selection menu -->
@@ -62,12 +62,11 @@
 
         <!-- button to show and hide the boundaries of germany. image taken from https://upload.wikimedia.org/wikipedia/commons/e/e3/Karte_Deutschland.svg -->
         <!-- Alternative: Change img src to /css/Germany-Outline.svg. image taken from: https://upload.wikimedia.org/wikipedia/commons/f/f2/Germany-Outline.svg-->
-        <nav id="germanyButton" class="container" onclick="removeAddGermany();" title="Toggle Germany Boundaries" style="display:none">
+        <nav id="germanyButton" class="container" onclick="removeAddGermany(animationMap);" title="Toggle Germany Boundaries" style="display:none">
           <div id="germanyIcon">
             <img src="/css/Karte_Deutschland.svg" width="20" height="20"/>
           </div>
         </nav>
-
 
         <!-- map-legend -->
         <div class="map-overlay top">
@@ -123,19 +122,14 @@
             <label id="timestamp">Click play to start the animation</label>
             <input id="slider" type="range" min="0" max="8" step="0" value="0" />
 
-
             <!-- Buttons to start and stop the animation -->
-
             <!-- play icon taken from https://www.iconfinder.com/icons/211876/play_icon -->
             <!-- pause icon taken from https://www.iconfinder.com/icons/211871/pause_icon -->
-
-
             <nav id="playButton" class="button" title="Play animation">
               <img src="/css/iconfinder_icon-play.svg" id ="pauseplay" width="20" height="20"/>
             </nav>
 
             <!-- dowmload icon taken from https://www.iconfinder.com/icons/326639/download_file_icon -->
-
             <nav id="downloadButton" class="button" title="Please wait for one animation cycle">
               <span class="popuptext" id="downloadPopup">You have to wait for one animation cycle!</span>
               <img src="/css/iconfinder_icon-download.svg" width="20" height="20"/>
