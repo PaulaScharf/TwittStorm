@@ -1,14 +1,16 @@
 # TwittStorm
 TwittStorm for Geosoftware II
 ## Weblinks
-The code of this project can be found on GitHub: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)
-TODO: DockerHub-Link einfügen
+The code of this project can be found on GitHub: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)<br>
+<b>TODO: DockerHub-Link einfügen</b>
 ## How to construct and use your own API-keys
 #### Mapbox GL JS
 ...
 #### Twitter
 ...
 ## How to start the App
+<b>TODO: DockerHub einfügen</b>
+ANPASSEN:
 To start the application via docker, navigate to the app's folder in a dockershell and enter
 `docker-compose up --build`<br/>
 or as an alternative (if the command above does not work): `docker-compose build` and `docker-compose up`.<br/>
