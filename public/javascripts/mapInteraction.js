@@ -62,8 +62,8 @@ function showLegend(map, typeOfLegend, product) {
 
 		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
 		// TODO: an endgültige Farben und feinere Farbabstufungen anpassen
-		values = ["Rain", "Snowfall", "Thunderstorm", "Black ice", "Other"]
-		colors = ["blue", "darkviolet", "red", "yellow", "black"];
+		values = ["Rain", "Snowfall", "Thunderstorm", "Black ice"]
+		colors = ["blue", "darkviolet", "red", "yellow"];
 	}
 
 

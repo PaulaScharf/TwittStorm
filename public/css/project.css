@@ -622,6 +622,7 @@
 }
 
 /* ********************************* Tweetfilter ********************************* */
+
 .green-border-focus .form-control:focus {
   border: 1px solid #8bc34a;
   box-shadow: 0 0 0 0.2rem rgba(139, 195, 74, .25);
@@ -638,6 +639,7 @@
 #tweetfilter-ta {
   width: 100%;
   height: 55px;
+  font-size: 14px;
 }
 
 #tweetfilter-btn {
@@ -645,10 +647,10 @@
   top: 0px;
   left: 204px;
   border-radius: 5px;
-  width: 55px;
+  width: 60px;
   height: 55px;
+  font-size: 14px;
 }
-
 
 textarea {
   -webkit-border-radius: 5px;
