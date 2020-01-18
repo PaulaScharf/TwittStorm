@@ -318,15 +318,15 @@ function showMap(style) {
 			showLegend(map, "unwetter");
 
 			// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
-			requestNewAndDisplayCurrentUnwetters(map, JSON.parse(paramArray.timestamp));
+			requestNewAndDisplayCurrentUnwetters(map, paramArray.timestamp);
 			// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
 			let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - (Date.now() - paramArray.config.timestamp_last_warnings_request);
 
 			// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
 			// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
-			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map, JSON.parse(paramArray.timestamp));
+			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map, paramArray.timestamp);
 			// ... and afterwards each "paramArray.config.refresh_rate" again
-			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, JSON.parse(paramArray.timestamp), paramArray.config.refresh_rate);
+			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.timestamp, paramArray.config.refresh_rate);
 		}
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -433,7 +433,6 @@ function requestAndDisplayAllRainRadar(map, product) {
 	$('#information').html("Retrieving the requested " + product + " radar product");
 
 	// Rain Radar Data
-	/*
 	$.getJSON(url, function(result) {
 
 		// ***************************************************************************************************************
@@ -488,7 +487,6 @@ function requestAndDisplayAllRainRadar(map, product) {
 			}
 		}
 	});
-	*/
 }
 
 
@@ -537,7 +535,6 @@ function callRainRadar(prod) {
 
 	// make call
 	let url = "/radar/" + prod + "/" + currentTimestamp;
-	/*
 	$.getJSON(url, function(result) {
 		console.log("Automatically requested new rain radar data.");
 		// read from url
@@ -550,7 +547,6 @@ function callRainRadar(prod) {
 			requestAndDisplayAllRainRadar(map, prod);
 		}
 	});
-	*/
 }
 
 // *****************************************************************************************************
@@ -1055,15 +1051,17 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 * @author Paula Scharf
 */
 function showAllExcept(keyword) {
-	customLayerIds.forEach(function(layerID) {
+	for (let i = 0; i<customLayerIds.length; i++) {
+		let layerID = customLayerIds[i];
 		if(layerID.includes(keyword)) {
 			map.removeLayer(layerID);
 			map.removeSource(layerID);
 			customLayerIds.remove(layerID);
+			i--;
 		} else {
 			map.setLayoutProperty(layerID, 'visibility', 'visible');
 		}
-	});
+	}
 }
 
 

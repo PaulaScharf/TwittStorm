@@ -3,15 +3,30 @@
     "type": "Tweet",
     "id": 20,
     "idstr": "20",
-    "statusmessage": "test",
+    "statusmessage": "just setting up my twttr",
     "author": {
       "id": 1,
       "name": "Peter",
       "location_home": "Münster"
     },
     "timestamp": 1234,
-    "location_actual": { "type":"Point", "coordinates":[7.5, 52.1] },
+    "location_actual": { "type":"Point", "coordinates":[7.54486083984375, 52.07275365395317] },
     "dwd_id": 1234,
     "requestTime": 1234
-  }
+  },
+  {
+      "type": "Tweet",
+      "id": 1,
+      "idstr": "1",
+      "statusmessage": "test",
+      "author": {
+        "id": 1,
+        "name": "Paul",
+        "location_home": "Moers"
+      },
+      "timestamp": 2345,
+      "location_actual": { "type":"Point", "coordinates":[6.44622802734375, 51.4163381064004] },
+      "dwd_id": 1234,
+      "requestTime": 1801234
+    }
 ]
