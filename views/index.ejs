@@ -37,8 +37,8 @@
 
         <!-- Product selection menu -->
         <div id="productMenu" style="display:none">
-          <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu, map)" title="Show radar data">Radar</a>
-          <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu, map);" title="Show severe weather warnings data">Severe Weather Warnings</a>
+          <a href="#" id="raster" class="selector" onclick="openMenu(this, rasterMenu)" title="Show radar data">Radar</a>
+          <a href="#" id="severeWeather" class="active" onclick="openMenu(this, menu)" title="Show severe weather warnings data">Severe Weather</a>
         </div>
 
         <!-- Raster selection menu -->
@@ -56,7 +56,7 @@
         </div>
 
         <!-- button to open up the menu. image taken from https://freeicons.io/user-interface-and-electronics/layer-up-down-screen-multiple-interface-ui-d-cd-icon-892 -->
-        <nav id="menuButton" class="button" onclick="openMenu(this, productMenu, map);" title="Change Layers">
+        <nav id="menuButton" class="button" onclick="openMenu(this, productMenu, 'index');" title="Change Layers">
           <div id="buttonIcon">
             <img src="/css/Layer-Icon.png"/>
           </div>
@@ -139,7 +139,6 @@
   <script src="/mapbox-draw/mapbox-gl-draw.js"></script>
   <script src="/leaflet/leaflet.js"></script>
   <script src="/turf/turf/turf.min.js"></script>
-  <script src="/jsnlog/jsnlog.min.js"></script>
 
   <script>
     var paramArray = <%- JSON.stringify(paramArray) %>;

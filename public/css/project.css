@@ -238,12 +238,13 @@
   background: #fff;
   position: fixed;
   z-index: 1;
-  top: 350px;
+  top: 311px;
   right: 80px;
   border-radius: 3px;
   width: 120px;
   border: 1px solid rgba(0,0,0,0.4);
   font-size: 14px;
+
 }
 
 #menu a {
@@ -345,20 +346,20 @@
 /* ************************************************************************** */
 
 .button {
-  position: absolute;
-  z-index: 1;
-  display: block;
-  background-color: white;
-  border-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.2);
-  cursor: pointer;
+position: absolute;
+z-index: 1;
+display: block;
+background-color: white;
+border-radius: 6px;
+border: 1px solid rgba(0,0,0,0.2);
+cursor: pointer;
 }
 
 /* *************************** PAN BUTTONS ********************************** */
 
 #panButtonL, #panButtonR, #panButtonU, #panButtonD {
-  height: 22px;
-  width: 22px;
+height: 22px;
+width: 22px;
 }
 
 #panButtonL {
@@ -382,11 +383,11 @@
 }
 
 .panButtonImg {
-  position: absolute;
-  display: block;
-  z-index: 1;
-  height: 11px;
-  width: 12px;
+position: absolute;
+display: block;
+z-index: 1;
+height: 11px;
+width: 12px;
 }
 
 #panButton_L_img {
@@ -395,21 +396,21 @@
 }
 
 #panButton_R_img {
-  transform: rotate(180deg);
-  top: 12px;
-  left: 10px;
+transform: rotate(180deg);
+top: 12px;
+left: 10px;
 }
 
 #panButton_U_img {
-  transform: rotate(90deg);
-  bottom: 11px;
-  left: 11px;
+transform: rotate(90deg);
+bottom: 11px;
+left: 11px;
 }
 
 #panButton_D_img {
-  transform: rotate(270deg);
-  top: 12px;
-  right: 11px;
+transform: rotate(270deg);
+top: 12px;
+right: 11px;
 }
 
 #panButtonL :hover {
@@ -461,11 +462,11 @@
   border-radius: 3px;
   width: 120px;
   border: 1px solid rgba(0,0,0,0.4);
-  font-size: 14px;
+  font-family: 'Open Sans', sans-serif;
 }
 
 #productMenu a {
-  font-size: 14px;
+  font-size: 13px;
   color: black;
   display: block;
   margin: 0;
@@ -489,7 +490,6 @@
   background-color: lightgrey;
   color: black;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
-  font-size: 14px;
 }
 
 #productMenu a.active:hover {
@@ -507,11 +507,12 @@
   border-radius: 3px;
   width: 120px;
   border: 1px solid rgba(0,0,0,0.4);
+  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
 }
 
 #rasterMenu a {
-  font-size: 14px;
+  font-size: 13px;
   color: black;
   display: block;
   margin: 0;
@@ -534,7 +535,6 @@
 #rasterMenu a.active {
   background-color: lightgrey;
   color: black;
-  font-size: 14px;
 }
 
 #rasterMenu a.active:hover {
@@ -573,6 +573,7 @@
 /* ********************************* LEGEND ********************************* */
 
 .map-overlay {
+  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   width: 300px;
   z-index: 1;
@@ -622,7 +623,6 @@
 }
 
 /* ********************************* Tweetfilter ********************************* */
-
 .green-border-focus .form-control:focus {
   border: 1px solid #8bc34a;
   box-shadow: 0 0 0 0.2rem rgba(139, 195, 74, .25);
@@ -639,7 +639,6 @@
 #tweetfilter-ta {
   width: 100%;
   height: 55px;
-  font-size: 14px;
 }
 
 #tweetfilter-btn {
@@ -647,10 +646,10 @@
   top: 0px;
   left: 204px;
   border-radius: 5px;
-  width: 60px;
+  width: 55px;
   height: 55px;
-  font-size: 14px;
 }
+
 
 textarea {
   -webkit-border-radius: 5px;

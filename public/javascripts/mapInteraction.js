@@ -209,7 +209,6 @@ function zoomToCoordinates(map, coordinates) {
 
 
 
-// TODO: checkbox-div direkt öffnen bei klick auf "menuButton", wenn severe weather angewählt ist !!!!!
 
 /**
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X
@@ -219,10 +218,10 @@ function zoomToCoordinates(map, coordinates) {
 * @param {mapbox-map} map - mapbox-map
 * @author Benjamin Rieke
 */
-function openMenu(button, menu, map) {
+function openMenu(button, menu, site) {
+		// if a radar product is selected automatically open up the radar submenu
+		if (site == 'index') {
 
-	// if a radar product is selected automatically open up the radar submenu
-	if (map == "map") {
 
 		if (wtypeFlag == "radar") {
 			var innerRasterMenuToggle = document.getElementById('rasterMenu');
@@ -232,32 +231,29 @@ function openMenu(button, menu, map) {
 		else {
 			var innerUnwetterMenuToggle = document.getElementById('menu');
 			innerUnwetterMenuToggle.style.display = "block";
-
-			// create checkboxes (as a submenu) for all currently existing warning-types to be able to show only checked warning types in the map
-			createWarningsCheckboxes(map);
 		};
 	}
 
-	// displays the germany boundary button if is not visible
-	var boundaryButtonToggle = document.getElementById('germanyButton');
-	if (boundaryButtonToggle.style.display === "none"){
-		boundaryButtonToggle.style.display = "block";
-	}
-	// the germany button is also used as an indicator to see if the menus are open
-	// if that is the case all menus will be closed when the main layer menu button is pressed
-	else {
-		closeAllMenus();
-	};
+		// displays the germany boundary button if is not visible
+		var boundaryButtonToggle = document.getElementById('germanyButton');
+		if (boundaryButtonToggle.style.display === "none"){
+			boundaryButtonToggle.style.display = "block";
+		}
+		// the germany button is also used as an indicator to see if the menus are open
+		// if that is the case all menus will be closed when the main layer menu button is pressed
+		else {
+			closeAllMenus();
+		};
 
-	// displays the requested submenus
-	button = document.getElementById(menu.id);
-	if (button.style.display === "none") {
-		button.style.display = "block";
-		boundaryButtonToggle.style.display = "block";
-	} else {
-		button.style.display = "none";
-	};
-}
+		// displays the requested submenus
+		button = document.getElementById(menu.id);
+		if (button.style.display === "none") {
+			button.style.display = "block";
+			boundaryButtonToggle.style.display = "block";
+		} else {
+			button.style.display = "none";
+		};
+	}
 
 
 
@@ -455,10 +451,12 @@ function removeSevereWeather(map){
 * @param {mapbox-map} map - mapbox-map
 */
 function loadSevereWeather(map){
-
 	// if there was the rainradar data shown before, change the legend
-	if (wtypeFlag =! "severeWeather") {
+	if (wtypeFlag == "radar") {
+
 		showLegend(map, "unwetter");
+
+
 	}
 
 	// set flag to severeWeather
@@ -468,15 +466,20 @@ function loadSevereWeather(map){
 	updateURL('wtype', 'unwetter');
 	deleteFromURL('radProd');
 
+	// create checkboxes for submenus
+	createWarningsCheckboxes(map);
+
+
 	// if no rainradar is displayed, simply show polygons
 	if (map.style.sourceCaches.rainradar == undefined){
 		requestNewAndDisplayCurrentUnwetters(map);
 	}
 	// if rainradar-data is displayed, remove this data first
 	else {
+
 		map.removeLayer('rainradar');
 		map.removeSource('rainradar');
-		requestNewAndDisplayCurrentUnwetters(map);
+		requestNewAndDisplayCurrentUnwetters(map, paramArray.timestamp);
 	};
 
 	// deactivate the raster menu
@@ -496,6 +499,9 @@ function loadSevereWeather(map){
 	// activate the severe weather tab
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
+
+
+
 }
 
 
