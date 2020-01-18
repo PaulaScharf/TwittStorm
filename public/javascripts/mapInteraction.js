@@ -219,7 +219,21 @@ function zoomToCoordinates(map, coordinates) {
 * @param {mapbox-map} map - mapbox-map
 * @author Benjamin Rieke
 */
-function openMenu(button, menu, map) {
+function openMenu(button, menu, site) {
+	// if a radar product is selected automatically open up the radar submenu
+	if (site == 'animation') {
+console.log("wubsi");
+
+	if (wtypeFlag == "radar") {
+		var innerRasterMenuToggle = document.getElementById('rasterMenu');
+		innerRasterMenuToggle.style.display = "block";
+	}
+	// if severe weather is selected automatically open up the severe weather submenu
+	else {
+		var innerUnwetterMenuToggle = document.getElementById('menu');
+		innerUnwetterMenuToggle.style.display = "block";
+	};
+}
 	// if a radar product is selected automatically open up the radar submenu
 
 		if (wtypeFlag == "radar") {
