@@ -622,7 +622,6 @@ right: 11px;
 }
 
 /* ********************************* Tweetfilter ********************************* */
-
 .green-border-focus .form-control:focus {
   border: 1px solid #8bc34a;
   box-shadow: 0 0 0 0.2rem rgba(139, 195, 74, .25);
@@ -631,9 +630,9 @@ right: 11px;
 .tweetfilter {
   position: absolute;
   z-index: 1;
-  top: 60px;
-  right: 60px;
-  width: 175px;
+  top: 550px;
+  left: 13px;
+  width: 200px;
 }
 
 #tweetfilter-ta {
@@ -643,8 +642,13 @@ right: 11px;
 
 #tweetfilter-btn {
   background-color: white;
-  float: right;
+  top: 0px;
+  left: 204px;
+  border-radius: 5px;
+  width: 55px;
+  height: 55px;
 }
+
 
 textarea {
   -webkit-border-radius: 5px;

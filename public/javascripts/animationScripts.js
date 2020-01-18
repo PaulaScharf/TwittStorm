@@ -274,7 +274,7 @@ var checkedSat = document.getElementById('satellite-v9')
 
         loadPreviousWeather(map, wtypeFlag);
       }
-    
+
     if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
 
       //set URL to requested wtype
@@ -347,22 +347,14 @@ function automate(map){
           // in this case earthquakes from the demo json which are sorted by months
           loadAnimation(val, map);
           //save the current map canvas as a base64 formatted array entry
-          var gifImage = map.getCanvas().toDataURL();
-          imageArray.push(gifImage);
-          // activate the downloadbutton if ready
-            setToReady();
+          takeScreenshot()
         }
         // if the maximum is reached set the value to the minimum
         else {
 
           val = min;
           $("#slider").prop("value", val);
-
-          loadAnimation(val, map);
-          var gifImage = map.getCanvas().toDataURL();
-          imageArray.push(gifImage);
-          // activate the downloadbutton if ready
-            setToReady();
+          takeScreenshot()
             };
                   }, 2000);
 
@@ -415,6 +407,21 @@ function automate(map){
         }
     });
 
+    /**
+    * @desc Uses the html2canvas libary to take a screenshot of the map div
+    * and then saves that base64 encoded screenshot in the image array
+    * @author Benjamin Rieke
+    */
+    function takeScreenshot(){
+      //save the current map canvas as a base64 formatted array entry
+     html2canvas(document.querySelector("#map")).then(function(canvas){
+          var gifImage = canvas.toDataURL('image/jpeg')
+          imageArray.push(gifImage);
+          // activate the downloadbutton if ready
+            setToReady();
+      });
+
+    }
 
     /**
     * @desc   check if the imageArray is uptodate with the amount of used

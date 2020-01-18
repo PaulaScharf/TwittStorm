@@ -81,6 +81,8 @@ app.use("/R", express.static(path.join(__dirname, 'node_modules', 'r-script', ))
 app.use("/leaflet", express.static(path.join(__dirname, 'node_modules', 'leaflet', 'dist')));
 app.use("/gifshot", express.static(path.join(__dirname, 'node_modules', 'gifshot', 'dist')));
 app.use("/downloadjs", express.static(path.join(__dirname, 'node_modules', 'downloadjs')));
+app.use("/html2canvas", express.static(path.join(__dirname, 'node_modules', 'html2canvas', 'dist')));
+
 
 
 
