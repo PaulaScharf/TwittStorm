@@ -45,7 +45,6 @@ var twitterRouter = require('./routes/twitter');
 var configRouter = require('./routes/configuration').router;
 var animationRouter = require('./routes/animation');
 
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -67,7 +66,6 @@ app.use(express.urlencoded({ extended: false }));
 // TODO: wozu benutzen wir das?
 //app.use(cookieParser());
 
-
 // set the routes for npm-installed client-libraries
 app.use("/jquery", express.static(path.join(__dirname, 'node_modules', 'jquery', 'dist')));
 app.use("/qunit", express.static(path.join(__dirname, 'node_modules', 'qunit', 'qunit')));
@@ -81,7 +79,7 @@ app.use("/R", express.static(path.join(__dirname, 'node_modules', 'r-script', ))
 app.use("/leaflet", express.static(path.join(__dirname, 'node_modules', 'leaflet', 'dist')));
 app.use("/gifshot", express.static(path.join(__dirname, 'node_modules', 'gifshot', 'dist')));
 app.use("/downloadjs", express.static(path.join(__dirname, 'node_modules', 'downloadjs')));
-
+app.use("/html2canvas", express.static(path.join(__dirname, 'node_modules', 'html2canvas', 'dist')));
 
 
 // ***************************** mongo-database *******************************

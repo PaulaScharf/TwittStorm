@@ -42,11 +42,19 @@ function drawForAOI(map, draw) {
 		processingAOI(map, e.features[0].geometry.coordinates);
 	});
 
+	map.on("draw.aoi", function() {
+
+	});
+
+	map.on("draw.aoi", function() {
+
+	});
+
 	// if a polygon is deleted ...
 	map.on('draw.delete', function (e) {
 
 		deleteFromURL("aoi");
-		showAllUnwetterAndNoTweets(map);
+		showAllExcept(map, "Tweet");
 	});
 
 	// if a polygon is edited/updated ...

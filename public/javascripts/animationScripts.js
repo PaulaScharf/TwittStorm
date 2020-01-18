@@ -341,34 +341,26 @@ function automate(map){
     // initialize the animation
     loadAnimation(0, map);
 
-    // name the intervall to have access to it for stopping
-    automationIntervall = setInterval(function(){
-      // if the maximum value is not reached increase value to the next int
-      if (val < max) {
-        val ++;
-        // set the sliders value according to the current one
-        $("#slider").prop("value", val);
-        // in this case earthquakes from the demo json which are sorted by months
-        loadAnimation(val, map);
-        //save the current map canvas as a base64 formatted array entry
-        var gifImage = map.getCanvas().toDataURL();
-        imageArray.push(gifImage);
-        // activate the downloadbutton if ready
-        setToReady();
-      }
-      // if the maximum is reached set the value to the minimum
-      else {
-        val = min;
-        $("#slider").prop("value", val);
+      // name the intervall to have access to it for stopping
+      automationIntervall = setInterval(function(){
+        // if the maximum value is not reached increase value to the next int
+        if (val < max) {
+          val ++;
+          // set the sliders value according to the current one
+          $("#slider").prop("value", val);
+          // in this case earthquakes from the demo json which are sorted by months
+          loadAnimation(val, map);
+          //save the current map canvas as a base64 formatted array entry
+          takeScreenshot()
+        }
+        // if the maximum is reached set the value to the minimum
+        else {
 
-        loadAnimation(val, map);
-        var gifImage = map.getCanvas().toDataURL();
-        imageArray.push(gifImage);
-        // activate the downloadbutton if ready
-        setToReady();
-      }
-    }, 2000);
-
+          val = min;
+          $("#slider").prop("value", val);
+          takeScreenshot()
+            };
+                  }, 2000);
 
     // after using the playpausebutton once unbind its function
     $("#playButton").unbind();
@@ -414,6 +406,21 @@ $("#downloadButton").click(function() {
   }
 });
 
+    /**
+    * @desc Uses the html2canvas libary to take a screenshot of the map div
+    * and then saves that base64 encoded screenshot in the image array
+    * @author Benjamin Rieke
+    */
+    function takeScreenshot(){
+      //save the current map canvas as a base64 formatted array entry
+     html2canvas(document.querySelector("#map")).then(function(canvas){
+          var gifImage = canvas.toDataURL('image/jpeg')
+          imageArray.push(gifImage);
+          // activate the downloadbutton if ready
+            setToReady();
+      });
+
+    }
 
 /**
 * @desc check if the imageArray is uptodate with the amount of used

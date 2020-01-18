@@ -28,9 +28,8 @@
                 <p>Default map zoom:</p>
                 <textarea type="text" name="map.zoom" style="height:30px;"><%- JSON.stringify(config.map.zoom) %></textarea>
                 <br><br>
-                <p>How far back tweets are being searched from now: <br>
-                  HIER MUSS NOCH ANGEGEBEN WERDEN, WAS FÜR EINE EINGABE NÖTIG IST: MILLISEKUNDEN, TAGE, ... ?<br>
-                (If you put in '<i>null</i>', the tweets will be less than two weeks old.)</p>
+                <p>How far back tweets are being searched from now (in minutes): <br>
+                    (Maximum and default is one week back. If you type in '<i>null</i>' the default is used.)</p>
                 <textarea type="text" name="max_age_tweets" style="height:30px;"><%- JSON.stringify(config.max_age_tweets) %></textarea>
                 <br><br>
                 <p>Current time as an Epoch timestamp<br>

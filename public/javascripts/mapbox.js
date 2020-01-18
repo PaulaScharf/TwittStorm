@@ -61,6 +61,8 @@ let initTimestamp = Date.now();
 */
 let wtypeFlag = "";
 
+let filterwords;
+
 
 // TODO: folgendes in eine Funktion schreiben:
 // TODO: was macht dieser code?
@@ -414,7 +416,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 		currentTimestamp = Date.now();
 	} else {
 		// found, use historic one
-		currentTimestamp = paramArray.timestamp + (currentTimestamp - initTimestamp);
+		currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
@@ -523,7 +525,7 @@ function callRainRadar(map, prod) {
 		currentTimestamp = Date.now();
 	} else {
 		// found, use historic one
-		currentTimestamp = paramArray.timestamp + (currentTimestamp - initTimestamp);
+		currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
@@ -949,7 +951,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 						currentTimestamp = Date.now();
 					} else {
 						// found, use historic one
-						currentTimestamp = paramArray.timestamp + (currentTimestamp - initTimestamp);
+						currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
 						try {
 							Date.parse(currentTimestamp);
 						} catch {
@@ -971,7 +973,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 						// use a http POST request
 						type: "POST",
 						// URL to send the request to
-						url: "/Twitter/tweets",
+						url: "/twitter/tweets",
 						// type of the data that is sent to the server
 						contentType: "application/json; charset=utf-8",
 						// data to send to the server
@@ -997,7 +999,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 									"features": []
 								};
 								// add the tweets in the result to the featurecollection
-								result.forEach(function (item) {
+								result.statuses.forEach(function (item) {
 									if (item.id && item.location_actual !== null) {
 										let tweetLocation = turf.point(item.location_actual.coordinates);
 										if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
@@ -1006,14 +1008,11 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 												"geometry": item.location_actual,
 												"properties": item
 											};
-											tweetFeatureCollection.features.push(tweetFeature);
+											tweetFeatureCollection.features = [tweetFeature];
+											displayEvent(map, "Tweet " + item.idstr + " " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
 										}
 									}
 								});
-								// add the tweets to the map
-								if (tweetFeatureCollection.features.length > 0) {
-									displayEvent(map, "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
-								}
 							} catch (e) {
 								console.dir("There was an error while processing the tweets from the database:", e);
 								console.log(e);
@@ -1050,20 +1049,23 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	}
 
 
-	/**
-	* This function ensures, that all unwetters but no tweets are visible.
-	* @author Paula Scharf
-	* @param {mapbox-map} map mapbox-map ......
-	*/
-	function showAllUnwetterAndNoTweets(map) {
-		customLayerIds.forEach(function(layerID) {
-			if(layerID.includes("Tweet")) {
-				map.setLayoutProperty(layerID, 'visibility', 'none');
-			} else {
-				map.setLayoutProperty(layerID, 'visibility', 'visible');
-			}
-		});
+/**
+* This function ensures, that all unwetters but no tweets are visible.
+* @author Paula Scharf
+*/
+function showAllExcept(keyword) {
+	for (let i = 0; i<customLayerIds.length; i++) {
+		let layerID = customLayerIds[i];
+		if(layerID.includes(keyword)) {
+			map.removeLayer(layerID);
+			map.removeSource(layerID);
+			customLayerIds.remove(layerID);
+			i--;
+		} else {
+			map.setLayoutProperty(layerID, 'visibility', 'visible');
+		}
 	}
+}
 
 
 	/**
@@ -1096,3 +1098,102 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 		let splittedTimestamp = timestampDate.toString().split("(");
 		return (splittedTimestamp[0]);
 	}
+
+/**
+ *
+ * @author Paula Scharf
+ * @param id
+ */
+function deleteTweet(id) {
+		let query = {
+			idstr: id
+		};
+		$.ajax({
+			// use a http DELETE request
+			type: "DELETE",
+			// URL to send the request to
+			url: "/twitter/tweet",
+			// type of the data that is sent to the server
+			contentType: "application/json; charset=utf-8",
+			// data to send to the server
+			data: JSON.stringify(query),
+			// timeout set to 15 seconds
+			timeout: 15000,
+			// update the status display
+			success: function() {
+				$('#information').html("deleting a tweet");
+			}
+		})
+
+		// if the request is done successfully, ...
+			.done(function () {
+				// ... give a notice on the console that the AJAX request for ........... has succeeded
+				console.log("AJAX request (deleting a tweet) is done successfully.");
+				let popupDiv = document.getElementById(id);
+				popupDiv.remove();
+				showAllExcept("Tweet " + id);
+				closeAllPopups();
+			})
+
+			// if the request has failed, ...
+			.fail(function (xhr, status, error) {
+				// ... give a notice that the AJAX request for .......... has failed and show the error on the console
+				console.log("AJAX request (deleting a tweet) has failed.", error);
+
+				// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+				if (error === "timeout") {
+					JL("ajaxReadingWarningsTimeout").fatalException("ajax: '/twitter/tweet' timeout");
+				}
+			});
+}
+
+/**
+ *
+ */
+function filterTweets() {
+	let textarea = document.getElementById("tweetfilter-ta");
+	filterwords = textarea.value.split("\n");
+	filterTweetPopups();
+}
+
+/**
+ *
+ * @param coordinates
+ */
+function filterTweetPopups() {
+	customLayerIds.forEach(function(id) {
+		if (id.includes("Tweet")) {
+			let tweet = map.getSource(id);
+			let visibility = 'none'
+			filterwords.forEach(function(phrase) {
+				if (tweet._data.features[0].properties.statusmessage.includes(phrase)) {
+					visibility = 'visible';
+				}
+			});
+			map.setLayoutProperty(id, 'visibility', visibility);
+		}
+	})
+}
+
+/**
+ * closes all mapbox popups
+ */
+function closeAllPopups() {
+	let elements = document.getElementsByClassName("mapboxgl-popup mapboxgl-popup-anchor-bottom");
+		elements[0].parentNode.removeChild(elements[0]);
+}
+
+/**
+ * Removes an element from an array based on its content
+ * @returns {Array}
+ */
+Array.prototype.remove = function() {
+	var what, a = arguments, L = a.length, ax;
+	while (L && this.length) {
+		what = a[--L];
+		while ((ax = this.indexOf(what)) !== -1) {
+			this.splice(ax, 1);
+		}
+	}
+	return this;
+};

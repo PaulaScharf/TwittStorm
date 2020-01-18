@@ -15,7 +15,7 @@ timestamp_last_warnings_request: null
 max_age_tweets: null
 demo:
   timestamp_start: 1234
-  timestamp_end: 1235
+  timestamp_end: 3001234
   location: ../demo/
 keys:
   twitter:
