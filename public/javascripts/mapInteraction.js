@@ -220,9 +220,7 @@ function zoomToCoordinates(map, coordinates) {
 * @author Benjamin Rieke
 */
 function openMenu(button, menu, map) {
-
 	// if a radar product is selected automatically open up the radar submenu
-	if (map == "map") {
 
 		if (wtypeFlag == "radar") {
 			var innerRasterMenuToggle = document.getElementById('rasterMenu');
@@ -234,9 +232,8 @@ function openMenu(button, menu, map) {
 			innerUnwetterMenuToggle.style.display = "block";
 
 			// create checkboxes (as a submenu) for all currently existing warning-types to be able to show only checked warning types in the map
-			createWarningsCheckboxes(map);
 		};
-	}
+
 
 	// displays the germany boundary button if is not visible
 	var boundaryButtonToggle = document.getElementById('germanyButton');
@@ -455,9 +452,10 @@ function removeSevereWeather(map){
 * @param {mapbox-map} map - mapbox-map
 */
 function loadSevereWeather(map){
-
+	console.log(wtypeFlag);
 	// if there was the rainradar data shown before, change the legend
-	if (wtypeFlag =! "severeWeather") {
+	if (wtypeFlag == "radar") {
+
 		showLegend(map, "unwetter");
 	}
 
@@ -468,15 +466,21 @@ function loadSevereWeather(map){
 	updateURL('wtype', 'unwetter');
 	deleteFromURL('radProd');
 
+	// create checkboxes for submenus
+	createWarningsCheckboxes(map);
+
+
 	// if no rainradar is displayed, simply show polygons
 	if (map.style.sourceCaches.rainradar == undefined){
 		requestNewAndDisplayCurrentUnwetters(map);
 	}
 	// if rainradar-data is displayed, remove this data first
 	else {
+
+		console.log("done");
 		map.removeLayer('rainradar');
 		map.removeSource('rainradar');
-		requestNewAndDisplayCurrentUnwetters(map);
+		requestNewAndDisplayCurrentUnwetters(map, paramArray.timestamp);
 	};
 
 	// deactivate the raster menu
@@ -496,6 +500,11 @@ function loadSevereWeather(map){
 	// activate the severe weather tab
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
+
+	//show the severeweather submenu
+	var innerUnwetterMenuToggle = document.getElementById('menu');
+	innerUnwetterMenuToggle.style.display = "block";
+
 }
 
 

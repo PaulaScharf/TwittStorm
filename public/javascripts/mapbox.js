@@ -310,6 +310,10 @@ function showMap(style) {
 			// set the flag to severe weather
 			wtypeFlag = "severeWeather";
 
+			//create checkboxes for the submenu
+			createWarningsCheckboxes(map);
+
+
 			// toggle the menu tabs for radar and severe weather to active or not active
 			rasterMenuToggle = document.getElementById('raster');
 			rasterMenuToggle.classList.remove("active");
