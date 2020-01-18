@@ -209,69 +209,6 @@ function zoomToCoordinates(map, coordinates) {
 
 
 
-/**
-* This function adds a layer (identified by the given layerID) to the layer-menu.
-* The layer-menu makes it possible to toggle layers on and off.
-* @author Benjamin Rieke
-* @param {String} layerID - ID of a layer
-*/
-function addLayerToMenu(layerID) {
-	/*
-	// split layerID on whitspace
-	let layerParts = layerID.split(/[ ]+/);
-	let groupName = layerParts[1];
-	// if the groupName is not 'undefined' do the following...
-	if (groupName) {
-	// check if there is already a menu element for the group
-	let layerGroupAlreadyIncluded = false;
-	layers.childNodes.forEach(function (item) {
-	if (item.innerText === groupName) {
-	layerGroupAlreadyIncluded = true;
-}
-});
-// if the manu does not contain an element for the group do the following...
-if (!layerGroupAlreadyIncluded) {
-// create an element for the menu
-var link = document.createElement('a');
-link.href = '#';
-link.className = 'active';
-link.textContent = groupName;
-
-// on click show the menu if it is not visible and hide it if it is visible
-link.onclick = function (e) {
-if (this.className) {
-this.className = '';
-} else {
-this.className = 'active';
-}
-// 'this' changes scoop in the loop, so the contents of the link have to be outsourced
-let content = this.textContent;
-let classname = this.className;
-customLayerIds.forEach(function (item) {
-// if the current Id ('item') contains the name of the group do the following
-if (item.includes(content)) {
-e.preventDefault();
-e.stopPropagation();
-
-// if the menuitem is activated show the layer
-if (classname) {
-map.setLayoutProperty(item, 'visibility', 'visible');
-}
-// if not hide the layer
-else {
-map.setLayoutProperty(item, 'visibility', 'none');
-}
-}
-});
-};
-
-// add the layers to the menu
-layers.appendChild(link);
-}
-}
-*/
-}
-
 // TODO: checkbox-div direkt öffnen bei klick auf "menuButton", wenn severe weather angewählt ist !!!!!
 
 /**
@@ -763,7 +700,7 @@ function showTweetPopup(map, e) {
 			deleteBtn.setAttribute("id", "deleteBtn");
 			deleteBtn.setAttribute("class", "btn btn-danger");
 			deleteBtn.addEventListener('click', function(){
-				deleteTweet(idAsString);
+				deleteTweet(map, idAsString);
 			});
 			deleteBtn.innerText = "delete";
 			popupDiv.appendChild(deleteBtn);

@@ -9,6 +9,9 @@
 */
 
 
+
+// TODO: EINTEILUNG DER WARNINGS IN TYPES (RAIN; SNOWFALL; THDUNDERSTORM; BLACK ICE) FEHLT FÜR ANIMATION NOCH
+
 // ****************************** global variables *****************************
 
 // TODO: dies in Funktion schreiben??
@@ -65,6 +68,7 @@ var automationIntervall;
 * @author Katharina Poppinga, Jonathan Bahlmann, Benjamin Rieke
 */
 function showAnimationMap(style) {
+
   // Checks whether the layer menu DOM is empty and if not flushes the dom
   while (layers.firstChild) {
     layers.removeChild(layers.firstChild);
@@ -120,7 +124,7 @@ function showAnimationMap(style) {
   }
 
   // create new map with variable zoom and center
-   animationMap = new mapboxgl.Map({
+  animationMap = new mapboxgl.Map({
     container: 'animationMap',
     style: style,
     zoom: zoomURL,
@@ -275,7 +279,6 @@ function showAnimationMap(style) {
       severeWeatherMenuToggle.classList.remove("active");
 
       showLegend(animationMap, "radar", "rw");
-
       loadPreviousWeather(animationMap, wtypeFlag);
     }
 
@@ -283,7 +286,6 @@ function showAnimationMap(style) {
 
       //set URL to requested wtype
       updateURL("wtype", "unwetter");
-
       // set the flag to severe weather
       wtypeFlag = "severeWeather";
 
@@ -299,6 +301,7 @@ function showAnimationMap(style) {
       let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
       loadPreviousWeather(animationMap, wtypeFlag);
     }
+
     // add manual functionality for the slider
     document
     .getElementById('slider')
@@ -327,7 +330,6 @@ function automate(map){
   $("#playButton").click(function play() {
 
     // flush the intervall
-
     automationIntervall = undefined;
     // value of the slider (the position)
     let val = document.getElementById('slider').value;
@@ -341,26 +343,25 @@ function automate(map){
     // initialize the animation
     loadAnimation(0, map);
 
-      // name the intervall to have access to it for stopping
-      automationIntervall = setInterval(function(){
-        // if the maximum value is not reached increase value to the next int
-        if (val < max) {
-          val ++;
-          // set the sliders value according to the current one
-          $("#slider").prop("value", val);
-          // in this case earthquakes from the demo json which are sorted by months
-          loadAnimation(val, map);
-          //save the current map canvas as a base64 formatted array entry
-          takeScreenshot()
-        }
-        // if the maximum is reached set the value to the minimum
-        else {
-
-          val = min;
-          $("#slider").prop("value", val);
-          takeScreenshot()
-            };
-                  }, 2000);
+    // name the intervall to have access to it for stopping
+    automationIntervall = setInterval(function(){
+      // if the maximum value is not reached increase value to the next int
+      if (val < max) {
+        val ++;
+        // set the sliders value according to the current one
+        $("#slider").prop("value", val);
+        // in this case earthquakes from the demo json which are sorted by months
+        loadAnimation(val, map);
+        //save the current map canvas as a base64 formatted array entry
+        takeScreenshot();
+      }
+      // if the maximum is reached set the value to the minimum
+      else {
+        val = min;
+        $("#slider").prop("value", val);
+        takeScreenshot();
+      }
+    }, 2000);
 
     // after using the playpausebutton once unbind its function
     $("#playButton").unbind();
@@ -383,7 +384,7 @@ function automate(map){
 );
 }
 
-
+// TODO: in onload-Funktion?
 // functionality for the download button
 $("#downloadButton").click(function() {
   // set reference for the popup
@@ -406,21 +407,22 @@ $("#downloadButton").click(function() {
   }
 });
 
-    /**
-    * @desc Uses the html2canvas libary to take a screenshot of the map div
-    * and then saves that base64 encoded screenshot in the image array
-    * @author Benjamin Rieke
-    */
-    function takeScreenshot(){
-      //save the current map canvas as a base64 formatted array entry
-     html2canvas(document.querySelector("#map")).then(function(canvas){
-          var gifImage = canvas.toDataURL('image/jpeg')
-          imageArray.push(gifImage);
-          // activate the downloadbutton if ready
-            setToReady();
-      });
 
-    }
+/**
+* @desc Uses the html2canvas libary to take a screenshot of the map div
+* and then saves that base64 encoded screenshot in the image array
+* @author Benjamin Rieke
+*/
+function takeScreenshot(){
+  //save the current map canvas as a base64 formatted array entry
+  html2canvas(document.querySelector("#map")).then(function(canvas){
+    var gifImage = canvas.toDataURL('image/jpeg');
+    imageArray.push(gifImage);
+    // activate the downloadbutton if ready
+    setToReady();
+  });
+}
+
 
 /**
 * @desc check if the imageArray is uptodate with the amount of used
@@ -455,9 +457,9 @@ function loadAnimation(position, map){
   // set a "marker" for the wanted position based on the available timestamps
   var posMarker = usedTimestamps[position];
 
-  // transform the time from millseconds to date
+  // transform the time from milliseconds to date
   var time = new Date(+posMarker);
-  // add to ui
+  // add to UI
   document.getElementById('timestamp').textContent = time.toUTCString();
 
   //check if a layer is shown
@@ -465,6 +467,7 @@ function loadAnimation(position, map){
     // if yes remove them
     map.removeLayer(allLayers);
   }
+
   //flus array in case
   allLayers = [];
   // add the correct layer
@@ -494,242 +497,310 @@ function loadAnimation(position, map){
       'id': posMarker,
       'type': 'fill',
       'source': posMarker,
-      'paint': {
-        'fill-color': 'red',
-        'fill-opacity': 0.5
-      }});
-    }
-
-    // put something in the array for the for loop to check for emptiness
-    allLayers.push(posMarker);
-  }
-
-
-  /**
-  * @desc Function provided from gif libary Gifshot
-  * @param array image containig array
-  * @author Benjamin Rieke
-  */
-  function createGif(array) {
-    var date = new Date();
-    var utc = date.toJSON().slice(0,10).replace(/-/g,'/');
-    var time = date.toLocaleTimeString();
-    var filename = utc + '/'+time;
-
-    gifshot.createGIF({
-      images: array,
-      'frameDuration': 10,
-      'gifWidth': 800,
-      'gifHeight': 400,
-    }, function (obj) {
-      if (!obj.error) {
-        var image = obj.image;
-        download(image, filename, 'image/gif');
+      "paint": {
+        "fill-color": [
+          "match", ["string", ["get", "event"]],
+          "GLÄTTE",
+          "yellow",
+          "GLATTEIS",
+          "yellow",
+          "GEWITTER",
+          "red",
+          "STARKES GEWITTER",
+          "red",
+          "SCHWERES GEWITTER",
+          "red",
+          "SCHWERES GEWITTER mit ORKANBÖEN",
+          "red",
+          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
+          "red",
+          "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
+          "red",
+          "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
+          "red",
+          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
+          "red",
+          "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "EXTREMES GEWITTER",
+          "red",
+          "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
+          "red",
+          "STARKREGEN",
+          "blue",
+          "HEFTIGER STARKREGEN",
+          "blue",
+          "DAUERREGEN",
+          "blue",
+          "ERGIEBIGER DAUERREGEN",
+          "blue",
+          "EXTREM ERGIEBIGER DAUERREGEN",
+          "blue",
+          "EXTREM HEFTIGER STARKREGEN",
+          "blue",
+          "LEICHTER SCHNEEFALL",
+          "darkviolet",
+          "SCHNEEFALL",
+          "darkviolet",
+          "STARKER SCHNEEFALL",
+          "darkviolet",
+          "EXTREM STARKER SCHNEEFALL",
+          "darkviolet",
+          "SCHNEEVERWEHUNG",
+          "darkviolet",
+          "STARKE SCHNEEVERWEHUNG",
+          "darkviolet",
+          "SCHNEEFALL und SCHNEEVERWEHUNG",
+          "darkviolet",
+          "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+          "darkviolet",
+          "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+          "darkviolet",
+          "black" // sonstiges Event
+          // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
+          // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
+        ],
+        "fill-opacity": 0.3
       }
     });
   }
 
+  // put something in the array for the for loop to check for emptiness
+  allLayers.push(posMarker);
+}
 
-  /**
-  * @desc Performs the actual db call to retrieve the previousWeather data
-  * and fits every event according to its timestamp into an array
-  * @param map Links to the map
-  * @param weatherEv -
-  * @author Benjamin Rieke
-  */
-  function loadPreviousWeather(map, weatherEv){
-    // flush the storage arrays
-    usedTimestamps = [];
-    timestampStorage = [];
 
-    var weatherEvent;
-    if (weatherEv == "radar"){
-      weatherEvent = "rainRadar/";
+/**
+* @desc Function provided from gif libary Gifshot
+* @param array image containig array
+* @author Benjamin Rieke
+*/
+function createGif(array) {
+  var date = new Date();
+  var utc = date.toJSON().slice(0,10).replace(/-/g,'/');
+  var time = date.toLocaleTimeString();
+  var filename = utc + '/'+time;
+
+  gifshot.createGIF({
+    images: array,
+    'frameDuration': 10,
+    'gifWidth': 800,
+    'gifHeight': 400,
+  }, function (obj) {
+    if (!obj.error) {
+      var image = obj.image;
+      download(image, filename, 'image/gif');
     }
-    if (weatherEv == "severeWeather"){
-      weatherEvent = "unwetter/";
+  });
+}
+
+
+/**
+* @desc Performs the actual db call to retrieve the previousWeather data
+* and fits every event according to its timestamp into an array
+* @param map Links to the map
+* @param weatherEv -
+* @author Benjamin Rieke
+*/
+function loadPreviousWeather(map, weatherEv){
+  // flush the storage arrays
+  usedTimestamps = [];
+  timestampStorage = [];
+
+  var weatherEvent;
+  if (weatherEv == "radar"){
+    weatherEvent = "rainRadar/";
+  }
+  if (weatherEv == "severeWeather"){
+    weatherEvent = "unwetter/";
+  }
+
+  $.ajax({
+    // use a http GET request
+    type: "GET",
+    // URL to send the request to
+    url: "/previousWeather/" + weatherEvent + currentTimestamp,
+    // type of the data that is sent to the server
+    contentType: "application/json; charset=utf-8",
+    // timeout set to 15 seconds
+    timeout: 15000,
+
+    success: function() {
+      $('#information').html("Retrieving previous weather events");
     }
+  })
 
-    $.ajax({
-      // use a http GET request
-      type: "GET",
-      // URL to send the request to
-      url: "/previousWeather/" + weatherEvent + currentTimestamp,
-      // type of the data that is sent to the server
-      contentType: "application/json; charset=utf-8",
-      // timeout set to 15 seconds
-      timeout: 15000,
-
-      success: function() {
-        $('#information').html("Retrieving previous weather events");
+  // if the request is done successfully, ...
+  .done(function (result) {
+    // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
+    console.log("AJAX request (reading previous weather) is done successfully.");
+    console.log(result);
+    // for every timestamp
+    for (let key in result) {
+      if (key == "type" || key == "length") {
+        // TODO: ????
       }
-    })
 
-    // if the request is done successfully, ...
-    .done(function (result) {
-      // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
-      console.log("AJAX request (reading previous weather) is done successfully.");
-      console.log(result);
-      // for every timestamp
-      for (let key in result) {
-        if (key == "type" || key == "length") {
-          // TODO: ????
-        }
-
-        else {
-          // log the individual timestamp to refer to them later
-          usedTimestamps.push(key);
-
-          // flush the outputarray with each call
-          outputArray = [];
-
-          // for every unwetter in the response
-          for (let j = 0; j < result[key].length; j++){
-
-            // take every unwetter and save its coordinates
-            let currentUnwetter = result[key][j].geometry;
-            // gjson structure
-            mask = {
-              "timestamp": key,
-              "type": weatherEvent,
-              "geometry": {
-                "type": "FeatureCollection",
-              }
-            };
-
-            // put every polygon from a unwetterwarning into one array
-            if (weatherEv == "severeWeather"){
-              for (let i = 0; i < currentUnwetter.length; i++){
-                //transform the polygon into geojson
-                var polygon = goGeoJson(currentUnwetter[i].coordinates, key);
-                // array to save every timestamp´s polygon
-                outputArray.push(polygon);
-              }
-              mask.geometry.features = outputArray;
-            }
-
-            // add the current events to the geojson for each timestamp
-            if (weatherEv == "radar"){
-              mask.geometry.features = currentUnwetter;
-            }
-          }
-
-          // add all filled geojsons to one array
-          addItem(mask);
-          //for dramatic purposes have the data stored in final object
-          final = timestampStorage;
-        }
-      }
-      console.log(final);
-
-      // for every timestamp in the final object
-      for (let i = 0; i < final.length; i++){
-        //add the according data to an mapbox source
-        addToSource(map, final[i].timestamp ,  final[i]);
-      }
-    })
-
-    // if the request has failed, ...
-    .fail(function (xhr, status, error) {
-      // ... give a notice that the AJAX request for reading previous weather has failed and show the error on the console
-      console.log("Reading previous weather has failed.", error);
-
-      // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-      if (error === "timeout") {
-        JL("ajaxReadingPreviousWeatherTimeout").fatalException("ajax: '/previousWeather/weatherEvent/currentTimestamp' timeout");
-      }
-      // TODO: testen, ob so richtig
       else {
-        JL("ajaxReadingPreviousWeatherError").fatalException(error);
+        // log the individual timestamp to refer to them later
+        usedTimestamps.push(key);
+
+        // flush the outputarray with each call
+        outputArray = [];
+
+        // for every unwetter in the response
+        for (let j = 0; j < result[key].length; j++){
+
+          // take every unwetter and save its coordinates
+          let currentUnwetter = result[key][j].geometry;
+          // gjson structure
+          mask = {
+            "timestamp": key,
+            "type": weatherEvent,
+            "geometry": {
+              "type": "FeatureCollection",
+            }
+          };
+
+          // put every polygon from a unwetterwarning into one array
+          if (weatherEv == "severeWeather"){
+            for (let i = 0; i < currentUnwetter.length; i++){
+              //transform the polygon into geojson
+              var polygon = goGeoJson(currentUnwetter[i].coordinates, key);
+              // array to save every timestamp´s polygon
+              outputArray.push(polygon);
+            }
+            mask.geometry.features = outputArray;
+          }
+
+          // add the current events to the geojson for each timestamp
+          if (weatherEv == "radar"){
+            mask.geometry.features = currentUnwetter;
+          }
+        }
+
+        // add all filled geojsons to one array
+        addItem(mask);
+        //for dramatic purposes have the data stored in final object
+        final = timestampStorage;
       }
+    }
+    console.log(final);
+
+    // for every timestamp in the final object
+    for (let i = 0; i < final.length; i++){
+      //add the according data to an mapbox source
+      addToSource(map, final[i].timestamp ,  final[i]);
+    }
+  })
+
+  // if the request has failed, ...
+  .fail(function (xhr, status, error) {
+    // ... give a notice that the AJAX request for reading previous weather has failed and show the error on the console
+    console.log("Reading previous weather has failed.", error);
+
+    // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+    if (error === "timeout") {
+      JL("ajaxReadingPreviousWeatherTimeout").fatalException("ajax: '/previousWeather/weatherEvent/currentTimestamp' timeout");
+    }
+    // TODO: testen, ob so richtig
+    else {
+      JL("ajaxReadingPreviousWeatherError").fatalException(error);
+    }
+  });
+}
+
+
+/**
+* function to return a GeoJSON formatted Polygon
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+* @param object the individual polygons of an event, containing the coords of a polygon
+* @param time timestamp of the data
+*/
+function goGeoJson(object, time) {
+
+  var result = {
+    "type":"Feature",
+    "properties": {
+      "class": time
+    },
+    "geometry": {
+      "type":"Polygon",
+      "coordinates": object[0]
+    }
+  };
+  return result;
+}
+
+
+/**
+* @desc Checks if a part of an Object is already in an array
+* @param item geojson object
+* @author Benjamin Rieke
+*/
+function addItem(item) {
+  var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp);
+  if (index === -1) {
+    timestampStorage.push(item);
+  } else {
+    console.log("Object already exists.");
+  }
+}
+
+
+/**
+* @desc removes all weather sources and layers from the map on wtype change
+* @param map links to the map
+* @author Benjamin Rieke
+*/
+function removeAllSource(map) {
+  var sources = map.style.sourceCaches;
+  var layers = map.getStyle().layers;
+
+  for (let key in sources){
+    // checks if the sources contain a numbered id
+    if (!isNaN(key)){
+
+      // if they are already in the layers
+      for (let lays in layers){
+        if(layers[lays].id == key){
+          //remove them
+          map.removeLayer(key);
+        }
+      }
+      map.removeSource(key);
+    }
+  }
+}
+
+
+/**
+* @desc Adds a GEOJSON to the map as a source
+* @param map glinks to the map
+* @param layerID to be id of the source. in this case the timestamp
+* @param previousFeatureCollection the geojson featurecollection
+* @author Benjamin Rieke
+*/
+function addToSource(map, layerID, previousFeatureCollection){
+
+  if (previousFeatureCollection.type =="rainRadar/"){
+    map.addSource(layerID, {
+      type: 'geojson',
+      data: previousFeatureCollection.geometry.features
     });
   }
 
-
-  /**
-  * function to return a GeoJSON formatted Polygon
-  * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-  * @param object the individual polygons of an event, containing the coords of a polygon
-  * @param time timestamp of the data
-  */
-  function goGeoJson(object, time) {
-
-    var result = {
-      "type":"Feature",
-      "properties": {
-        "class": time
-      },
-      "geometry": {
-        "type":"Polygon",
-        "coordinates": object[0]
-      }
-    };
-    return result;
+  if (previousFeatureCollection.type =="unwetter/"){
+    map.addSource(layerID, {
+      type: 'geojson',
+      data: previousFeatureCollection.geometry
+    });
   }
-
-
-  /**
-  * @desc Checks if a part of an Object is already in an array
-  * @param item geojson object
-  * @author Benjamin Rieke
-  */
-  function addItem(item) {
-    var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp);
-    if (index === -1) {
-      timestampStorage.push(item);
-    } else {
-      console.log("object already exists");
-    }
-  }
-
-
-  /**
-  * @desc removes all weather sources and layers from the map on wtype change
-  * @param map links to the map
-  * @author Benjamin Rieke
-  */
-  function removeAllSource(map) {
-    var sources = map.style.sourceCaches;
-    var layers = map.getStyle().layers;
-
-    for (let key in sources){
-      // checks if the sources contain a numbered id
-      if (!isNaN(key)){
-
-        // if they are already in the layers
-        for (let lays in layers){
-          if(layers[lays].id == key){
-            //remove them
-            map.removeLayer(key);
-          }
-        }
-        map.removeSource(key);
-      }
-    }
-  }
-
-
-  /**
-  * @desc Adds a GEOJSON to the map as a source
-  * @param map glinks to the map
-  * @param layerID to be id of the source. in this case the timestamp
-  * @param previousFeatureCollection the geojson featurecollection
-  * @author Benjamin Rieke
-  */
-  function addToSource(map, layerID, previousFeatureCollection){
-
-    if (previousFeatureCollection.type =="rainRadar/"){
-      map.addSource(layerID, {
-        type: 'geojson',
-        data: previousFeatureCollection.geometry.features
-      });
-    }
-
-    if (previousFeatureCollection.type =="unwetter/"){
-      map.addSource(layerID, {
-        type: 'geojson',
-        data: previousFeatureCollection.geometry
-      });
-    }
-  }
+}

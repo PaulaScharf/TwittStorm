@@ -107,6 +107,7 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
 	});
 }
 
+
 /**
  * Makes a request for new tweets to twitter and saves them in the database.
  * @author Paula Scharf, matr.: 450334
@@ -308,6 +309,12 @@ const searchTweetsForEvent = function(req, res) {
 	}
 };
 
+
+/**
+ *
+ * @author Paula Scharf
+ * @param params
+ */
 function checkParamsSearch(params) {
 	if (!params.dwd_id) {
 		return {
@@ -340,6 +347,13 @@ function checkParamsSearch(params) {
 	};
 }
 
+// TODO: JSDoc
+/**
+ *
+ * @author Paula Scharf
+ * @param req
+ * @param res
+ */
 const deleteTweet = function(req, res) {
 	if (!req.body.idstr) {
 		if(!res.headersSent) {

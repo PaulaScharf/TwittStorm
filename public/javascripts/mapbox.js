@@ -776,7 +776,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 					"paint": {
 						"fill-color": [
 							"match", ["string", ["get", "event"]],
-							"GLÄTTE",						// TODO: Farbe weiß sieht man auf der Straßenkarte mit solch geringer opacity nicht!!
+							"GLÄTTE",
 							"yellow",
 							"GLATTEIS",
 							"yellow",
@@ -915,12 +915,14 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 
 	/**
 	* This function makes only Unwetters and its tweets visible, if the include a polygon that is fully contained by the given
-	* polygon. Attention: Turf is very inaccurate.
+	* polygon.
+	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf
-  * @param {mapbox-map} map mapbox-map in ......
-	* @param polygon - a turf polygon (eg the aoi)
+	* @param {mapbox-map} map mapbox-map in ......
+	* @param polygon - a turf polygon (e.g. the AOI)
 	*/
 	function onlyShowUnwetterAndTweetsInPolygon(map, polygon) {
+
 		customLayerIds.forEach(function(layerID) {
 			// make sure to only check layers which contain an Unwetter
 			if (layerID.includes("unwetter")) {
@@ -1049,32 +1051,36 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	}
 
 
-/**
-* This function ensures, that all unwetters but no tweets are visible.
-* @author Paula Scharf
-*/
-function showAllExcept(keyword) {
-	for (let i = 0; i<customLayerIds.length; i++) {
-		let layerID = customLayerIds[i];
-		if(layerID.includes(keyword)) {
-			map.removeLayer(layerID);
-			map.removeSource(layerID);
-			customLayerIds.remove(layerID);
-			i--;
-		} else {
-			map.setLayoutProperty(layerID, 'visibility', 'visible');
+	/**
+	* This function ensures that all unwetters but no tweets are visible.
+	* @author Paula Scharf
+	* @param {mapbox-map} map - mapbox-map
+	* @param {} keyword -
+	*/
+	function showAllExcept(map, keyword) {
+
+		for (let i = 0; i<customLayerIds.length; i++) {
+			let layerID = customLayerIds[i];
+			if(layerID.includes(keyword)) {
+				map.removeLayer(layerID);
+				map.removeSource(layerID);
+				customLayerIds.remove(layerID);
+				i--;
+			} else {
+				map.setLayoutProperty(layerID, 'visibility', 'visible');
+			}
 		}
 	}
-}
 
 
 	/**
 	* Calls a given function (cb) for all layers of the map.
 	* @author Paula Scharf
-	* @param {mapbox-map} map mapbox-map ......
+	* @param {mapbox-map} map mapbox-map
 	* @param cb - function to perform for each layer
 	*/
 	function forEachLayer(map, cb) {
+
 		map.getStyle().layers.forEach((layer) => {
 			if (!customLayerIds.includes(layer.id)) return;
 
@@ -1099,15 +1105,19 @@ function showAllExcept(keyword) {
 		return (splittedTimestamp[0]);
 	}
 
-/**
- *
- * @author Paula Scharf
- * @param id
- */
-function deleteTweet(id) {
+
+	/**
+	*
+	* @author Paula Scharf
+	* @param {mapbox-map} map mapbox-map ......
+	* @param {} id
+	*/
+	function deleteTweet(map, id) {
+
 		let query = {
 			idstr: id
 		};
+
 		$.ajax({
 			// use a http DELETE request
 			type: "DELETE",
@@ -1121,79 +1131,94 @@ function deleteTweet(id) {
 			timeout: 15000,
 			// update the status display
 			success: function() {
-				$('#information').html("deleting a tweet");
+				$('#information').html("Deleting a tweet");
 			}
 		})
 
 		// if the request is done successfully, ...
-			.done(function () {
-				// ... give a notice on the console that the AJAX request for ........... has succeeded
-				console.log("AJAX request (deleting a tweet) is done successfully.");
-				let popupDiv = document.getElementById(id);
-				popupDiv.remove();
-				showAllExcept("Tweet " + id);
-				closeAllPopups();
-			})
+		.done(function () {
+			// ... give a notice on the console that the AJAX request for deleting a tweet has succeeded
+			console.log("AJAX request (deleting a tweet) is done successfully.");
 
-			// if the request has failed, ...
-			.fail(function (xhr, status, error) {
-				// ... give a notice that the AJAX request for .......... has failed and show the error on the console
-				console.log("AJAX request (deleting a tweet) has failed.", error);
+			let popupDiv = document.getElementById(id);
+			popupDiv.remove();
+			showAllExcept(map, "Tweet " + id);
+			closeAllPopups();
+		})
 
-				// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-				if (error === "timeout") {
-					JL("ajaxReadingWarningsTimeout").fatalException("ajax: '/twitter/tweet' timeout");
-				}
-			});
-}
+		// if the request has failed, ...
+		.fail(function (xhr, status, error) {
+			// ... give a notice that the AJAX request for deleting a tweet has failed and show the error on the console
+			console.log("AJAX request (deleting a tweet) has failed.", error);
 
-/**
- *
- */
-function filterTweets() {
-	let textarea = document.getElementById("tweetfilter-ta");
-	filterwords = textarea.value.split("\n");
-	filterTweetPopups();
-}
-
-/**
- *
- * @param coordinates
- */
-function filterTweetPopups() {
-	customLayerIds.forEach(function(id) {
-		if (id.includes("Tweet")) {
-			let tweet = map.getSource(id);
-			let visibility = 'none'
-			filterwords.forEach(function(phrase) {
-				if (tweet._data.features[0].properties.statusmessage.includes(phrase)) {
-					visibility = 'visible';
-				}
-			});
-			map.setLayoutProperty(id, 'visibility', visibility);
-		}
-	})
-}
-
-/**
- * closes all mapbox popups
- */
-function closeAllPopups() {
-	let elements = document.getElementsByClassName("mapboxgl-popup mapboxgl-popup-anchor-bottom");
-		elements[0].parentNode.removeChild(elements[0]);
-}
-
-/**
- * Removes an element from an array based on its content
- * @returns {Array}
- */
-Array.prototype.remove = function() {
-	var what, a = arguments, L = a.length, ax;
-	while (L && this.length) {
-		what = a[--L];
-		while ((ax = this.indexOf(what)) !== -1) {
-			this.splice(ax, 1);
-		}
+			// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+			if (error === "timeout") {
+				JL("ajaxDeletingTweetTimeout").fatalException("ajax: '/twitter/tweet' timeout");
+			}
+			// TODO: testen, ob so richtig
+			else {
+				JL("ajaxDeletingTweetError").fatalException(error);
+			}
+		});
 	}
-	return this;
-};
+
+
+	/**
+	*
+	* @author Paula Scharf
+	* @param {mapbox-map} map mapbox-map
+	*/
+	function filterTweets(map) {
+
+		let textarea = document.getElementById("tweetfilter-ta");
+		filterwords = textarea.value.split("\n");
+		filterTweetPopups(map);
+	}
+
+
+	/**
+	*
+	* @author Paula Scharf
+	* @param {mapbox-map} map mapbox-map
+	*/
+	function filterTweetPopups(map) {
+
+		customLayerIds.forEach(function(id) {
+			if (id.includes("Tweet")) {
+				let tweet = map.getSource(id);
+				let visibility = 'none'
+				filterwords.forEach(function(phrase) {
+					if (tweet._data.features[0].properties.statusmessage.includes(phrase)) {
+						visibility = 'visible';
+					}
+				});
+				map.setLayoutProperty(id, 'visibility', visibility);
+			}
+		})
+	}
+
+
+	/**
+	* closes all mapbox popups
+	* @author Paula Scharf
+	*/
+	function closeAllPopups() {
+		let elements = document.getElementsByClassName("mapboxgl-popup mapboxgl-popup-anchor-bottom");
+		elements[0].parentNode.removeChild(elements[0]);
+	}
+
+
+	/**
+	* Removes an element from an array based on its content
+	* @returns {Array}
+	*/
+	Array.prototype.remove = function() {
+		var what, a = arguments, L = a.length, ax;
+		while (L && this.length) {
+			what = a[--L];
+			while ((ax = this.indexOf(what)) !== -1) {
+				this.splice(ax, 1);
+			}
+		}
+		return this;
+	};
