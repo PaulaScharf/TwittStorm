@@ -57,6 +57,10 @@ var imageArray = [];
 var gifArray = [];
 // the intervall that is started with the animation and used to stop it
 var automationIntervall;
+// gives the information that the styleswitcher is on the animation page
+var indicator = "";
+// // gives the wtype information to the style since the paramarray wont change
+var wIndicator = "";
 
 
 // TODO: showAnimationMap-Funktion modularisieren UND/ODER anpassen an showMap-Funktion, neues von dort übernehmen!!
@@ -68,7 +72,7 @@ var automationIntervall;
 * @author Katharina Poppinga, Jonathan Bahlmann, Benjamin Rieke
 */
 function showAnimationMap(style) {
-
+indicator ="animation"
   // Checks whether the layer menu DOM is empty and if not flushes the dom
   while (layers.firstChild) {
     layers.removeChild(layers.firstChild);
@@ -177,105 +181,23 @@ function showAnimationMap(style) {
 
     // add functionality for menu selection on radar product call
     $("#raster").click(function() {
-      // when another animation is running stop it first
-      clearInterval(automationIntervall);
-      // remove all old sources
-      removeAllSource(animationMap);
-      //update the URL
-      updateURL("wtype", "radar");
-      updateURL("radProd", "ry");
-      // set the weathertype
-      wtypeFlag = "radar";
-      //display the legend
-      showLegend(animationMap, "radar", "ry");
-      //request the previous weather
-      loadPreviousWeather(animationMap, wtypeFlag);
-
-      //change the menu
-      var rasterMenuToggle = document.getElementById('raster');
-      rasterMenuToggle.classList.add("active");
-      var menuToggle = document.getElementById('severeWeatherAnimation');
-      menuToggle.classList.remove("active");
-
-      // set the animation slider to the first position
-      $("#slider").prop("value", 0);
-      // in case the weathertype is changed during the animation unbind the button
-      $("#playButton").unbind();
-      // change image to play icon
-      $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
-      //and reset everything
-      automate(animationMap);
-      //flush the image array
-      imageArray = [];
-      //flush the layer array
-      allLayers =[];
-      //flush the gif array
-      gifArray = [];
-      // reset the downloadbutton and its popups
-      $("#downloadButton").css({'background-color': 'darkgrey'});
-      $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
-      $('#downloadPopup').html('You have to wait for one animation cycle!');
-      $("#downloadPopup").css({'background-color': 'DimGray'});
+      reloadAnimation('radar');
     });
 
 
     // add functionality for menu selection on severeweather call
     $("#severeWeatherAnimation").click(function() {
-      // when another animation is running stop it first
-      clearInterval(automationIntervall);
-      // remove all old sources
-      removeAllSource(animationMap);
-      //update the URL
-      updateURL("wtype", "unwetter");
-      // set the weathertype
-      wtypeFlag = "severeWeather";
-      //display the legend
-      showLegend(animationMap, "unwetter");
-      //request the previous weather
-      loadPreviousWeather(animationMap, wtypeFlag);
-
-      // update the menu
-      var rasterMenuToggle = document.getElementById('raster');
-      rasterMenuToggle.classList.remove("active");
-      var innerRasterMenuToggle = document.getElementById('rasterMenu');
-      innerRasterMenuToggle.style.display = "none";
-
-      // activate the severe weather tab
-      var severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
-      severeWeatherMenuToggle.classList.add("active");
-      // set the animation slider to the first position
-      $("#slider").prop("value", 0);
-      // in case the weathertype is changed during the animation unbind the button
-      $("#playButton").unbind();
-      // change image to play icon
-      $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
-      //and reset everything
-      automate(animationMap);
-      //flush the image array
-      imageArray = [];
-      //flush the layer array
-      allLayers = [];
-      //flush the gif array
-      gifArray = [];
-      // reset the downloadbutton and its popups
-      $("#downloadButton").css({'background-color': 'darkgrey'});
-      $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
-      $('#downloadPopup').html('You have to wait for one animation cycle!');
-      $("#downloadPopup").css({'background-color': 'DimGray'});
+      reloadAnimation('unwetter');
     });
 
-
-    let rasterMenuToggle;
-    let severeWeatherMenuToggle;
-
+    let rasterMenuToggle = document.getElementById('raster');
+    let severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
     if (paramArray.wtype == "radar") {
       // set the flag to radar
       wtypeFlag = "radar";
 
       // toggle the menu tabs for radar and severe weather to active or not active
-      rasterMenuToggle = document.getElementById('raster');
       rasterMenuToggle.classList.toggle("active");
-      severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
       severeWeatherMenuToggle.classList.remove("active");
 
       showLegend(animationMap, "radar", "rw");
@@ -290,9 +212,7 @@ function showAnimationMap(style) {
       wtypeFlag = "severeWeather";
 
       // toggle the menu tabs for radar and severe weather to active or not active
-      rasterMenuToggle = document.getElementById('raster');
       rasterMenuToggle.classList.remove("active");
-      severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
       severeWeatherMenuToggle.classList.add("active");
       //display the legend according to the weathertype
       showLegend(animationMap, "unwetter");
@@ -317,6 +237,82 @@ function showAnimationMap(style) {
   automate(animationMap);
 }
 
+
+/**
+* @desc combines several functions to reload the animation for the chosen weather type
+* @param wType the desired type of weather
+* @author Benjamin Rieke
+*/
+function reloadAnimation(wType){
+  var rasterMenuToggle = document.getElementById('raster');
+  var severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
+  var innerRasterMenuToggle = document.getElementById('rasterMenu');
+  var menuToggle = document.getElementById('severeWeatherAnimation');
+
+
+  // when another animation is running stop it first
+  clearInterval(automationIntervall);
+  // remove all old sources
+  removeAllSource(animationMap);
+  //if the weathertype is severeweather
+  if (wType == 'unwetter'){
+  // weathertype indicator for style switcher
+  wIndicator = wType;
+  //update the URL
+  updateURL("wtype", "unwetter");
+  // set the weathertype
+  wtypeFlag = "severeWeather";
+  //display the legend
+  showLegend(animationMap, "unwetter");
+  //request the previous weather
+  loadPreviousWeather(animationMap, wtypeFlag);
+
+  // update the menu
+  rasterMenuToggle.classList.remove("active");
+  innerRasterMenuToggle.style.display = "none";
+
+  // activate the severe weather tab
+  severeWeatherMenuToggle.classList.add("active");
+  }
+  //if the weathertype is radar
+  else {
+    // weathertype indicator for style switcher
+    wIndicator = wType;
+    //update the URL
+    updateURL("wtype", "radar");
+    updateURL("radProd", "ry");
+    // set the weathertype
+    wtypeFlag = "radar";
+    //display the legend
+    showLegend(animationMap, "radar", "ry");
+    //request the previous weather
+    loadPreviousWeather(animationMap, wtypeFlag);
+    // update the menu
+    rasterMenuToggle.classList.add("active");
+    menuToggle.classList.remove("active");
+  };
+
+  // set the animation slider to the first position
+  $("#slider").prop("value", 0);
+  // in case the weathertype is changed during the animation unbind the button
+  $("#playButton").unbind();
+  // change image to play icon
+  $("#pauseplay").attr("src", "/css/iconfinder_icon-play.svg");
+  //and reset everything
+  automate(animationMap);
+  //flush the image array
+  imageArray = [];
+  //flush the layer array
+  allLayers = [];
+  //flush the gif array
+  gifArray = [];
+  // reset the downloadbutton and its popups
+  $("#downloadButton").css({'background-color': 'darkgrey'});
+  $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
+  $('#downloadPopup').html('You have to wait for one animation cycle!');
+  $("#downloadPopup").css({'background-color': 'DimGray'});
+
+}
 
 
 /**

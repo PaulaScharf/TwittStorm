@@ -312,7 +312,7 @@ function removeAddGermany(map){
 * @param layer - The chosen maplayer style
 */
 function switchLayer(map, layer) {
-
+var type = paramArray.wtype
 	const savedLayers = [];
 	const savedSources = {};
 
@@ -324,6 +324,11 @@ function switchLayer(map, layer) {
 	// takes the id from the layer and calls the showMap function
 	var layerId = layer.target.id;
 	map.setStyle('mapbox://styles/mapbox/' + layerId);
+
+	if (indicator == "animation"){
+	//	reloadAnimation
+		reloadAnimation(wIndicator)
+	}
 
 	setTimeout(() => {
 		Object.entries(savedSources).forEach(([id, source]) => {
