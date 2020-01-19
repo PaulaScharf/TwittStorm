@@ -63,6 +63,9 @@ let wtypeFlag = "";
 
 let filterwords;
 
+// gives the information that the styleswitcher is on the animation page
+var indicator = "";
+
 
 // TODO: folgendes in eine Funktion schreiben:
 // TODO: was macht dieser code?

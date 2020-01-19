@@ -312,7 +312,7 @@ function removeAddGermany(map){
 * @param layer - The chosen maplayer style
 */
 function switchLayer(map, layer) {
-var type = paramArray.wtype
+
 	const savedLayers = [];
 	const savedSources = {};
 
