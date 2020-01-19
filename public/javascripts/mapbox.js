@@ -913,6 +913,120 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 		//	console.log(customLayerIds);
 	}
 
+	/**
+		* @author Paula Scharf, Jonathan Bahlmann
+		* @param polygon a turf polygon (aoi)
+		*/
+	function onlyShowRainRadarAndTweetsInPolygon(polygon) {
+		// so polygon is the turf - aoi
+		// we want to search for tweets in the aoi
+
+		// timestamp thingy by Paula **************************************************************
+		let currentTimestamp = Date.now();
+		if(typeof paramArray.timestamp === "undefined") {
+			// none found, create "now"
+			currentTimestamp = Date.now();
+		} else {
+			// found, use historic one
+			currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
+			try {
+				Date.parse(currentTimestamp);
+			} catch {
+				console.log("The url is erroneous. Please try a different value for 'timestamp'.")
+				currentTimestamp = Date.now();
+			}
+		}
+
+
+		// testing a couple things
+		let layer = map.getSource("rainradar");
+		layer = layer._data.features;
+		console.log(layer);
+		console.log(polygon);
+		// ****************************************************************************************
+		// make query
+		let searchWords = ["jesus", "rain", "Regen", "Unwetter", "Gewitter", "Sinnflut", "regnet", "Feuerwehr", "Sturm", "Flut", "Starkregen"];
+		let query = {
+			twitterSearchQuery: {
+				// TODO which geometry is correct here
+				geometry: polygon.geometry.coordinates,
+				searchWords: searchWords
+			},
+			dwd_id: "rainRadar",
+			currentTimestamp: currentTimestamp
+		};
+
+		// send query
+		$.ajax({
+			// use a http POST request
+			type: "POST",
+			// URL to send the request to
+			url: "/twitter/tweets",
+			// type of the data that is sent to the server
+			contentType: "application/json; charset=utf-8",
+			// data to send to the server
+			data: JSON.stringify(query),
+			// timeout set to 15 seconds
+			timeout: 15000,
+			// update the status display
+			success: function() {
+				$('#information').html("Trying to find and insert fitting tweets");
+			}
+		})
+		// now what
+		.done(function(result) {
+			// result is our tweets that lie in the aoi
+			console.log("AJAX request (finding and inserting tweets) is done successfully.");
+
+			// if response is valid
+			if(typeof result !== "undefined" && result.statuses.length > 0) {
+				try {
+					// idk what this is doing
+					let turfPolygon = turf.polygon(polygon.geometry.coordinates);
+					// create an empty featurecollection for the tweets
+					let tweetFeatureCollection = {
+						"type": "FeatureCollection",
+						"features": []
+					};
+					// add the tweets in the result to the featurecollection
+					// go through all tweets that we got
+					result.statuses.forEach(function (item) {
+						// with a valid tweet
+						if (item.id && item.location_actual !== null) {
+							// do the check with radar geometry
+							// search with turf.pointsWithinPolygon
+							// create turf.points und turf.polygon
+							let tweetLocation = turf.point(item.location_actual.coordinates);
+							let rainRadarLayer = map.getSource("rainradar");
+							// TODO find out which path works for _data.features.. index?
+							let rainRadarPolygons = turf.polygon(rainRadarLayer._data.features);
+							console.log(rainRadarPolygons);
+							let pointsWithin = turf.pointsWithinPolygon(tweetLocation, rainRadarPolygons);
+							// TODO if not null, do below
+
+						/*	if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
+								let tweetFeature = {
+									"type": "Feature",
+									"geometry": item.location_actual,
+									"properties": item
+								};
+								tweetFeatureCollection.features = [tweetFeature];
+								displayEvent(map, "Tweet " + item.idstr + " " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
+							} */
+						}
+					});
+				} catch (e) {
+					console.dir("There was an error while processing the tweets from the database", e);
+					// TODO: error catchen und dann hier auch den error ausgeben?
+				}
+			}
+		})
+		.fail(function(xhr, status, error) {
+
+		});
+
+		// and then check whether they lie in the rainRadar polygons
+	}
 
 	/**
 	* This function makes only Unwetters and its tweets visible, if the include a polygon that is fully contained by the given
