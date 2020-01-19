@@ -43,15 +43,6 @@ function drawForAOI(map, draw) {
 	});
 
 
-	map.on("draw.aoi", function() {
-
-	});
-
-	map.on("draw.aoi", function() {
-
-	});
-
-
 	// if a polygon is deleted ...
 	map.on('draw.delete', function (e) {
 
