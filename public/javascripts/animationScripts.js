@@ -226,15 +226,20 @@ indicator ="animation"
     document
     .getElementById('slider')
     .addEventListener('input', function(e) {
+      let val = document.getElementById('slider').value;
+      // maximum of the slider
+      document.getElementById('slider').max = usedTimestamps.length-1;
       //the number of the timestamp
       var timestampNum = parseInt(e.target.value, 10);
       loadAnimation(timestampNum, animationMap);
       //reset the imageArray
       imageArray = [];
     });
+
+    //enable the animation functionality
+    automate(animationMap);
   });
-  //enable the animation functionality
-  automate(animationMap);
+
 }
 
 
@@ -346,7 +351,7 @@ function automate(map){
         val ++;
         // set the sliders value according to the current one
         $("#slider").prop("value", val);
-        // in this case earthquakes from the demo json which are sorted by months
+        // load the layers for the timestamp on the val position
         loadAnimation(val, map);
         //save the current map canvas as a base64 formatted array entry
         takeScreenshot();
@@ -355,6 +360,9 @@ function automate(map){
       else {
         val = min;
         $("#slider").prop("value", val);
+        // load the layers for the timestamp on the val position
+        loadAnimation(val, map);
+        //save the current map canvas as a base64 formatted array entry
         takeScreenshot();
       }
     }, 2000);
