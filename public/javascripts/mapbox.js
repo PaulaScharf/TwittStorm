@@ -328,15 +328,15 @@ function showMap(style) {
 			showLegend(map, "unwetter");
 
 			// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
-			requestNewAndDisplayCurrentUnwetters(map, paramArray.timestamp);
+			requestNewAndDisplayCurrentUnwetters(map);
 			// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
 			let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - (Date.now() - paramArray.config.timestamp_last_warnings_request);
 
 			// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
 			// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
-			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map, paramArray.timestamp);
+			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
 			// ... and afterwards each "paramArray.config.refresh_rate" again
-			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.timestamp, paramArray.config.refresh_rate);
+			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
 		}
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -438,7 +438,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 
 	// update the status display
 	$('#information').html("Retrieving the requested " + product + " radar product");
-
+/*
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
 
@@ -494,6 +494,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 			}
 		}
 	});
+	*/
 }
 
 
@@ -543,6 +544,7 @@ function callRainRadar(map, prod) {
 		}
 	}
 
+	/*
 	// make call
 	let url = "/radar/" + prod + "/" + currentTimestamp;
 	$.getJSON(url, function(result) {
@@ -557,6 +559,7 @@ function callRainRadar(map, prod) {
 			requestAndDisplayAllRainRadar(map, prod);
 		}
 	});
+	*/
 }
 
 // *****************************************************************************************************
@@ -570,8 +573,8 @@ function callRainRadar(map, prod) {
 * @param {number} interval -
 * @param {number} timestamp -
 */
-function requestNewAndDisplayCurrentUnwettersEachInterval(map, timestamp, interval) {
-	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map, timestamp);
+function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
+	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map);
 }
 
 /**
@@ -579,12 +582,11 @@ function requestNewAndDisplayCurrentUnwettersEachInterval(map, timestamp, interv
 *
 * @author Katharina Poppinga, Paula Scharf
 * @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
-* @param {number} timestampLastWarningsRequest - timestamp of the last warnings request to DWD (in Epoch milliseconds)
 */
-function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
+function requestNewAndDisplayCurrentUnwetters(map) {
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
-	let currentTimestamp = (timestamp) ? timestamp : Date.now();
+	let currentTimestamp = (paramArray.timestamp) ? paramArray.timestamp : Date.now();
 
 	// FUER DEMODATEN
 	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
@@ -628,6 +630,8 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 
 				displayCurrentUnwetters(map, result.events);
 			}
+
+		map.fire('draw.reloadTweets', {});
 		})
 
 		// if the request has failed, ...
@@ -905,10 +909,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 
 				// if the layer-Unwetter is not (no longer) a current Unwetter, remove its ID from customLayerIds
 				if (isCurrent === false) {
-
-					// remove the corresponding layer and source from map for not displaying this Unwetter any longer
-					map.removeLayer(layerID);
-					map.removeSource(layerID);
+					showAllExcept(map, layerIdParts[2]);
 
 					// removes 1 element at index i from Array customLayerIds
 					customLayerIds.splice(i, 1);
@@ -1074,6 +1075,9 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 				map.removeLayer(layerID);
 				map.removeSource(layerID);
 				customLayerIds.remove(layerID);
+				if(layerID.includes("Tweet") && document.getElementById(layerID.split(/[ ]+/)[1])) {
+					closeAllPopups();
+				}
 				i--;
 			} else {
 				map.setLayoutProperty(layerID, 'visibility', 'visible');
@@ -1121,7 +1125,7 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 	* @param {mapbox-map} map mapbox-map ......
 	* @param {} id
 	*/
-	function deleteTweet(map, id) {
+	function deleteTweet(map, id, popup) {
 
 		let query = {
 			idstr: id
@@ -1149,10 +1153,8 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 			// ... give a notice on the console that the AJAX request for deleting a tweet has succeeded
 			console.log("AJAX request (deleting a tweet) is done successfully.");
 
-			let popupDiv = document.getElementById(id);
-			popupDiv.remove();
 			showAllExcept(map, "Tweet " + id);
-			closeAllPopups();
+			popup.remove();
 		})
 
 		// if the request has failed, ...
@@ -1208,12 +1210,14 @@ function requestNewAndDisplayCurrentUnwetters(map, timestamp) {
 
 
 	/**
-	* closes all mapbox popups
+	* closes all mapbox popups.
 	* @author Paula Scharf
 	*/
 	function closeAllPopups() {
-		let elements = document.getElementsByClassName("mapboxgl-popup mapboxgl-popup-anchor-bottom");
-		elements[0].parentNode.removeChild(elements[0]);
+		let elements = document.getElementsByClassName("mapboxgl-popup");
+		for (let i = 0; i<elements.length; i++) {
+			elements[i].parentNode.removeChild(elements[i]);
+		}
 	}
 
 

@@ -59,6 +59,13 @@ function drawForAOI(map, draw) {
 	//
 	map.on('draw.modechange', function (e) {
 		popupsEnabled = (e.mode !== "draw_polygon");
+	});
+
+	map.on('draw.reloadTweets', function () {
+		let polygons = draw.getAll();
+		if (polygons.features[0]) {
+			onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates));
+		}
 	})
 }
 
