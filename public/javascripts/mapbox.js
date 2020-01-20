@@ -438,7 +438,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 
 	// update the status display
 	$('#information').html("Retrieving the requested " + product + " radar product");
-/*
+
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
 
@@ -494,7 +494,6 @@ function requestAndDisplayAllRainRadar(map, product) {
 			}
 		}
 	});
-	*/
 }
 
 
@@ -544,7 +543,6 @@ function callRainRadar(map, prod) {
 		}
 	}
 
-	/*
 	// make call
 	let url = "/radar/" + prod + "/" + currentTimestamp;
 	$.getJSON(url, function(result) {
@@ -559,7 +557,6 @@ function callRainRadar(map, prod) {
 			requestAndDisplayAllRainRadar(map, prod);
 		}
 	});
-	*/
 }
 
 // *****************************************************************************************************
