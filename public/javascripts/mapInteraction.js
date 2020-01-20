@@ -376,6 +376,8 @@ function styleSelector(map){
 */
 function loadRaster(map, product){
 
+	closeAllPopups();
+
 	// set flag to radar
 	wtypeFlag = "radar";
 
@@ -426,7 +428,7 @@ function removeSevereWeather(map){
 		let layerIdParts = layerID.split(/[ ]+/);
 
 		// layerIdParts[0] contains the type of layer-element
-		if (layerIdParts[0] === "unwetter") {
+		if (layerIdParts[0] === "unwetter" || layerIdParts[0] === "Tweet") {
 
 			// remove the corresponding layer and source from map for not displaying this warning any longer
 			map.removeLayer(layerID);
@@ -456,6 +458,11 @@ function removeSevereWeather(map){
 * @param {mapbox-map} map - mapbox-map
 */
 function loadSevereWeather(map){
+
+	closeAllPopups();
+
+	showAllExcept(map, "germany");
+
 	// if there was the rainradar data shown before, change the legend
 	if (wtypeFlag == "radar") {
 
@@ -484,7 +491,7 @@ function loadSevereWeather(map){
 
 		map.removeLayer('rainradar');
 		map.removeSource('rainradar');
-		requestNewAndDisplayCurrentUnwetters(map, paramArray.timestamp);
+		requestNewAndDisplayCurrentUnwetters(map);
 	};
 
 	// deactivate the raster menu
@@ -692,29 +699,31 @@ function showTweetPopup(map, e) {
 		var pickedTweet = map.queryRenderedFeatures(e.point);
 
 		if (pickedTweet[0].source.includes("Tweet")) {
-			let idAsString = pickedTweet[0].properties.idstr;
-			// create a popup with the following information:
-			new mapboxgl.Popup()
-			.setLngLat(e.lngLat)
-			.setHTML("<div id='" + idAsString + "'><div id='" + idAsString + "twttr'></div><div id='" + idAsString + "btn'></div></div>")
-			.addTo(map);
-			twttr.widgets.createTweet(
-				idAsString,
-				document.getElementById(idAsString + "twttr"),
-				{
-					width: 1000,
-					dnt: true
-				}
-			);
-			let popupDiv = document.getElementById(idAsString + "btn");
-			let deleteBtn = document.createElement("button");
-			deleteBtn.setAttribute("id", "deleteBtn");
-			deleteBtn.setAttribute("class", "btn btn-danger");
-			deleteBtn.addEventListener('click', function(){
-				deleteTweet(map, idAsString);
-			});
-			deleteBtn.innerText = "delete";
-			popupDiv.appendChild(deleteBtn);
+			if(!document.getElementById("deleteBtn")) {
+				let idAsString = pickedTweet[0].properties.idstr;
+				// create a popup with the following information:
+				let popup = new mapboxgl.Popup()
+					.setLngLat(e.lngLat)
+					.setHTML("<div id='" + idAsString + "'><div id='" + idAsString + "twttr'></div><div id='" + idAsString + "btn'></div></div>")
+					.addTo(map);
+				twttr.widgets.createTweet(
+					idAsString,
+					document.getElementById(idAsString + "twttr"),
+					{
+						width: 1000,
+						dnt: true
+					}
+				);
+				let popupDiv = document.getElementById(idAsString + "btn");
+				let deleteBtn = document.createElement("button");
+				deleteBtn.setAttribute("id", "deleteBtn");
+				deleteBtn.setAttribute("class", "btn btn-danger");
+				deleteBtn.addEventListener('click', function(){
+					deleteTweet(map, idAsString, popup);
+				});
+				deleteBtn.innerText = "delete";
+				popupDiv.appendChild(deleteBtn);
+			}
 		}
 	}
 }
