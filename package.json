@@ -25,7 +25,6 @@
     "js-yaml": "^3.13.1",
     "jsnlog": "^2.29.0",
     "jsnlog-nodejs": "^2.29.0",
-    "leaflet": "^1.6.0",
     "mapbox-gl": "^1.5.0",
     "mocha": "^6.1.4",
     "mongodb": "^3.2.7",
