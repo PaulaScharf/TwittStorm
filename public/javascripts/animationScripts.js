@@ -259,6 +259,7 @@ function reloadAnimation(wType){
   clearInterval(automationIntervall);
   // remove all old sources
   removeAllSource(animationMap);
+  closeAllPopups();
   //if the weathertype is severeweather
   if (wType == 'unwetter'){
   // weathertype indicator for style switcher
@@ -463,6 +464,7 @@ function loadAnimation(position, map){
 
   // transform the time from milliseconds to date
   var time = new Date(+posMarker);
+  posMarker = "unwetter " + posMarker;
   // add to UI
   document.getElementById('timestamp').textContent = time.toUTCString();
 
@@ -471,6 +473,7 @@ function loadAnimation(position, map){
     // if yes remove them
     map.removeLayer(allLayers);
   }
+  closeAllPopups();
 
   //flus array in case
   allLayers = [];
@@ -575,6 +578,7 @@ function loadAnimation(position, map){
     });
   }
 
+  makeLayerInteractive(map,posMarker);
   // put something in the array for the for loop to check for emptiness
   allLayers.push(posMarker);
 }
@@ -674,10 +678,10 @@ function loadPreviousWeather(map, weatherEv){
           // put every polygon from a unwetterwarning into one array
           if (weatherEv == "severeWeather"){
             // also save the according weather event
-            let currentEvent = result[key][j].properties.event
+            let currentProperties = result[key][j].properties;
             for (let i = 0; i < currentUnwetter.length; i++){
               //transform the polygon into geojson
-              var polygon = goGeoJson(currentUnwetter[i].coordinates, key, currentEvent);
+              var polygon = goGeoJson(currentUnwetter[i].coordinates, key, currentProperties);
               // array to save every timestamp´s polygon
               outputArray.push(polygon);
             }
@@ -701,7 +705,7 @@ function loadPreviousWeather(map, weatherEv){
     // for every timestamp in the final object
     for (let i = 0; i < final.length; i++){
       //add the according data to an mapbox source
-      addToSource(map, final[i].timestamp ,  final[i]);
+      addToSource(map, "unwetter " + final[i].timestamp ,  final[i]);
     }
   })
 
@@ -726,22 +730,21 @@ function loadPreviousWeather(map, weatherEv){
 * function to return a GeoJSON formatted Polygon
 * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-* @param object the individual polygons of an event, containing the coords of a polygon
-* @param time timestamp of the data
+* @param object - the individual polygons of an event, containing the coords of a polygon
+* @param time - timestamp of the data
+* @param properties - properties of the event
 */
-function goGeoJson(object, time, eventName) {
+function goGeoJson(object, time, properties) {
 
   var result = {
     "type":"Feature",
-    "properties": {
-      "class": time,
-      "event": eventName,
-    },
+    "properties": properties,
     "geometry": {
       "type":"Polygon",
       "coordinates": object[0]
     }
   };
+  result.properties["class"] = time;
   return result;
 }
 
