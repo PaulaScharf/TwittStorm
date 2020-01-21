@@ -462,125 +462,128 @@ function loadAnimation(position, map){
   // set a "marker" for the wanted position based on the available timestamps
   var posMarker = usedTimestamps[position];
 
-  // transform the time from milliseconds to date
-  var time = new Date(+posMarker);
-  posMarker = "unwetter " + posMarker;
-  // add to UI
-  document.getElementById('timestamp').textContent = time.toUTCString();
+  if (posMarker) {
 
-  //check if a layer is shown
-  for (let i = 0; i < allLayers.length; i++){
-    // if yes remove them
-    map.removeLayer(allLayers);
+    // transform the time from milliseconds to date
+    var time = new Date(+posMarker);
+    posMarker = "unwetter " + posMarker;
+    // add to UI
+    document.getElementById('timestamp').textContent = time.toUTCString();
+
+    //check if a layer is shown
+    for (let i = 0; i < allLayers.length; i++) {
+      // if yes remove them
+      map.removeLayer(allLayers);
+    }
+    closeAllPopups();
+
+    //flus array in case
+    allLayers = [];
+    // add the correct layer
+    if (wtypeFlag == "radar") {
+      map.addLayer({
+        "id": posMarker,
+        "type": "fill",
+        "source": posMarker,
+        "layout": {"visibility": "visible"},
+        "paint": {
+          "fill-color": {
+            "property": "class",
+            "stops": [
+              [1, '#b3cde0'],
+              [2, '#6497b1'],
+              [3, '#03396c'],
+              [4, '#011f4b']
+            ]
+          },
+          "fill-opacity": 0.4
+        }
+      });
+    }
+
+    if (wtypeFlag == "severeWeather") {
+      map.addLayer({
+        'id': posMarker,
+        'type': 'fill',
+        'source': posMarker,
+        "paint": {
+          "fill-color": [
+            "match", ["string", ["get", "event"]],
+            "GLÄTTE",
+            "yellow",
+            "GLATTEIS",
+            "yellow",
+            "GEWITTER",
+            "red",
+            "STARKES GEWITTER",
+            "red",
+            "SCHWERES GEWITTER",
+            "red",
+            "SCHWERES GEWITTER mit ORKANBÖEN",
+            "red",
+            "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
+            "red",
+            "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
+            "red",
+            "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
+            "red",
+            "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
+            "red",
+            "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "EXTREMES GEWITTER",
+            "red",
+            "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
+            "red",
+            "STARKREGEN",
+            "blue",
+            "HEFTIGER STARKREGEN",
+            "blue",
+            "DAUERREGEN",
+            "blue",
+            "ERGIEBIGER DAUERREGEN",
+            "blue",
+            "EXTREM ERGIEBIGER DAUERREGEN",
+            "blue",
+            "EXTREM HEFTIGER STARKREGEN",
+            "blue",
+            "LEICHTER SCHNEEFALL",
+            "darkviolet",
+            "SCHNEEFALL",
+            "darkviolet",
+            "STARKER SCHNEEFALL",
+            "darkviolet",
+            "EXTREM STARKER SCHNEEFALL",
+            "darkviolet",
+            "SCHNEEVERWEHUNG",
+            "darkviolet",
+            "STARKE SCHNEEVERWEHUNG",
+            "darkviolet",
+            "SCHNEEFALL und SCHNEEVERWEHUNG",
+            "darkviolet",
+            "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+            "darkviolet",
+            "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+            "darkviolet",
+            "black" // sonstiges Event
+            // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
+            // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
+          ],
+          "fill-opacity": 0.3
+        }
+      });
+    }
+
+    makeLayerInteractive(map, posMarker);
+    // put something in the array for the for loop to check for emptiness
+    allLayers.push(posMarker);
   }
-  closeAllPopups();
-
-  //flus array in case
-  allLayers = [];
-  // add the correct layer
-  if (wtypeFlag =="radar"){
-    map.addLayer({
-      "id": posMarker,
-      "type": "fill",
-      "source": posMarker,
-      "layout": {"visibility": "visible"},
-      "paint": {
-        "fill-color" : {
-          "property": "class",
-          "stops": [
-            [1, '#b3cde0'],
-            [2, '#6497b1'],
-            [3, '#03396c'],
-            [4, '#011f4b']
-          ]
-        },
-        "fill-opacity": 0.4
-      }
-    });
-  }
-
-  if (wtypeFlag =="severeWeather"){
-    map.addLayer({
-      'id': posMarker,
-      'type': 'fill',
-      'source': posMarker,
-      "paint": {
-        "fill-color": [
-          "match", ["string", ["get", "event"]],
-          "GLÄTTE",
-          "yellow",
-          "GLATTEIS",
-          "yellow",
-          "GEWITTER",
-          "red",
-          "STARKES GEWITTER",
-          "red",
-          "SCHWERES GEWITTER",
-          "red",
-          "SCHWERES GEWITTER mit ORKANBÖEN",
-          "red",
-          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
-          "red",
-          "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
-          "red",
-          "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
-          "red",
-          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
-          "red",
-          "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "EXTREMES GEWITTER",
-          "red",
-          "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
-          "red",
-          "STARKREGEN",
-          "blue",
-          "HEFTIGER STARKREGEN",
-          "blue",
-          "DAUERREGEN",
-          "blue",
-          "ERGIEBIGER DAUERREGEN",
-          "blue",
-          "EXTREM ERGIEBIGER DAUERREGEN",
-          "blue",
-          "EXTREM HEFTIGER STARKREGEN",
-          "blue",
-          "LEICHTER SCHNEEFALL",
-          "darkviolet",
-          "SCHNEEFALL",
-          "darkviolet",
-          "STARKER SCHNEEFALL",
-          "darkviolet",
-          "EXTREM STARKER SCHNEEFALL",
-          "darkviolet",
-          "SCHNEEVERWEHUNG",
-          "darkviolet",
-          "STARKE SCHNEEVERWEHUNG",
-          "darkviolet",
-          "SCHNEEFALL und SCHNEEVERWEHUNG",
-          "darkviolet",
-          "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-          "darkviolet",
-          "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-          "darkviolet",
-          "black" // sonstiges Event
-          // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
-          // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
-        ],
-        "fill-opacity": 0.3
-      }
-    });
-  }
-
-  makeLayerInteractive(map,posMarker);
-  // put something in the array for the for loop to check for emptiness
-  allLayers.push(posMarker);
 }
 
 
@@ -696,10 +699,10 @@ function loadPreviousWeather(map, weatherEv){
 
         // add all filled geojsons to one array
         addItem(mask);
-        //for dramatic purposes have the data stored in final object
-        final = timestampStorage;
       }
     }
+    //for dramatic purposes have the data stored in final object
+    final = timestampStorage;
     console.log(final);
 
     // for every timestamp in the final object
@@ -775,7 +778,7 @@ function removeAllSource(map) {
 
   for (let key in sources){
     // checks if the sources contain a numbered id
-    if (!isNaN(key)){
+    if (key.includes("unwetter") || key.includes("rainradar") || key.includes("Tweet") ){
 
       // if they are already in the layers
       for (let lays in layers){
