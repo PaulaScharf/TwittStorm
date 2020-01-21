@@ -19,7 +19,6 @@ const path = require('path');
 var express = require('express');
 var app = express();
 
-var createError = require('http-errors');
 var bodyParser = require('body-parser');
 const mongodb = require('mongodb');   // using the mongo-driver
 

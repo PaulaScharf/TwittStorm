@@ -632,10 +632,12 @@ function makeLayerInteractive(map, layerID) {
 	// TODO: Problem: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
 	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
 	map.on('click', layerID, function (e) {
-		if (layerID.includes("Tweet")) {
-			showTweetPopup(map,e);
-		} else {
-			showUnwetterPopup(map,e);
+		if (document.getElementsByClassName("mapboxgl-popup").length < 1) {
+			if (layerID.includes("Tweet")) {
+				showTweetPopup(map, e);
+			} else {
+				showUnwetterPopup(map, e);
+			}
 		}
 	});
 }

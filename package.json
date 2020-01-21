@@ -20,7 +20,6 @@
     "express": "~4.16.1",
     "gifshot": "^0.4.5",
     "html2canvas": "^1.0.0-rc.5",
-    "http-errors": "~1.6.3",
     "jquery": "^3.4.1",
     "js-yaml": "^3.13.1",
     "jsnlog": "^2.29.0",
@@ -30,7 +29,6 @@
     "mongodb": "^3.2.7",
     "morgan": "~1.9.1",
     "nodemon": "^2.0.1",
-    "oauth": "^0.9.15",
     "popper": "^1.0.1",
     "popper.js": "^1.15.0",
     "qunit": "^2.9.2",
@@ -38,7 +36,6 @@
     "request": "^2.88.0",
     "twitter": "^1.7.1",
     "underscore": "^1.9.1",
-    "util": "^0.12.1",
-    "xmlhttprequest": "^1.8.0"
+    "util": "^0.12.1"
   }
 }
