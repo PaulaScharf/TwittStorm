@@ -922,7 +922,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		* @author Paula Scharf, Jonathan Bahlmann
 		* @param polygon a turf polygon (aoi)
 		*/
-	function onlyShowRainRadarAndTweetsInPolygon(polygon) {
+	function onlyShowRainRadarAndTweetsInPolygon(map, polygon) {
 		// so polygon is the turf - aoi
 		// we want to search for tweets in the aoi
 
@@ -946,15 +946,22 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		// testing a couple things
 		let layer = map.getSource("rainradar");
 		layer = layer._data.features;
-		console.log(layer);
-		console.log(polygon);
+
+		// make MultiPolygon Geometry
+		let multiPol = polygon.geometry.coordinates;
+		multiPol = [multiPol];
+		let geom = {
+			"type": "MultiPolygon",
+			"coordinates": multiPol
+		};
+
 		// ****************************************************************************************
 		// make query
 		let searchWords = ["jesus", "rain", "Regen", "Unwetter", "Gewitter", "Sinnflut", "regnet", "Feuerwehr", "Sturm", "Flut", "Starkregen"];
 		let query = {
 			twitterSearchQuery: {
 				// TODO which geometry is correct here
-				geometry: polygon.geometry.coordinates,
+				geometry: geom, //polygon.geometry,  //.coordinates,
 				searchWords: searchWords
 			},
 			dwd_id: "rainRadar",
@@ -1001,6 +1008,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// do the check with radar geometry
 							// search with turf.pointsWithinPolygon
 							// create turf.points und turf.polygon
+
+							// TODO compare to rainRadar Layer
+							/**
 							let tweetLocation = turf.point(item.location_actual.coordinates);
 							let rainRadarLayer = map.getSource("rainradar");
 							// TODO find out which path works for _data.features.. index?
@@ -1009,15 +1019,17 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							let pointsWithin = turf.pointsWithinPolygon(tweetLocation, rainRadarPolygons);
 							// TODO if not null, do below
 
-						/*	if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
+							*/
+
+						//if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
 								let tweetFeature = {
 									"type": "Feature",
 									"geometry": item.location_actual,
 									"properties": item
 								};
 								tweetFeatureCollection.features = [tweetFeature];
-								displayEvent(map, "Tweet " + item.idstr + " " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
-							} */
+								displayEvent(map, "Tweet rainradar", tweetFeatureCollection);
+							//}
 						}
 					});
 				} catch (e) {

@@ -102,6 +102,6 @@ function processingAOI(map, aoiCoordinatesGeoJSON) {
 	if(attr == "unwetter") {
 		onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
 	} else {
-		onlyShowRainRadarAndTweetsInPolygon(turf.polygon(aoiCoordinatesGeoJSON));
+		onlyShowRainRadarAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
 	}
 }
