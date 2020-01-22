@@ -327,10 +327,24 @@ function reloadAnimation(wType){
 * @author Benjamin Rieke
 */
 function automate(map){
+  var popup = document.getElementById("playPopup");
 
   // on playbutton click
   $("#playButton").click(function play() {
-
+    // if there is no data for the requested wtype show a popup to inform the user to do so beforehand
+    if (final.length == 0) {
+      $("#playPopup").css({'background-color': 'red'});
+      //avoid multiple click events
+      if (popup.classList[1] != "show"){
+        // show the popup
+        popup.classList.toggle("show");
+        // hide the popup after some time
+        setTimeout(function(){
+          popup.classList.toggle("show");
+        }, 4000);
+      }
+      return;
+    }
     // flush the intervall
     automationIntervall = undefined;
     // value of the slider (the position)
@@ -462,8 +476,6 @@ function loadAnimation(position, map){
   // set a "marker" for the wanted position based on the available timestamps
   var posMarker = usedTimestamps[position];
 
-  if (posMarker) {
-
     // transform the time from milliseconds to date
     var time = new Date(+posMarker);
     posMarker = "unwetter " + posMarker;
@@ -583,7 +595,7 @@ function loadAnimation(position, map){
     makeLayerInteractive(map, posMarker);
     // put something in the array for the for loop to check for emptiness
     allLayers.push(posMarker);
-  }
+
 }
 
 
