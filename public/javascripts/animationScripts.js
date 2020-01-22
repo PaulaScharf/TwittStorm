@@ -637,10 +637,10 @@ function loadPreviousWeather(map, weatherEv){
   timestampStorage = [];
 
   var weatherEvent;
-  if (weatherEv == "radar"){
+  if (weatherEv === "radar"){
     weatherEvent = "rainRadar/";
   }
-  if (weatherEv == "severeWeather"){
+  if (weatherEv === "severeWeather"){
     weatherEvent = "unwetter/";
   }
 
@@ -691,7 +691,7 @@ function loadPreviousWeather(map, weatherEv){
           };
 
           // put every polygon from a unwetterwarning into one array
-          if (weatherEv == "severeWeather"){
+          if (weatherEv === "severeWeather"){
             // also save the according weather event
             let currentProperties = result[key][j].properties;
             for (let i = 0; i < currentUnwetter.length; i++){
@@ -722,8 +722,24 @@ function loadPreviousWeather(map, weatherEv){
       //add the according data to an mapbox source
       addToSource(map, "unwetter " + final[i].timestamp ,  final[i]);
 
+      // if radar data is shown, display the timestamp of the radar data in legend
+      if (weatherEv === "radar") {
+        debugger;
+        console.log(final[i].timestamp); // ergibt z.B. 1579725600000
+        let formattedDataTimestamp = timestampFormatting(final[i].timestamp);
+
+        // new Date(timestamp); innerhalb von timestampFormatting(1579725600000) führt zu Invalid Date, wenn hierraus aufgerufen, wenn direkt im Browser mit timestamp, dann nicht:
+
+        console.log(formattedDataTimestamp); // ergibt Invalid Date
+        console.log(timestampFormatting(final[i].timestamp));  // ergibt Invalid Date
+        console.log(timestampFormatting(1579725600000)); // ergibt richtig formatiertes datum
+
+        let dataTimestamp = document.getElementById("dataTimestamp");
+        dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + formattedDataTimestamp;
+      }
+
       // if the warnings shown are demodata
-      if ((currentTimestamp >= paramArray.config.demo.timestamp_start) && (currentTimestamp <= paramArray.config.demo.timestamp_end)) {
+      if ((weatherEv === "severeWeather") && (currentTimestamp >= paramArray.config.demo.timestamp_start) && (currentTimestamp <= paramArray.config.demo.timestamp_end)) {
         let posAccuracy = document.getElementById("posAccuracy");
         posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>Local authority borders<br>(does not count for all demodata)";
       }

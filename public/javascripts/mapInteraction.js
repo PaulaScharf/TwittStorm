@@ -432,7 +432,6 @@ function removeSevereWeather(map){
 			// remove the corresponding layer and source from map for not displaying this warning any longer
 			map.removeLayer(layerID);
 			map.removeSource(layerID);
-			console.log("Removed Severe Weather Warnings.");
 
 			// removes 1 element at index i from Array customLayerIds
 			customLayerIds.splice(i, 1);
