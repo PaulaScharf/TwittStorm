@@ -724,7 +724,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				unwetterFeature.features[0].properties.searchWords = searchWords;
 
 				//
-				displayEvent(map, "unwetter " + layerGroup + " " + currentUnwetterEvent.dwd_id + " " + i, unwetterFeature);
+				displayEvent(map, "unwetter " + layerGroup.replace(/\s/g, '') + " " + currentUnwetterEvent.dwd_id.replace(/\s/g, '') + " " + i, unwetterFeature);
 			}
 		}
 	}
@@ -1018,7 +1018,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 												"properties": item
 											};
 											tweetFeatureCollection.features = [tweetFeature];
-											displayEvent(map, "Tweet " + item.idstr + " " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
+											displayEvent(map, "Tweet " + item.idstr.replace(/\s/g, '') + " " + layerIDSplit[1].replace(/\s/g, '') + " " + layerIDSplit[2].replace(/\s/g, ''), tweetFeatureCollection);
 										}
 									}
 								});
