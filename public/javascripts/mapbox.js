@@ -442,6 +442,8 @@ function requestAndDisplayAllRainRadar(map, product) {
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
 
+//console.log(result);
+
 		// ***************************************************************************************************************
 		// for displaying the radar stuff only in the map for radar and not in the map for severe weather warnings
 		if (readURL("wtype") == "radar") {

@@ -26,7 +26,19 @@
     "mongodb": "3.5.2",
     "morgan": "1.9.1",
     "nodemon": "^2.0.1",
+    "oauth": "0.9.15",
     "r-script": "0.0.4",
     "twitter": "1.7.1"
+  },
+  "description": "Project for Geosoftware 2 in the winter semester 2019/2020.",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaulaScharf/TwittStorm.git"
+  },
+  "author": "Jonathan Bahlmann (453524), Katharina Poppinga (450146), Paula Scharf (450334), Benjamin Rieke (408743)",
+  "homepage": "https://github.com/PaulaScharf/TwittStorm#readme",
+  "devDependencies": {
+    "jsdoc": "3.6.3"
   }
 }
