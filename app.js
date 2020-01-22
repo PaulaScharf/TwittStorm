@@ -56,9 +56,6 @@ app.use(express.json());
 // use built-in middleware which parses urlencoded bodies, https://expressjs.com/en/4x/api.html#express.urlencoded
 app.use(express.urlencoded({ extended: false }));
 
-// TODO: wozu benutzen wir das?
-//app.use(cookieParser());
-
 // set the routes for npm-installed client-libraries
 app.use("/jquery", express.static(path.join(__dirname, 'node_modules', 'jquery', 'dist')));
 app.use("/qunit", express.static(path.join(__dirname, 'node_modules', 'qunit', 'qunit')));
