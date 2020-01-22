@@ -99,4 +99,5 @@ function processingAOI(map, aoiCoordinatesGeoJSON) {
 
 	// do Tweet-search
 	onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
+	onlyShowRainRadarAndTweetsInPolygon(turf.polygon(aoiCoordinatesGeoJSON));
 }
