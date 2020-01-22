@@ -9,15 +9,15 @@
  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
  */
 
- var express = require('express');
- var router = express.Router();
+var express = require('express');
+var router = express.Router();
 
- // yaml configuration
- const fs = require('fs');
- const yaml = require('js-yaml');
- var config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+// yaml configuration
+const fs = require('fs');
+const yaml = require('js-yaml');
+var config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
- const {promiseToGetItems} = require('./dataPromisesHelpers.js');
+const {promiseToGetItems} = require('./dataPromisesHelpers.js');
 
 
 /**
@@ -28,159 +28,207 @@
 var previousWeather = function(req, res) {
   config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
-    let validParams = checkParams(req.params);
+  let validParams = checkParams(req.params);
 
-    if (validParams.err_message !== "") {
-        res.status(422).send(validParams);
-    } else {
-        const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+  if (validParams.err_message !== "") {
+    if (!res.headersSent) {
+      res.status(422).send(validParams);
+    }
+  } else {
+    const config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
-        var wtype = req.params.wtype;
-        var currentTimestamp = req.params.currentTimestamp;
+    var wtype = req.params.wtype;
+    var currentTimestamp = req.params.currentTimestamp;
 
 
-        if(wtype == "unwetter") {
+    if(wtype == "unwetter") {
 
-        let query = {
-            "type": wtype,
-            "timestamps": {
-                "$elemMatch": {
-                    "$lte": JSON.parse(currentTimestamp),
-                    "$gte": (JSON.parse(currentTimestamp) - 10 * config.refresh_rate)
+      let query = {
+        "type": wtype,
+        "timestamps": {
+          "$elemMatch": {
+            "$lte": JSON.parse(currentTimestamp),
+            "$gte": (JSON.parse(currentTimestamp) - 10 * config.refresh_rate)
+          }
+        }
+      };
+      promiseToGetItems(query, req.db)
+        .catch(function(error) {
+          if (!res.headersSent) {
+            res.status(500).send({err_msg: error});
+          }
+        })
+        .then(function (response) {
+          try {
+            // this will be the response of the request
+            let weatherEvents = {
+              "type": (wtype === "unwetter") ? "severeWeatherWarnings" : "rainRadar"
+            };
+            // this array will contain the timestamps of all the events that were returned
+            let arrayOfTimestamps = [];
+            response.forEach(function (event) {
+              event.timestamps.forEach(function (timestamp) {
+                if (!arrayOfTimestamps.includes(timestamp)) {
+                  arrayOfTimestamps.push(timestamp);
                 }
-            }
-        };
-        promiseToGetItems(query, req.db)
-            .catch(function(error) {
-                res.status(500).send({err_msg: error});
-            })
-            .then(function (response) {
-                try {
-                    // this will be the response of the request
-                    let weatherEvents = {
-                        "type": (wtype === "unwetter") ? "severeWeatherWarnings" : "rainRadar"
-                    };
-                    // this array will contain the timestamps of all the events that were returned
-                    let arrayOfTimestamps = [];
-                    response.forEach(function (event) {
-                        event.timestamps.forEach(function (timestamp) {
-                            if (!arrayOfTimestamps.includes(timestamp)) {
-                                arrayOfTimestamps.push(timestamp);
-                            }
-                        });
-                    });
-                  arrayOfTimestamps.sort(function (a, b) {
-                    return a - b;
-                  });
-                    // if the response includes more than 10 timestamp only choose the 10 most recent ones
-                    if (arrayOfTimestamps.length > 10) {
-                        arrayOfTimestamps = arrayOfTimestamps.slice(0, 10);
-                    }
-                    arrayOfTimestamps.forEach(function (timestamp) {
-                        if (!weatherEvents[timestamp]) {
-                            weatherEvents[timestamp] = [];
-                        }
-                        response.forEach(function (event) {
-                            if (event.timestamps.includes(timestamp) &&
-                              ((event.properties.onset) ? true : (event.properties.onset <= timestamp)) &&
-                              ((event.properties.expires) ? true : (event.properties.expires > timestamp))) {
-                                weatherEvents[timestamp].push(event);
-                            }
-                        });
-                    });
-
-                    res.json(weatherEvents);
-                } catch(error) {
-                    res.status(500).send({err_msg: error});
-                }
+              });
             });
+            arrayOfTimestamps.sort(function (a, b) {
+              return a - b;
+            });
+            // if the response includes more than 10 timestamp only choose the 10 most recent ones
+            if (arrayOfTimestamps.length > 10) {
+              arrayOfTimestamps = arrayOfTimestamps.slice(0, 10);
+            }
+            arrayOfTimestamps.forEach(function (timestamp) {
+              if (!weatherEvents[timestamp]) {
+                weatherEvents[timestamp] = [];
+              }
+              response.forEach(function (event) {
+                if (event.timestamps.includes(timestamp) &&
+                  ((event.properties.onset) ? true : (event.properties.onset <= timestamp)) &&
+                  ((event.properties.expires) ? true : (event.properties.expires > timestamp))) {
+                  weatherEvents[timestamp].push(event);
+                  promiseToGetTweetsForEvent(event.dwd_id, timestamp, req.db)
+                    .catch(function(error) {
+                      if (!res.headersSent) {
+                        res.status(500).send({err_msg: error});
+                      }
+                    })
+                    .then(function (response) {
+                      response.forEach(function (event) {
+                        weatherEvents[timestamp].push(event);
+                      });
+                    })
+                    .catch(function(error) {
+                      if (!res.headersSent) {
+                        res.status(500).send({err_msg: error});
+                      }
+                    })
+                }
+              });
+            });
+            if (!res.headersSent) {
+              res.json(weatherEvents);
+            }
+          } catch(error) {
+            if (!res.headersSent) {
+              res.status(500).send({err_msg: error});
+            }
+          }
+        });
+    }
+
+    // if searching for old radar data
+    if(wtype == "rainRadar") {
+
+      // product handling
+      let prod;
+      // products are accessible after the posted interval (5mins, 60mins, 60mins)
+      let access;
+      // product are accessible after varying processing time
+      let variance;
+
+      currentTimestamp = parseInt(currentTimestamp);
+      // get Timezone offset milliseconds
+      let tz = new Date(currentTimestamp);
+      tz = tz.getTimezoneOffset();
+      tz = tz * 60000;
+      // config.refresh rate is treated as interval for time steps
+      // timestamp needs to be handles accordingly
+      if(config.refresh_rate < 3600000) {
+        // when interval < 1h, use ry product
+        prod = "RY";
+        variance = 180000;
+        access = 300000;
+      } else {
+        // when interval > 1h, use rw hourly sum
+        prod = "RW";
+        variance = 1980000;
+        access = 3600000;
+      }
+      // calculate query time from above offsets etc.
+      let lastTimestamp = currentTimestamp + tz + variance - access;
+      // go 10 timesteps back
+      let firstTimestamp = lastTimestamp - 10 * config.refresh_rate;
+
+      let query = {
+        "type": wtype,
+        "radarProduct": prod,
+        $and: [
+          {"timestamp": {"$gt": (firstTimestamp)}},
+          {"timestamp": {"$lte": (lastTimestamp)}}
+        ]
+      };
+
+      promiseToGetItems(query, req.db)
+        .catch(function(error) {
+          if (!res.headersSent) {
+            res.status(500).send({err_msg: error});
+          }
+        })
+        .then(function(result) {
+
+          let answer = {
+            "type": "previousRainRadar",
+            "length": result.length,
+            //"radarImages": result
+          };
+
+          result.forEach(function(image) {
+            answer[image.timestamp] = [image];
+          });
+          if (!res.headersSent) {
+            res.json(answer);
           }
 
-          // if searching for old radar data
-          if(wtype == "rainRadar") {
-
-            // product handling
-            let prod;
-            // products are accessible after the posted interval (5mins, 60mins, 60mins)
-            let access;
-            // product are accessible after varying processing time
-            let variance;
-
-            currentTimestamp = parseInt(currentTimestamp);
-            // get Timezone offset milliseconds
-            let tz = new Date(currentTimestamp);
-            tz = tz.getTimezoneOffset();
-            tz = tz * 60000;
-            // config.refresh rate is treated as interval for time steps
-            // timestamp needs to be handles accordingly
-            if(config.refresh_rate < 3600000) {
-              // when interval < 1h, use ry product
-              prod = "RY";
-              variance = 180000;
-              access = 300000;
-            } else {
-              // when interval > 1h, use rw hourly sum
-              prod = "RW";
-              variance = 1980000;
-              access = 3600000;
-            }
-            // calculate query time from above offsets etc.
-            let lastTimestamp = currentTimestamp + tz + variance - access;
-            // go 10 timesteps back
-            let firstTimestamp = lastTimestamp - 10 * config.refresh_rate;
-
-            let query = {
-              "type": wtype,
-              "radarProduct": prod,
-              $and: [
-                {"timestamp": {"$gt": (firstTimestamp)}},
-                {"timestamp": {"$lte": (lastTimestamp)}}
-              ]
-            };
-
-            promiseToGetItems(query, req.db)
-            .catch(function(error) {
-                res.status(500).send({err_msg: error});
-            })
-            .then(function(result) {
-
-            let answer = {
-              "type": "previousRainRadar",
-              "length": result.length,
-              //"radarImages": result
-            };
-
-            result.forEach(function(image) {
-              answer[image.timestamp] = [image];
-            });
-
-            res.json(answer);
-
-            });
-        }
+        });
     }
+  }
 };
 
+function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
+  //
+  return new Promise((resolve, reject) => {
+    // JSON with the ID of the current event, needed for following database-check
+    let query = {
+      type: "Tweet",
+      dwd_id: dwd_id,
+      $and: [
+        {"timestamp": {"$gt": new Date(timestamp - 299000)}},
+        {"timestamp": {"$lt": new Date(timestamp + 299000)}}
+      ]
+    };
+    promiseToGetItems(query, db)
+      .catch(function (error) {
+        reject(error);
+      })
+      .then(function (result) {
+        resolve(result);
+      });
+  });
+}
+
 function checkParams(params) {
-    switch (params) {
-        case (params.wtype !== "unwetter" && params.wtype !== "rainRadar"):
-            return {
-                err_message: "'wtype' (weather type) is neither 'unwetter' nor 'rainRadar'"
-            };
-        case (JSON.parse(params.currentTimestamp) < 0):
-            return {
-                err_message: "'currentTimestamp' is not a valid epoch timestamp (milliseconds)"
-            };
-        default:
-            return {
-                err_message: ""
-            };
-    }
+  switch (params) {
+    case (params.wtype !== "unwetter" && params.wtype !== "rainRadar"):
+      return {
+        err_message: "'wtype' (weather type) is neither 'unwetter' nor 'rainRadar'"
+      };
+    case (JSON.parse(params.currentTimestamp) < 0):
+      return {
+        err_message: "'currentTimestamp' is not a valid epoch timestamp (milliseconds)"
+      };
+    default:
+      return {
+        err_message: ""
+      };
+  }
 }
 
 router.route("/:wtype/:currentTimestamp").get(previousWeather);
 router.route("*").get(function(req, res){
-    res.status(404).send({err_msg: "Parameters are not valid"});
+  res.status(404).send({err_msg: "Parameters are not valid"});
 });
 
 module.exports = router;
