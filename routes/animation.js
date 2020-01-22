@@ -243,24 +243,31 @@ var previousWeather = function(req, res) {
                                 result.forEach(function(image) {
                                   answer[image.timestamp] = [image];
                                 });
-
-                                res.json(answer);
+																if (!res.headersSent) {
+																	res.json(answer);
+																}
                               }
                               else {
                                 let e = "the requested timestamp lies in the past, with no matching historic data";
                                 console.log(e);
-                                res.status(404).send(e);
+																if (!res.headersSent) {
+																	res.status(404).send(e);
+																}
                               }
                             });
                           } catch(e) {
                             console.dir(e);
-                            res.status(500).send(e);
+														if (!res.headersSent) {
+															res.status(500).send(e);
+														}
                           }
 
                         });
                       } catch(e) {
                         console.dir(e);
-                        res.status(500).send(e);
+												if (!res.headersSent) {
+													res.status(500).send(e);
+												}
                       }
                     }
                   });
@@ -269,7 +276,9 @@ var previousWeather = function(req, res) {
                 // if not demo, send 404
                 else {
                   let e = "no results found for this timestamp.";
-                  res.status(404).send(e);
+									if (!res.headersSent) {
+										res.status(404).send(e);
+									}
                 }
 
               }
