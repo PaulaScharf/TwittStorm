@@ -219,8 +219,8 @@ function zoomToCoordinates(map, coordinates) {
 * @author Benjamin Rieke
 */
 function openMenu(button, menu, site) {
-		// if a radar product is selected automatically open up the radar submenu
-		if (site == 'index') {
+	// if a radar product is selected automatically open up the radar submenu
+	if (site == 'index') {
 
 
 		if (wtypeFlag == "radar") {
@@ -234,26 +234,26 @@ function openMenu(button, menu, site) {
 		};
 	}
 
-		// displays the germany boundary button if is not visible
-		var boundaryButtonToggle = document.getElementById('germanyButton');
-		if (boundaryButtonToggle.style.display === "none"){
-			boundaryButtonToggle.style.display = "block";
-		}
-		// the germany button is also used as an indicator to see if the menus are open
-		// if that is the case all menus will be closed when the main layer menu button is pressed
-		else {
-			closeAllMenus();
-		};
-
-		// displays the requested submenus
-		button = document.getElementById(menu.id);
-		if (button.style.display === "none") {
-			button.style.display = "block";
-			boundaryButtonToggle.style.display = "block";
-		} else {
-			button.style.display = "none";
-		};
+	// displays the germany boundary button if is not visible
+	var boundaryButtonToggle = document.getElementById('germanyButton');
+	if (boundaryButtonToggle.style.display === "none"){
+		boundaryButtonToggle.style.display = "block";
 	}
+	// the germany button is also used as an indicator to see if the menus are open
+	// if that is the case all menus will be closed when the main layer menu button is pressed
+	else {
+		closeAllMenus();
+	};
+
+	// displays the requested submenus
+	button = document.getElementById(menu.id);
+	if (button.style.display === "none") {
+		button.style.display = "block";
+		boundaryButtonToggle.style.display = "block";
+	} else {
+		button.style.display = "none";
+	};
+}
 
 
 
@@ -326,7 +326,7 @@ function switchLayer(map, layer) {
 	map.setStyle('mapbox://styles/mapbox/' + layerId);
 
 	if (indicator == "animation"){
-	//	reloadAnimation
+		//	reloadAnimation
 		reloadAnimation(wIndicator)
 	}
 
@@ -539,7 +539,7 @@ function createWarningsCheckboxes(map) {
 		["Rain", "false"],
 		["Snowfall", "false"],
 		["Thunderstorm", "false"],
-		["Black ice", "false"]
+		["BlackIce", "false"]
 	];
 
 	//
@@ -567,8 +567,15 @@ function createWarningsCheckboxes(map) {
 */
 function createWarningsCheckbox(map, warningsMenu, type, checked) {
 
-	// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenuDiv"
-	warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(map, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> " + type + "<br>";
+	// the type BlackIce needs a separate call because in the menu its type has to be changed to "Black ice" (with a space)
+	if (type === "BlackIce") {
+		// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenuDiv"
+		warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(map, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> Black ice<br>";
+	}
+	else {
+		// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenuDiv"
+		warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(map, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> " + type + "<br>";
+	}
 }
 
 
@@ -705,9 +712,9 @@ function showTweetPopup(map, e) {
 				let idAsString = pickedTweet[0].properties.idstr;
 				// create a popup with the following information:
 				let popup = new mapboxgl.Popup()
-					.setLngLat(e.lngLat)
-					.setHTML("<div id='" + idAsString + "'><div id='" + idAsString + "twttr'></div><div id='" + idAsString + "btn'></div></div>")
-					.addTo(map);
+				.setLngLat(e.lngLat)
+				.setHTML("<div id='" + idAsString + "'><div id='" + idAsString + "twttr'></div><div id='" + idAsString + "btn'></div></div>")
+				.addTo(map);
 				twttr.widgets.createTweet(
 					idAsString,
 					document.getElementById(idAsString + "twttr"),

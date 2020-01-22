@@ -58,13 +58,11 @@
   top: 120px;
   right: 25px;
   background-color: darkgrey;
-
 }
 
 #downloadButton :hover {
   box-shadow: 0 0 11px DimGray;
 }
-
 
 .button .popuptext {
   visibility: hidden;
@@ -110,8 +108,6 @@
   from {opacity: 0;}
   to {opacity:1 ;}
 }
-
-
 
 /* Ajax Center Spinner */
 .loading {
@@ -244,7 +240,6 @@
   width: 130px;
   border: 1px solid rgba(0,0,0,0.4);
   font-size: 14px;
-
 }
 
 #menu a {
@@ -346,20 +341,20 @@
 /* ************************************************************************** */
 
 .button {
-position: absolute;
-z-index: 1;
-display: block;
-background-color: white;
-border-radius: 6px;
-border: 1px solid rgba(0,0,0,0.2);
-cursor: pointer;
+  position: absolute;
+  z-index: 1;
+  display: block;
+  background-color: white;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.2);
+  cursor: pointer;
 }
 
 /* *************************** PAN BUTTONS ********************************** */
 
 #panButtonL, #panButtonR, #panButtonU, #panButtonD {
-height: 22px;
-width: 22px;
+  height: 22px;
+  width: 22px;
 }
 
 #panButtonL {
@@ -383,11 +378,11 @@ width: 22px;
 }
 
 .panButtonImg {
-position: absolute;
-display: block;
-z-index: 1;
-height: 11px;
-width: 12px;
+  position: absolute;
+  display: block;
+  z-index: 1;
+  height: 11px;
+  width: 12px;
 }
 
 #panButton_L_img {
@@ -396,21 +391,21 @@ width: 12px;
 }
 
 #panButton_R_img {
-transform: rotate(180deg);
-top: 12px;
-left: 10px;
+  transform: rotate(180deg);
+  top: 12px;
+  left: 10px;
 }
 
 #panButton_U_img {
-transform: rotate(90deg);
-bottom: 11px;
-left: 11px;
+  transform: rotate(90deg);
+  bottom: 11px;
+  left: 11px;
 }
 
 #panButton_D_img {
-transform: rotate(270deg);
-top: 12px;
-right: 11px;
+  transform: rotate(270deg);
+  top: 12px;
+  right: 11px;
 }
 
 #panButtonL :hover {
@@ -649,7 +644,6 @@ right: 11px;
   width: 55px;
   height: 55px;
 }
-
 
 textarea {
   -webkit-border-radius: 5px;

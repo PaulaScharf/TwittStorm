@@ -698,7 +698,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			}
 			// if the current Unwetter is of type BLACK ICE ..
 			else if ((ii === 24) || ((ii >= 84) && (ii <= 87))) {
-				layerGroup = "Black ice";
+				layerGroup = "BlackIce";
 				searchWords.push("Blitzeis", "Glätte", "Glatteis");
 			}
 			// TODO: später löschen, da nur zum Ausprobieren

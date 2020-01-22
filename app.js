@@ -11,8 +11,8 @@
 
 
 // ********** load modules: **********
-const http = require("http");
-const https = require("https");
+const http = require('http');
+const https = require('https');
 const path = require('path');
 
 // ********** load third-modules: **********
@@ -58,9 +58,8 @@ app.use(express.urlencoded({ extended: false }));
 
 // set the routes for npm-installed client-libraries
 app.use("/jquery", express.static(path.join(__dirname, 'node_modules', 'jquery', 'dist')));
-app.use("/qunit", express.static(path.join(__dirname, 'node_modules', 'qunit', 'qunit')));
 app.use("/bootstrap", express.static(path.join(__dirname, 'node_modules', 'bootstrap', 'dist')));
-app.use("/popper", express.static(path.join(__dirname, 'node_modules', 'popper.js', 'dist')));
+app.use("/popper", express.static(path.join(__dirname, 'node_modules', '@popperjs', 'core', 'dist')));
 app.use("/mapbox", express.static(path.join(__dirname, 'node_modules', 'mapbox-gl', 'dist')));
 app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@mapbox', 'mapbox-gl-draw', 'dist')));
 app.use("/turf", express.static(path.join(__dirname, 'node_modules', '@turf')));
