@@ -957,7 +957,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 		// ****************************************************************************************
 		// make query
-		let searchWords = ["jesus", "rain", "Regen", "Unwetter", "Gewitter", "Sinnflut", "regnet", "Feuerwehr", "Sturm", "Flut", "Starkregen"];
+		let searchWords = ["germany", "love", "jesus", "rain", "Regen", "Unwetter", "Gewitter", "Sinnflut", "regnet", "Feuerwehr", "Sturm", "Flut", "Starkregen"];
 		let query = {
 			twitterSearchQuery: {
 				// TODO which geometry is correct here
@@ -1009,19 +1009,22 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// search with turf.pointsWithinPolygon
 							// create turf.points und turf.polygon
 
-							// TODO compare to rainRadar Layer
-							/**
 							let tweetLocation = turf.point(item.location_actual.coordinates);
 							let rainRadarLayer = map.getSource("rainradar");
-							// TODO find out which path works for _data.features.. index?
-							let rainRadarPolygons = turf.polygon(rainRadarLayer._data.features);
-							console.log(rainRadarPolygons);
-							let pointsWithin = turf.pointsWithinPolygon(tweetLocation, rainRadarPolygons);
-							// TODO if not null, do below
+							// create a boolean
+							let bool = false;
+							for(let i = 0; i < rainRadarLayer._data.features.length; i++) {
+								console.log(rainRadarLayer._data.features[i]);
+								let rainRadarPolygon = turf.polygon(rainRadarLayer._data.features[i].geometry.coordinates);
+								// if the point lies in any of these rainRadar polygons, set bool true
+								if(turf.booleanPointInPolygon(tweetLocation, rainRadarPolygon)) {
+									bool = true;
+								}
+							}
 
-							*/
+							// if bool is true, displayEvent()
 
-						//if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
+							//if(bool) {
 								let tweetFeature = {
 									"type": "Feature",
 									"geometry": item.location_actual,
@@ -1030,6 +1033,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 								tweetFeatureCollection.features = [tweetFeature];
 								displayEvent(map, "Tweet rainradar", tweetFeatureCollection);
 							//}
+
 						}
 					});
 				} catch (e) {
