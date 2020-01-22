@@ -16,8 +16,8 @@
   },
   {
       "type": "Tweet",
-      "id": 1,
-      "idstr": "1",
+      "id": 1219954878971359233,
+      "idstr": "1219954878971359233",
       "statusmessage": "test",
       "author": {
         "id": 1,

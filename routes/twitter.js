@@ -288,7 +288,9 @@ const searchTweetsForEvent = function(req, res) {
 						})
 						.then(function (response) {
 							if(!res.headersSent) {
-								res.send(response);
+								res.send({
+									statuses: response
+								});
 							}
 						});
 
