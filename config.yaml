@@ -19,10 +19,10 @@ demo:
   location: ../demo/
 keys:
   twitter:
-    consumer_key: MrvR3iGRtOYWEHvyX1GQvbgbn
-    consumer_secret: 8fDd8OEVcklCC4a0JdWa5P7dOC3J3p029jhFSITbwmDwnVN8CA
-    access_token_key: 1186999137541283840-8t6BUIDVX9it9aZznjRX7QmIduO4dw
-    access_token_secret: W9b9MvmH93UTbiTcEMr1h2IBqLc2lQfF3LtqphfdeReJK
+    consumer_key: 6Fj10fMp8EMNJPA5DzdE1RASs
+    consumer_secret: NEWEkcmMyAKHCDUMTnzOCQkAX898lLpZYk13DtFVFFW1HncEBs
+    access_token_key: 1219561525809164322-0OOX3rRj84BsXedBhscV4d7gEOIAsk
+    access_token_secret: QEhuKDgcqWo9X8VgG34LvWo4J1Hxp2hV8dDWoiZb1nw4t
   mapbox:
     access_key: >-
       pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA
