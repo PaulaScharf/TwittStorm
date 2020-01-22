@@ -115,8 +115,8 @@ function convertTimestamp(radarProduct, timestampString) {
       let reqTime = timestamp + tz + variance - access;
       let reqTimeLower = reqTime - access;
 
-      console.log("converting " + new Date(timestamp) + " .. to sequence: " + new Date(reqTime));
-      console.log(" from [lower border] " + new Date(reqTimeLower));
+      //console.log("converting " + new Date(timestamp) + " .. to sequence: " + new Date(reqTime));
+      //console.log(" from [lower border] " + new Date(reqTimeLower));
 
       return [reqTimeLower, reqTime];
 }
@@ -134,11 +134,30 @@ var promiseToFetchRadarData = function(radarProduct) {
         var rasterMeta = d[0];
         var classBorders = d[1];
         var timestamp = Date.parse(rasterMeta.date);
+        var timestampNow = Date.now();
+        var timestampAvailability;
+        if(radarProduct.toLowerCase() == "ry") {
+          timestampAvailability = timestamp + 3720000;
+        }
+        if(radarProduct.toLowerCase() == "rw") {
+          timestampAvailability = timestamp + 5160000;
+        }
+        if(radarProduct.toLowerCase() == "sf") {
+          timestampAvailability = timestamp + 5580000;
+        }
+        /**
+        console.log(new Date(timestamp));
+        console.log(new Date(timestampNow));
+        console.log(new Date(timestampAvailability));
+        */
+
         var answerJSON = {
           "type": "rainRadar",
           "radarProduct": rasterMeta.product,
           "date": rasterMeta.date,
           "timestamp": timestamp,
+          "timestampOfRequest": timestampNow,
+          "timestampOfAvailability": timestampAvailability,
           "geometry": {
             "type": "FeatureCollection",
             "features": []
@@ -190,7 +209,7 @@ var radarRoute = function(req, res) {
     let latestDate = new Date(latest);
     let latestTimestamp = latestDate.getTime();
 
-    console.log("latestDate = " + latestDate);
+    //console.log("latestDate = " + latestDate);
 
     // historic data?
     let pastBorder = 3700000;
