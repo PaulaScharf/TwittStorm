@@ -98,6 +98,10 @@ function processingAOI(map, aoiCoordinatesGeoJSON) {
 	zoomToCoordinates(map, coordinatesAOI);
 
 	// do Tweet-search
-	onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
-	onlyShowRainRadarAndTweetsInPolygon(turf.polygon(aoiCoordinatesGeoJSON));
+	let attr = readURL("wtype");
+	if(attr == "unwetter") {
+		onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
+	} else {
+		onlyShowRainRadarAndTweetsInPolygon(turf.polygon(aoiCoordinatesGeoJSON));
+	}
 }
