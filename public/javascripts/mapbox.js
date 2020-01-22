@@ -922,7 +922,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		* @author Paula Scharf, Jonathan Bahlmann
 		* @param polygon a turf polygon (aoi)
 		*/
-	function onlyShowRainRadarAndTweetsInPolygon(polygon) {
+	function onlyShowRainRadarAndTweetsInPolygon(map, polygon) {
 		// so polygon is the turf - aoi
 		// we want to search for tweets in the aoi
 
@@ -946,15 +946,22 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		// testing a couple things
 		let layer = map.getSource("rainradar");
 		layer = layer._data.features;
-		console.log(layer);
-		console.log(polygon);
+
+		// make MultiPolygon Geometry
+		let multiPol = polygon.geometry.coordinates;
+		multiPol = [multiPol];
+		let geom = {
+			"type": "MultiPolygon",
+			"coordinates": multiPol
+		};
+
 		// ****************************************************************************************
 		// make query
 		let searchWords = ["jesus", "rain", "Regen", "Unwetter", "Gewitter", "Sinnflut", "regnet", "Feuerwehr", "Sturm", "Flut", "Starkregen"];
 		let query = {
 			twitterSearchQuery: {
 				// TODO which geometry is correct here
-				geometry: polygon.geometry.coordinates,
+				geometry: geom, //polygon.geometry,  //.coordinates,
 				searchWords: searchWords
 			},
 			dwd_id: "rainRadar",
@@ -984,7 +991,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
 			// if response is valid
-			if(typeof result !== "undefined" && result.statuses.length > 0) {
+			console.log(result);
+			// TODO result.statuses length changed to result.length, why?
+			if(typeof result !== "undefined" && result.length > 0) {
 				try {
 					// idk what this is doing
 					let turfPolygon = turf.polygon(polygon.geometry.coordinates);
@@ -1009,6 +1018,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							let pointsWithin = turf.pointsWithinPolygon(tweetLocation, rainRadarPolygons);
 							// TODO if not null, do below
 
+							//try
+							displayEvent(map, "Tweet rainradar", tweetFeatureCollection);
 						/*	if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
 								let tweetFeature = {
 									"type": "Feature",
