@@ -25,9 +25,6 @@ const mongodb = require('mongodb');   // using the mongo-driver
 var JL = require('jsnlog').JL;
 var jsnlog_nodejs = require('jsnlog-nodejs').jsnlog_nodejs;
 
-// TODO: benutzen wir morgan?
-var logger = require('morgan');
-
 // R
 const R = require('r-script');
 
@@ -49,9 +46,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
-
-// TODO: unnötig, löschen?
-app.use(logger('dev'));
 
 // load/provide all files given in the folder public
 app.use(express.static(path.join(__dirname, 'public')));
