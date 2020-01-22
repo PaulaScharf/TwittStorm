@@ -991,9 +991,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
 			// if response is valid
-			console.log(result);
-			// TODO result.statuses length changed to result.length, why?
-			if(typeof result !== "undefined" && result.length > 0) {
+			if(typeof result !== "undefined" && result.statuses.length > 0) {
 				try {
 					// idk what this is doing
 					let turfPolygon = turf.polygon(polygon.geometry.coordinates);
@@ -1010,6 +1008,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// do the check with radar geometry
 							// search with turf.pointsWithinPolygon
 							// create turf.points und turf.polygon
+
+							// TODO compare to rainRadar Layer
+							/**
 							let tweetLocation = turf.point(item.location_actual.coordinates);
 							let rainRadarLayer = map.getSource("rainradar");
 							// TODO find out which path works for _data.features.. index?
@@ -1018,17 +1019,17 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							let pointsWithin = turf.pointsWithinPolygon(tweetLocation, rainRadarPolygons);
 							// TODO if not null, do below
 
-							//try
-							displayEvent(map, "Tweet rainradar", tweetFeatureCollection);
-						/*	if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
+							*/
+
+						//if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
 								let tweetFeature = {
 									"type": "Feature",
 									"geometry": item.location_actual,
 									"properties": item
 								};
 								tweetFeatureCollection.features = [tweetFeature];
-								displayEvent(map, "Tweet " + item.idstr + " " + layerIDSplit[1] + " " + layerIDSplit[2], tweetFeatureCollection);
-							} */
+								displayEvent(map, "Tweet rainradar", tweetFeatureCollection);
+							//}
 						}
 					});
 				} catch (e) {
