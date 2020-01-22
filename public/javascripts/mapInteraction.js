@@ -26,10 +26,10 @@
 * @author Katharina Poppinga
 * @private
 * @param {mapbox-map} map - mapbox-map for and in which to display the legend
-* @param {String} typeOfLegend - unwetter or radar
-* @param {String} product type of rain radar: ry, rw or sf
+* @param {String} typeOfData - "unwetter" or "radar"
+* @param {String} product type of rain radar: "ry", "rw" or "sf"
 */
-function showLegend(map, typeOfLegend, product) {
+function showLegend(map, typeOfData, product) {
 
 	// first remove some old DOM elements
 	while (legend.hasChildNodes()) {
@@ -37,9 +37,9 @@ function showLegend(map, typeOfLegend, product) {
 	}
 
 
-	let paraTypeOfLegend = document.createElement("p"); // create a html-paragraph
-	paraTypeOfLegend.id = "typeOfLegend"; // set ID of the html-paragraph
-	legend.appendChild(paraTypeOfLegend);
+	let paraTypeOfData = document.createElement("p"); // create a html-paragraph
+	paraTypeOfData.id = "typeOfData"; // set ID of the html-paragraph
+	legend.appendChild(paraTypeOfData);
 
 	let values = [];
 	let colors = [];
@@ -51,10 +51,10 @@ function showLegend(map, typeOfLegend, product) {
 
 
 	// ******************************* legend for Unwetter *******************************
-	if (typeOfLegend === "unwetter") {
+	if (typeOfData === "unwetter") {
 
 		// set titel of legend
-		paraTypeOfLegend.innerHTML = "<b>Severe weather</b>";
+		paraTypeOfData.innerHTML = "<b>Severe weather</b>";
 		// set info for data timestamps
 		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>Differs for each warning,<br>see popups in map.";
 		// set positional accuracy
@@ -68,15 +68,15 @@ function showLegend(map, typeOfLegend, product) {
 
 
 	// ****************************** legend for rain radar ******************************
-	if (typeOfLegend === "radar") {
+	if (typeOfData === "radar") {
 
 		// set titel of legend
-		paraTypeOfLegend.innerHTML = "<b>Depth of precipitation</b>";
+		paraTypeOfData.innerHTML = "<b>Depth of precipitation</b>";
 
 		//
 		let productType = document.createElement("p"); // create a html-paragraph
 		productType.id = "productType"; // set ID of the html-paragraph
-		paraTypeOfLegend.appendChild(productType);
+		paraTypeOfData.appendChild(productType);
 
 		//
 		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>";
@@ -128,7 +128,6 @@ function showLegend(map, typeOfLegend, product) {
 	// image taken from: https://upload.wikimedia.org/wikipedia/de/thumb/7/7b/DWD-Logo_2013.svg/800px-DWD-Logo_2013.svg.png
 	// TODO: change source to https://www.dwd.de/SharedDocs/bilder/DE/logos/dwd/dwd_logo_258x69.png?__blob=normal
 	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD-Logo_2013.svg' alt='Deutscher Wetterdienst'>";
-	timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>";
 	let refreshRateValue = paramArray.config.refresh_rate;
 	refreshRate.innerHTML = "<b>Refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
 }

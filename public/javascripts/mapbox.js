@@ -437,7 +437,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 	let url = "/radar/" + product + "/" + currentTimestamp;
 
 	// update the status display
-	$('#information').html("Retrieving the requested " + product + " radar product");
+	$('#information').html("Retrieving the requested " + product + " rain radar product.");
 
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
@@ -451,12 +451,20 @@ function requestAndDisplayAllRainRadar(map, product) {
 			let dataTimestamp = document.getElementById("dataTimestamp");
 			dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + formattedDataTimestamp;
 
+
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// TODO: if timestamp größer als ?? --> falls keine demodaten oder keine animation:
+
 			// TODO: muss noch timestamp of request werden und nicht timestamp of display in map
 			// show timestamp of the last request in legend
 			let formattedRequestTimestamp = timestampFormatting(currentTimestamp);
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedRequestTimestamp;
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			// ***************************************************************************************************************
+
+
+
 
 			//see if layer needs to be updated or added
 			let sourceObject = map.getSource("rainradar");
@@ -525,7 +533,7 @@ function intervalRainRadar(map) {
 */
 function callRainRadar(map, prod) {
 	// progress update info
-	$('#information').html("Retrieving the requested " + prod + " radar product");
+	$('#information').html("Retrieving the requested " + prod + " rain radar data.");
 
 	// is there a timestamp?
 	let currentTimestamp = Date.now();
@@ -583,6 +591,7 @@ function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 function requestNewAndDisplayCurrentUnwetters(map) {
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
+	// if following expression is true, then take 'paramArray.timestamp'; if false then create Date.now() ?????????????????????????????????
 	let currentTimestamp = (paramArray.timestamp) ? paramArray.timestamp : Date.now();
 
 	// FUER DEMODATEN
@@ -596,7 +605,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		}
 	}
 
-	$('#information').html("Retrieving the requested warnings");
+	$('#information').html("Retrieving the requested severe weather warnings.");
 
 	$.ajax({
 		// use a http GET request
@@ -617,18 +626,27 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
 		if (readURL("wtype") == "unwetter") {
 
-			// display the timestamp of the last request in the legend
-			let formattedTimestamp = timestampFormatting(
-				// if following expression is true, then take 'currentTimestamp'; if false then take
-				((currentTimestamp - paramArray.config.timestamp_last_warnings_request) >= paramArray.config.refresh_rate) ?
-				currentTimestamp : paramArray.config.timestamp_last_warnings_request);
-				let timestampLastRequest = document.getElementById("timestampLastRequest");
-				timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+			// if the warnings shown are no demodata
+			if (currentTimestamp > paramArray.config.demo.timestamp_end) {
+				// display the timestamp of the last request in the legend
+				let formattedTimestamp = timestampFormatting(
+					// if following expression is true, then take 'currentTimestamp'; if false then take the timestamp_last_warnings_request
+					((currentTimestamp - paramArray.config.timestamp_last_warnings_request) >= paramArray.config.refresh_rate) ?
+					currentTimestamp : paramArray.config.timestamp_last_warnings_request);
+
+					let timestampLastRequest = document.getElementById("timestampLastRequest");
+					timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+				}
+				// if the warnings shown are demodata
+				else {
+					let posAccuracy = document.getElementById("posAccuracy");
+					posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>Local authority borders<br>(does not count for all demodata)";
+				}
 
 				displayCurrentUnwetters(map, result.events);
 			}
 
-		map.fire('draw.reloadTweets', {});
+			map.fire('draw.reloadTweets', {});
 		})
 
 		// if the request has failed, ...
@@ -919,9 +937,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	}
 
 	/**
-		* @author Paula Scharf, Jonathan Bahlmann
-		* @param polygon a turf polygon (aoi)
-		*/
+	* @author Paula Scharf, Jonathan Bahlmann
+	* @param polygon a turf polygon (aoi)
+	*/
 	function onlyShowRainRadarAndTweetsInPolygon(map, polygon) {
 		// so polygon is the turf - aoi
 		// we want to search for tweets in the aoi
@@ -1025,13 +1043,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// if bool is true, displayEvent()
 
 							//if(bool) {
-								let tweetFeature = {
-									"type": "Feature",
-									"geometry": item.location_actual,
-									"properties": item
-								};
-								tweetFeatureCollection.features = [tweetFeature];
-								displayEvent(map, "Tweet rainradar", tweetFeatureCollection);
+							let tweetFeature = {
+								"type": "Feature",
+								"geometry": item.location_actual,
+								"properties": item
+							};
+							tweetFeatureCollection.features = [tweetFeature];
+							displayEvent(map, "Tweet rainradar", tweetFeatureCollection);
 							//}
 
 						}

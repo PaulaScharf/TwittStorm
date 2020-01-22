@@ -21,6 +21,9 @@ Your IP will be shown on start of the dockershell.<br/>
 ## Tests
 ...
 
+## Information for Developers
+<b>TODO: Config.yaml erklären</b><br>
+
 ## Routes
 Are in the routes folder in the index.js. The crud functionality is provided through the data.js in the same folder.
 ## Pages
