@@ -34,7 +34,7 @@ Your IP will be shown on start of the dockershell.<br/>
     1. download chrome from here: https://www.google.com/intl/de_de/chrome/
     2. download ChromeDriver.exe from here: https://chromedriver.chromium.org/downloads  
     (we used "ChromeDriver **79**.0.3945.36", because we operate chrome version **79**)
-    3. in JM open "main page (client side, with AOI)"
+    3. in JM open thread "client side tests"
     4. open "jp@gc - Chrome Driver Config"
     5. open tab "chrome"
     6. set the path to the location of the "chromedriver.exe" on your local system

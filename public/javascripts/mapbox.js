@@ -70,6 +70,9 @@ let filterwords;
 */
 var indicator = "";
 
+var doneProcessingAOI = true;
+
+var doneLoadingWeather = true;
 
 
 // TODO: folgendes in eine Funktion schreiben:
@@ -437,6 +440,7 @@ function getAndUseAOIFromURL(draw) {
 * @param {String} product - the radar product, see API-Wiki on GitHub
 */
 function requestAndDisplayAllRainRadar(map, product) {
+	doneLoadingWeather = false;
 
 	let currentTimestamp = Date.now();
 	// is there a timestamp?
@@ -519,6 +523,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 				customLayerIds.push('rainradar');
 			}
 		}
+		doneLoadingWeather = true;
 	});
 }
 
@@ -550,6 +555,8 @@ function intervalRainRadar(map) {
 * @param {String} prod - the radar product, see API-Wiki on GitHub
 */
 function callRainRadar(map, prod) {
+	doneLoadingWeather = false;
+
 	// progress update info
 	$('#information').html("Retrieving the requested " + prod + " rain radar data.");
 
@@ -581,6 +588,8 @@ function callRainRadar(map, prod) {
 
 			// TODO hier evtl display modularisieren um nicht noch ein request zu machen
 			requestAndDisplayAllRainRadar(map, prod);
+		} else {
+			doneLoadingWeather = true;
 		}
 	});
 }
@@ -610,6 +619,7 @@ function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 * @param {Object} map - mapbox-map in which to display the current Unwetter
 */
 function requestNewAndDisplayCurrentUnwetters(map) {
+	doneLoadingWeather = false;
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	// if following expression is true, then take 'paramArray.timestamp'; if false then create Date.now() ?????????????????????????????????
@@ -672,6 +682,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			}
 
 			map.fire('draw.reloadTweets', {});
+			doneLoadingWeather = true;
 		})
 
 		// if the request has failed, ...
@@ -1107,132 +1118,149 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	*/
 	function onlyShowUnwetterAndTweetsInPolygon(map, polygon) {
 
-		customLayerIds.forEach(function(layerID) {
-			// make sure to only check layers which contain an Unwetter
-			if (layerID.includes("unwetter")) {
-				let isInAOI = false;
-				let source = map.getSource(layerID);
-				// if any polygon of the layer is not contained by the given polygon, it is not inside the AOI
-				source._data.features[0].geometry.coordinates[0].forEach(function(item) {
-					let coordinateArray = [item];
-					let currentlayerPolygon = turf.polygon(coordinateArray);
-					if (turf.booleanContains(polygon, currentlayerPolygon) &&
+	let requests = [];
+	for (let i = 0; i<customLayerIds.length; i++) {
+		let layerID = customLayerIds[i];
+		// make sure to only check layers which contain an Unwetter
+		if (layerID.includes("unwetter")) {
+			let isInAOI = false;
+			let source = map.getSource(layerID);
+			// if any polygon of the layer is not contained by the given polygon, it is not inside the AOI
+			source._data.features[0].geometry.coordinates[0].forEach(function (item) {
+				let coordinateArray = [item];
+				let currentlayerPolygon = turf.polygon(coordinateArray);
+				if (turf.booleanContains(polygon, currentlayerPolygon) &&
 					(typeof turf.intersect(polygon, currentlayerPolygon) !== 'undefined')) {
-						isInAOI = true;
-					}
-				});
-				// change visibility of corresponding tweet layer
-				let layerIDSplit = layerID.split(/[ ]+/);
+					isInAOI = true;
+				}
+			});
+			// change visibility of corresponding tweet layer
+			let layerIDSplit = layerID.split(/[ ]+/);
 
-				let visibility;
-				// decide if the unwetter is gonna be visible or not
-				if (!isInAOI) {
-					visibility = 'none';
+			let visibility;
+			// decide if the unwetter is gonna be visible or not
+			if (!isInAOI) {
+				visibility = 'none';
+			} else {
+				visibility = 'visible';
+				// is there a timestamp?
+				let currentTimestamp = Date.now();
+				if (typeof paramArray.timestamp === "undefined") {
+					// none found, create "now"
+					currentTimestamp = Date.now();
 				} else {
-					visibility = 'visible';
-					// is there a timestamp?
-					let currentTimestamp = Date.now();
-					if(typeof paramArray.timestamp === "undefined") {
-						// none found, create "now"
+					// found, use historic one
+					currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
+					try {
+						Date.parse(currentTimestamp);
+					} catch {
+						console.log("The url is erroneous. Please try a different value for 'timestamp'.")
 						currentTimestamp = Date.now();
-					} else {
-						// found, use historic one
-						currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
-						try {
-							Date.parse(currentTimestamp);
-						} catch {
-							console.log("The url is erroneous. Please try a different value for 'timestamp'.")
-							currentTimestamp = Date.now();
-						}
 					}
+				}
 
-					let query = {
+				let query = {
+					query: {
 						twitterSearchQuery: {
 							geometry: source._data.features[0].geometry,
 							searchWords: source._data.features[0].properties.searchWords
 						},
 						dwd_id: layerIDSplit[2],
 						currentTimestamp: currentTimestamp
-					};
-
-					$.ajax({
-						// use a http POST request
-						type: "POST",
-						// URL to send the request to
-						url: "/api/v1/twitter/tweets",
-						// type of the data that is sent to the server
-						contentType: "application/json; charset=utf-8",
-						// data to send to the server
-						data: JSON.stringify(query),
-						// timeout set to 15 seconds
-						timeout: 15000,
-						// update the status display
-						success: function() {
-							$('#information').html("Trying to find and insert fitting tweets");
-						}
-					})
-
-					// if the request is done successfully, ...
-					.done(function (result) {
-						// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
-						console.log("AJAX request (finding and inserting tweets) is done successfully.");
-						if(typeof result !== "undefined" && result.statuses.length > 0) {
-							try {
-								let turfPolygon = turf.polygon(polygon.geometry.coordinates);
-								// create an empty featurecollection for the tweets
-								let tweetFeatureCollection = {
-									"type": "FeatureCollection",
-									"features": []
-								};
-								// add the tweets in the result to the featurecollection
-								result.statuses.forEach(function (item) {
-									if (item.id && item.location_actual !== null) {
-										let tweetLocation = turf.point(item.location_actual.coordinates);
-										if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
-											let tweetFeature = {
-												"type": "Feature",
-												"geometry": item.location_actual,
-												"properties": item
-											};
-											tweetFeatureCollection.features = [tweetFeature];
-											displayEvent(map, "tweet " + item.idstr.replace(/\s/g, '') + " " + layerIDSplit[1].replace(/\s/g, '') + " " + layerIDSplit[2].replace(/\s/g, ''), tweetFeatureCollection);
-										}
-									}
-								});
-							} catch (e) {
-								console.dir("There was an error while processing the tweets from the database:", e);
-								console.log(e);
-							}
-						}
-					})
-
-					// if the request has failed, ...
-					.fail(function (xhr, status, error) {
-						// ... give a notice that the AJAX request for finding and inserting tweets has failed and show the error on the console
-						console.log("AJAX request (finding and inserting tweets) has failed.", error);
-
-						// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
-						if (error === "timeout") {
-							JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/Twitter/tweets' timeout");
-						}
-						// TODO: testen, ob so richtig
-						else {
-							JL("ajaxRetrievingTweetsError").fatalException(error);
-						}
-					});
+					},
+					layerIDSplit1: layerIDSplit[1]
 				}
-				// change visibility of unwetter layer
-				map.setLayoutProperty(layerID, 'visibility', visibility);
-
-				let layerIDTweet = "tweet " + layerIDSplit[1] + " " + layerIDSplit[2];
-				let tweetLayer = map.getLayer(layerIDTweet);
-
-				if (typeof tweetLayer !== 'undefined') {
-					map.setLayoutProperty(layerIDTweet, 'visibility', visibility);
-				}
+				requests.push(query);
 			}
-		});
+			// change visibility of unwetter layer
+			map.setLayoutProperty(layerID, 'visibility', visibility);
+
+			let layerIDTweet = "tweet " + layerIDSplit[1] + " " + layerIDSplit[2];
+			let tweetLayer = map.getLayer(layerIDTweet);
+
+			if (typeof tweetLayer !== 'undefined') {
+				map.setLayoutProperty(layerIDTweet, 'visibility', visibility);
+			}
+		}
 	}
+	for (let i = 0; i < requests.length; i++) {
+		let query = requests[i].query;
+		$.ajax({
+			// use a http POST request
+			type: "POST",
+			// URL to send the request to
+			url: "/api/v1/twitter/tweets",
+			// type of the data that is sent to the server
+			contentType: "application/json; charset=utf-8",
+			// data to send to the server
+			data: JSON.stringify(query),
+			// timeout set to 15 seconds
+			timeout: 15000,
+			// update the status display
+			success: function () {
+				$('#information').html("Trying to find and insert fitting tweets");
+			}
+		})
+
+		// if the request is done successfully, ...
+			.done(function (result) {
+				// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
+				console.log("AJAX request (finding and inserting tweets) is done successfully.");
+				if (typeof result !== "undefined" && result.statuses.length > 0) {
+					try {
+						let turfPolygon = turf.polygon(polygon.geometry.coordinates);
+						// create an empty featurecollection for the tweets
+						let tweetFeatureCollection = {
+							"type": "FeatureCollection",
+							"features": []
+						};
+						// add the tweets in the result to the featurecollection
+						result.statuses.forEach(function (item) {
+							if (item.id && item.location_actual !== null) {
+								let tweetLocation = turf.point(item.location_actual.coordinates);
+								if (turf.booleanPointInPolygon(tweetLocation, turfPolygon)) {
+									let tweetFeature = {
+										"type": "Feature",
+										"geometry": item.location_actual,
+										"properties": item
+									};
+									tweetFeatureCollection.features = [tweetFeature];
+									displayEvent(map, "tweet " + item.idstr.replace(/\s/g, '') + " " + requests[i].layerIDSplit1.replace(/\s/g, '') + " " + query.dwd_id.replace(/\s/g, ''), tweetFeatureCollection);
+								}
+							}
+						});
+					} catch (e) {
+						console.dir("There was an error while processing the tweets from the database:", e);
+						console.log(e);
+					}
+				}
+				if (i >= requests.length - 1) {
+					doneProcessingAOI = true;
+				}
+			})
+
+			// if the request has failed, ...
+			.fail(function (xhr, status, error) {
+				// ... give a notice that the AJAX request for finding and inserting tweets has failed and show the error on the console
+				console.log("AJAX request (finding and inserting tweets) has failed.", error);
+
+				// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+				if (error === "timeout") {
+					JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/Twitter/tweets' timeout");
+				}
+				// TODO: testen, ob so richtig
+				else {
+					JL("ajaxRetrievingTweetsError").fatalException(error);
+				}
+				if (i >= requests.length - 1) {
+					doneProcessingAOI = true;
+				}
+			});
+	}
+	if (requests.length < 1) {
+		doneProcessingAOI = true;
+	}
+}
 
 
 	/**
