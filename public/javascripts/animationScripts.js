@@ -37,7 +37,7 @@ let animationMap;
 
 
 // TODO: JSDoc für globale Variablen
-
+let resultOutput = [];
 let usedTimestamps = [];
 // all individual events from a timestamp get temporally stored in here
 let outputArray = [];
@@ -331,7 +331,28 @@ function automate(map){
 
   // on playbutton click
   $("#playButton").click(function play() {
+//    console.log(Object.keys(resultOutput[0]).length);
+//  Object.keys(resultOutput[0]).length
+console.log(resultOutput);
     // if there is no data for the requested wtype show a popup to inform the user to do so beforehand
+    if (resultOutput.length){
+    if (Object.keys(resultOutput[0]).length == 1) {
+      $("#playPopup").css({'background-color': 'darkgrey'});
+      $('#playPopup').html('The only existing timestamp has nothing worthy to show');
+
+      //avoid multiple click events
+      if (popup.classList[1] != "show"){
+        // show the popup
+        popup.classList.toggle("show");
+        // hide the popup after some time
+        setTimeout(function(){
+          popup.classList.toggle("show");
+        }, 4000);
+      }
+      return;
+    }
+  }
+
     if (usedTimestamps.length == 0) {
       $("#playPopup").css({'background-color': 'red'});
       //avoid multiple click events
@@ -345,6 +366,7 @@ function automate(map){
       }
       return;
     }
+
     // flush the intervall
     automationIntervall = undefined;
     // value of the slider (the position)
@@ -649,6 +671,7 @@ function loadPreviousWeather(map, weatherEv){
   // flush the storage arrays
   usedTimestamps = [];
   timestampStorage = [];
+  resultOutput = [];
 
   var weatherEvent;
   if (weatherEv === "radar"){
@@ -678,6 +701,7 @@ function loadPreviousWeather(map, weatherEv){
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
     console.log(result);
+    resultOutput.push(result)
     let layerID;
     // for every timestamp
     for (let key in result) {
