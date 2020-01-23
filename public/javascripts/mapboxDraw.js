@@ -4,9 +4,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 
 
@@ -79,6 +79,7 @@ function drawForAOI(map, draw) {
 * @param {Array} aoiCoordinatesGeoJSON -
 */
 function processingAOI(map, aoiCoordinatesGeoJSON) {
+	doneProcessingAOI = false;
 
 	let coordinatesAOI = aoiCoordinatesGeoJSON[0];
 
