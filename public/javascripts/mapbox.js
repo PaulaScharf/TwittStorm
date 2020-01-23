@@ -12,13 +12,8 @@
 mapboxgl.accessToken = paramArray.config.keys.mapbox.access_key;
 
 
-// TODO: FARBEN AUCH AN STRAßENKARTE ANPASSEN
-
 
 // ****************************** global variables *****************************
-
-// TODO: JSDoc für globale Variablen
-
 
 /**
 * refers to the layer menu
@@ -875,7 +870,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							"darkviolet",
 							"78",
 							"darkviolet",
-							"black" // sonstiges Event
+							"black" // other events
 						],
 						"fill-opacity": 0.3
 					}
