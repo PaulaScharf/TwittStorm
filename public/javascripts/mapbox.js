@@ -442,7 +442,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
 
-//console.log(result);
+console.log(result);
 
 		// ***************************************************************************************************************
 		// for displaying the radar stuff only in the map for radar and not in the map for severe weather warnings
@@ -721,12 +721,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				layerGroup = "BlackIce";
 				searchWords.push("Blitzeis", "Glätte", "Glatteis");
 			}
-			// TODO: später löschen, da nur zum Ausprobieren
-			// alle anderen Unwetter-Event-Typen:
 			else {
-				layerGroup = "other";
-				// layer other nur zu Testzwecken, daher egal, dass searchWords nicht 100%ig passen
-				searchWords.push("Unwetter", "Windböen", "Nebel", "Sturm");
+	// TODO: if-else if ohne else möglich??
 			}
 
 			//

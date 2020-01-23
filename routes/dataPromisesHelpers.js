@@ -120,7 +120,6 @@ function promiseToUpdateItems(query, update, db) {
 function promiseToDeleteItems(query, db) {
 	return new Promise((resolve, reject) => {
 		try {
-			// filter database for Unwetters whose timestamps-Array is empty
 			db.collection(collectionName).deleteMany(query, (error, result) => {
 
 				if (error) {

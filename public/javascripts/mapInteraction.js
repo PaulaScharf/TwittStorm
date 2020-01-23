@@ -530,10 +530,8 @@ function createWarningsCheckboxes(map) {
 
 	warningsMenu.innerHTML = "";
 
-	// TODO: other am Ende löschen!
 	// the second strings (boolean) indicate whether this warnings-type already has a corresponding checkbox in the menu
 	let warningsTypes = [
-		["other", "false"],
 		["Rain", "false"],
 		["Snowfall", "false"],
 		["Thunderstorm", "false"],

@@ -69,20 +69,26 @@ const getWarningsForTime = function(req, res, next) {
         // timestampDeleting = currentTimestamp - 10 timesteps
         let timestampDeleting = currentTimestamp - (config.refresh_rate * 10);
 
-// $lt means <, $lte means <=
+
+        // TODO: evtl. mit refresh_rate * 11 probieren
+        // diese query tut nicht das richtige, löscht zu früh, da immer nur maximal 9 timestamps im array bleiben???
+
+        // $lt means <, $lte means <=
         promiseToUpdateItems({type: "unwetter"}, {"$pull": {"timestamps": {"$lte": timestampDeleting}}},
         req.db)
         .then(function () {
+          // get those warnings out of database whose timestamp-array is empty
           promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 0}}]}, req.db)
           .then(function (response) {
+
             let oldUnwetterIDs = [];
             // put together all JSON-objects of old Unwetter dwd_ids in one array
             for (let u = 0; u < response.length; u++) {
               oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
             }
-            // if there are old Unwetter existing (older than 10 timesteps),
-            // delete them and their corresponding tweets
+            // if there are old warnings existing (with empty timestamp-array), delete them and their corresponding tweets:
             if (oldUnwetterIDs.length > 0) {
+              // TODO: OR in query überprüfen!!!!
               promiseToDeleteItems({$and: [{"$or": [{"type": "unwetter"}, {"type": "tweet"}]}, {"$or": oldUnwetterIDs}]}, req.db)
               .then(function () {
               },
@@ -151,6 +157,7 @@ const getWarningsForTime = function(req, res, next) {
 * @param db - database reference
 */
 function proccessUnwettersFromLocal(currentTimestamp, db) {
+
   return new Promise((resolve, reject) => {
     let query = {
       type: "unwetter",
@@ -222,7 +229,28 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
         httpResponse.on("end", async () => {
 
           try {
-            let data = JSON.parse(body);
+            let allData = JSON.parse(body);
+            let neededFeatures = [];
+
+            // just take those features that are rain, snowfall, thunderstorm or blackice events:
+            allData.features.forEach(function (item){
+
+              let ii = item.properties.EC_II;
+              // if the item is a:
+              // rain ((ii >= 61) && (ii <= 66)),
+              // snowfall ((ii >= 70) && (ii <= 78)),
+              // thunderstorm (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)))
+              // or blackice event ((ii === 24) || ((ii >= 84) && (ii <= 87)))
+              // than save it in neededFeatures-Array
+              if ( ((ii >= 61) && (ii <= 66)) || ((ii >= 70) && (ii <= 78)) || (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96))) || ((ii === 24) || ((ii >= 84) && (ii <= 87))) ){
+                neededFeatures.push(item);
+              }
+            });
+
+            let data = {
+              "type": "FeatureCollection",
+              "features": neededFeatures
+            };
 
             // ***** formatting the warning which will be inserted into the database afterwards: *****
             //
@@ -310,15 +338,15 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
         // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
         if (typeof response !== "undefined" && response.length > 0) {
 
+          console.log(response);
+          console.log(response[0]);
+
           // ... do not insert it again but:
-
-          // TODO: FOLGEND IST ES DAVON ABHÄNGIG, OB EINE UPDATE MELDUNG EINE NEUE ODER DIE GLEICHE DWD_ID HAT WIE DIE ZUGEHÖRIGE ALERT MELDUNG!!!!!!!!!! (ÜBERPRÜFEN)
-          // ERSTMAL WIRD HIER DAVON AUSGEGANGEN, DASS DIE DWD_IDS DANN UNTERSCHIEDLICH SIND, siehe https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
-
-          // ... and if its MSGTYPE is "Alert" or "Update" ...
+          // if the message (MSGTYPE) is an "Update", the dwd_id will be a new one, see: https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
+          // if its MSGTYPE is "Alert" or "Update"
           if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
 
-            // response._id is the Unwetter-item-ID from mongoDB
+            // response[0]._id is the Unwetter-item-ID from mongoDB
             // if the array "timestamps" does not already contain the currentTimestamp, append it now:
             if (!(response[0].timestamps.includes(currentTimestamp))) {
               promiseToUpdateItems({_id: response[0]._id}, {"$push": {"timestamps": currentTimestamp}}, db)
@@ -330,10 +358,20 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
               });
             }
 
-            // ... and if its MSGTYPE is "Cancel" ...
+            // if its MSGTYPE is "Cancel", than delete this warning from database because it was a mistake
           } else {
-
-            // TODO: delete this Unwetter from database?? (rückwirkend, da Meldung ein Irrtum ist??)
+            // TODO: SO RICHTIG? KORRIGIEREN!!
+            promiseToDeleteItems({$and: [{"$or": [{"type": "unwetter"}, {"type": "tweet"}]}, {"dwd_id": response[0].dwd_id}]}, db)
+            .then(function () {
+            },
+            function (error) {
+              error.httpStatusCode = 500;
+              return next(error);
+            })
+            .catch(function (error) {
+              error.httpStatusCode = 500;
+              return next(error);
+            });
           }
 
           // if this Unwetter does NOT EXIST in the database ...
@@ -346,7 +384,6 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
             // ... add it to the arrayOfGroupedUnwetters
             // this array will be used for subsequent processing before adding the Unwetter to the
             // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
-
             promiseToPostItems([currentUnwetter],db)
             .then(function(response) {
               resolve();
@@ -356,7 +393,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
             });
           }
 
-          // if the Unwetter does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this Unwetter
+          // if the warning does NOT EXIST in the database and its MSGTYPE is "Cancel", do nothing with this warning
         }
       })
       .catch(function(error) {
@@ -393,13 +430,9 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
       timestamps: timestamps,
       geometry: currentFeature.geometry,
       properties: {
-        // TODO: am Ende überprüfen, ob alle Attribute hier benötigt werden, ansonsten unbenötigte löschen
         event: currentFeature.properties.EVENT,
         ec_ii: currentFeature.properties.EC_II,
-        responseType: currentFeature.properties.RESPONSETYPE,
-        urgency: currentFeature.properties.URGENCY,
-        severity: currentFeature.properties.SEVERITY,
-        certainty: currentFeature.properties.CERTAINTY,
+        certainty: currentFeature.properties.CERTAINTY, // "Observed" or "Likely"(p > ~50%)
         description: currentFeature.properties.DESCRIPTION,
         instruction: currentFeature.properties.INSTRUCTION,
         sent: sent,
