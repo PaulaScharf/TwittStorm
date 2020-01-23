@@ -4,19 +4,19 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 
 
 /**
-* @desc
-*
-* @author Katharina Poppinga
-* @param {mapbox-map} map mapbox-map in which the polygons shall be drawn
-* @param {MapboxDraw} draw -
-*/
+ * @desc
+ *
+ * @author Katharina Poppinga
+ * @param {mapbox-map} map mapbox-map in which the polygons shall be drawn
+ * @param {MapboxDraw} draw -
+ */
 function drawForAOI(map, draw) {
 
 	// ************************ events for drawn polygons ************************
@@ -72,13 +72,14 @@ function drawForAOI(map, draw) {
 
 
 /**
-* @desc
-*
-* @author Katharina Poppinga
-* @param {mapbox-map} map mapbox-map in ......
-* @param {Array} aoiCoordinatesGeoJSON -
-*/
+ * @desc
+ *
+ * @author Katharina Poppinga
+ * @param {mapbox-map} map mapbox-map in ......
+ * @param {Array} aoiCoordinatesGeoJSON -
+ */
 function processingAOI(map, aoiCoordinatesGeoJSON) {
+	doneProcessingAOI = false;
 
 	let coordinatesAOI = aoiCoordinatesGeoJSON[0];
 

@@ -5183,11 +5183,11 @@
         </collectionProp>
       </HeaderManager>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="main page (with web sampler)" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="client side tests" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Schleifen-Controller (Loop Controller)" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
+          <stringProp name="LoopController.loops">5</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
@@ -5345,37 +5345,64 @@ WDS.sampleResult.sampleEnd()
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
-        <com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler guiclass="com.googlecode.jmeter.plugins.webdriver.sampler.gui.WebDriverSamplerGui" testclass="com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler" testname="jp@gc - WebDriver Sampler" enabled="true">
+        <com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler guiclass="com.googlecode.jmeter.plugins.webdriver.sampler.gui.WebDriverSamplerGui" testclass="com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler" testname="load main page and draw aoi" enabled="true">
           <stringProp name="WebDriverSampler.script">// imports and declarations
 var pkg = JavaImporter(org.openqa.selenium);
 var support_ui = JavaImporter(org.openqa.selenium.support.ui.WebDriverWait); //WebDriver classes
 var ui = JavaImporter(org.openqa.selenium.support.ui) 
 // dont wait longer than 5 seconds
 var wait = new support_ui.WebDriverWait(WDS.browser, 5000);
+// dimensions of the browser window
+var dim = new org.openqa.selenium.Dimension(1500,1000);
 
 // start sampler
 WDS.sampleResult.sampleStart()
+WDS.browser.manage().window().setSize(dim)
 // load page
-WDS.browser.get(&apos;http://localhost:3000/map?timestamp=1234&apos;)
+WDS.browser.get(&apos;http://localhost:3000/map&apos;)
 
-// wait until loader has disappeared
+
+// wait until loader has appeared
 wait.until(ui.ExpectedConditions.visibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
-wait.until(ui.ExpectedConditions.visibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
+ var start = new Date().getTime()
+while (new Date().getTime() - start &lt; 8000) {
+	var value = WDS.browser.executeScript(&quot;return doneLoadingWeather;&quot;);
+    if (value === true) {
+    	break;
+    }
+}
+WDS.log.info(&quot;new weather events are loaded&quot;);
 
 // switch to drawing mode in mapbox
 WDS.browser.findElement(pkg.By.xpath(&quot;//div[@id=&apos;map&apos;]/div[9]/div[2]/div[2]/button&quot;)).click();
 // draw aoi (relative to the filterButton for the tweets)
 var filterBox = WDS.browser.findElement(pkg.By.id(&quot;tweetfilter-ta&quot;));
 var ac = new org.openqa.selenium.interactions.Actions(WDS.browser)
-ac.moveToElement(filterBox).moveByOffset(1000, -300).click().perform()
-ac.moveToElement(filterBox).moveByOffset(1000, -100).click().perform()
-ac.moveToElement(filterBox).moveByOffset(600, -100).click().perform()
-ac.moveToElement(filterBox).moveByOffset(600, -300).click().perform()
-ac.moveToElement(filterBox).moveByOffset(1000, -300).click().perform()
-// wait until loader has disappeared
-wait.until(ui.ExpectedConditions.visibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
-wait.until(ui.ExpectedConditions.visibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
-
+ac.moveToElement(filterBox).moveByOffset(1000, -500).click().perform()
+ac.moveToElement(filterBox).moveByOffset(1000, 80).click().perform()
+ac.moveToElement(filterBox).moveByOffset(400, 80).click().perform()
+ac.moveToElement(filterBox).moveByOffset(400, -500).click().perform()
+ac.moveToElement(filterBox).moveByOffset(1000, -500).click().perform()
+// wait until aoi is processed
+var start = new Date().getTime()
+while (new Date().getTime() - start &lt; 8000) {
+	var value = WDS.browser.executeScript(&quot;return doneProcessingAOI;&quot;);
+    if (value === true) {
+    	break;
+    }
+}
+WDS.log.info(&quot;aoi was processed&quot;);
+WDS.sampleResult.sampleEnd()
+/*
+WDS.log.info(&apos;waiting for loading spinner&apos;)
+if (WDS.browser.findElement(pkg.By.id(&quot;loading&quot;)).isDisplayed()) {
+	wait.until(ui.ExpectedConditions.invisibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
+} else {
+	wait.until(ui.ExpectedConditions.visibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
+	wait.until(ui.ExpectedConditions.invisibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
+}
+WDS.log.info(&apos;loading spinner has disappeared&apos;)
+*/
 // test if tweets are diplayed (WIP)
 /*
 var start = new Date().getTime()
@@ -5394,16 +5421,94 @@ while (new Date().getTime() - start &lt; 8000) {
     }
 }
 */
+</stringProp>
+          <stringProp name="WebDriverSampler.parameters"></stringProp>
+          <stringProp name="WebDriverSampler.language">javascript</stringProp>
+        </com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler>
+        <hashTree/>
+        <com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler guiclass="com.googlecode.jmeter.plugins.webdriver.sampler.gui.WebDriverSamplerGui" testclass="com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler" testname="load main page and draw aoi (demo)" enabled="true">
+          <stringProp name="WebDriverSampler.script">// imports and declarations
+var pkg = JavaImporter(org.openqa.selenium);
+var support_ui = JavaImporter(org.openqa.selenium.support.ui.WebDriverWait); //WebDriver classes
+var ui = JavaImporter(org.openqa.selenium.support.ui) 
+// dont wait longer than 5 seconds
+var wait = new support_ui.WebDriverWait(WDS.browser, 5000);
+// dimensions of the browser window
+var dim = new org.openqa.selenium.Dimension(1500,1000);
 
-// stop sampler
+// start sampler
+WDS.sampleResult.sampleStart()
+WDS.browser.manage().window().setSize(dim)
+// load page
+WDS.browser.get(&apos;http://localhost:3000/map?timestamp=1234&apos;)
+
+
+// wait until loader has appeared
+wait.until(ui.ExpectedConditions.visibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
+ var start = new Date().getTime()
+while (new Date().getTime() - start &lt; 8000) {
+	var value = WDS.browser.executeScript(&quot;return doneLoadingWeather;&quot;);
+    if (value === true) {
+    	break;
+    }
+}
+WDS.log.info(&quot;new weather events are loaded&quot;);
+
+// switch to drawing mode in mapbox
+WDS.browser.findElement(pkg.By.xpath(&quot;//div[@id=&apos;map&apos;]/div[9]/div[2]/div[2]/button&quot;)).click();
+// draw aoi (relative to the filterButton for the tweets)
+var filterBox = WDS.browser.findElement(pkg.By.id(&quot;tweetfilter-ta&quot;));
+var ac = new org.openqa.selenium.interactions.Actions(WDS.browser)
+ac.moveToElement(filterBox).moveByOffset(1000, -500).click().perform()
+ac.moveToElement(filterBox).moveByOffset(1000, 80).click().perform()
+ac.moveToElement(filterBox).moveByOffset(400, 80).click().perform()
+ac.moveToElement(filterBox).moveByOffset(400, -500).click().perform()
+ac.moveToElement(filterBox).moveByOffset(1000, -500).click().perform()
+// wait until aoi is processed
+var start = new Date().getTime()
+while (new Date().getTime() - start &lt; 8000) {
+	var value = WDS.browser.executeScript(&quot;return doneProcessingAOI;&quot;);
+    if (value === true) {
+    	break;
+    }
+}
+WDS.log.info(&quot;aoi was processed&quot;);
 WDS.sampleResult.sampleEnd()
+/*
+WDS.log.info(&apos;waiting for loading spinner&apos;)
+if (WDS.browser.findElement(pkg.By.id(&quot;loading&quot;)).isDisplayed()) {
+	wait.until(ui.ExpectedConditions.invisibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
+} else {
+	wait.until(ui.ExpectedConditions.visibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
+	wait.until(ui.ExpectedConditions.invisibilityOfElementLocated(pkg.By.id(&quot;loading&quot;)))
+}
+WDS.log.info(&apos;loading spinner has disappeared&apos;)
+*/
+// test if tweets are diplayed (WIP)
+/*
+var start = new Date().getTime()
+var attempt = 1
+while (new Date().getTime() - start &lt; 8000) {
+    try {
+    	ac.moveToElement(filterBox).moveByOffset(534, -440).click().perform()
+        var logout = WDS.browser.findElement(org.openqa.selenium.By.id(&apos;twitter-widget-0&apos;))
+        WDS.log.info(&apos;Element found&apos;)
+        break
+    }
+    catch (err) {
+        WDS.log.info(&apos;Attempt # &apos; + attempt + &apos;, Element not found&apos;)
+        java.lang.Thread.sleep(1000)
+        attempt++
+    }
+}
+*/
 </stringProp>
           <stringProp name="WebDriverSampler.parameters"></stringProp>
           <stringProp name="WebDriverSampler.language">javascript</stringProp>
         </com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="main page" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="all requests for loading the main page" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Schleifen-Controller (Loop Controller)" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
