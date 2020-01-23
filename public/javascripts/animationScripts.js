@@ -332,7 +332,7 @@ function automate(map){
   // on playbutton click
   $("#playButton").click(function play() {
     // if there is no data for the requested wtype show a popup to inform the user to do so beforehand
-    if (final.length == 0) {
+    if (customLayerIds.length == 0) {
       $("#playPopup").css({'background-color': 'red'});
       //avoid multiple click events
       if (popup.classList[1] != "show"){
@@ -476,125 +476,137 @@ function loadAnimation(position, map){
   // set a "marker" for the wanted position based on the available timestamps
   var posMarker = usedTimestamps[position];
 
-    // transform the time from milliseconds to date
-    var time = new Date(+posMarker);
-    posMarker = "unwetter " + posMarker;
-    // add to UI
-    document.getElementById('timestamp').textContent = time.toUTCString();
+  // transform the time from milliseconds to date
+  var time = new Date(+posMarker);
+  // add to UI
+  document.getElementById('timestamp').textContent = time.toUTCString();
 
-    //check if a layer is shown
-    for (let i = 0; i < allLayers.length; i++) {
-      // if yes remove them
-      map.removeLayer(allLayers);
+  //check if a layer is shown
+  for (let i = 0; i < allLayers.length; i++) {
+    // if yes remove them
+    map.removeLayer(allLayers[i]);
+  }
+  closeAllPopups();
+
+  //flus array in case
+  allLayers = [];
+  customLayerIds.forEach(function (layerID) {
+    let layerIdParts = layerID.split(/[ ]+/);
+    if (layerIdParts[1] == posMarker) {
+      // add the correct layer
+      if (layerID.includes("radar")) {+
+        map.addLayer({
+          "id": layerID,
+          "type": "fill",
+          "source": layerID,
+          "layout": {"visibility": "visible"},
+          "paint": {
+            "fill-color": {
+              "property": "class",
+              "stops": [
+                [1, '#b3cde0'],
+                [2, '#6497b1'],
+                [3, '#03396c'],
+                [4, '#011f4b']
+              ]
+            },
+            "fill-opacity": 0.4
+          }
+        });
+      } else if (layerID.includes("unwetter")) {
+        map.addLayer({
+          'id': layerID,
+          'type': 'fill',
+          'source': layerID,
+          "paint": {
+            "fill-color": [
+              "match", ["string", ["get", "event"]],
+              "GLÄTTE",
+              "yellow",
+              "GLATTEIS",
+              "yellow",
+              "GEWITTER",
+              "red",
+              "STARKES GEWITTER",
+              "red",
+              "SCHWERES GEWITTER",
+              "red",
+              "SCHWERES GEWITTER mit ORKANBÖEN",
+              "red",
+              "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
+              "red",
+              "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
+              "red",
+              "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
+              "red",
+              "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
+              "red",
+              "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "EXTREMES GEWITTER",
+              "red",
+              "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "STARKREGEN",
+              "blue",
+              "HEFTIGER STARKREGEN",
+              "blue",
+              "DAUERREGEN",
+              "blue",
+              "ERGIEBIGER DAUERREGEN",
+              "blue",
+              "EXTREM ERGIEBIGER DAUERREGEN",
+              "blue",
+              "EXTREM HEFTIGER STARKREGEN",
+              "blue",
+              "LEICHTER SCHNEEFALL",
+              "darkviolet",
+              "SCHNEEFALL",
+              "darkviolet",
+              "STARKER SCHNEEFALL",
+              "darkviolet",
+              "EXTREM STARKER SCHNEEFALL",
+              "darkviolet",
+              "SCHNEEVERWEHUNG",
+              "darkviolet",
+              "STARKE SCHNEEVERWEHUNG",
+              "darkviolet",
+              "SCHNEEFALL und SCHNEEVERWEHUNG",
+              "darkviolet",
+              "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+              "darkviolet",
+              "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+              "darkviolet",
+              "black" // sonstiges Event
+              // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
+              // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
+            ],
+            "fill-opacity": 0.3
+          }
+        });
+      } else if (layerID.includes("tweet")) {
+        map.addLayer({
+          "id": layerID,
+          "type": "symbol",
+          "source": layerID,
+          "layout": {
+            "icon-image": ["concat", "circle", "-15"],
+            "visibility": "visible"
+          }
+        });
+      }
+
+      makeLayerInteractive(map, layerID);
+      // put something in the array for the for loop to check for emptiness
+      allLayers.push(layerID);
     }
-    closeAllPopups();
-
-    //flus array in case
-    allLayers = [];
-    // add the correct layer
-    if (wtypeFlag == "radar") {
-      map.addLayer({
-        "id": posMarker,
-        "type": "fill",
-        "source": posMarker,
-        "layout": {"visibility": "visible"},
-        "paint": {
-          "fill-color": {
-            "property": "class",
-            "stops": [
-              [1, '#b3cde0'],
-              [2, '#6497b1'],
-              [3, '#03396c'],
-              [4, '#011f4b']
-            ]
-          },
-          "fill-opacity": 0.4
-        }
-      });
-    }
-
-    if (wtypeFlag == "severeWeather") {
-      map.addLayer({
-        'id': posMarker,
-        'type': 'fill',
-        'source': posMarker,
-        "paint": {
-          "fill-color": [
-            "match", ["string", ["get", "event"]],
-            "GLÄTTE",
-            "yellow",
-            "GLATTEIS",
-            "yellow",
-            "GEWITTER",
-            "red",
-            "STARKES GEWITTER",
-            "red",
-            "SCHWERES GEWITTER",
-            "red",
-            "SCHWERES GEWITTER mit ORKANBÖEN",
-            "red",
-            "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
-            "red",
-            "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
-            "red",
-            "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
-            "red",
-            "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
-            "red",
-            "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
-            "red",
-            "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-            "red",
-            "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
-            "red",
-            "EXTREMES GEWITTER",
-            "red",
-            "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
-            "red",
-            "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
-            "red",
-            "STARKREGEN",
-            "blue",
-            "HEFTIGER STARKREGEN",
-            "blue",
-            "DAUERREGEN",
-            "blue",
-            "ERGIEBIGER DAUERREGEN",
-            "blue",
-            "EXTREM ERGIEBIGER DAUERREGEN",
-            "blue",
-            "EXTREM HEFTIGER STARKREGEN",
-            "blue",
-            "LEICHTER SCHNEEFALL",
-            "darkviolet",
-            "SCHNEEFALL",
-            "darkviolet",
-            "STARKER SCHNEEFALL",
-            "darkviolet",
-            "EXTREM STARKER SCHNEEFALL",
-            "darkviolet",
-            "SCHNEEVERWEHUNG",
-            "darkviolet",
-            "STARKE SCHNEEVERWEHUNG",
-            "darkviolet",
-            "SCHNEEFALL und SCHNEEVERWEHUNG",
-            "darkviolet",
-            "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-            "darkviolet",
-            "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
-            "darkviolet",
-            "black" // sonstiges Event
-            // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
-            // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
-          ],
-          "fill-opacity": 0.3
-        }
-      });
-    }
-
-    makeLayerInteractive(map, posMarker);
-    // put something in the array for the for loop to check for emptiness
-    allLayers.push(posMarker);
+  });
 
 }
 
@@ -664,6 +676,7 @@ function loadPreviousWeather(map, weatherEv){
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
     console.log(result);
+    let layerID;
     // for every timestamp
     for (let key in result) {
       if (key == "type" || key == "length") {
@@ -674,53 +687,63 @@ function loadPreviousWeather(map, weatherEv){
         // log the individual timestamp to refer to them later
         usedTimestamps.push(key);
 
-        // flush the outputarray with each call
-        outputArray = [];
-
         // for every unwetter in the response
         for (let j = 0; j < result[key].length; j++){
-          // take every unwetter and save its coordinates
-          let currentUnwetter = result[key][j].geometry;
-          // gjson structure
-          mask = {
-            "timestamp": key,
-            "type": weatherEvent,
-            "geometry": {
-              "type": "FeatureCollection",
-            }
-          };
+          if (result[key][j].type === "Tweet") {
+            layerID = "tweet " + key + " " + j;
+            mask = {
+              "timestamp": key,
+              "type": weatherEvent,
+              "geometry": {
+                "type": "FeatureCollection",
+              }
+            };
 
-          // put every polygon from a unwetterwarning into one array
-          if (weatherEv == "severeWeather"){
-            // also save the according weather event
-            let currentProperties = result[key][j].properties;
-            for (let i = 0; i < currentUnwetter.length; i++){
-              //transform the polygon into geojson
-              var polygon = goGeoJson(currentUnwetter[i].coordinates, key, currentProperties);
-              // array to save every timestamp´s polygon
-              outputArray.push(polygon);
-            }
-            mask.geometry.features = outputArray;
-          }
+            var tweet = {
+              "type":"Feature",
+              "properties": result[key][j],
+              "geometry": result[key][j].location_actual
+            };
+            tweet.properties["class"] = key;
 
-          // add the current events to the geojson for each timestamp
-          if (weatherEv == "radar"){
-            mask.geometry.features = currentUnwetter;
+            mask.geometry.features = [tweet];
+          } else {
+            // take every unwetter and save its coordinates
+            let currentUnwetter = result[key][j].geometry;
+            // gjson structure
+            mask = {
+              "timestamp": key,
+              "type": weatherEvent,
+              "geometry": {
+                "type": "FeatureCollection",
+              }
+            };
+
+            // put every polygon from a unwetterwarning into one array
+            if (weatherEv == "severeWeather") {
+              layerID = "unwetter " + key + " " + j;
+              // also save the according weather event
+              let currentProperties = result[key][j].properties;
+              outputArray = [];
+              for (let i = 0; i < currentUnwetter.length; i++) {
+                //transform the polygon into geojson
+                var polygon = goGeoJson(currentUnwetter[i].coordinates, key, currentProperties);
+                // array to save every timestamp´s polygon
+                outputArray.push(polygon);
+              }
+              mask.geometry.features = outputArray;
+            }
+
+            // add the current events to the geojson for each timestamp
+            if (weatherEv == "radar") {
+              layerID = "radar " + key + " " + j;
+              mask.geometry.features = currentUnwetter;
+            }
           }
+          customLayerIds.push(layerID);
+          addToSource(map, layerID,  mask);
         }
-
-        // add all filled geojsons to one array
-        addItem(mask);
       }
-    }
-    //for dramatic purposes have the data stored in final object
-    final = timestampStorage;
-    console.log(final);
-
-    // for every timestamp in the final object
-    for (let i = 0; i < final.length; i++){
-      //add the according data to an mapbox source
-      addToSource(map, "unwetter " + final[i].timestamp ,  final[i]);
     }
   })
 
@@ -813,18 +836,30 @@ function removeAllSource(map) {
 * @author Benjamin Rieke
 */
 function addToSource(map, layerID, previousFeatureCollection){
+  //
+  let sourceObject = map.getSource(layerID);
+// if there is already an existing Source of this map with the given layerID ...
+  if (typeof sourceObject !== 'undefined') {
+    // ... add the data
+    // TODO: warum folgendes nötig? warum nicht einfach alte source unverändert lassen, da dwd-id die gleiche ist und damit auch keine updates des Unwetters vorhanden sind?
+    let data = JSON.parse(JSON.stringify(sourceObject._data));
+    data.features = data.features.concat(previousFeatureCollection.geometry.features);
+    sourceObject.setData(data);
 
-  if (previousFeatureCollection.type =="rainRadar/"){
-    map.addSource(layerID, {
-      type: 'geojson',
-      data: previousFeatureCollection.geometry.features
-    });
-  }
+    // if there is no Source of this map with the given layerID ...
+  } else {
+    if (previousFeatureCollection.type == "rainRadar/") {
+      map.addSource(layerID, {
+        type: 'geojson',
+        data: previousFeatureCollection.geometry.features
+      });
+    }
 
-  if (previousFeatureCollection.type =="unwetter/"){
-    map.addSource(layerID, {
-      type: 'geojson',
-      data: previousFeatureCollection.geometry
-    });
+    if (previousFeatureCollection.type == "unwetter/") {
+      map.addSource(layerID, {
+        type: 'geojson',
+        data: previousFeatureCollection.geometry
+      });
+    }
   }
 }
