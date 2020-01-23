@@ -37,7 +37,7 @@ let animationMap;
 
 
 // TODO: JSDoc für globale Variablen
-
+let resultOutput = [];
 let usedTimestamps = [];
 // all individual events from a timestamp get temporally stored in here
 let outputArray = [];
@@ -331,8 +331,29 @@ function automate(map){
 
   // on playbutton click
   $("#playButton").click(function play() {
+//    console.log(Object.keys(resultOutput[0]).length);
+//  Object.keys(resultOutput[0]).length
+console.log(resultOutput);
     // if there is no data for the requested wtype show a popup to inform the user to do so beforehand
-    if (customLayerIds.length == 0) {
+    if (resultOutput.length){
+    if (Object.keys(resultOutput[0]).length == 1) {
+      $("#playPopup").css({'background-color': 'darkgrey'});
+      $('#playPopup').html('There is nothing worthy to show right now. Try out the Demo data');
+
+      //avoid multiple click events
+      if (popup.classList[1] != "show"){
+        // show the popup
+        popup.classList.toggle("show");
+        // hide the popup after some time
+        setTimeout(function(){
+          popup.classList.toggle("show");
+        }, 4000);
+      }
+      return;
+    }
+  }
+
+    if (usedTimestamps.length == 0) {
       $("#playPopup").css({'background-color': 'red'});
       //avoid multiple click events
       if (popup.classList[1] != "show"){
@@ -345,6 +366,7 @@ function automate(map){
       }
       return;
     }
+
     // flush the intervall
     automationIntervall = undefined;
     // value of the slider (the position)
@@ -520,85 +542,73 @@ function loadAnimation(position, map){
           'source': layerID,
           "paint": {
             "fill-color": [
-              "match", ["string", ["get", "ec_ii"]],
-							"24", // black ice
-							"yellow",
-							"84",
-							"yellow",
-							"85",
-							"yellow",
-							"87",
-							"yellow",
-							"31", // thunderstorm
-							"red",
-							"33",
-							"red",
-							"34",
-							"red",
-							"36",
-							"red",
-							"38",
-							"red",
-							"40",
-							"red",
-							"41",
-							"red",
-							"42",
-							"red",
-							"44",
-							"red",
-							"45",
-							"red",
-							"46",
-							"red",
-							"48",
-							"red",
-							"49",
-							"red",
-							"90",
-							"red",
-							"91",
-							"red",
-							"92",
-							"red",
-							"93",
-							"red",
-							"95",
-							"red",
-							"96",
-							"red",
-							"61", // rain
-							"blue",
-							"62",
-							"blue",
-							"63",
-							"blue",
-							"64",
-							"blue",
-							"65",
-							"blue",
-							"66",
-							"blue",
-							"70", // snowfall
-							"darkviolet",
-							"71",
-							"darkviolet",
-							"72",
-							"darkviolet",
-							"73",
-							"darkviolet",
-							"74",
-							"darkviolet",
-							"75",
-							"darkviolet",
-							"76",
-							"darkviolet",
-							"77",
-							"darkviolet",
-							"78",
-							"darkviolet",
-							"black" // other events
-						],
+              "match", ["string", ["get", "event"]],
+              "GLÄTTE",
+              "yellow",
+              "GLATTEIS",
+              "yellow",
+              "GEWITTER",
+              "red",
+              "STARKES GEWITTER",
+              "red",
+              "SCHWERES GEWITTER",
+              "red",
+              "SCHWERES GEWITTER mit ORKANBÖEN",
+              "red",
+              "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
+              "red",
+              "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
+              "red",
+              "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
+              "red",
+              "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
+              "red",
+              "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "EXTREMES GEWITTER",
+              "red",
+              "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
+              "red",
+              "STARKREGEN",
+              "blue",
+              "HEFTIGER STARKREGEN",
+              "blue",
+              "DAUERREGEN",
+              "blue",
+              "ERGIEBIGER DAUERREGEN",
+              "blue",
+              "EXTREM ERGIEBIGER DAUERREGEN",
+              "blue",
+              "EXTREM HEFTIGER STARKREGEN",
+              "blue",
+              "LEICHTER SCHNEEFALL",
+              "darkviolet",
+              "SCHNEEFALL",
+              "darkviolet",
+              "STARKER SCHNEEFALL",
+              "darkviolet",
+              "EXTREM STARKER SCHNEEFALL",
+              "darkviolet",
+              "SCHNEEVERWEHUNG",
+              "darkviolet",
+              "STARKE SCHNEEVERWEHUNG",
+              "darkviolet",
+              "SCHNEEFALL und SCHNEEVERWEHUNG",
+              "darkviolet",
+              "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+              "darkviolet",
+              "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+              "darkviolet",
+              "black" // sonstiges Event
+              // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
+              // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
+            ],
             "fill-opacity": 0.3
           }
         });
@@ -661,6 +671,7 @@ function loadPreviousWeather(map, weatherEv){
   // flush the storage arrays
   usedTimestamps = [];
   timestampStorage = [];
+  resultOutput = [];
 
   var weatherEvent;
   if (weatherEv === "radar"){
@@ -674,7 +685,7 @@ function loadPreviousWeather(map, weatherEv){
     // use a http GET request
     type: "GET",
     // URL to send the request to
-    url: "/api/v1/previousWeather/" + weatherEvent + currentTimestamp,
+    url: "/previousWeather/" + weatherEvent + currentTimestamp,
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // timeout set to 15 seconds
@@ -690,6 +701,7 @@ function loadPreviousWeather(map, weatherEv){
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
     console.log(result);
+    resultOutput.push(result)
     let layerID;
     // for every timestamp
     for (let key in result) {
