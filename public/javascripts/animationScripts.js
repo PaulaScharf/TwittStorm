@@ -74,7 +74,9 @@ var wIndicator = "";
 * @author Katharina Poppinga, Jonathan Bahlmann, Benjamin Rieke
 */
 function showAnimationMap(style) {
-  indicator ="animation"
+
+  indicator = "animation";
+
   // Checks whether the layer menu DOM is empty and if not flushes the dom
   while (layers.firstChild) {
     layers.removeChild(layers.firstChild);
@@ -153,8 +155,6 @@ function showAnimationMap(style) {
   styleSelector(animationMap);
 
   // ************************ adding boundary of Germany *************************
-  // TODO: evtl. in eigene Funktion auslagern, der Übersicht halber
-
   // this event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
   animationMap.on('load', function() {
     // resize map to full screen
@@ -173,7 +173,6 @@ function showAnimationMap(style) {
         'visibility': 'visible'
       },
       'paint': {
-        // TODO: passende Farbe aussuchen und bei basemap-Änderung anpassen
         'line-color': 'black',
         'line-width': 1
       }
@@ -298,7 +297,7 @@ function reloadAnimation(wType){
     // update the menu
     rasterMenuToggle.classList.add("active");
     menuToggle.classList.remove("active");
-  };
+  }
 
   // set the animation slider to the first position
   $("#slider").prop("value", 0);
@@ -325,7 +324,7 @@ function reloadAnimation(wType){
 
 /**
 * @desc adds functionality to the slider and to the pause, play and download buttons
-* @param map links to the map
+* @param {Object} map - links to the mapbox-map
 * @author Benjamin Rieke
 */
 function automate(map){
@@ -338,7 +337,7 @@ function automate(map){
     if (resultOutput.length){
       if (Object.keys(resultOutput[0]).length == 1) {
         $("#playPopup").css({'background-color': 'darkgrey'});
-        $('#playPopup').html('There is nothing worthy to show right now. Try out the Demo data');
+        $('#playPopup').html('There is nothing worthy to show right now. Try out the demo data.');
 
         //avoid multiple click events
         if (popup.classList[1] != "show"){
@@ -515,7 +514,7 @@ function loadAnimation(position, map){
     let layerIdParts = layerID.split(/[ ]+/);
     if (layerIdParts[1] == posMarker) {
       // add the correct layer
-      if (layerID.includes("radar")) {+
+      if (layerID.includes("radar")) {
         map.addLayer({
           "id": layerID,
           "type": "fill",
@@ -646,7 +645,7 @@ function loadAnimation(position, map){
 
 /**
 * @desc Function provided from gif libary Gifshot
-* @param array image containig array
+* @param array image containing array
 * @author Benjamin Rieke
 */
 function createGif(array) {
@@ -674,8 +673,8 @@ function createGif(array) {
 /**
 * @desc Performs the actual db call to retrieve the previousWeather data
 * and fits every event according to its timestamp into an array
-* @param map Links to the map
-* @param weatherEv -
+* @param {Object} map - Links to the mapbox-map
+* @param {String} weatherEv -
 * @author Benjamin Rieke
 */
 function loadPreviousWeather(map, weatherEv){
@@ -711,16 +710,13 @@ function loadPreviousWeather(map, weatherEv){
   .done(function (result) {
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
-    console.log(result);
+
     resultOutput.push(result);
     let layerID;
     // for every timestamp
     for (let key in result) {
-      if (key == "type" || key == "length") {
-        // TODO: ????
-      }
+      if ((key != "type") && (key != "length")) {
 
-      else {
         // log the individual timestamp to refer to them later
         usedTimestamps.push(key);
 

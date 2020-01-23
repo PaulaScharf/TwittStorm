@@ -142,7 +142,6 @@ function showMap(style) {
 	// if not yet in URL, use default warnings
 	if (paramArray.wtype == undefined) {
 		updateURL("wtype", "unwetter");
-		paramArray.wtype = "unwetter"; // TODO: dieses löschen, wenn weiter unten auch angepasst an readURL()...
 	}
 
 	// if not yet in URL, get value from config.yaml
@@ -162,8 +161,6 @@ function showMap(style) {
 	} else {
 		centerURL = JSON.parse(paramArray.mapCenter);
 	}
-
-
 
 	// create new map with variable zoom and center
 	map = new mapboxgl.Map({
@@ -187,20 +184,16 @@ function showMap(style) {
 	// enables the ability to choose between different mapstyles
 	styleSelector(map);
 
-
 	// TODO: HIER RICHTIG?? BENNY FRAGEN - SOWAS AUCH FÜR LOAD RASTER ??????
 	$("#severeWeather").click(function() {
 		loadSevereWeather(map);
 	});
-
 
 	// set Interval to accumulate radar data for the animation
 	setInterval(intervalRainRadar, paramArray.config.refresh_rate, map);
 
 
 	// ************************ adding boundary of Germany ***********************
-	// TODO: evtl. in eigene Funktion auslagern, der Übersicht halber
-
 	// this event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
 	map.on('load', function() {
 		// resize map to full screen
@@ -219,7 +212,6 @@ function showMap(style) {
 				'visibility': 'visible'
 			},
 			'paint': {
-				// TODO: passende Farbe aussuchen und bei basemap-Änderung anpassen
 				'line-color': 'black',
 				'line-width': 1
 			}
@@ -250,8 +242,8 @@ function showMap(style) {
 		let rasterMenuToggle;
 		let severeWeatherMenuToggle;
 
-		// TODO: zweites (paramArray..) in if-bedingung löschen?
-		if ((readURL("wtype") == "radar") || (paramArray.wtype == "radar")) {
+		if (readURL("wtype") == "radar") {
+
 			// set the flag to radar
 			wtypeFlag = "radar";
 
@@ -261,7 +253,7 @@ function showMap(style) {
 			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-			//if rasterProduct is defined
+			// if rasterProduct is defined
 			if (paramArray.rasterProduct !== undefined) {
 
 				showLegend(map, "radar", paramArray.rasterProduct);
@@ -283,7 +275,6 @@ function showMap(style) {
 					innerRasterCheckToggle3.checked = true;
 				}
 			}
-			// TODO: folgendes löschen, wenn URL immer gefixt?
 			// if radarproduct is undefined
 			else {
 				// default radar case (rw)
@@ -298,21 +289,15 @@ function showMap(style) {
 
 		// ****************** load severe weather warnings data ********************
 
-		// TODO: zweites (paramArray..) in if-bedingung löschen?
-		if ((readURL("wtype") == "unwetter") || (paramArray.wtype === "unwetter")) {
+		if (readURL("wtype") == "unwetter") {
 
 			deleteFromURL("radProd");
-
-			// TODO: unnötig?
-			// set URL to requested wtype
-			updateURL("wtype", "unwetter");
 
 			// set the flag to severe weather
 			wtypeFlag = "severeWeather";
 
 			//create checkboxes for the submenu
 			createWarningsCheckboxes(map);
-
 
 			// toggle the menu tabs for radar and severe weather to active or not active
 			rasterMenuToggle = document.getElementById('raster');
@@ -328,7 +313,6 @@ function showMap(style) {
 			let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - (Date.now() - paramArray.config.timestamp_last_warnings_request);
 
 			// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
-			// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
 			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
 			// ... and afterwards each "paramArray.config.refresh_rate" again
 			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
@@ -397,7 +381,6 @@ function getAndUseAOIFromURL(draw) {
 	});
 
 	let aoiForTweetSearch = [polygonArray];
-	// TODO: ausprobieren, ob funktionert!!!!
 	onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiForTweetSearch));
 }
 
@@ -684,10 +667,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			let currentUnwetterEvent = currentUnwetters[i];
 			let searchWords = [];
-
-			// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
-			// FALLS NICHT, DANN RANGE ANPASSEN (VGL. ii IN CAP-DOC)
-			// FALLS JA, DANN FARBEN IN fill-color ANPASSEN
 
 			//
 			let layerGroup = "undefined";

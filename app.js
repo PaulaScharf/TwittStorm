@@ -131,9 +131,9 @@ function connectMongoDb() {
         // tell the user that the connection is established and database "itemdb" will be used for following operations
         console.log("Using Database " + app.locals.db.databaseName);
 
-        // TODO: stimmt folgende URL hier noch?
+        // TODO: URL anpassen, docker nutzt immer port 3000?
         // tell the user the URL for starting the application
-        console.log("URL for starting the app: http://localhost:3000/");
+        console.log("URL for starting the app: http://<yourIP>:<port>");
 
         // if it is not possible to connect on localhost:27017 or mongodbservice:27017,
         // catch possible errors and print them in the console:
