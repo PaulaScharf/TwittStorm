@@ -619,6 +619,7 @@ function createGif(array) {
     'gifHeight': 400,
   }, function (obj) {
     if (!obj.error) {
+      var image = obj.image;
       download(image, filename, 'image/gif');
     }
   });
