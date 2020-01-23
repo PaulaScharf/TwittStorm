@@ -1041,13 +1041,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// if bool is true, displayEvent()
 
 							//if(bool) {
-							let tweetFeature = {
-								"type": "Feature",
-								"geometry": item.location_actual,
-								"properties": item
-							};
-							tweetFeatureCollection.features = [tweetFeature];
-							displayEvent(map, "Tweet rainradar", tweetFeatureCollection);
+								let tweetFeature = {
+									"type": "Feature",
+									"geometry": item.location_actual,
+									"properties": item
+								};
+								tweetFeatureCollection.features = [tweetFeature];
+								displayEvent(map, "tweet rainradar", tweetFeatureCollection);
 							//}
 
 						}
@@ -1163,7 +1163,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 												"properties": item
 											};
 											tweetFeatureCollection.features = [tweetFeature];
-											displayEvent(map, "Tweet " + item.idstr.replace(/\s/g, '') + " " + layerIDSplit[1].replace(/\s/g, '') + " " + layerIDSplit[2].replace(/\s/g, ''), tweetFeatureCollection);
+											displayEvent(map, "tweet " + item.idstr.replace(/\s/g, '') + " " + layerIDSplit[1].replace(/\s/g, '') + " " + layerIDSplit[2].replace(/\s/g, ''), tweetFeatureCollection);
 										}
 									}
 								});
@@ -1192,7 +1192,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				// change visibility of unwetter layer
 				map.setLayoutProperty(layerID, 'visibility', visibility);
 
-				let layerIDTweet = "Tweet " + layerIDSplit[1] + " " + layerIDSplit[2];
+				let layerIDTweet = "tweet " + layerIDSplit[1] + " " + layerIDSplit[2];
 				let tweetLayer = map.getLayer(layerIDTweet);
 
 				if (typeof tweetLayer !== 'undefined') {
@@ -1217,7 +1217,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				map.removeLayer(layerID);
 				map.removeSource(layerID);
 				customLayerIds.remove(layerID);
-				if(layerID.includes("Tweet") && document.getElementById(layerID.split(/[ ]+/)[1])) {
+				if(layerID.includes("tweet") && document.getElementById(layerID.split(/[ ]+/)[1])) {
 					closeAllPopups();
 				}
 				i--;
@@ -1295,7 +1295,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			// ... give a notice on the console that the AJAX request for deleting a tweet has succeeded
 			console.log("AJAX request (deleting a tweet) is done successfully.");
 
-			showAllExcept(map, "Tweet " + id);
+			showAllExcept(map, "tweet " + id);
 			popup.remove();
 		})
 
@@ -1337,7 +1337,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	function filterTweetPopups(map) {
 
 		customLayerIds.forEach(function(id) {
-			if (id.includes("Tweet")) {
+			if (id.includes("tweet")) {
 				let tweet = map.getSource(id);
 				let visibility = 'none'
 				filterwords.forEach(function(phrase) {

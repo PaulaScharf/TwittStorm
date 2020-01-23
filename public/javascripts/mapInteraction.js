@@ -427,7 +427,7 @@ function removeSevereWeather(map){
 		let layerIdParts = layerID.split(/[ ]+/);
 
 		// layerIdParts[0] contains the type of layer-element
-		if (layerIdParts[0] === "unwetter" || layerIdParts[0] === "Tweet") {
+		if (layerIdParts[0] === "unwetter" || layerIdParts[0] === "tweet") {
 
 			// remove the corresponding layer and source from map for not displaying this warning any longer
 			map.removeLayer(layerID);
@@ -636,7 +636,7 @@ function makeLayerInteractive(map, layerID) {
 	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
 	map.on('click', layerID, function (e) {
 		if (document.getElementsByClassName("mapboxgl-popup").length < 1) {
-			if (layerID.includes("Tweet")) {
+			if (layerID.includes("tweet")) {
 				showTweetPopup(map, e);
 			} else {
 				showUnwetterPopup(map, e);
@@ -703,7 +703,7 @@ function showTweetPopup(map, e) {
 		// get information about the feature on which it was clicked
 		var pickedTweet = map.queryRenderedFeatures(e.point);
 
-		if (pickedTweet[0].source.includes("Tweet")) {
+		if (pickedTweet[0].source.includes("tweet")) {
 			if(!document.getElementById("deleteBtn")) {
 				let idAsString = pickedTweet[0].properties.idstr;
 				// create a popup with the following information:

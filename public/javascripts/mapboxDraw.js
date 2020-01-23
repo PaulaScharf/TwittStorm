@@ -47,7 +47,7 @@ function drawForAOI(map, draw) {
 	map.on('draw.delete', function (e) {
 
 		deleteFromURL("aoi");
-		showAllExcept(map, "Tweet");
+		showAllExcept(map, "tweet");
 	});
 
 	// if a polygon is edited/updated ...
