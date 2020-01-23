@@ -58,7 +58,7 @@ var previousWeather = function(req, res) {
             res.status(500).send({err_msg: error});
           }
         })
-        .then(function (response) {
+        .then(async (response) => {
           try {
             // this will be the response of the request
             let weatherEvents = {
@@ -80,7 +80,8 @@ var previousWeather = function(req, res) {
             if (arrayOfTimestamps.length > 10) {
               arrayOfTimestamps = arrayOfTimestamps.slice(0, 10);
             }
-            arrayOfTimestamps.forEach(function (timestamp) {
+            let arrayOfPromises = [];
+            arrayOfTimestamps.forEach( (timestamp) => {
               if (!weatherEvents[timestamp]) {
                 weatherEvents[timestamp] = [];
               }
@@ -89,25 +90,26 @@ var previousWeather = function(req, res) {
                   ((event.properties.onset) ? true : (event.properties.onset <= timestamp)) &&
                   ((event.properties.expires) ? true : (event.properties.expires > timestamp))) {
                   weatherEvents[timestamp].push(event);
-                  promiseToGetTweetsForEvent(event.dwd_id, timestamp, req.db)
+                  arrayOfPromises.push(promiseToGetTweetsForEvent(event.dwd_id, timestamp, req.db)
                     .catch(function(error) {
                       if (!res.headersSent) {
                         res.status(500).send({err_msg: error});
                       }
                     })
-                    .then(function (response) {
-                      response.forEach(function (event) {
-                        weatherEvents[timestamp].push(event);
+                    .then(function (tweets) {
+                      tweets.forEach(function (tweet) {
+                        weatherEvents[timestamp].push(tweet);
                       });
                     })
                     .catch(function(error) {
                       if (!res.headersSent) {
                         res.status(500).send({err_msg: error});
                       }
-                    })
+                    }));
                 }
               });
             });
+            await Promise.all(arrayOfPromises);
             if (!res.headersSent) {
               res.json(weatherEvents);
             }
@@ -296,8 +298,8 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
       type: "Tweet",
       dwd_id: dwd_id,
       $and: [
-        {"timestamp": {"$gt": new Date(timestamp - 299000)}},
-        {"timestamp": {"$lt": new Date(timestamp + 299000)}}
+        {"timestamp": {"$gte": ((timestamp - 299000) < 0) ? 0 : (timestamp - 299000)}},
+        {"timestamp": {"$lte": (timestamp)}}
       ]
     };
     promiseToGetItems(query, db)

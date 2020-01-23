@@ -221,7 +221,7 @@ const searchTweetsForEvent = function(req, res) {
 															name: currentFeature.user.name,
 															location_home: currentFeature.user.location
 														},
-														timestamp: currentFeature.created_at,
+														timestamp: Date.parse(currentFeature.created_at),
 														location_actual: currentFeature.coordinates,
 														dwd_id: req.body.dwd_id,
 														requestTime: req.body.currentTimestamp
