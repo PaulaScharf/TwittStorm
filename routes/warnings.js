@@ -337,10 +337,6 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
 
         // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
         if (typeof response !== "undefined" && response.length > 0) {
-
-          console.log(response);
-          console.log(response[0]);
-
           // ... do not insert it again but:
           // if the message (MSGTYPE) is an "Update", the dwd_id will be a new one, see: https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
           // if its MSGTYPE is "Alert" or "Update"
