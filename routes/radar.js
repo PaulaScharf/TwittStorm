@@ -228,7 +228,7 @@ var radarRoute = function(req, res) {
     pastBorder = latestTimestamp - pastBorder;
 
     if(pastBorder > reqTimeLower) {
-      console.log("radar: historic data requested");
+      console.log("rain radar: historic data requested");
 
       let query = {
         type: "rainRadar",
@@ -365,7 +365,7 @@ var radarRoute = function(req, res) {
               // this could be because of dwd inconsitencies
               // when a new product should be available, but isn't due to dwd update difficulties
               if(reqTimeUpper > latestTimestamp && reqTimeLower > latestTimestamp) {
-                console.log("the latest Product is behind the requested timestamp");
+                console.log("the latest radar product is behind the requested timestamp");
                 // query for last available prod
                 let query = {
                   type: "rainRadar",
@@ -388,7 +388,7 @@ var radarRoute = function(req, res) {
               }
               else {
                 // not the future case
-                let e = "end of the radar-route. It is likeley that a timestamp error occured.";
+                let e = "end of the radar-route. It is likely that a timestamp error occured.";
                 res.status(404).send(e);
               }
             }

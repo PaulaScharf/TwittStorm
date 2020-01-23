@@ -14,7 +14,7 @@
 * @desc
 *
 * @author Katharina Poppinga
-* @param {mapbox-map} map mapbox-map in which the polygons shall be drawn
+* @param {Object} map mapbox-map in which the polygons shall be drawn
 * @param {MapboxDraw} draw -
 */
 function drawForAOI(map, draw) {
@@ -75,7 +75,7 @@ function drawForAOI(map, draw) {
 * @desc
 *
 * @author Katharina Poppinga
-* @param {mapbox-map} map mapbox-map in ......
+* @param {Object} map mapbox-map in ......
 * @param {Array} aoiCoordinatesGeoJSON -
 */
 function processingAOI(map, aoiCoordinatesGeoJSON) {

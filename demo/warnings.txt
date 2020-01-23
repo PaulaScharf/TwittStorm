@@ -517,7 +517,7 @@
   } ],
   "properties" :
   { "event" : "GLATTEIS",
-  "ec_ii" : "64",
+  "ec_ii" : "85",
   "responseType" : "Prepare",
   "urgency" : "Immediate",
   "severity" : "Minor",
@@ -881,16 +881,15 @@
         ]
         ]
       }
-
   ],
   "properties" :
   { "event" : "ERGIEBIGER DAUERREGEN",
-  "ec_ii" : "70",
+  "ec_ii" : "64",
   "responseType" : "Prepare",
   "urgency" : "Immediate",
   "severity" : "Minor",
   "certainty" : "Likely",
-  "description" : "Es tritt im Warnzeitraum oberhalb 800 m leichter Schneefall mit Mengen zwischen 5 cm und 10 cm auf. In Staulagen werden Mengen bis 15 cm erreicht. Die Schneefallgrenze fällt auf 800 Meter. Verbreitet wird es glatt.",
+  "description" : "TODO",
   "instruction" : null,
   "sent" : 0,
   "onset" : 1200,

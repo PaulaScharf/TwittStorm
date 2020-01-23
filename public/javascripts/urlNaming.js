@@ -9,13 +9,12 @@
 */
 
 
-
 /**
 	* @desc function to alter the URL, in order to keep it updated
 	* can change the value of a parameter or add it to the existing url
 	* @author Jonathan Bahlmann
-	* @param {String} param the parameter to be updated/inserted
-	* @param {String} newString the value to above mentioned parameter
+	* @param {String} param - the parameter to be updated/inserted
+	* @param {String} newString - the value to above mentioned parameter
 	* @example updateURL("wtype", "radar");
 	*/
 function updateURL(param, newString) {
@@ -66,7 +65,7 @@ function updateURL(param, newString) {
 	* @desc
 	* function to read a specified parameter from the current URL
 	* @author Jonathan Bahlmann
-	* @param {String} param Parameter to be returned
+	* @param {String} param - Parameter to be returned
 	*/
 function readURL(param) {
 	// result
@@ -95,7 +94,7 @@ function readURL(param) {
 	* @desc
 	* function to delete a specified parameter from the URL to maintain permalink integrity
 	* @author Jonathan Bahlmann
-	* @param {String} param Parameter to delete
+	* @param {String} param - Parameter to delete
 	*/
 function deleteFromURL(param) {
 	let oldURL = document.location.href;

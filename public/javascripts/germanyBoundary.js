@@ -9,7 +9,7 @@
 */
 
 
-// TODO: Quelle angeben: https://github.com/isellsoap/deutschlandGeoJSON
+// source: https://github.com/isellsoap/deutschlandGeoJSON
 
 let boundaryGermany = {
   "type": "FeatureCollection",

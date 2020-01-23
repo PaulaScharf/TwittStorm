@@ -434,7 +434,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 		}
 	}
 
-	let url = "/radar/" + product + "/" + currentTimestamp;
+	let url = "/api/v1/radar/" + product + "/" + currentTimestamp;
 
 	// update the status display
 	$('#information').html("Retrieving the requested " + product + " rain radar product.");
@@ -554,7 +554,7 @@ function callRainRadar(map, prod) {
 	}
 
 	// make call
-	let url = "/radar/" + prod + "/" + currentTimestamp;
+	let url = "/api/v1/radar/" + prod + "/" + currentTimestamp;
 	$.getJSON(url, function(result) {
 		console.log("Automatically requested new rain radar data.");
 		// read from url
@@ -576,7 +576,7 @@ function callRainRadar(map, prod) {
 * @desc
 *
 * @author Katharina Poppinga
-* @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
+* @param {Object} map - mapbox-map in which to display the current Unwetter
 * @param {number} interval -
 * @param {number} timestamp -
 */
@@ -588,7 +588,7 @@ function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 * @desc
 *
 * @author Katharina Poppinga, Paula Scharf
-* @param {mapbox-map} map - mapbox-map in which to display the current Unwetter
+* @param {Object} map - mapbox-map in which to display the current Unwetter
 */
 function requestNewAndDisplayCurrentUnwetters(map) {
 
@@ -613,7 +613,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		// use a http GET request
 		type: "GET",
 		// URL to send the request to
-		url: "/warnings/" + currentTimestamp,
+		url: "/api/v1/warnings/" + currentTimestamp,
 		// type of the data that is sent to the server
 		contentType: "application/json; charset=utf-8",
 		// timeout set to 15 seconds
@@ -673,7 +673,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @desc
 	*
 	* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
-	* @param {mapbox-map} map - mapbox-map in which to display the current Unwetters
+	* @param {Object} map - mapbox-map in which to display the current Unwetters
 	* @param {number} currentTimestamp - in Epoch milliseconds
 	*/
 	function displayCurrentUnwetters(map, currentUnwetters) {
@@ -688,8 +688,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		for (let i = 0; i < currentUnwetters.length; i++) {
 
 			let currentUnwetterEvent = currentUnwetters[i];
-
-			// TODO: Suchwörter anpassen, diskutieren, vom Nutzer festlegbar?
 			let searchWords = [];
 
 			// TODO: SOLLEN DIE "VORABINFORMATIONEN" AUCH REIN? :
@@ -753,7 +751,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	*
 	* @author Katharina Poppinga, Benjamin Rieke, Paula Scharf
 	* @private
-	* @param {mapbox-map} map - mapbox-map in which to display the current Unwetter/Tweets/.......
+	* @param {Object} map - mapbox-map in which to display the current Unwetter/Tweets/.......
 	* @param {String} layerID ID for the map-layer to be created
 	* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of ......
 	*/
@@ -792,7 +790,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 				// Layer-adding for an Unwetter with a polygon-geometry
 			} else {
-				// TODO: Farbdarstellungs- und -unterscheidungsprobleme, wenn mehrere Polygone sich überlagern
 				// add the given Unwetter-event as a layer to the map
 				map.addLayer({
 					"id": layerID,
@@ -801,81 +798,91 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					"layout": {"visibility": "visible"},
 					"paint": {
 						"fill-color": [
-							"match", ["string", ["get", "event"]],
-							"GLÄTTE",
+							"match", ["string", ["get", "ec_ii"]],
+							"24", // black ice
 							"yellow",
-							"GLATTEIS",
+							"84",
 							"yellow",
-							"GEWITTER",
+							"85",
+							"yellow",
+							"87",
+							"yellow",
+							"31", // thunderstorm
 							"red",
-							"STARKES GEWITTER",
+							"33",
 							"red",
-							"SCHWERES GEWITTER",
+							"34",
 							"red",
-							"SCHWERES GEWITTER mit ORKANBÖEN",
+							"36",
 							"red",
-							"SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
+							"38",
 							"red",
-							"SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
+							"40",
 							"red",
-							"SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
+							"41",
 							"red",
-							"SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
+							"42",
 							"red",
-							"SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
+							"44",
 							"red",
-							"SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+							"45",
 							"red",
-							"SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+							"46",
 							"red",
-							"EXTREMES GEWITTER",
+							"48",
 							"red",
-							"SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
+							"49",
 							"red",
-							"EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
+							"90",
 							"red",
-							"STARKREGEN",
+							"91",
+							"red",
+							"92",
+							"red",
+							"93",
+							"red",
+							"95",
+							"red",
+							"96",
+							"red",
+							"61", // rain
 							"blue",
-							"HEFTIGER STARKREGEN",
+							"62",
 							"blue",
-							"DAUERREGEN",
+							"63",
 							"blue",
-							"ERGIEBIGER DAUERREGEN",
+							"64",
 							"blue",
-							"EXTREM ERGIEBIGER DAUERREGEN",
+							"65",
 							"blue",
-							"EXTREM HEFTIGER STARKREGEN",
+							"66",
 							"blue",
-							"LEICHTER SCHNEEFALL",
+							"70", // snowfall
 							"darkviolet",
-							"SCHNEEFALL",
+							"71",
 							"darkviolet",
-							"STARKER SCHNEEFALL",
+							"72",
 							"darkviolet",
-							"EXTREM STARKER SCHNEEFALL",
+							"73",
 							"darkviolet",
-							"SCHNEEVERWEHUNG",
+							"74",
 							"darkviolet",
-							"STARKE SCHNEEVERWEHUNG",
+							"75",
 							"darkviolet",
-							"SCHNEEFALL und SCHNEEVERWEHUNG",
+							"76",
 							"darkviolet",
-							"STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+							"77",
 							"darkviolet",
-							"EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+							"78",
 							"darkviolet",
 							"black" // sonstiges Event
-							// TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
-							// wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
 						],
 						"fill-opacity": 0.3
 					}
 				});
 			}
 
-			//
 			makeLayerInteractive(map, layerID);
-			//addLayerToMenu(layerID); // TODO: auch hier alte entfernen, oder passiert das eh automatisch?
 			createWarningsCheckboxes(map);
 			customLayerIds.push(layerID);
 		}
@@ -973,7 +980,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 		// ****************************************************************************************
 		// make query
-		let searchWords = ["germany", "love", "jesus", "rain", "Regen", "Unwetter", "Gewitter", "Sinnflut", "regnet", "Feuerwehr", "Sturm", "Flut", "Starkregen"];
+		// TODO: searchWords anpassen
+		let searchWords = ["rain", "Regen", "Unwetter", "Gewitter", "Sinnflut", "regnet", "Feuerwehr", "Sturm", "Flut", "Starkregen"];
 		let query = {
 			twitterSearchQuery: {
 				// TODO which geometry is correct here
@@ -989,7 +997,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			// use a http POST request
 			type: "POST",
 			// URL to send the request to
-			url: "/twitter/tweets",
+			url: "/api/v1/twitter/tweets",
 			// type of the data that is sent to the server
 			contentType: "application/json; charset=utf-8",
 			// data to send to the server
@@ -1070,7 +1078,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* polygon.
 	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf
-	* @param {mapbox-map} map mapbox-map in ......
+	* @param {Object} map mapbox-map in ......
 	* @param polygon - a turf polygon (e.g. the AOI)
 	*/
 	function onlyShowUnwetterAndTweetsInPolygon(map, polygon) {
@@ -1127,7 +1135,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 						// use a http POST request
 						type: "POST",
 						// URL to send the request to
-						url: "/twitter/tweets",
+						url: "/api/v1/twitter/tweets",
 						// type of the data that is sent to the server
 						contentType: "application/json; charset=utf-8",
 						// data to send to the server
@@ -1206,7 +1214,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	/**
 	* This function ensures that all unwetters but no tweets are visible.
 	* @author Paula Scharf
-	* @param {mapbox-map} map - mapbox-map
+	* @param {Object} map - mapbox-map
 	* @param {} keyword -
 	*/
 	function showAllExcept(map, keyword) {
@@ -1231,7 +1239,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	/**
 	* Calls a given function (cb) for all layers of the map.
 	* @author Paula Scharf
-	* @param {mapbox-map} map mapbox-map
+	* @param {Object} map mapbox-map
 	* @param cb - function to perform for each layer
 	*/
 	function forEachLayer(map, cb) {
@@ -1264,7 +1272,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	/**
 	*
 	* @author Paula Scharf
-	* @param {mapbox-map} map mapbox-map ......
+	* @param {Object} map mapbox-map ......
 	* @param {} id
 	*/
 	function deleteTweet(map, id, popup) {
@@ -1277,7 +1285,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			// use a http DELETE request
 			type: "DELETE",
 			// URL to send the request to
-			url: "/twitter/tweet",
+			url: "/api/v1/twitter/tweet",
 			// type of the data that is sent to the server
 			contentType: "application/json; charset=utf-8",
 			// data to send to the server
@@ -1319,7 +1327,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	/**
 	*
 	* @author Paula Scharf
-	* @param {mapbox-map} map mapbox-map
+	* @param {Object} map mapbox-map
 	*/
 	function filterTweets(map) {
 
@@ -1332,7 +1340,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	/**
 	*
 	* @author Paula Scharf
-	* @param {mapbox-map} map mapbox-map
+	* @param {Object} map mapbox-map
 	*/
 	function filterTweetPopups(map) {
 
@@ -1357,7 +1365,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	*/
 	function closeAllPopups() {
 		let elements = document.getElementsByClassName("mapboxgl-popup");
-		for (let i = 0; i<elements.length; i++) {
+		for (let i = 0; i < elements.length; i++) {
 			elements[i].parentNode.removeChild(elements[i]);
 		}
 	}

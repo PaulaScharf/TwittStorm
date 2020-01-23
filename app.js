@@ -67,7 +67,7 @@ app.use("/bootstrap", express.static(path.join(__dirname, 'node_modules', 'boots
 app.use("/popper", express.static(path.join(__dirname, 'node_modules', '@popperjs', 'core', 'dist')));
 app.use("/mapbox", express.static(path.join(__dirname, 'node_modules', 'mapbox-gl', 'dist')));
 app.use("/mapbox-draw", express.static(path.join(__dirname, 'node_modules', '@mapbox', 'mapbox-gl-draw', 'dist')));
-app.use("/turf", express.static(path.join(__dirname, 'node_modules', '@turf')));
+app.use("/turf", express.static(path.join(__dirname, 'node_modules', '@turf', 'turf')));
 app.use("/jsnlog", express.static(path.join(__dirname, 'node_modules', 'jsnlog')));
 app.use("/R", express.static(path.join(__dirname, 'node_modules', 'r-script', )));
 app.use("/gifshot", express.static(path.join(__dirname, 'node_modules', 'gifshot', 'dist')));
@@ -168,19 +168,14 @@ app.post("/jsnlog.logger", function (req, res) {
 
 // *****************************************************************************
 
-// index-router
+// router
 app.use('/', indexRouter);
-//
-app.use('/warnings', warningsRouter);
-//
-app.use('/radar', radarRouter);
-//
-app.use('/twitter', twitterRouter);
-//
-app.use('/config', configRouter);
-//
-app.use('/previousWeather', animationRouter);
 
+app.use('/api/v1/warnings', warningsRouter);
+app.use('/api/v1/radar', radarRouter);
+app.use('/api/v1/twitter', twitterRouter);
+app.use('/api/v1/config', configRouter);
+app.use('/api/v1/previousWeather', animationRouter);
 
 
 // catch 404 and forward to error handler

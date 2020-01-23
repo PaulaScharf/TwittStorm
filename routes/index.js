@@ -71,7 +71,6 @@ router.get('/animation', function(req, res, next) {
 
   let paramArray = {
     "timestamp": req.query.timestamp,
-    "aoi": req.query.aoi,
     "wtype": req.query.wtype,
     "rasterProduct": req.query.radProd,
     "base": req.query.base,

@@ -19,7 +19,7 @@ or as an alternative (if the command above does not work): `docker-compose build
 The application can be found with your browser at your IP:port. E.g.: http://192.168.99.100:3000/.<br/>
 Your IP will be shown on start of the dockershell.<br/>  
 
-## How to test with Jmeter
+## How to test with JMeter
 1. Download and install JMeter from here: https://jmeter.apache.org/download_jmeter.cgi  
 (We used "apache-jmeter-5.2.1.zip")  
 2. Download and install JMeter Plugins Manager: https://jmeter-plugins.org/wiki/PluginsManager/

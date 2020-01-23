@@ -25,9 +25,9 @@
 *
 * @author Katharina Poppinga
 * @private
-* @param {mapbox-map} map - mapbox-map for and in which to display the legend
+* @param {Object} map - mapbox-map for and in which to display the legend
 * @param {String} typeOfData - "unwetter" or "radar"
-* @param {String} product type of rain radar: "ry", "rw" or "sf"
+* @param {String} product - type of rain radar: "ry", "rw" or "sf"
 */
 function showLegend(map, typeOfData, product) {
 
@@ -60,8 +60,6 @@ function showLegend(map, typeOfData, product) {
 		// set positional accuracy
 		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>Local authority borders";
 
-		// TODO: ABSTIMMEN MIT DISPLAY VON EINZELNEN TYPES ÜBER BUTTON
-		// TODO: an endgültige Farben und feinere Farbabstufungen anpassen
 		values = ["Rain", "Snowfall", "Thunderstorm", "Black ice"]
 		colors = ["blue", "darkviolet", "red", "yellow"];
 	}
@@ -73,12 +71,10 @@ function showLegend(map, typeOfData, product) {
 		// set titel of legend
 		paraTypeOfData.innerHTML = "<b>Depth of precipitation</b>";
 
-		//
 		let productType = document.createElement("p"); // create a html-paragraph
 		productType.id = "productType"; // set ID of the html-paragraph
 		paraTypeOfData.appendChild(productType);
 
-		//
 		dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>";
 		posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>1 km x 1 km";
 
@@ -149,7 +145,7 @@ function msToMin(ms) {
 * @desc
 *
 * @author Katharina Poppinga
-* @param {mapbox-map} map - mapbox-map ....
+* @param {Object} map - mapbox-map ....
 * @param {String} directionToPan - the direction in which the map to pan: "left", "right", "up" or "down"
 */
 function panMapWithButton(map, directionToPan) {
@@ -183,7 +179,7 @@ function panMapWithButton(map, directionToPan) {
 /**
 * Zoom to the given Coordinates.
 * @author https://gist.github.com/aerispaha/826a9f2fbbdf37983dc01e6074ce7cd7
-* @param {mapbox-map} map mapbox-map
+* @param {Object} map - mapbox-map
 * @param coordinates
 */
 function zoomToCoordinates(map, coordinates) {
@@ -214,7 +210,7 @@ function zoomToCoordinates(map, coordinates) {
 * @param button Links the button to the function
 * @param menu Id of the menu that is supposed to open/close
 * @param site the requested site index or animation
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 * @author Benjamin Rieke
 */
 function openMenu(button, menu, site) {
@@ -285,7 +281,7 @@ function closeAllMenus() {
 /**
 * @desc Removes or adds the boundary of germany on click
 * @author Benjamin Rieke
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 */
 function removeAddGermany(map){
 
@@ -307,7 +303,7 @@ function removeAddGermany(map){
 /**
 * @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
 * @author Benjamin Rieke, Paula Scharf
-* @param {mapbox-map} map mapbox-map ......
+* @param {Object} map mapbox-map ......
 * @param layer - The chosen maplayer style
 */
 function switchLayer(map, layer) {
@@ -349,7 +345,7 @@ function switchLayer(map, layer) {
 /**
 * @desc Uses the styles that are set on the index page to switch between them on click of the switcher field
 * @author Benjamin Rieke
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 */
 function styleSelector(map){
 
@@ -370,7 +366,7 @@ function styleSelector(map){
 /**
 * @desc Loads the chosen radar product, updates the url, and hides previous selected layers
 * @author Benjamin Rieke
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 * @param product - the desired radar product (check the GitHub-Wiki for further information)
 */
 function loadRaster(map, product){
@@ -414,7 +410,7 @@ function loadRaster(map, product){
 /**
 * @desc Hides the warning-polygons, based on the findAndRemoveOldLayerIDs function. Also changes the severeweather Tab to not active
 * @author Benjamin Rieke, Katharina Poppinga
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 */
 function removeSevereWeather(map){
 
@@ -453,7 +449,7 @@ function removeSevereWeather(map){
 /**
 * @desc Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
 * @author Benjamin Rieke
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 */
 function loadSevereWeather(map){
 
@@ -521,7 +517,7 @@ function loadSevereWeather(map){
 *
 * @private
 * @author Katharina Poppinga
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 */
 function createWarningsCheckboxes(map) {
 
@@ -556,7 +552,7 @@ function createWarningsCheckboxes(map) {
 * A deselected checkbox removes its corresponding ... from .....
 * @private
 * @author Katharina Poppinga
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 * @param {} warningsMenu -
 * @param {String} type - type of warnings (equals content of layerGroup), one of the following: (rain, snowfall, thunderstorm, blackice)
 * @param {boolean} checked - indicate if a route is selected
@@ -581,7 +577,7 @@ function createWarningsCheckbox(map, warningsMenu, type, checked) {
 *
 * @private
 * @author Katharina Poppinga
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 * @param {String} type - type of warnings (equals content of layerGroup), one of the following: (rain, snowfall, thunderstorm, blackice)
 */
 function showHideWarningsType(map, type){
@@ -600,6 +596,7 @@ function showHideWarningsType(map, type){
 
 	// if the checkbox is deselected, hide the corresponding warnings
 	else {
+		closeAllPopups();
 		map.style._order.forEach(function(layer) {
 			if (layer.includes("unwetter " + type)) {
 				map.setLayoutProperty(layer, 'visibility', 'none');
@@ -615,7 +612,7 @@ function showHideWarningsType(map, type){
 /**
 * This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
 * @author Katharina Poppinga
-* @param {mapbox-map} map - mapbox-map
+* @param {Object} map - mapbox-map
 * @param {String} layerID - ID of a layer
 */
 function makeLayerInteractive(map, layerID) {
@@ -652,7 +649,7 @@ function makeLayerInteractive(map, layerID) {
 * The popup gives information about the period of validity and a description of the warning.
 * @author Katharina Poppinga
 * @private
-* @param {mapbox-map} map map in which the Unwetter-features are in
+* @param {Object} map map in which the Unwetter-features are in
 * @param {Object} e ...
 */
 function showUnwetterPopup(map, e) {
@@ -695,7 +692,7 @@ function showUnwetterPopup(map, e) {
 * The popup gives information about the author, the message content and time of creation
 * @author Paula Scharf
 * @private
-* @param {mapbox-map} map map in which the Unwetter-features are in
+* @param {Object} map map in which the Unwetter-features are in
 * @param {Object} e ...
 */
 function showTweetPopup(map, e) {
