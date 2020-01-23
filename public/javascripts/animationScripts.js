@@ -37,7 +37,9 @@ let animationMap;
 
 
 // TODO: JSDoc für globale Variablen
+
 let resultOutput = [];
+
 let usedTimestamps = [];
 // all individual events from a timestamp get temporally stored in here
 let outputArray = [];
@@ -331,24 +333,25 @@ function automate(map){
 
   // on playbutton click
   $("#playButton").click(function play() {
+
     // if there is no data for the requested wtype show a popup to inform the user to do so beforehand
     if (resultOutput.length){
-    if (Object.keys(resultOutput[0]).length == 1) {
-      $("#playPopup").css({'background-color': 'darkgrey'});
-      $('#playPopup').html('There is nothing worthy to show right now. Try out the Demo data');
+      if (Object.keys(resultOutput[0]).length == 1) {
+        $("#playPopup").css({'background-color': 'darkgrey'});
+        $('#playPopup').html('There is nothing worthy to show right now. Try out the Demo data');
 
-      //avoid multiple click events
-      if (popup.classList[1] != "show"){
-        // show the popup
-        popup.classList.toggle("show");
-        // hide the popup after some time
-        setTimeout(function(){
+        //avoid multiple click events
+        if (popup.classList[1] != "show"){
+          // show the popup
           popup.classList.toggle("show");
-        }, 4000);
+          // hide the popup after some time
+          setTimeout(function(){
+            popup.classList.toggle("show");
+          }, 4000);
+        }
+        return;
       }
-      return;
     }
-  }
 
     if (usedTimestamps.length == 0) {
       $("#playPopup").css({'background-color': 'red'});
@@ -363,7 +366,6 @@ function automate(map){
       }
       return;
     }
-
     // flush the intervall
     automationIntervall = undefined;
     // value of the slider (the position)
@@ -539,72 +541,84 @@ function loadAnimation(position, map){
           'source': layerID,
           "paint": {
             "fill-color": [
-              "match", ["string", ["get", "event"]],
-              "GLÄTTE",
+              "match", ["string", ["get", "ec_ii"]],
+              "24", // black ice
               "yellow",
-              "GLATTEIS",
+              "84",
               "yellow",
-              "GEWITTER",
+              "85",
+              "yellow",
+              "87",
+              "yellow",
+              "31", // thunderstorm
               "red",
-              "STARKES GEWITTER",
+              "33",
               "red",
-              "SCHWERES GEWITTER",
+              "34",
               "red",
-              "SCHWERES GEWITTER mit ORKANBÖEN",
+              "36",
               "red",
-              "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN",
+              "38",
               "red",
-              "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN",
+              "40",
               "red",
-              "SCHWERES GEWITTER mit ORKANBÖEN und HEFTIGEM STARKREGEN",
+              "41",
               "red",
-              "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN und HEFTIGEM STARKREGEN",
+              "42",
               "red",
-              "SCHWERES GEWITTER mit HEFTIGEM STARKREGEN und HAGEL",
+              "44",
               "red",
-              "SCHWERES GEWITTER mit ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+              "45",
               "red",
-              "SCHWERES GEWITTER mit EXTREMEN ORKANBÖEN, HEFTIGEM STARKREGEN und HAGEL",
+              "46",
               "red",
-              "EXTREMES GEWITTER",
+              "48",
               "red",
-              "SCHWERES GEWITTER mit EXTREM HEFTIGEM STARKREGEN und HAGEL",
+              "49",
               "red",
-              "EXTREMES GEWITTER mit ORKANBÖEN, EXTREM HEFTIGEM STARKREGEN und HAGEL",
+              "90",
               "red",
-              "STARKREGEN",
+              "91",
+              "red",
+              "92",
+              "red",
+              "93",
+              "red",
+              "95",
+              "red",
+              "96",
+              "red",
+              "61", // rain
               "blue",
-              "HEFTIGER STARKREGEN",
+              "62",
               "blue",
-              "DAUERREGEN",
+              "63",
               "blue",
-              "ERGIEBIGER DAUERREGEN",
+              "64",
               "blue",
-              "EXTREM ERGIEBIGER DAUERREGEN",
+              "65",
               "blue",
-              "EXTREM HEFTIGER STARKREGEN",
+              "66",
               "blue",
-              "LEICHTER SCHNEEFALL",
+              "70", // snowfall
               "darkviolet",
-              "SCHNEEFALL",
+              "71",
               "darkviolet",
-              "STARKER SCHNEEFALL",
+              "72",
               "darkviolet",
-              "EXTREM STARKER SCHNEEFALL",
+              "73",
               "darkviolet",
-              "SCHNEEVERWEHUNG",
+              "74",
               "darkviolet",
-              "STARKE SCHNEEVERWEHUNG",
+              "75",
               "darkviolet",
-              "SCHNEEFALL und SCHNEEVERWEHUNG",
+              "76",
               "darkviolet",
-              "STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+              "77",
               "darkviolet",
-              "EXTREM STARKER SCHNEEFALL und SCHNEEVERWEHUNG",
+              "78",
               "darkviolet",
-              "black" // sonstiges Event
-              // TODO: Warnung "Expected value to be of type string, but found null instead." verschwindet vermutlich,
-              // wenn die letzte Farbe ohne zugeordnetem Event letztendlich aus dem Code entfernt wird
+              "black" // other events
             ],
             "fill-opacity": 0.3
           }
@@ -682,7 +696,7 @@ function loadPreviousWeather(map, weatherEv){
     // use a http GET request
     type: "GET",
     // URL to send the request to
-    url: "/previousWeather/" + weatherEvent + currentTimestamp,
+    url: "/api/v1/previousWeather/" + weatherEvent + currentTimestamp,
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
     // timeout set to 15 seconds
@@ -698,7 +712,7 @@ function loadPreviousWeather(map, weatherEv){
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
     console.log(result);
-    resultOutput.push(result)
+    resultOutput.push(result);
     let layerID;
     // for every timestamp
     for (let key in result) {
@@ -768,27 +782,27 @@ function loadPreviousWeather(map, weatherEv){
         }
       }
     }
-		// if radar data is shown, display the timestamp of the radar data in legend
-		if (weatherEv === "radar") {
-			debugger;
-			console.log(final[i].timestamp); // ergibt z.B. 1579725600000
-			let formattedDataTimestamp = timestampFormatting(final[i].timestamp);
+    // if radar data is shown, display the timestamp of the radar data in legend
+    if (weatherEv === "radar") {
+      debugger;
+      console.log(final[i].timestamp); // ergibt z.B. 1579725600000
+      let formattedDataTimestamp = timestampFormatting(final[i].timestamp);
 
-			// new Date(timestamp); innerhalb von timestampFormatting(1579725600000) führt zu Invalid Date, wenn hierraus aufgerufen, wenn direkt im Browser mit timestamp, dann nicht:
+      // new Date(timestamp); innerhalb von timestampFormatting(1579725600000) führt zu Invalid Date, wenn hierraus aufgerufen, wenn direkt im Browser mit timestamp, dann nicht:
 
-			console.log(formattedDataTimestamp); // ergibt Invalid Date
-			console.log(timestampFormatting(final[i].timestamp));  // ergibt Invalid Date
-			console.log(timestampFormatting(1579725600000)); // ergibt richtig formatiertes datum
+      console.log(formattedDataTimestamp); // ergibt Invalid Date
+      console.log(timestampFormatting(final[i].timestamp));  // ergibt Invalid Date
+      console.log(timestampFormatting(1579725600000)); // ergibt richtig formatiertes datum
 
-			let dataTimestamp = document.getElementById("dataTimestamp");
-			dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + formattedDataTimestamp;
-		}
+      let dataTimestamp = document.getElementById("dataTimestamp");
+      dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + formattedDataTimestamp;
+    }
 
-		// if the warnings shown are demodata
-		if ((weatherEv === "severeWeather") && (currentTimestamp >= paramArray.config.demo.timestamp_start) && (currentTimestamp <= paramArray.config.demo.timestamp_end)) {
-			let posAccuracy = document.getElementById("posAccuracy");
-			posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>Local authority borders<br>(does not count for all demodata)";
-		}
+    // if the warnings shown are demodata
+    if ((weatherEv === "severeWeather") && (currentTimestamp >= paramArray.config.demo.timestamp_start) && (currentTimestamp <= paramArray.config.demo.timestamp_end)) {
+      let posAccuracy = document.getElementById("posAccuracy");
+      posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>Local authority borders<br>(does not count for all demodata)";
+    }
   })
 
   // if the request has failed, ...
@@ -882,7 +896,7 @@ function removeAllSource(map) {
 function addToSource(map, layerID, previousFeatureCollection){
   //
   let sourceObject = map.getSource(layerID);
-// if there is already an existing Source of this map with the given layerID ...
+  // if there is already an existing Source of this map with the given layerID ...
   if (typeof sourceObject !== 'undefined') {
     // ... add the data
     // TODO: warum folgendes nötig? warum nicht einfach alte source unverändert lassen, da dwd-id die gleiche ist und damit auch keine updates des Unwetters vorhanden sind?

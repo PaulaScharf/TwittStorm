@@ -290,6 +290,14 @@ var previousWeather = function(req, res) {
   }
 };
 
+
+/**
+*
+* @author Paula Scharf, matr.: 450334
+* @param
+* @param
+* @returns
+*/
 function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
   //
   return new Promise((resolve, reject) => {
@@ -312,6 +320,13 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
   });
 }
 
+
+/**
+*
+* @author Paula Scharf, matr.: 450334
+* @param
+* @returns
+*/
 function checkParams(params) {
   switch (params) {
     case (params.wtype !== "unwetter" && params.wtype !== "rainRadar"):
@@ -328,6 +343,7 @@ function checkParams(params) {
       };
   }
 }
+
 
 router.route("/:wtype/:currentTimestamp").get(previousWeather);
 router.route("*").get(function(req, res){
