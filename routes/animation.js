@@ -162,7 +162,19 @@ var previousWeather = function(req, res) {
               // if no results found
               else {
                 // are we looking for not-yet loaded historic data?
-                let pastBorder = 3900000;
+                let pastBorder;
+                if(prod == "ry") {
+                  // 65min
+                  pastBorder = 3900000;
+                }
+                if(prod == "rw") {
+                  // 2h
+                  pastBorder = 7200000;
+                }
+                if(prod == "sf") {
+                  // 2h
+                  pastBorder = 7200000;
+                }
                 pastBorder = Date.now() - pastBorder;
 
                 if(pastBorder > lastTimestamp) {

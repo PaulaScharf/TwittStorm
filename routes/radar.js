@@ -211,8 +211,20 @@ var radarRoute = function(req, res) {
 
     //console.log("latestDate = " + latestDate);
 
-    // historic data?
-    let pastBorder = 3700000;
+    // historic data? just above 60min
+    let pastBorder;
+    if(prod == "ry") {
+      // 65min
+      pastBorder = 3900000;
+    }
+    if(prod == "rw") {
+      // 2h
+      pastBorder = 7200000;
+    }
+    if(prod == "sf") {
+      // 2h
+      pastBorder = 7200000;
+    }
     pastBorder = latestTimestamp - pastBorder;
 
     if(pastBorder > reqTimeLower) {
