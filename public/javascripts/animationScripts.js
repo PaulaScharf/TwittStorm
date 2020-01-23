@@ -332,7 +332,7 @@ function automate(map){
   // on playbutton click
   $("#playButton").click(function play() {
     // if there is no data for the requested wtype show a popup to inform the user to do so beforehand
-    if (customLayerIds.length == 0) {
+    if (usedTimestamps.length == 0) {
       $("#playPopup").css({'background-color': 'red'});
       //avoid multiple click events
       if (popup.classList[1] != "show"){
