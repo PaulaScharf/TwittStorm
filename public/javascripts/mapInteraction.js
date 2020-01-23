@@ -10,15 +10,6 @@
 
 
 
-// ****************************** global variables *****************************
-
-// TODO: JSDoc für globale Variablen
-
-
-
-// ******************************** functions **********************************
-
-
 /**
 * @desc
 *
@@ -454,15 +445,11 @@ function removeSevereWeather(map){
 function loadSevereWeather(map){
 
 	closeAllPopups();
-
 	showAllExcept(map, "germany");
 
 	// if there was the rainradar data shown before, change the legend
 	if (wtypeFlag == "radar") {
-
 		showLegend(map, "unwetter");
-
-
 	}
 
 	// set flag to severeWeather
@@ -474,7 +461,6 @@ function loadSevereWeather(map){
 
 	// create checkboxes for submenus
 	createWarningsCheckboxes(map);
-
 
 	// if no rainradar is displayed, simply show polygons
 	if (map.style.sourceCaches.rainradar == undefined){
@@ -505,9 +491,6 @@ function loadSevereWeather(map){
 	// activate the severe weather tab
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
-
-
-
 }
 
 
@@ -629,7 +612,7 @@ function makeLayerInteractive(map, layerID) {
 	});
 
 	// ************************ showing popups on click ************************
-	// TODO: Problem: Popups poppen auch auf, wenn Nutzer-Polygon (Area of Interest) eingezeichnet wird. Das sollte besser nicht so sein?
+	// TODO: Problem: wenn AOI drüber liegt, können keine Popups ausgewählt werden
 	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
 	map.on('click', layerID, function (e) {
 		if (document.getElementsByClassName("mapboxgl-popup").length < 1) {
@@ -723,7 +706,7 @@ function showTweetPopup(map, e) {
 				deleteBtn.addEventListener('click', function(){
 					deleteTweet(map, idAsString, popup);
 				});
-				deleteBtn.innerText = "delete";
+				deleteBtn.innerText = "delete tweet";
 				popupDiv.appendChild(deleteBtn);
 			}
 		}
