@@ -11,20 +11,20 @@
 // an API access token is required for using mapbox GL JS
 mapboxgl.accessToken = paramArray.config.keys.mapbox.access_key;
 
-
+// TODO: JSDoc
 
 // ****************************** global variables *****************************
 
 /**
-* refers to the layer menu
-* @type {mapbox_map}
+* main mapbox-map
+* @type {Object}
 */
 let map;
 
 
 /**
 * refers to the layer menu
-* @type {}
+* @type {HTML-element-ID}
 */
 let layers = document.getElementById('menu');
 
@@ -37,7 +37,7 @@ let customLayerIds = [];
 
 
 /**
-*
+* // TODO: JSDoc
 * @type {boolean}
 */
 let popupsEnabled = true;
@@ -56,10 +56,20 @@ let initTimestamp = Date.now();
 */
 let wtypeFlag = "";
 
+
+/**
+* // TODO: JSDoc
+* @type {}
+*/
 let filterwords;
 
-// gives the information that the styleswitcher is on the animation page
+
+/**
+* gives the information that the styleswitcher is on the animation page
+* @type {String}
+*/
 var indicator = "";
+
 
 
 // TODO: folgendes in eine Funktion schreiben:
@@ -85,16 +95,16 @@ window.twttr = (function(d, s, id) {
 
 // ******************************** functions **********************************
 
-// shows and hides the current status of an ajax call
+// shows and hides the current status of an AJAX-call
 $(document).ajaxSend(function(){
 	$('#loading').fadeIn(250);
 });
-
 $(document).ajaxComplete(function(){
 	$('#loading').fadeOut(250);
 });
 
 
+// TODO: woher kommt übergebener style?
 /**
 * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
 * and all current Unwetter ................ and ................
@@ -106,6 +116,7 @@ $(document).ajaxComplete(function(){
 *
 * This function is called, when "index.ejs" is loaded.
 * @author Katharina Poppinga, Jonathan Bahlmann
+* @param {}
 */
 function showMap(style) {
 
@@ -325,10 +336,10 @@ function showMap(style) {
 
 
 /**
-* @desc
-*
+* @desc Reads AOI-coordinates out of URL, makes a GeoJSON out of it and adds it to the given MapboxDraw.
+* Then starts the tweet-search for this AOI.
 * @author Katharina Poppinga
-* @param {MapboxDraw} draw -
+* @param {Object} draw - MapboxDraw-Object in which to add the AOI
 */
 function getAndUseAOIFromURL(draw) {
 
@@ -391,8 +402,8 @@ function getAndUseAOIFromURL(draw) {
 /**
 * @desc This function requests and displays Rain Radar data
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
-* @param map the map to display data in
-* @param product the radarProduct, see API wiki on github
+* @param {Object} map - the mapbox-map to display data in
+* @param {String} product - the radar product, see API-Wiki on GitHub
 */
 function requestAndDisplayAllRainRadar(map, product) {
 
@@ -489,7 +500,7 @@ console.log(result);
 /**
 * function that sets a timeout for the start of the radar-requesting routine
 * @author Jonathan Bahlmann
-* @param map
+* @param {Object} map - the mapbox-map to display data in
 */
 function intervalRainRadar(map) {
 	let refresh = paramArray.config.refresh_rate;
@@ -508,8 +519,8 @@ function intervalRainRadar(map) {
 /**
 * callback for timeout. handles the API call and updates map if necessary
 * @author Jonathan Bahlmann
-* @param map
-* @param prod
+* @param {Object} map - the mapbox-map to display data in
+* @param {String} prod - the radar product, see API-Wiki on GitHub
 */
 function callRainRadar(map, prod) {
 	// progress update info
@@ -554,9 +565,8 @@ function callRainRadar(map, prod) {
 * @desc
 *
 * @author Katharina Poppinga
-* @param {Object} map - mapbox-map in which to display the current Unwetter
+* @param {Object} map - mapbox-map in which to display the current warnings
 * @param {number} interval -
-* @param {number} timestamp -
 */
 function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map);
@@ -574,7 +584,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	// if following expression is true, then take 'paramArray.timestamp'; if false then create Date.now() ?????????????????????????????????
 	let currentTimestamp = (paramArray.timestamp) ? paramArray.timestamp : Date.now();
 
-	// FUER DEMODATEN
+	// for demo data
 	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
 		currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
 		try {

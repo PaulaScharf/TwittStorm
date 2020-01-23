@@ -11,11 +11,11 @@
 
 
 /**
-* @desc
-*
+* @desc Processes drawn, updated and deleted mapbox-draw-polygons in the given map and starts tweets-search.
+* Writes drawn polygons-coordinates into URL.
 * @author Katharina Poppinga
 * @param {Object} map mapbox-map in which the polygons shall be drawn
-* @param {MapboxDraw} draw -
+* @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
 */
 function drawForAOI(map, draw) {
 
@@ -72,11 +72,12 @@ function drawForAOI(map, draw) {
 
 
 /**
-* @desc
-*
+* @desc Writes coordinates of drawn polygon into URL and
+* starts the tweet-search for warnings or radar data located in the drawn polygon.
 * @author Katharina Poppinga
-* @param {Object} map mapbox-map in ......
-* @param {Array} aoiCoordinatesGeoJSON -
+* @private
+* @param {Object} map mapbox-map
+* @param {Array} aoiCoordinatesGeoJSON - coordinates of drawn polygon (in format part of a GeoJSON)
 */
 function processingAOI(map, aoiCoordinatesGeoJSON) {
 
@@ -94,12 +95,11 @@ function processingAOI(map, aoiCoordinatesGeoJSON) {
 	updateURL("aoi", aoiString);
 	// *************************************************************************
 
-	//
 	zoomToCoordinates(map, coordinatesAOI);
 
-	// do Tweet-search
+	// do tweet-search
 	let attr = readURL("wtype");
-	if(attr == "unwetter") {
+	if (attr === "unwetter") {
 		onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
 	} else {
 		onlyShowRainRadarAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));

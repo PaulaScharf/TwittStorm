@@ -11,11 +11,9 @@
 
 
 /**
-* @desc
-*
-*
+* @desc Creates and shows a legend for the given map and given type of data.
+* Contains information about different layers in map, their source and corrsponding timestamps.
 * @author Katharina Poppinga
-* @private
 * @param {Object} map - mapbox-map for and in which to display the legend
 * @param {String} typeOfData - "unwetter" or "radar"
 * @param {String} product - type of rain radar: "ry", "rw" or "sf"
@@ -41,7 +39,7 @@ function showLegend(map, typeOfData, product) {
 	let posAccuracy = document.getElementById("posAccuracy");
 
 
-	// ******************************* legend for Unwetter *******************************
+	// ******************************* legend for warnings *******************************
 	if (typeOfData === "unwetter") {
 
 		// set titel of legend
@@ -54,7 +52,6 @@ function showLegend(map, typeOfData, product) {
 		values = ["Rain", "Snowfall", "Thunderstorm", "Black ice"]
 		colors = ["blue", "darkviolet", "red", "yellow"];
 	}
-
 
 	// ****************************** legend for rain radar ******************************
 	if (typeOfData === "radar") {
@@ -113,7 +110,6 @@ function showLegend(map, typeOfData, product) {
 	}
 
 	// image taken from: https://upload.wikimedia.org/wikipedia/de/thumb/7/7b/DWD-Logo_2013.svg/800px-DWD-Logo_2013.svg.png
-	// TODO: change source to https://www.dwd.de/SharedDocs/bilder/DE/logos/dwd/dwd_logo_258x69.png?__blob=normal
 	dataSource.innerHTML = "<b>Data source:</b><br><img id='DWD_Logo' src='../css/DWD-Logo_2013.svg' alt='Deutscher Wetterdienst'>";
 	let refreshRateValue = paramArray.config.refresh_rate;
 	refreshRate.innerHTML = "<b>Refresh rate:</b><br>" + refreshRateValue + " ms  (&#8773 " + msToMin(refreshRateValue) + " min)";
@@ -122,7 +118,10 @@ function showLegend(map, typeOfData, product) {
 
 
 /**
-* https://stackoverflow.com/questions/21294302/converting-milliseconds-to-minutes-and-seconds-with-javascript
+* @desc
+* @author https://stackoverflow.com/questions/21294302/converting-milliseconds-to-minutes-and-seconds-with-javascript
+* @param {number} ms - milliseconds which will be converted to minutes
+* @returns {number} minutes
 */
 function msToMin(ms) {
 	var min = Math.floor(ms / 60000);
@@ -133,10 +132,10 @@ function msToMin(ms) {
 
 
 /**
-* @desc
-*
+* @desc Pans the given map into the given direction.
+* Pan-width depends on zoom level of map.
 * @author Katharina Poppinga
-* @param {Object} map - mapbox-map ....
+* @param {Object} map - mapbox-map to pan
 * @param {String} directionToPan - the direction in which the map to pan: "left", "right", "up" or "down"
 */
 function panMapWithButton(map, directionToPan) {
@@ -161,14 +160,13 @@ function panMapWithButton(map, directionToPan) {
 		newCenter = [center.lng, center.lat - panLat];
 		break;
 	}
-
 	map.panTo(newCenter);
 }
 
 
 
 /**
-* Zoom to the given Coordinates.
+* @desc Zoom given map to the given coordinates.
 * @author https://gist.github.com/aerispaha/826a9f2fbbdf37983dc01e6074ce7cd7
 * @param {Object} map - mapbox-map
 * @param coordinates
@@ -195,19 +193,19 @@ function zoomToCoordinates(map, coordinates) {
 
 
 
-
+// TODO: wie passt folgende Funktion zum openMenu(this, productMenu, animationMap) -Aufruf in animation.ejs ?????
 /**
 * @desc Opens and closes the menu for the selection of the routes and changes the button to an X
-* @param button Links the button to the function
-* @param menu Id of the menu that is supposed to open/close
-* @param site the requested site index or animation
-* @param {Object} map - mapbox-map
 * @author Benjamin Rieke
+* @param {HTML-element} button - links the button to the function
+* @param {HTML-element-ID} menu - ID of the menu that is supposed to open/close
+* @param {String} site - the requested site index or animation
+* @param {Object} map - mapbox-map
 */
 function openMenu(button, menu, site) {
+
 	// if a radar product is selected automatically open up the radar submenu
 	if (site == 'index') {
-
 
 		if (wtypeFlag == "radar") {
 			var innerRasterMenuToggle = document.getElementById('rasterMenu');
@@ -270,7 +268,7 @@ function closeAllMenus() {
 
 
 /**
-* @desc Removes or adds the boundary of germany on click
+* @desc Removes or adds the boundary of germany on click from or to given map.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
 */
@@ -294,8 +292,8 @@ function removeAddGermany(map){
 /**
 * @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
 * @author Benjamin Rieke, Paula Scharf
-* @param {Object} map mapbox-map ......
-* @param layer - The chosen maplayer style
+* @param {Object} map mapbox-map
+* @param layer - the chosen maplayer style
 */
 function switchLayer(map, layer) {
 
@@ -358,7 +356,7 @@ function styleSelector(map){
 * @desc Loads the chosen radar product, updates the url, and hides previous selected layers
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
-* @param product - the desired radar product (check the GitHub-Wiki for further information)
+* @param {String} product - the desired radar product (check the GitHub-Wiki for further information)
 */
 function loadRaster(map, product){
 
@@ -496,8 +494,8 @@ function loadSevereWeather(map){
 
 
 /**
-* @desc Creates checkboxes for....
-*
+* @desc Creates checkboxes for all warnings layers (rain, snowfall, thunderstorm and black ice) in the menu of the map.
+* The checkbox can be used to show and hide its corresponding layer in the map.
 * @private
 * @author Katharina Poppinga
 * @param {Object} map - mapbox-map
@@ -517,7 +515,7 @@ function createWarningsCheckboxes(map) {
 		["BlackIce", "false"]
 	];
 
-	//
+	// create checkboxes
 	map.style._order.forEach(function(layer) {
 		for (let i = 0; i < warningsTypes.length; i++) {
 			if ((layer.includes("unwetter " + warningsTypes[i][0])) && (warningsTypes[i][1] === "false")) {
@@ -530,15 +528,15 @@ function createWarningsCheckboxes(map) {
 
 
 /**
-* @desc Creates a checkbox for ...........
-* A selected/checked checkbox adds its corresponding ..... to ......
-* A deselected checkbox removes its corresponding ... from .....
+* @desc Creates a checkbox for the given warnings-type in the given HTML-element.
+* A selected/checked checkbox adds its corresponding layer to the given map.
+* A deselected checkbox removes its corresponding layer from the given map.
 * @private
 * @author Katharina Poppinga
 * @param {Object} map - mapbox-map
-* @param {} warningsMenu -
-* @param {String} type - type of warnings (equals content of layerGroup), one of the following: (rain, snowfall, thunderstorm, blackice)
-* @param {boolean} checked - indicate if a route is selected
+* @param {HTML-element-ID} warningsMenu - ID of HTML element into which the checkboxes will be written
+* @param {String} type - type of warnings (equals content of layerGroup), one of the following: ("Rain", "Snowfall", "Thunderstorm", "BlackIce")
+* @param {boolean} checked - true if a route is selected, false if not
 */
 function createWarningsCheckbox(map, warningsMenu, type, checked) {
 
@@ -556,12 +554,13 @@ function createWarningsCheckbox(map, warningsMenu, type, checked) {
 
 
 /**
-* @desc
-*
+* @desc This function is called when clicking the checkbox.
+* If checkbox is selected, the corresponding layer (the given type) is shown in the given map.
+* If checkbox is deselected, the corresponding layer (the given type) is set to invisible for the given map.
 * @private
 * @author Katharina Poppinga
 * @param {Object} map - mapbox-map
-* @param {String} type - type of warnings (equals content of layerGroup), one of the following: (rain, snowfall, thunderstorm, blackice)
+* @param {String} type - type of warnings (equals content of layerGroup), one of the following: ("Rain", "Snowfall", "Thunderstorm", "BlackIce")
 */
 function showHideWarningsType(map, type){
 
@@ -593,7 +592,7 @@ function showHideWarningsType(map, type){
 // ********************************** POP-UPS **********************************
 
 /**
-* This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
+* @desc This method makes elements of a specific layer (identified by layerID) clickable and gives them Popups.
 * @author Katharina Poppinga
 * @param {Object} map - mapbox-map
 * @param {String} layerID - ID of a layer
@@ -628,12 +627,11 @@ function makeLayerInteractive(map, layerID) {
 
 
 /**
-* @desc Provides a popup that will be shown onclick for each Unwetter displayed in the map.
+* @desc Provides a popup that will be shown onclick for each warning displayed in the map.
 * The popup gives information about the period of validity and a description of the warning.
 * @author Katharina Poppinga
-* @private
-* @param {Object} map map in which the Unwetter-features are in
-* @param {Object} e ...
+* @param {Object} map mapbox-map in which the warnings are in
+* @param {Object} e - listener-event
 */
 function showUnwetterPopup(map, e) {
 
@@ -674,9 +672,8 @@ function showUnwetterPopup(map, e) {
 * @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
 * The popup gives information about the author, the message content and time of creation
 * @author Paula Scharf
-* @private
-* @param {Object} map map in which the Unwetter-features are in
-* @param {Object} e ...
+* @param {Object} map - mapbox-map in which the warnings are in
+* @param {Object} e listener-event
 */
 function showTweetPopup(map, e) {
 	if (popupsEnabled) {

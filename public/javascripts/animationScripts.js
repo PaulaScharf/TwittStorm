@@ -246,7 +246,7 @@ function showAnimationMap(style) {
 
 /**
 * @desc combines several functions to reload the animation for the chosen weather type
-* @param wType the desired type of weather
+* @param {String} wType - the desired type of weather
 * @author Benjamin Rieke
 */
 function reloadAnimation(wType){
