@@ -612,7 +612,9 @@ function createGif(array) {
 
   gifshot.createGIF({
     images: array,
-    'frameDuration': 10,
+    interval: 0.8,
+    sampleInterval: 0.5,
+    numWorkers: 5,
     'gifWidth': 800,
     'gifHeight': 400,
   }, function (obj) {
