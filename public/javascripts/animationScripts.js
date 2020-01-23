@@ -331,9 +331,6 @@ function automate(map){
 
   // on playbutton click
   $("#playButton").click(function play() {
-//    console.log(Object.keys(resultOutput[0]).length);
-//  Object.keys(resultOutput[0]).length
-console.log(resultOutput);
     // if there is no data for the requested wtype show a popup to inform the user to do so beforehand
     if (resultOutput.length){
     if (Object.keys(resultOutput[0]).length == 1) {
