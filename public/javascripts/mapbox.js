@@ -74,7 +74,6 @@ var doneProcessingAOI = true;
 
 var doneLoadingWeather = true;
 
-
 // TODO: folgendes in eine Funktion schreiben:
 // TODO: was macht dieser code?
 window.twttr = (function(d, s, id) {
