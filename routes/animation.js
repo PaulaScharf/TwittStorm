@@ -9,15 +9,15 @@
  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
  */
 
- var express = require('express');
- var router = express.Router();
+var express = require('express');
+var router = express.Router();
 
- // yaml configuration
- const fs = require('fs');
- const yaml = require('js-yaml');
- var config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+// yaml configuration
+const fs = require('fs');
+const yaml = require('js-yaml');
+var config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
- const {promiseToGetItems} = require('./dataPromisesHelpers.js');
+const {promiseToGetItems,promiseToPostItems} = require('./dataPromisesHelpers.js');
 
 
 /**
@@ -127,7 +127,7 @@ var previousWeather = function(req, res) {
             // calculate query time from above offsets etc.
             let lastTimestamp = currentTimestamp + tz + variance - access;
             // go 10 timesteps back
-            let firstTimestamp = lastTimestamp - 10 * config.refresh_rate;
+            let firstTimestamp = lastTimestamp - 11 * config.refresh_rate;
 
             let query = {
               "type": wtype,
@@ -144,17 +144,97 @@ var previousWeather = function(req, res) {
             })
             .then(function(result) {
 
-            let answer = {
-              "type": "previousRainRadar",
-              "length": result.length,
-              //"radarImages": result
-            };
+              //if results found
+              if(result.length > 0) {
 
-            result.forEach(function(image) {
-              answer[image.timestamp] = [image];
-            });
+                let answer = {
+                  "type": "previousRainRadar",
+                  "length": result.length,
+                  //"radarImages": result
+                };
 
-            res.json(answer);
+                result.forEach(function(image) {
+                  answer[image.timestamp] = [image];
+                });
+
+                res.json(answer);
+              }
+              // if no results found
+              else {
+                // are we looking for not-yet loaded historic data?
+                let pastBorder = 3900000;
+                pastBorder = Date.now() - pastBorder;
+
+                if(pastBorder > lastTimestamp) {
+                  // time of request lies previous to 65min ago
+                  fs.readFile( './demo/radars.txt', 'utf8', function (err, data) {
+                    if(err) {
+                      throw err;
+                    }
+                    else {
+                      // this is demodata
+                      let allProducts = JSON.parse(data);
+                      // post them to db
+                      try {
+                        promiseToPostItems(allProducts, req.db)
+                        .catch(console.error)
+                        .then(function() {
+
+                          let query = {
+                            type: "rainRadar",
+                            radarProduct: prod.toUpperCase(),
+                            $and: [
+                              {"timestamp": {"$gt": (firstTimestamp)}},
+                              {"timestamp": {"$lte": (lastTimestamp)}}
+                            ]
+                          };
+
+                          // get them from db
+                          try {
+                            promiseToGetItems(query, req.db)
+                            .catch(console.error)
+                            .then(function(result) {
+                              if(result.length > 0) {
+
+                                let answer = {
+                                  "type": "previousRainRadar",
+                                  "length": result.length,
+                                  //"radarImages": result
+                                };
+
+                                result.forEach(function(image) {
+                                  answer[image.timestamp] = [image];
+                                });
+
+                                res.json(answer);
+                              }
+                              else {
+                                let e = "the requested timestamp lies in the past, with no matching historic data";
+                                console.log(e);
+                                res.status(404).send(e);
+                              }
+                            });
+                          } catch(e) {
+                            console.dir(e);
+                            res.status(500).send(e);
+                          }
+
+                        });
+                      } catch(e) {
+                        console.dir(e);
+                        res.status(500).send(e);
+                      }
+                    }
+                  });
+
+                }
+                // if not demo, send 404
+                else {
+                  let e = "no results found for this timestamp.";
+                  res.status(404).send(e);
+                }
+
+              }
 
             });
         }
