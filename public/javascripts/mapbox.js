@@ -104,21 +104,20 @@ $(document).ajaxComplete(function(){
 });
 
 
-// TODO: woher kommt übergebener style?
 /**
 * @desc Creates a map (using mapbox), centered on Germany, that shows the boundary of Germany
-* and all current Unwetter ................ and ................
-* For each Unwetter, it provides an onclick-popup with a description and its period of validity.
-* Uses mapbox-gl-draw to enable drawing polygons in this map.
-*
-* ...... TWEETS-AUFRUF ERWÄHNEN ......
-*
-*
+* and all current severe weather warnings requested from the DWD with a legend.
+* In addition, a menu for switching between warnings and rain radar data is given.
+* For each warning, an onclick-popup is provided, with a description and its period of validity.
+* Uses mapbox-gl-draw to enable drawing polygons in this map, to use these as an AOI.
+* For a drawn AOI a tweet-search is started and the retrieved tweets (with onclick-popups) are shown in the map, too.
+* This function arranges consecutive requests to the DWD, each "refresh_rate"
+* (this timestamp-variable is defined in config.yaml) und than updates the shown events in the map.
+* Parameters contained in the URL are involved and used.
 * This function is called, when "index.ejs" is loaded.
 * @author Katharina Poppinga, Jonathan Bahlmann
-* @param {}
 */
-function showMap(style) {
+function showMap() {
 
 	// Checks whether the layer menu DOM is empty and if not flushes the dom
 	while (layers.firstChild) {
@@ -128,8 +127,8 @@ function showMap(style) {
 	let baseURL;
 	let zoomURL;
 	let centerURL;
+	let style;
 
-	// hier paramArray Änderung nötig, da zu Beginn die Parameter in URL noch nicht drin sind!!
 	var checkedStreets = document.getElementById('navigation-guidance-day-v4');
 	var checkedSat = document.getElementById('satellite-v9');
 
@@ -195,13 +194,12 @@ function showMap(style) {
 	// enables the ability to choose between different mapstyles
 	styleSelector(map);
 
-	// TODO: HIER RICHTIG?? BENNY FRAGEN - SOWAS AUCH FÜR LOAD RASTER ??????
 	$("#severeWeather").click(function() {
 		loadSevereWeather(map);
 	});
 
 	// set Interval to accumulate radar data for the animation
-	setInterval(intervalRainRadar, paramArray.config.refresh_rate, map);
+	window.setInterval(intervalRainRadar, paramArray.config.refresh_rate, map);
 
 
 	// ************************ adding boundary of Germany ***********************
@@ -264,6 +262,7 @@ function showMap(style) {
 			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
+// TODO: hier auch readURL verwenden?
 			// if rasterProduct is defined
 			if (paramArray.rasterProduct !== undefined) {
 
@@ -400,7 +399,7 @@ function getAndUseAOIFromURL(draw) {
 // ************************************* block about rain radar ****************************************
 
 /**
-* @desc This function requests and displays Rain Radar data
+* @desc This function requests and displays rain radar data in the given map.
 * @author Katharina Poppinga, Paula Scharf, Benjamin Rieke, Jonathan Bahlmann
 * @param {Object} map - the mapbox-map to display data in
 * @param {String} product - the radar product, see API-Wiki on GitHub
@@ -431,7 +430,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
 
-console.log(result);
+		console.log(result);
 
 		// ***************************************************************************************************************
 		// for displaying the radar stuff only in the map for radar and not in the map for severe weather warnings
@@ -498,7 +497,7 @@ console.log(result);
 
 
 /**
-* function that sets a timeout for the start of the radar-requesting routine
+* @desc Sets a timeout for the start of the radar-requesting routine.
 * @author Jonathan Bahlmann
 * @param {Object} map - the mapbox-map to display data in
 */
@@ -517,7 +516,7 @@ function intervalRainRadar(map) {
 }
 
 /**
-* callback for timeout. handles the API call and updates map if necessary
+* @desc Callback for timeout. Handles the API call and updates map if necessary.
 * @author Jonathan Bahlmann
 * @param {Object} map - the mapbox-map to display data in
 * @param {String} prod - the radar product, see API-Wiki on GitHub
@@ -561,20 +560,24 @@ function callRainRadar(map, prod) {
 // *****************************************************************************************************
 
 
+// TODO: JSDoc, Verwirrung
 /**
-* @desc
-*
+* @desc Arranges a new severe weather warnings request after a given interval
+* and shows the retrieved warnings in given map.
+* @private
 * @author Katharina Poppinga
 * @param {Object} map - mapbox-map in which to display the current warnings
-* @param {number} interval -
+* @param {number} interval - timestamp in Epoch milliseconds, after this time a new warnings request will start
 */
 function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map);
 }
 
+
+// TODO: JSDoc
 /**
-* @desc
-*
+* @desc Requests severe weather warnings from DWD or out of database (depending on former requests).
+* Shows them in the given map.
 * @author Katharina Poppinga, Paula Scharf
 * @param {Object} map - mapbox-map in which to display the current Unwetter
 */
@@ -658,18 +661,20 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc
+	* @desc Shows given warnings in given map.
+	* Creates checkboxes in menu for showing only certain types of
+	* warnings ("Rain", "Snowfall", "Thunderstorm" or "BlackIce").
 	*
 	* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
 	* @param {Object} map - mapbox-map in which to display the current Unwetters
-	* @param {number} currentTimestamp - in Epoch milliseconds
+	* @param {Array} currentUnwetters -
 	*/
 	function displayCurrentUnwetters(map, currentUnwetters) {
 
 		// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
-		let unwetterFeature;
+		let warningsFeatureCollection;
 
-		// remove layer and source of those Unwetter which are expired from map and remove its layerID from customLayerIds
+		// remove layer and source of those warnings which are expired from map and remove its layerID from customLayerIds
 		findAndRemoveOldLayerIDs(map, currentUnwetters);
 
 		// iteration over all Unwetter in the database
@@ -677,9 +682,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			let currentUnwetterEvent = currentUnwetters[i];
 			let searchWords = [];
-
-			//
-			let layerGroup = "undefined";
+			let layerGroup = "";
 			let ii = currentUnwetterEvent.properties.ec_ii;
 			// choose the correct group identifier for the Unwetter and set the searchwords for the tweetrequest accordingly:
 
@@ -704,14 +707,14 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				searchWords.push("Blitzeis", "Glätte", "Glatteis");
 			}
 			else {
-	// TODO: if-else if ohne else möglich??
+				// TODO: if-else if ohne else möglich??
 			}
 
 			//
 			for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
 				let currentPolygon = currentUnwetterEvent.geometry[i];
-				// make a GeoJSON Feature out of the current Unwetter
-				unwetterFeature = {
+				// make a GeoJSON-FeatureCollection out of the current warnings
+				warningsFeatureCollection = {
 					"type": "FeatureCollection",
 					"features": [{
 						"type": "Feature",
@@ -719,10 +722,10 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 						"properties": currentUnwetterEvent.properties
 					}]
 				};
-				unwetterFeature.features[0].properties.searchWords = searchWords;
+				warningsFeatureCollection.features[0].properties.searchWords = searchWords;
 
 				//
-				displayEvent(map, "unwetter " + layerGroup.replace(/\s/g, '') + " " + currentUnwetterEvent.dwd_id.replace(/\s/g, '') + " " + i, unwetterFeature);
+				displayEvent(map, "unwetter " + layerGroup.replace(/\s/g, '') + " " + currentUnwetterEvent.dwd_id.replace(/\s/g, '') + " " + i, warningsFeatureCollection);
 			}
 		}
 	}
@@ -730,18 +733,17 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc Makes a mapbox-layer out of all Unwetter/Tweets...
-	* and display it in the map. Colors the created layer by event-type.
+	* @desc Makes a mapbox-layer out of all given events. Sets its layerID to the given one.
+	* Displays the layers events in the map. Colors the created layer by type-attribute.
 	*
 	* @author Katharina Poppinga, Benjamin Rieke, Paula Scharf
 	* @private
-	* @param {Object} map - mapbox-map in which to display the current Unwetter/Tweets/.......
+	* @param {Object} map - mapbox-map in which to display the layers events
 	* @param {String} layerID ID for the map-layer to be created
-	* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of ......
+	* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of events to show in map
 	*/
 	function displayEvent(map, layerID, eventFeatureCollection) {
 
-		//
 		let sourceObject = map.getSource(layerID);
 
 		// if there is already an existing Source of this map with the given layerID ...
@@ -760,7 +762,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				data: eventFeatureCollection
 			});
 
-			// Layer-adding for a Tweet with a point-geometry
+			// layer-adding for a Tweet with a point-geometry
 			if (eventFeatureCollection.features[0].geometry.type === "Point") {
 				map.addLayer({
 					"id": layerID,
@@ -772,9 +774,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					}
 				});
 
-				// Layer-adding for an Unwetter with a polygon-geometry
+				// Layer-adding for warnings with a polygon-geometry
 			} else {
-				// add the given Unwetter-event as a layer to the map
+				// add the given warnings as a layer to the map
 				map.addLayer({
 					"id": layerID,
 					"type": "fill",
@@ -873,14 +875,16 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	}
 
 
-
+	// TODO: JSDoc
 	/**
-	* @desc findAndRemoveOldLayerIDs from customLayerIds and remove jeweiligen layer und source aus map
+	* @desc Takes an Array of warnings-Objects and checks wether they are expired or not.
+	* If they are expired, removes them from given map. ??
+	findAndRemoveOldLayerIDs from customLayerIds and remove jeweiligen layer und source aus map
 	* ...............................
 	*
 	* @author Katharina Poppinga
 	* @private
-	* @param {} map -
+	* @param {Object} map - mapbox-map from which to remove the given warnings
 	* @param {Array} currentUnwetters -
 	*/
 	function findAndRemoveOldLayerIDs(map, currentUnwetters){
@@ -911,6 +915,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					}
 				}
 
+				// TODO: paula geändert???
 				// if the layer-Unwetter is not (no longer) a current Unwetter, remove its ID from customLayerIds
 				if (isCurrent === false) {
 					showAllExcept(map, layerIdParts[2]);
@@ -925,7 +930,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		}
 	}
 
+
 	/**
+	* @desc
 	* @author Paula Scharf, Jonathan Bahlmann
 	* @param polygon a turf polygon (aoi)
 	*/
@@ -1033,13 +1040,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// if bool is true, displayEvent()
 
 							//if(bool) {
-								let tweetFeature = {
-									"type": "Feature",
-									"geometry": item.location_actual,
-									"properties": item
-								};
-								tweetFeatureCollection.features = [tweetFeature];
-								displayEvent(map, "tweet rainradar", tweetFeatureCollection);
+							let tweetFeature = {
+								"type": "Feature",
+								"geometry": item.location_actual,
+								"properties": item
+							};
+							tweetFeatureCollection.features = [tweetFeature];
+							displayEvent(map, "tweet rainradar", tweetFeatureCollection);
 							//}
 
 						}
@@ -1057,12 +1064,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		// and then check whether they lie in the rainRadar polygons
 	}
 
+
 	/**
-	* This function makes only Unwetters and its tweets visible, if the include a polygon that is fully contained by the given
+	* @desc This function makes only Unwetters and its tweets visible, if the include a polygon that is fully contained by the given
 	* polygon.
 	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf
-	* @param {Object} map mapbox-map in ......
+	* @param {Object} map mapbox-map
 	* @param polygon - a turf polygon (e.g. the AOI)
 	*/
 	function onlyShowUnwetterAndTweetsInPolygon(map, polygon) {
@@ -1196,10 +1204,10 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* This function ensures that all unwetters but no tweets are visible.
+	* @desc This function ensures that all unwetters but no tweets are visible.
 	* @author Paula Scharf
 	* @param {Object} map - mapbox-map
-	* @param {} keyword -
+	* @param {String} keyword -
 	*/
 	function showAllExcept(map, keyword) {
 
@@ -1221,7 +1229,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* Calls a given function (cb) for all layers of the map.
+	* @desc Calls a given function (cb) for all layers of the map.
 	* @author Paula Scharf
 	* @param {Object} map mapbox-map
 	* @param cb - function to perform for each layer
@@ -1238,7 +1246,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc
+	* @desc Takes a timestamp in Epoch milliseconds make a Date-String out of it.
 	*
 	* @author Katharina Poppinga
 	* @private
@@ -1254,9 +1262,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	*
+	* @desc
 	* @author Paula Scharf
-	* @param {Object} map mapbox-map ......
+	* @param {Object} map mapbox-map
 	* @param {} id
 	*/
 	function deleteTweet(map, id, popup) {
@@ -1309,9 +1317,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	*
+	* @desc
 	* @author Paula Scharf
-	* @param {Object} map mapbox-map
+	* @param {Object} map - mapbox-map
 	*/
 	function filterTweets(map) {
 
@@ -1322,9 +1330,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	*
+	* @desc
 	* @author Paula Scharf
-	* @param {Object} map mapbox-map
+	* @param {Object} map - mapbox-map
 	*/
 	function filterTweetPopups(map) {
 
@@ -1344,7 +1352,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* closes all mapbox popups.
+	* @desc Closes all mapbox popups.
 	* @author Paula Scharf
 	*/
 	function closeAllPopups() {
@@ -1356,7 +1364,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* Removes an element from an array based on its content
+	* @desc Removes an element from an array based on its content.
 	* @returns {Array}
 	*/
 	Array.prototype.remove = function() {

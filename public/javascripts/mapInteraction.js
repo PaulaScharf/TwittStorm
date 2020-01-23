@@ -288,9 +288,9 @@ function removeAddGermany(map){
 }
 
 
-// TODO: wo wird in folgender funktion showMap aufgerufen? (steht zumindest ins JSDoc, sondern ändern)
+// TODO: JSDoc
 /**
-* @desc Calls the showMap function with the desired mapstyle that is chosen from the selection on the indexpage
+* @desc
 * @author Benjamin Rieke, Paula Scharf
 * @param {Object} map mapbox-map
 * @param layer - the chosen maplayer style
@@ -311,7 +311,7 @@ function switchLayer(map, layer) {
 
 	if (indicator == "animation"){
 		//	reloadAnimation
-		reloadAnimation(wIndicator)
+		reloadAnimation(wIndicator);
 	}
 
 	setTimeout(() => {

@@ -15,6 +15,7 @@
 // ****************************** global variables *****************************
 
 // TODO: dies in Funktion schreiben??
+// paula fragen
 // is there a timestamp?
 let currentTimestamp = Date.now();
 if (typeof paramArray.timestamp !== "undefined") {
@@ -73,7 +74,7 @@ var wIndicator = "";
 * This function is called, when "animation.ejs" is loaded.
 * @author Katharina Poppinga, Jonathan Bahlmann, Benjamin Rieke
 */
-function showAnimationMap(style) {
+function showAnimationMap() {
 
   indicator = "animation";
 
@@ -86,6 +87,7 @@ function showAnimationMap(style) {
   let baseURL;
   let zoomURL;
   let centerURL;
+  let style;
 
   var checkedStreets = document.getElementById('navigation-guidance-day-v4');
   var checkedSat = document.getElementById('satellite-v9');
@@ -107,6 +109,11 @@ function showAnimationMap(style) {
     }
   }
 
+  // if not yet in URL, use default warnings
+  if (paramArray.wtype == undefined) {
+    updateURL("wtype", "unwetter");
+  }
+
   // if not yet in URL, get value from config.yaml
   if (paramArray.mapZoom == undefined) {
     zoomURL = paramArray.config.map.zoom;
@@ -123,12 +130,6 @@ function showAnimationMap(style) {
     // otherwise use value from URL
   } else {
     centerURL = JSON.parse(paramArray.mapCenter);
-  }
-
-  // if not yet in URL, use default warnings
-  if (paramArray.wtype == undefined) {
-    updateURL("wtype", "unwetter");
-    paramArray.wtype = "unwetter"; // TODO: dieses löschen, wenn weiter unten auch angepasst an readURL()...
   }
 
   // create new map with variable zoom and center
@@ -185,7 +186,6 @@ function showAnimationMap(style) {
       reloadAnimation('radar');
     });
 
-
     // add functionality for menu selection on severeweather call
     $("#severeWeatherAnimation").click(function() {
       reloadAnimation('unwetter');
@@ -193,7 +193,8 @@ function showAnimationMap(style) {
 
     let rasterMenuToggle = document.getElementById('raster');
     let severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
-    if (paramArray.wtype == "radar") {
+
+    if (readURL("wtype") == "radar") {
       // set the flag to radar
       wtypeFlag = "radar";
 
@@ -218,7 +219,7 @@ function showAnimationMap(style) {
       //display the legend according to the weathertype
       showLegend(animationMap, "unwetter");
 
-      // the last Unwetter request was "hm"-milliseconds ago
+      // the last warnings request was "hm"-milliseconds ago
       let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
       loadPreviousWeather(animationMap, wtypeFlag);
     }
@@ -245,16 +246,16 @@ function showAnimationMap(style) {
 
 
 /**
-* @desc combines several functions to reload the animation for the chosen weather type
+* @desc Combines several functions to reload the animation for the chosen weather type.
 * @param {String} wType - the desired type of weather
 * @author Benjamin Rieke
 */
 function reloadAnimation(wType){
+
   var rasterMenuToggle = document.getElementById('raster');
   var severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
   var innerRasterMenuToggle = document.getElementById('rasterMenu');
   var menuToggle = document.getElementById('severeWeatherAnimation');
-
 
   // when another animation is running stop it first
   clearInterval(automationIntervall);
@@ -318,12 +319,11 @@ function reloadAnimation(wType){
   $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
   $('#downloadPopup').html('You have to wait for one animation cycle!');
   $("#downloadPopup").css({'background-color': 'DimGray'});
-
 }
 
 
 /**
-* @desc adds functionality to the slider and to the pause, play and download buttons
+* @desc Adds functionality to the slider and to the pause, play and download buttons.
 * @param {Object} map - links to the mapbox-map
 * @author Benjamin Rieke
 */
@@ -419,9 +419,9 @@ function automate(map){
         play();
       });
     });
-  }
-);
+  });
 }
+
 
 // TODO: in onload-Funktion?
 // functionality for the download button
@@ -449,7 +449,7 @@ $("#downloadButton").click(function() {
 
 /**
 * @desc Uses the html2canvas libary to take a screenshot of the map div
-* and then saves that base64 encoded screenshot in the image array
+* and then saves that base64 encoded screenshot in the image array.
 * @author Benjamin Rieke
 */
 function takeScreenshot(){
@@ -464,8 +464,8 @@ function takeScreenshot(){
 
 
 /**
-* @desc check if the imageArray is uptodate with the amount of used
-* timestamps and if so set the download in a ready state
+* @desc Checks if the imageArray is uptodate with the amount of used
+* timestamps and if so, set the download in a ready state.
 * @author Benjamin Rieke
 */
 function setToReady(){
@@ -489,7 +489,7 @@ function setToReady(){
 /**
 * @desc Adds the desired layer, removes the others and displays the date according to the timestamp
 * @param position checks at which position each timestamp is supposed to be displayed
-* @param map
+* @param {Object} map - mapbox-map
 * @author Benjamin Rieke
 */
 function loadAnimation(position, map){
@@ -672,7 +672,7 @@ function createGif(array) {
 
 /**
 * @desc Performs the actual db call to retrieve the previousWeather data
-* and fits every event according to its timestamp into an array
+* and fits every event according to its timestamp into an array.
 * @param {Object} map - Links to the mapbox-map
 * @param {String} weatherEv -
 * @author Benjamin Rieke
@@ -711,16 +711,19 @@ function loadPreviousWeather(map, weatherEv){
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
 
+    console.log(result);
+
+    // TODO: daraus events übernehmen
+
     resultOutput.push(result);
     let layerID;
     // for every timestamp
     for (let key in result) {
       if ((key != "type") && (key != "length")) {
-
         // log the individual timestamp to refer to them later
         usedTimestamps.push(key);
 
-        // for every unwetter in the response
+        // for every warnings in the response
         for (let j = 0; j < result[key].length; j++){
           if (result[key][j].type === "Tweet") {
             layerID = "tweet " + key + " " + j;
@@ -741,7 +744,7 @@ function loadPreviousWeather(map, weatherEv){
 
             mask.geometry.features = [tweet];
           } else {
-            // take every unwetter and save its coordinates
+            // take every warnings and save its coordinates
             let currentUnwetter = result[key][j].geometry;
             // gjson structure
             mask = {
@@ -752,7 +755,7 @@ function loadPreviousWeather(map, weatherEv){
               }
             };
 
-            // put every polygon from a unwetterwarning into one array
+            // put every polygon from a warning into one array
             if (weatherEv == "severeWeather") {
               layerID = "unwetter " + key + " " + j;
               // also save the according weather event
@@ -774,7 +777,7 @@ function loadPreviousWeather(map, weatherEv){
             }
           }
           customLayerIds.push(layerID);
-          addToSource(map, layerID,  mask);
+          addToSource(map, layerID, mask);
         }
       }
     }
@@ -883,8 +886,8 @@ function removeAllSource(map) {
 
 
 /**
-* @desc Adds a GEOJSON to the map as a source
-* @param map glinks to the map
+* @desc Adds a GEOJSON to the map as a source.
+* @param {Object} map - links to the mapbox-map
 * @param layerID to be id of the source. in this case the timestamp
 * @param previousFeatureCollection the geojson featurecollection
 * @author Benjamin Rieke
