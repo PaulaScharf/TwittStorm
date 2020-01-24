@@ -17,14 +17,14 @@ The code of this project can be found on GitHub: [https://github.com/PaulaScharf
 4. set the value of the variable ``keys.twitter.consumer_secret`` in config.yaml to your own created ....... API key
 5. set the value of the variable ``keys.twitter.access_token_key`` in config.yaml to your own created ....... API key
 6. set the value of the variable ``keys.twitter.access_token_secret`` in config.yaml to your own created ....... API key
-<br> steps 3 to 6 evtl. als einen einzigen Punkt formatieren
+<br><br>TODO: steps 3 to 6 evtl. als einen einzigen Punkt formatieren
 
 ## How to start the App
 <b>TODO: DockerHub einfügen</b><br>
 ANPASSEN:<br>
 To start the application via docker, navigate to the app's folder in a dockershell and enter
-`docker-compose up --build`<br/>
-or as an alternative (if the command above does not work): `docker-compose build` and `docker-compose up`.<br/>
+``docker-compose up --build``<br/>
+or as an alternative (if the command above does not work): ``docker-compose build`` and ``docker-compose up``.<br/>
 
 The application can be found with your browser at your IP:port. E.g.: http://192.168.99.100:3000/.<br/>
 Your IP will be shown on start of the dockershell.<br/>  
@@ -39,7 +39,7 @@ Your IP will be shown on start of the dockershell.<br/>
     3. open Plugins Manager
     4. go to available plugins
     5. search for "Selenium/WebDriver Support" and install it
-4. open the JMeter script (located in this repo at ```./test/Twittstorm.jmx```)
+4. open the JMeter script (located in this repo at ``./test/Twittstorm.jmx``)
 5. configure the WebDriver for chrome
     1. download chrome from here: https://www.google.com/intl/de_de/chrome/
     2. download ChromeDriver.exe from here: https://chromedriver.chromium.org/downloads  
