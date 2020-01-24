@@ -205,14 +205,44 @@ var previousWeather = function(req, res) {
                 pastBorder = Date.now() - pastBorder;
 
                 if(pastBorder > lastTimestamp) {
-                  // time of request lies previous to 65min ago
-                  fs.readFile( './demo/radars.txt', 'utf8', function (err, data) {
+
+                  // read from hist data file
+                  var allProducts = [];
+
+                  // beatuifully cascading part about reading all the demo data
+                  fs.readFile( './demo/radars_ry_1.txt', 'utf8', function (err, data) {
                     if(err) {
                       throw err;
                     }
                     else {
-                      // this is demodata
-                      let allProducts = JSON.parse(data);
+                      let product = JSON.parse(data);
+                      allProducts.push(product);
+
+                      fs.readFile( './demo/radars_ry_2.txt', 'utf8', function (err, data) {
+                        if(err) {
+                          throw err;
+                        }
+                        else {
+                          let product = JSON.parse(data);
+                          allProducts.push(product);
+
+                          fs.readFile( './demo/radars_ry_3.txt', 'utf8', function (err, data) {
+                            if(err) {
+                              throw err;
+                            }
+                            else {
+                              let product = JSON.parse(data);
+                              allProducts.push(product);
+
+                              fs.readFile( './demo/radars_ry_4.txt', 'utf8', function (err, data) {
+                                if(err) {
+                                  throw err;
+                                }
+                                else {
+                                  let product = JSON.parse(data);
+                                  allProducts.push(product);
+
+
                       // post them to db
                       try {
                         promiseToPostItems(allProducts, req.db)
@@ -271,8 +301,15 @@ var previousWeather = function(req, res) {
 													res.status(500).send(e);
 												}
                       }
+
                     }
+                    });
+                  }
                   });
+                }
+                });      
+              }
+              });
 
                 }
                 // if not demo, send 404
