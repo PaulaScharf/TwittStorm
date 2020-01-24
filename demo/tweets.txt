@@ -9,7 +9,7 @@
       "name": "Peter",
       "location_home": "Münster"
     },
-    "timestamp": 1801234,
+    "timestamp": 1537513834020,
     "location_actual": { "type":"Point", "coordinates":[7.54486083984375, 52.07275365395317] },
     "dwd_id": "1234",
     "requestTime": 1801234
@@ -24,7 +24,7 @@
         "name": "Paul",
         "location_home": "Moers"
       },
-      "timestamp": 1234,
+      "timestamp": 1537514586000,
       "location_actual": { "type":"Point", "coordinates":[6.44622802734375, 51.4163381064004] },
       "dwd_id": "1234",
       "requestTime": 1801234
