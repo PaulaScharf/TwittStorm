@@ -77,7 +77,7 @@ const getWarningsForTime = function(req, res, next) {
           .then(function (response) {
 
             let oldUnwetterIDs = [];
-            // put together all JSON-objects of old Unwetter dwd_ids in one array
+            // put together all JSON-objects of old warning dwd_ids in one array
             for (let u = 0; u < response.length; u++) {
               oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
             }
@@ -141,7 +141,7 @@ const getWarningsForTime = function(req, res, next) {
         });
 
         // ".then" is used here, to ensure that the .......... has finished and a result is available
-        // saves new requested Unwetter in database
+        // saves new requested warnings in database
         processUnwettersFromDWD(currentTimestamp, req.db)
         .then(function () {
 
@@ -171,9 +171,8 @@ const getWarningsForTime = function(req, res, next) {
 
 
 /**
-* @desc This function retrieves the current Unwetter-Polygons from the local instance of the server and
+* @desc This function retrieves the current warnings-polygons from the local instance of the server and
 * then posts all polygons to the database.
-*
 * @author Paula Scharf
 * @param {number} currentTimestamp - timestamp in Epoch milliseconds
 * @param db - database reference
@@ -299,18 +298,18 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
 
               // timestamps are given by DWD as UTC
 
-              // ONSET is the timestamp that gives the time when the Unwetter-warning begins - it is NOT the timestamp for the moment when the warning was published
+              // ONSET is the timestamp that gives the time when the warning begins - it is NOT the timestamp for the moment when the warning was published
               // make an Epoch-milliseconds-timestamp (out of the ONSET-timestamp given by the DWD)
               let onset = Date.parse(currentFeature.properties.ONSET);
 
-              // EXPIRES is the timestamp that gives the time when the Unwetter-warning ends
+              // EXPIRES is the timestamp that gives the time when the warning ends
               // make an Epoch-milliseconds-timestamp (out of the EXPIRES-timestamp given by the DWD)
               let expires = Date.parse(currentFeature.properties.EXPIRES);
 
               // use only the notifications that are actual reports and not just tests
               if ((currentFeature.properties.STATUS === "Actual") && (onset <= currentTimestamp) && (expires >= currentTimestamp)) {
 
-                // check whether exactly this Unwetter is already stored in the database
+                // check whether exactly this warning is already stored in the database
                 // and, depending on its MSGTYPE (Alert, Update, Cancel), add, update or delete if to/from database
                 processingUnwetters.push(checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, currentTimestamp, db));
               }
@@ -337,7 +336,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
   *
   * @author Katharina Poppinga, Paula Scharf
   * @private
-  * @param {Object} currentFeature - JSON of one specific Unwetter taken from DWD response
+  * @param {Object} currentFeature - JSON of one specific warning taken from DWD response
   * @param {Array} arrayOfGroupedUnwetters -
   * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
   * @param db - database
@@ -345,7 +344,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
   function checkDBForExistingUnwetter(currentFeature, arrayOfGroupedUnwetters, currentTimestamp, db){
 
     return new Promise((resolve, reject) => {
-      // JSON with the ID of the current Unwetter, needed for following database-check
+      // JSON with the ID of the current warning, needed for following database-check
       let query = {
         type: "unwetter",
         dwd_id: currentFeature.properties.IDENTIFIER
@@ -355,16 +354,16 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
       promiseToGetItems(query, db)
       .then(function(response) {
 
-        // response[0] contains the one and only Unwetter that was read out of database with promiseToGetItems
+        // response[0] contains the one and only warning that was read out of database with promiseToGetItems
 
-        // if the current Unwetter (with given dwd_id) ALREADY EXISTS in the database ...
+        // if the current warning (with given dwd_id) ALREADY EXISTS in the database ...
         if (typeof response !== "undefined" && response.length > 0) {
           // ... do not insert it again but:
           // if the message (MSGTYPE) is an "Update", the dwd_id will be a new one, see: https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
           // if its MSGTYPE is "Alert" or "Update"
           if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
 
-            // response[0]._id is the Unwetter-item-ID from mongoDB
+            // response[0]._id is the warning-item-ID from mongoDB
             // if the array "timestamps" does not already contain the currentTimestamp, append it now:
             if (!(response[0].timestamps.includes(currentTimestamp))) {
               promiseToUpdateItems({_id: response[0]._id}, {"$push": {"timestamps": currentTimestamp}}, db)
@@ -392,16 +391,16 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
             });
           }
 
-          // if this Unwetter does NOT EXIST in the database ...
+          // if this warning does NOT EXIST in the database ...
         } else {
           // ... and if its MSGTYPE is "Alert" or "Update" ...
           if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
 
-            // ... insert it by first formatting the Unwetters JSON and ...
+            // ... insert it by first formatting the warnings' JSON and ...
             let currentUnwetter = createUnwetterForDB(currentFeature, currentTimestamp);
             // ... add it to the arrayOfGroupedUnwetters
-            // this array will be used for subsequent processing before adding the Unwetter to the
-            // Promise (in function processUnwetterFromDWD) for inserting all new Unwetter into database
+            // this array will be used for subsequent processing before adding the warning to the
+            // Promise (in function processUnwetterFromDWD) for inserting all new warnings into database
             promiseToPostItems([currentUnwetter],db)
             .then(function(response) {
               resolve();
@@ -473,7 +472,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
   */
   function getWarningsFromDB(currentTimestamp, db, res, next) {
 
-    // JSON with the query for getting only all current Unwetter out of database
+    // JSON with the query for getting only all current warnings out of database
     let query = {
       "type": "unwetter",
       "properties.onset": {"$lt": JSON.parse(currentTimestamp)},

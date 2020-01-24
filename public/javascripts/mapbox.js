@@ -708,42 +708,42 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* Creates checkboxes in menu for showing only certain types of
 	* warnings ("Rain", "Snowfall", "Thunderstorm" or "BlackIce").
 	* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
-	* @param {Object} map - mapbox-map in which to display the current Unwetters
+	* @param {Object} map - mapbox-map in which to display the current warnings
 	* @param {Array} currentUnwetters -
 	*/
 	function displayCurrentUnwetters(map, currentUnwetters) {
 
-		// one feature for a Unwetter (could be heavy rain, light snowfall, ...)
+		// one feature for a warning (could be heavy rain, light snowfall, ...)
 		let warningsFeatureCollection;
 
 		// remove layer and source of those warnings which are expired from map and remove its layerID from customLayerIds
 		findAndRemoveOldLayerIDs(map, currentUnwetters);
 
-		// iteration over all Unwetter in the database
+		// iteration over all warnings in the database
 		for (let i = 0; i < currentUnwetters.length; i++) {
 
 			let currentUnwetterEvent = currentUnwetters[i];
 			let searchWords = [];
 			let layerGroup = "";
 			let ii = currentUnwetterEvent.properties.ec_ii;
-			// choose the correct group identifier for the Unwetter and set the searchwords for the tweetrequest accordingly:
+			// choose the correct group identifier for the warning and set the searchwords for the tweetrequest accordingly:
 
-			// if the current Unwetter is of type RAIN ...
+			// if the current warning is of type RAIN ...
 			if ((ii >= 61) && (ii <= 66)) {
 				layerGroup = "Rain";
 				searchWords.push("Starkregen", "Dauerregen");
 			}
-			// if the current Unwetter is of type SNOWFALL ...
+			// if the current warning is of type SNOWFALL ...
 			else if ((ii >= 70) && (ii <= 78)) {
 				layerGroup = "Snowfall";
 				searchWords.push("Schneefall");
 			}
-			// if the current Unwetter is of type THUNDERSTORM ..
+			// if the current warning is of type THUNDERSTORM ..
 			else if (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96))) {
 				layerGroup = "Thunderstorm";
 				searchWords.push("Gewitter");
 			}
-			// if the current Unwetter is of type BLACK ICE ..
+			// if the current warning is of type BLACK ICE ..
 			else if ((ii === 24) || ((ii >= 84) && (ii <= 87))) {
 				layerGroup = "BlackIce";
 				searchWords.push("Blitzeis", "Glätte", "Glatteis");
@@ -789,8 +789,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 		// if there is already an existing Source of this map with the given layerID ...
 		if (typeof sourceObject !== 'undefined') {
-			// ... set the data neu
-			// TODO: warum folgendes nötig? warum nicht einfach alte source unverändert lassen, da dwd-id die gleiche ist und damit auch keine updates des Unwetters vorhanden sind?
+			// ... set the data
 			let data = JSON.parse(JSON.stringify(sourceObject._data));
 			data.features = eventFeatureCollection.features;
 			sourceObject.setData(data);
@@ -929,7 +928,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	*/
 	function findAndRemoveOldLayerIDs(map, currentUnwetters){
 
-		// Array in which the layerIDs of the Unwetter which shall not longer be displayed in the map will be collected (for deleting them from Array customLayerIds afterwards)
+		// Array in which the layerIDs of the warnings which shall not longer be displayed in the map will be collected (for deleting them from Array customLayerIds afterwards)
 		let layerIDsToRemove = [];
 
 		// iteration over all elements (all layerIDs) in Array customLayerIds
@@ -943,20 +942,20 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			// layerIdParts[0] contains the type of layer-element
 			if (layerIdParts[0] === "unwetter") {
 
-				// default false stands for: layer-Unwetter is not (no longer) a current Unwetter
+				// default false stands for: layer-warning is not (no longer) a current warning
 				let isCurrent = false;
 				//
 				for (let j = 0; j < currentUnwetters.length; j++) {
 
-					// layerIdParts[2] contains the id (here: dwd_id for Unwetters)
-					// if the layer-Unwetter is still a current Unwetter, set "isCurrent" to true
+					// layerIdParts[2] contains the id (here: dwd_id for warnings)
+					// if the layer-warning is still a current warning, set "isCurrent" to true
 					if (layerIdParts[2] === currentUnwetters[j].dwd_id) {
 						isCurrent = true;
 					}
 				}
 
 				// TODO: paula geändert???
-				// if the layer-Unwetter is not (no longer) a current Unwetter, remove its ID from customLayerIds
+				// if the layer-warning is not (no longer) a current warning, remove its ID from customLayerIds
 				if (isCurrent === false) {
 					showAllExcept(map, layerIdParts[2]);
 
@@ -1118,7 +1117,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc This function makes only Unwetters and its tweets visible, if the include a polygon that is fully contained by the given
+	* @desc This function makes only warnings and its tweets visible, if the include a polygon that is fully contained by the given
 	* polygon.
 	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf
@@ -1130,7 +1129,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		let requests = [];
 		for (let i = 0; i<customLayerIds.length; i++) {
 			let layerID = customLayerIds[i];
-			// make sure to only check layers which contain an Unwetter
+			// make sure to only check layers which contain a warning
 			if (layerID.includes("unwetter")) {
 				let isInAOI = false;
 				let source = map.getSource(layerID);
@@ -1147,7 +1146,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				let layerIDSplit = layerID.split(/[ ]+/);
 
 				let visibility;
-				// decide if the unwetter is gonna be visible or not
+				// decide if the warning is gonna be visible or not
 				if (!isInAOI) {
 					visibility = 'none';
 				} else {
@@ -1181,7 +1180,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					}
 					requests.push(query);
 				}
-				// change visibility of unwetter layer
+				// change visibility of warning layer
 				map.setLayoutProperty(layerID, 'visibility', visibility);
 
 				let layerIDTweet = "tweet " + layerIDSplit[1] + " " + layerIDSplit[2];

@@ -833,19 +833,19 @@ function loadPreviousWeather(map, weatherEv){
               let layerGroup = "";
               let ii = result[key][j].properties.ec_ii;
 
-              // if the current Unwetter is of type RAIN ...
+              // if the current warning is of type RAIN ...
               if ((ii >= 61) && (ii <= 66)) {
                 layerGroup = "Rain";
               }
-              // if the current Unwetter is of type SNOWFALL ...
+              // if the current warning is of type SNOWFALL ...
               else if ((ii >= 70) && (ii <= 78)) {
                 layerGroup = "Snowfall";
               }
-              // if the current Unwetter is of type THUNDERSTORM ..
+              // if the current warning is of type THUNDERSTORM ..
               else if (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96))) {
                 layerGroup = "Thunderstorm";
               }
-              // if the current Unwetter is of type BLACK ICE ..
+              // if the current warning is of type BLACK ICE ..
               else if ((ii === 24) || ((ii >= 84) && (ii <= 87))) {
                 layerGroup = "BlackIce";
               }
@@ -986,7 +986,7 @@ function addToSource(map, layerID, previousFeatureCollection){
   // if there is already an existing Source of this map with the given layerID ...
   if (typeof sourceObject !== 'undefined') {
     // ... add the data
-    // TODO: warum folgendes nötig? warum nicht einfach alte source unverändert lassen, da dwd-id die gleiche ist und damit auch keine updates des Unwetters vorhanden sind?
+
     let data = JSON.parse(JSON.stringify(sourceObject._data));
     data.features = data.features.concat(previousFeatureCollection.geometry.features);
     sourceObject.setData(data);

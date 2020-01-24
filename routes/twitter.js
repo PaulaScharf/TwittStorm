@@ -75,7 +75,7 @@ var promiseToGetTweetsFromTwitter = function(params) {
 };
 
 /**
- * Checks if there are already tweets for a certain unwetter at a certain time inside the database.
+ * Checks if there are already tweets for a certain warning at a certain time inside the database.
  * @author Paula Scharf
  * @param dwd_id
  * @param currentTime
