@@ -12,14 +12,14 @@
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="API" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="API" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Schleifen-Controller (Loop Controller)" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
+          <stringProp name="LoopController.loops">3</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <stringProp name="ThreadGroup.num_threads">100</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">3</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
@@ -34,7 +34,7 @@
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/warnings/1234</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/warnings/1234</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -45,7 +45,7 @@
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
         </HTTPSamplerProxy>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET severe weather warnings" enabled="false">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET severe weather warnings" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="Benutzer definierte Variablen" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
@@ -53,7 +53,7 @@
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/warnings/${__time()}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/warnings/${__time()}</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -83,7 +83,7 @@
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
         </HTTPSamplerProxy>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST to get tweets" enabled="false">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST to get tweets" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
@@ -105,7 +105,7 @@
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/twitter/tweets</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/twitter/tweets</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -127,7 +127,7 @@
           </RegexExtractor>
           <hashTree/>
         </hashTree>
-        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If-Controller" enabled="false">
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If-Controller" enabled="true">
           <stringProp name="IfController.condition">${__isVarDefined(JMeterThread.tweet_id)}</stringProp>
           <boolProp name="IfController.evaluateAll">false</boolProp>
           <boolProp name="IfController.useExpression">true</boolProp>
@@ -150,7 +150,7 @@
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/twitter/tweet</stringProp>
+            <stringProp name="HTTPSampler.path">/api/v1/twitter/tweet</stringProp>
             <stringProp name="HTTPSampler.method">DELETE</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -162,7 +162,7 @@
           </HTTPSamplerProxy>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET previousWeather" enabled="false">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET previousWeather" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="Benutzer definierte Variablen" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
@@ -170,7 +170,7 @@
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/previousWeather/unwetter/${__time()}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/previousWeather/unwetter/${__time()}</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -181,7 +181,7 @@
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
         </HTTPSamplerProxy>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST config" enabled="false">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST config" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
@@ -198,7 +198,7 @@
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/config/</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/config/</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -391,6 +391,7 @@
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path"></stringProp>
+          <stringProp name="TestPlan.comments">without docker</stringProp>
           <stringProp name="HTTPSampler.concurrentPool">6</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -404,7 +405,8 @@
           <stringProp name="HTTPSampler.port">3000</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path"></stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1</stringProp>
+          <stringProp name="TestPlan.comments">with docker</stringProp>
           <stringProp name="HTTPSampler.concurrentPool">6</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -447,7 +449,7 @@
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
-        <RecordingController guiclass="RecordController" testclass="RecordingController" testname="Recording the main page" enabled="true"/>
+        <RecordingController guiclass="RecordController" testclass="RecordingController" testname="Recording the main page" enabled="false"/>
         <hashTree>
           <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
             <boolProp name="ResultCollector.error_logging">false</boolProp>
@@ -5183,7 +5185,7 @@
         </collectionProp>
       </HeaderManager>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="client side tests" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="client side tests" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Schleifen-Controller (Loop Controller)" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -5351,7 +5353,7 @@ var pkg = JavaImporter(org.openqa.selenium);
 var support_ui = JavaImporter(org.openqa.selenium.support.ui.WebDriverWait); //WebDriver classes
 var ui = JavaImporter(org.openqa.selenium.support.ui) 
 // dont wait longer than 5 seconds
-var wait = new support_ui.WebDriverWait(WDS.browser, 5000);
+var wait = new support_ui.WebDriverWait(WDS.browser, 5);
 // dimensions of the browser window
 var dim = new org.openqa.selenium.Dimension(1500,1000);
 
@@ -5426,13 +5428,65 @@ while (new Date().getTime() - start &lt; 8000) {
           <stringProp name="WebDriverSampler.language">javascript</stringProp>
         </com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler>
         <hashTree/>
+        <com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler guiclass="com.googlecode.jmeter.plugins.webdriver.sampler.gui.WebDriverSamplerGui" testclass="com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler" testname="test responsiveness of the layermenu" enabled="true">
+          <stringProp name="TestPlan.comments">the menu should open in under 0.1 seconds</stringProp>
+          <stringProp name="WebDriverSampler.script">// imports and declarations
+var pkg = JavaImporter(org.openqa.selenium);
+var support_ui = JavaImporter(org.openqa.selenium.support.ui.WebDriverWait); //WebDriver classes
+var ui = JavaImporter(org.openqa.selenium.support.ui) 
+// dont wait longer than 0.1 seconds
+var wait = new support_ui.WebDriverWait(WDS.browser, 0.1);
+// dimensions of the browser window
+var dim = new org.openqa.selenium.Dimension(1500,1000);
+
+// start sampler
+WDS.sampleResult.sampleStart()
+WDS.browser.manage().window().setSize(dim)
+// load page
+WDS.browser.get(&apos;http://localhost:3000/map&apos;)
+
+// open the menu
+WDS.browser.findElement(pkg.By.xpath(&quot;//div[@id=&apos;buttonIcon&apos;]/img&quot;)).click();
+wait.until(ui.ExpectedConditions.visibilityOfElementLocated(pkg.By.id(&quot;menu&quot;)))
+
+WDS.sampleResult.sampleEnd()</stringProp>
+          <stringProp name="WebDriverSampler.parameters"></stringProp>
+          <stringProp name="WebDriverSampler.language">javascript</stringProp>
+        </com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler>
+        <hashTree/>
+        <com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler guiclass="com.googlecode.jmeter.plugins.webdriver.sampler.gui.WebDriverSamplerGui" testclass="com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler" testname="test responsiveness of page navigation" enabled="true">
+          <stringProp name="TestPlan.comments">a new page should be visible after less than 1 second</stringProp>
+          <stringProp name="WebDriverSampler.script">// imports and declarations
+var pkg = JavaImporter(org.openqa.selenium);
+var support_ui = JavaImporter(org.openqa.selenium.support.ui.WebDriverWait); //WebDriver classes
+var ui = JavaImporter(org.openqa.selenium.support.ui) 
+// dont wait longer than 1 seconds
+var wait = new support_ui.WebDriverWait(WDS.browser, 1);
+// dimensions of the browser window
+var dim = new org.openqa.selenium.Dimension(1500,1000);
+
+// start sampler
+WDS.sampleResult.sampleStart()
+WDS.browser.manage().window().setSize(dim)
+// load page
+WDS.browser.get(&apos;http://localhost:3000/help&apos;)
+
+// switch configuration page
+WDS.browser.findElement(pkg.By.linkText(&quot;Configuration&quot;)).click();
+wait.until(ui.ExpectedConditions.visibilityOfElementLocated(pkg.By.id(&quot;submitbutton&quot;)))
+
+WDS.sampleResult.sampleEnd()</stringProp>
+          <stringProp name="WebDriverSampler.parameters"></stringProp>
+          <stringProp name="WebDriverSampler.language">javascript</stringProp>
+        </com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler>
+        <hashTree/>
         <com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler guiclass="com.googlecode.jmeter.plugins.webdriver.sampler.gui.WebDriverSamplerGui" testclass="com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler" testname="load main page and draw aoi (demo)" enabled="true">
           <stringProp name="WebDriverSampler.script">// imports and declarations
 var pkg = JavaImporter(org.openqa.selenium);
 var support_ui = JavaImporter(org.openqa.selenium.support.ui.WebDriverWait); //WebDriver classes
 var ui = JavaImporter(org.openqa.selenium.support.ui) 
 // dont wait longer than 5 seconds
-var wait = new support_ui.WebDriverWait(WDS.browser, 5000);
+var wait = new support_ui.WebDriverWait(WDS.browser, 5);
 // dimensions of the browser window
 var dim = new org.openqa.selenium.Dimension(1500,1000);
 
@@ -5520,6 +5574,7 @@ while (new Date().getTime() - start &lt; 8000) {
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="TestPlan.comments">this an exampe of all the requests that are made during the loading of the main page</stringProp>
       </ThreadGroup>
       <hashTree>
         <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Default Einstellungen" enabled="true">
