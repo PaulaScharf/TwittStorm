@@ -4,9 +4,9 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-*/
+ * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+ * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+ */
 
 
 
@@ -62,6 +62,7 @@ function drawForAOI(map, draw) {
 	});
 
 	map.on('draw.reloadTweets', function () {
+		doneProcessingAOI = false;
 		let polygons = draw.getAll();
 		if (polygons.features[0]) {
 			onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates));
@@ -80,6 +81,7 @@ function drawForAOI(map, draw) {
 * @param {Array} aoiCoordinatesGeoJSON - coordinates of drawn polygon (in format part of a GeoJSON)
 */
 function processingAOI(map, aoiCoordinatesGeoJSON) {
+	doneProcessingAOI = false;
 
 	let coordinatesAOI = aoiCoordinatesGeoJSON[0];
 
