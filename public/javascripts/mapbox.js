@@ -406,13 +406,12 @@ function getAndUseAOIFromURL(draw) {
 */
 function requestAndDisplayAllRainRadar(map, product) {
 
-	// is there a timestamp?
 	let currentTimestamp = Date.now();
-	if(typeof paramArray.timestamp === "undefined") {
-		// none found, create "now"
-		currentTimestamp = Date.now();
+		// is there a timestamp?
+	if (typeof paramArray.timestamp === "undefined") {
+		// none found, use just created "now"
 	} else {
-		// found, use historic one
+		// timestamp found from URL, than use this historic one
 		currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
 		try {
 			Date.parse(currentTimestamp);
@@ -422,7 +421,12 @@ function requestAndDisplayAllRainRadar(map, product) {
 		}
 	}
 
-	let url = "/api/v1/radar/" + product + "/" + currentTimestamp;
+let timestampLastRequest = document.getElementById("timestampLastRequest");
+if (readURL("wtype") == "radar") {
+		timestampLastRequest.innerHTML = "";
+}
+
+		let url = "/api/v1/radar/" + product + "/" + currentTimestamp;
 
 	// update the status display
 	$('#information').html("Retrieving the requested " + product + " rain radar product.");
@@ -444,16 +448,14 @@ function requestAndDisplayAllRainRadar(map, product) {
 
 			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			// TODO: if timestamp größer als ?? --> falls keine demodaten oder keine animation:
-
-			// TODO: muss noch timestamp of request werden und nicht timestamp of display in map
+//if (currentTimestamp) {
 			// show timestamp of the last request in legend
-			let formattedRequestTimestamp = timestampFormatting(currentTimestamp);
-			let timestampLastRequest = document.getElementById("timestampLastRequest");
+			let formattedRequestTimestamp = timestampFormatting(result.timestampOfRequest);
+	//		let timestampLastRequest = document.getElementById("timestampLastRequest");
 			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedRequestTimestamp;
+//		}
 			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			// ***************************************************************************************************************
-
-
 
 
 			//see if layer needs to be updated or added

@@ -513,6 +513,24 @@ function loadAnimation(position, map){
   customLayerIds.forEach(function (layerID) {
     let layerIdParts = layerID.split(/[ ]+/);
     if (layerIdParts[1] == posMarker) {
+
+console.log(usedTimestamps[position]);
+
+
+console.log(final);
+//  console.log(final[i].timestamp); // ergibt z.B. 1579725600000
+  let formattedDataTimestamp = timestampFormatting(usedTimestamps[position]);
+
+  // new Date(timestamp); innerhalb von timestampFormatting(1579725600000) führt zu Invalid Date, wenn hierraus aufgerufen, wenn direkt im Browser mit timestamp, dann nicht:
+
+  console.log(formattedDataTimestamp); // ergibt Invalid Date
+  console.log(timestampFormatting(final[i].timestamp));  // ergibt Invalid Date
+  console.log(timestampFormatting(1579725600000)); // ergibt richtig formatiertes datum
+
+  let dataTimestamp = document.getElementById("dataTimestamp");
+  dataTimestamp.innerHTML = "<b>Timestamp:</b><br>" + formattedDataTimestamp;
+
+
       // add the correct layer
       if (layerID.includes("radar")) {
         map.addLayer({
@@ -639,7 +657,6 @@ function loadAnimation(position, map){
       allLayers.push(layerID);
     }
   });
-
 }
 
 
@@ -781,21 +798,6 @@ function loadPreviousWeather(map, weatherEv){
         }
       }
     }
-    // if radar data is shown, display the timestamp of the radar data in legend
-    if (weatherEv === "radar") {
-      debugger;
-      console.log(final[i].timestamp); // ergibt z.B. 1579725600000
-      let formattedDataTimestamp = timestampFormatting(final[i].timestamp);
-
-      // new Date(timestamp); innerhalb von timestampFormatting(1579725600000) führt zu Invalid Date, wenn hierraus aufgerufen, wenn direkt im Browser mit timestamp, dann nicht:
-
-      console.log(formattedDataTimestamp); // ergibt Invalid Date
-      console.log(timestampFormatting(final[i].timestamp));  // ergibt Invalid Date
-      console.log(timestampFormatting(1579725600000)); // ergibt richtig formatiertes datum
-
-      let dataTimestamp = document.getElementById("dataTimestamp");
-      dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + formattedDataTimestamp;
-    }
 
     // if the warnings shown are demodata
     if ((weatherEv === "severeWeather") && (currentTimestamp >= paramArray.config.demo.timestamp_start) && (currentTimestamp <= paramArray.config.demo.timestamp_end)) {
@@ -822,8 +824,7 @@ function loadPreviousWeather(map, weatherEv){
 
 
 /**
-* function to return a GeoJSON formatted Polygon
-* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @desc Function to return a GeoJSON formatted Polygon.
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 * @param object - the individual polygons of an event, containing the coords of a polygon
 * @param time - timestamp of the data
@@ -845,7 +846,7 @@ function goGeoJson(object, time, properties) {
 
 
 /**
-* @desc Checks if a part of an Object is already in an array
+* @desc Checks if a part of an Object is already in an array.
 * @param item geojson object
 * @author Benjamin Rieke
 */
@@ -861,7 +862,7 @@ function addItem(item) {
 
 /**
 * @desc removes all weather sources and layers from the map on wtype change
-* @param map links to the map
+* @param {Object} map - mapbox-map
 * @author Benjamin Rieke
 */
 function removeAllSource(map) {
