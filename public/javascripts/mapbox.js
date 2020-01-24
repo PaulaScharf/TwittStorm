@@ -375,6 +375,7 @@ function showMap() {
 * @param {Object} draw - MapboxDraw-Object in which to add the AOI
 */
 function getAndUseAOIFromURL(draw) {
+	doneProcessingAOI = false;
 
 	let aoiString = paramArray.aoi;
 
@@ -1098,9 +1099,10 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					// TODO: error catchen und dann hier auch den error ausgeben?
 				}
 			}
+			doneProcessingAOI = true;
 		})
 		.fail(function(xhr, status, error) {
-
+			doneProcessingAOI = true;
 		});
 
 		// and then check whether they lie in the rainRadar polygons

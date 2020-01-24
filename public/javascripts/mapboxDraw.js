@@ -62,6 +62,7 @@ function drawForAOI(map, draw) {
 	});
 
 	map.on('draw.reloadTweets', function () {
+		doneProcessingAOI = false;
 		let polygons = draw.getAll();
 		if (polygons.features[0]) {
 			onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates));
