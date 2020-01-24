@@ -6,9 +6,19 @@ The code of this project can be found on GitHub: [https://github.com/PaulaScharf
 <b>TODO: DockerHub-Link einfügen</b>
 ## How to construct and use your own API-keys
 #### Mapbox GL JS
-...
+1.
+2.
+3. set the value of the variable ``keys.mapbox.access_key`` in config.yaml to your own created API key
+
 #### Twitter
-...
+1.
+2.
+3. set the value of the variable ``keys.twitter.consumer_key`` in config.yaml to your own created ....... API key
+4. set the value of the variable ``keys.twitter.consumer_secret`` in config.yaml to your own created ....... API key
+5. set the value of the variable ``keys.twitter.access_token_key`` in config.yaml to your own created ....... API key
+6. set the value of the variable ``keys.twitter.access_token_secret`` in config.yaml to your own created ....... API key
+<br> steps 3 to 6 evtl. als einen einzigen Punkt formatieren
+
 ## How to start the App
 <b>TODO: DockerHub einfügen</b><br>
 ANPASSEN:<br>
@@ -40,10 +50,8 @@ Your IP will be shown on start of the dockershell.<br/>
     6. set the path to the location of the "chromedriver.exe" on your local system
 6. start the test threads and look at the results in "View Results Tree", "Summary Report" and "Response Time Graph"
 
-## Information for Developers
-<b>TODO: Config.yaml erklären</b><br>
+## Troubleshoot
+Ensure that your adblocker does not prevent JSNLog from working.
 
-## Routes
-Are in the routes folder in the index.js. The crud functionality is provided through the data.js in the same folder.
-## Pages
-The Webpages are in the views folder and are in the .ejs format which can be used just like HTML.
+## Information for Developers
+<b>TODO: Config.yaml erklären hier, oder auf Wiki verweisen?</b><br>
