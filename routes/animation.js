@@ -181,8 +181,10 @@ var previousWeather = function(req, res) {
                   //"radarImages": result
                 };
 
-                result.forEach(function(image) {
-                  answer[image.timestamp] = [image];
+                result.forEach(function(image, index) {
+                  if(index < 11) {
+                    answer[image.timestamp] = [image];
+                  }
                 });
 								if (!res.headersSent) {
 									res.json(answer);
