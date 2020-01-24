@@ -202,7 +202,12 @@ function showAnimationMap() {
       rasterMenuToggle.classList.toggle("active");
       severeWeatherMenuToggle.classList.remove("active");
 
-      showLegend(animationMap, "radar", "rw");
+// TODO: wann soll RW legende angezeigt werden???
+
+      showLegend(animationMap, "radar", "ry");
+      let dataTimestamp = document.getElementById("dataTimestamp");
+      dataTimestamp.innerHTML = "<b>Timestamp of current timestep:</b><br>";
+
       loadPreviousWeather(animationMap, wtypeFlag);
     }
 
@@ -219,7 +224,7 @@ function showAnimationMap() {
       //display the legend according to the weathertype
       showLegend(animationMap, "unwetter");
 
-      // the last warnings request was "hm"-milliseconds ago
+      // the last warnings request was ...-milliseconds ago
       let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
       loadPreviousWeather(animationMap, wtypeFlag);
     }
@@ -293,6 +298,9 @@ function reloadAnimation(wType){
     wtypeFlag = "radar";
     //display the legend
     showLegend(animationMap, "radar", "ry");
+    let dataTimestamp = document.getElementById("dataTimestamp");
+    dataTimestamp.innerHTML = "<b>Timestamp of current timestep:</b><br>";
+
     //request the previous weather
     loadPreviousWeather(animationMap, wtypeFlag);
     // update the menu

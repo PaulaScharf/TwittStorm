@@ -647,6 +647,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
 		if (readURL("wtype") == "unwetter") {
 
+		let timestampLastRequest = document.getElementById("timestampLastRequest");
+
 			// if the warnings shown are no demodata
 			if (currentTimestamp > paramArray.config.demo.timestamp_end) {
 				// display the timestamp of the last request in the legend
@@ -655,11 +657,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					((currentTimestamp - paramArray.config.timestamp_last_warnings_request) >= paramArray.config.refresh_rate) ?
 					currentTimestamp : paramArray.config.timestamp_last_warnings_request);
 
-					let timestampLastRequest = document.getElementById("timestampLastRequest");
 					timestampLastRequest.innerHTML = "<b>Timestamp of last DWD request:</b><br>" + formattedTimestamp;
 				}
 				// if the warnings shown are demodata
 				else {
+					// TODO: eher im Code nötig, direkt wenn Legende eingeladen wird, aber wie dann an currentTimestamp kommen??
+					timestampLastRequest.innerHTML = "";
+
 					let posAccuracy = document.getElementById("posAccuracy");
 					posAccuracy.innerHTML = "<b>Positional accuracy of data:</b><br>Local authority borders<br>(does not count for all demodata)";
 				}
