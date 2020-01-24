@@ -10,8 +10,6 @@
 
 
 
-// TODO: EINTEILUNG DER WARNINGS IN TYPES (RAIN; SNOWFALL; THUNDERSTORM; BLACK ICE) FEHLT FÜR ANIMATION NOCH
-
 // ****************************** global variables *****************************
 
 // TODO: dies in Funktion schreiben??
@@ -66,7 +64,6 @@ var indicator = "";
 var wIndicator = "";
 
 
-// TODO: showAnimationMap-Funktion modularisieren UND/ODER anpassen an showMap-Funktion, neues von dort übernehmen!!
 
 /**
 * @desc Based on the showMap function in the mapbox.js file.
@@ -180,14 +177,17 @@ function showAnimationMap() {
     });
     customLayerIds.push('boundaryGermany');
 
+    var innerUnwetterMenuToggle = document.getElementById('menu');
 
     // add functionality for menu selection on radar product call
     $("#raster").click(function() {
+      innerUnwetterMenuToggle.style.display = "none";
       reloadAnimation('radar');
     });
 
     // add functionality for menu selection on severeweather call
     $("#severeWeatherAnimation").click(function() {
+      innerUnwetterMenuToggle.style.display = "block";
       reloadAnimation('unwetter');
     });
 
@@ -201,8 +201,6 @@ function showAnimationMap() {
       // toggle the menu tabs for radar and severe weather to active or not active
       rasterMenuToggle.classList.toggle("active");
       severeWeatherMenuToggle.classList.remove("active");
-
-// TODO: wann soll RW legende angezeigt werden???
 
       showLegend(animationMap, "radar", "ry");
       let dataTimestamp = document.getElementById("dataTimestamp");
@@ -647,7 +645,7 @@ function loadAnimation(position, map){
       }
 
       makeLayerInteractive(map, layerID);
-      // put something in the array for the for loop to check for emptiness
+      createWarningsCheckboxes(animationMap);
       allLayers.push(layerID);
     }
   });
@@ -722,15 +720,11 @@ function loadPreviousWeather(map, weatherEv){
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
 
-    console.log(result);
-
-    // TODO: daraus events übernehmen
-
     resultOutput.push(result);
     let layerID;
     // for every timestamp
     for (let key in result) {
-      if ((key != "type") && (key != "length")) {
+      if ((key != "type") && (key != "length") && (key != "radProd")) {
         // log the individual timestamp to refer to them later
         usedTimestamps.push(key);
 
@@ -768,7 +762,33 @@ function loadPreviousWeather(map, weatherEv){
 
             // put every polygon from a warning into one array
             if (weatherEv == "severeWeather") {
-              layerID = "unwetter " + key + " " + j;
+
+              // assigning warnings-type
+              let layerGroup = "";
+              let ii = result[key][j].properties.ec_ii;
+
+              // if the current Unwetter is of type RAIN ...
+              if ((ii >= 61) && (ii <= 66)) {
+                layerGroup = "Rain";
+              }
+              // if the current Unwetter is of type SNOWFALL ...
+              else if ((ii >= 70) && (ii <= 78)) {
+                layerGroup = "Snowfall";
+              }
+              // if the current Unwetter is of type THUNDERSTORM ..
+              else if (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96))) {
+                layerGroup = "Thunderstorm";
+              }
+              // if the current Unwetter is of type BLACK ICE ..
+              else if ((ii === 24) || ((ii >= 84) && (ii <= 87))) {
+                layerGroup = "BlackIce";
+              }
+              else {
+                // TODO: if-else if ohne else möglich??
+              }
+
+              layerID = "unwetter " + key + " " + j + " " + layerGroup;
+
               // also save the according weather event
               let currentProperties = result[key][j].properties;
               outputArray = [];
@@ -783,6 +803,15 @@ function loadPreviousWeather(map, weatherEv){
 
             // add the current events to the geojson for each timestamp
             if (weatherEv == "radar") {
+
+
+
+              // TODO: hier auf product === "rw" zugreifen, testen ob funktioniert
+              if (result) {
+                showLegend(animationMap, "radar", "rw");
+              }
+
+
               layerID = "radar " + key + " " + j;
               mask.geometry.features = currentUnwetter;
             }

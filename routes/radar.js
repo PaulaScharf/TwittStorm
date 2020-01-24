@@ -115,8 +115,8 @@ function convertTimestamp(radarProduct, timestampString) {
       let reqTime = timestamp + tz + variance - access;
       let reqTimeLower = reqTime - access;
 
-      //console.log("converting " + new Date(timestamp) + " .. to sequence: " + new Date(reqTime));
-      //console.log(" from [lower border] " + new Date(reqTimeLower));
+      console.log("converting " + new Date(timestamp) + " .. to sequence: " + new Date(reqTime));
+      console.log(" from [lower border] " + new Date(reqTimeLower));
 
       return [reqTimeLower, reqTime];
 }
@@ -248,18 +248,64 @@ var radarRoute = function(req, res) {
             res.send(result[0]);
           }
           if(result.length > 1) {
-            let e = "multiple files found.";
-            res.status(500).send(e);
+            res.send(result[0]);
+          //  let e = "multiple files found.";
+          //  res.status(500).send(e);
           }
           // if not found in db
           if(result.length < 1) {
             // read from hist data file
-            fs.readFile( './demo/radars.txt', 'utf8', function (err, data) {
+            var allProducts = [];
+
+            // beatuifully cascading part about reading all the demo data
+            fs.readFile( './demo/radars_ry_1.txt', 'utf8', function (err, data) {
               if(err) {
                 throw err;
               }
               else {
-                let allProducts = JSON.parse(data);
+                let product = JSON.parse(data);
+                allProducts.push(product);
+
+                fs.readFile( './demo/radars_ry_2.txt', 'utf8', function (err, data) {
+                  if(err) {
+                    throw err;
+                  }
+                  else {
+                    let product = JSON.parse(data);
+                    allProducts.push(product);
+
+                    fs.readFile( './demo/radars_ry_3.txt', 'utf8', function (err, data) {
+                      if(err) {
+                        throw err;
+                      }
+                      else {
+                        let product = JSON.parse(data);
+                        allProducts.push(product);
+
+                        fs.readFile( './demo/radars_ry_4.txt', 'utf8', function (err, data) {
+                          if(err) {
+                            throw err;
+                          }
+                          else {
+                            let product = JSON.parse(data);
+                            allProducts.push(product);
+
+                            fs.readFile( './demo/radars_rw_1.txt', 'utf8', function (err, data) {
+                              if(err) {
+                                throw err;
+                              }
+                              else {
+                                let product = JSON.parse(data);
+                                allProducts.push(product);
+
+                                fs.readFile( './demo/radars_sf_1.txt', 'utf8', function (err, data) {
+                                  if(err) {
+                                    throw err;
+                                  }
+                                  else {
+                                    let product = JSON.parse(data);
+                                    allProducts.push(product);
+
                 // post them to db
                 try {
                   promiseToPostItems(allProducts, req.db)
@@ -301,6 +347,21 @@ var radarRoute = function(req, res) {
                 }
               }
             });
+
+// and closing the demo-data-read. sorry about that.
+}
+});
+}
+});
+}
+});
+}
+});
+}
+});
+//***************************************************
+
+
           }
         });
       } catch(e) {
