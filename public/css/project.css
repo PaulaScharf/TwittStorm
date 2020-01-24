@@ -36,6 +36,11 @@
   cursor: ew-resize;
 }
 
+#timestamp {
+  font-size: 14px;
+}
+
+
 /* **********************************Playbutton**************************************** */
 
 #playButton{

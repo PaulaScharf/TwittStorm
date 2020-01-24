@@ -317,6 +317,7 @@ function showMap() {
 
 			showLegend(map, "unwetter");
 
+			/*
 			// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
 			requestNewAndDisplayCurrentUnwetters(map);
 			// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
@@ -326,6 +327,37 @@ function showMap() {
 			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
 			// ... and afterwards each "paramArray.config.refresh_rate" again
 			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
+			*/
+
+// TODO: Kommentare anpassen/neu!
+
+			// the last Unwetter request was "hm"-milliseconds ago
+			let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
+
+			// if the timestamp of the last warnings request is empty (no request so far) or equal to or older than "paramArray.config.refresh_rate" ...
+			if ((paramArray.config.timestamp_last_warnings_request == null) || (msecsToLastUnwetterRequest >= paramArray.config.refresh_rate)) {
+				// ... do a new Unwetter request right now ...
+				requestNewAndDisplayCurrentUnwetters(map);
+				// TODO: wird folgendes immer wieder ausgeführt, auch wenn Bedingung in if sich ändert?
+				// ... and afterwards request Unwetter each "paramArray.config.refresh_rate" again
+				requestNewAndDisplayCurrentUnwettersEachInterval(map, paramArray.config.refresh_rate);
+
+				// if the last Unwetter request is less than "paramArray.config.refresh_rate" ago ...
+			} else {
+
+				let formattedTimestamp = timestampFormatting(paramArray.config.timestamp_last_warnings_request);
+				let timestampLastRequest = document.getElementById("timestampLastRequest");
+				timestampLastRequest.innerHTML = "<b>Timestamp of last DWD request:</b><br>" + formattedTimestamp;
+
+				requestNewAndDisplayCurrentUnwetters(map);
+
+				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - msecsToLastUnwetterRequest;
+				// ... do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
+				// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
+				window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
+				// ... and afterwards each "paramArray.config.refresh_rate" again
+				window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
+			}
 		}
 
 		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
@@ -447,7 +479,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 			if (currentTimestamp > paramArray.config.demo.timestamp_end) {
 				// show timestamp of the last request in legend
 				let formattedRequestTimestamp = timestampFormatting(result.timestampOfRequest);
-				timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedRequestTimestamp;
+				timestampLastRequest.innerHTML = "<b>Timestamp of last DWD request:</b><br>" + formattedRequestTimestamp;
 			}
 
 			// ***************************************************************************************************************
@@ -624,7 +656,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					currentTimestamp : paramArray.config.timestamp_last_warnings_request);
 
 					let timestampLastRequest = document.getElementById("timestampLastRequest");
-					timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedTimestamp;
+					timestampLastRequest.innerHTML = "<b>Timestamp of last DWD request:</b><br>" + formattedTimestamp;
 				}
 				// if the warnings shown are demodata
 				else {

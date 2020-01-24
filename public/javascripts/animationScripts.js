@@ -494,12 +494,12 @@ function setToReady(){
 */
 function loadAnimation(position, map){
   // set a "marker" for the wanted position based on the available timestamps
-  var posMarker = usedTimestamps[position];
+  let posMarker = usedTimestamps[position];
 
   // transform the time from milliseconds to date
-  var time = new Date(+posMarker);
+  let formattedTimestamp = timestampFormatting(+usedTimestamps[position]);
   // add to UI
-  document.getElementById('timestamp').textContent = time.toUTCString();
+  document.getElementById('timestamp').innerHTML = formattedTimestamp;
 
   //check if a layer is shown
   for (let i = 0; i < allLayers.length; i++) {
@@ -514,18 +514,8 @@ function loadAnimation(position, map){
     let layerIdParts = layerID.split(/[ ]+/);
     if (layerIdParts[1] == posMarker) {
 
-console.log(usedTimestamps[position]);
-
-console.log(final);
-
-
-  let formattedDataTimestamp = timestampFormatting(usedTimestamps[position]);
-
-  console.log(formattedDataTimestamp); // ergibt Invalid Date
-
-  let dataTimestamp = document.getElementById("dataTimestamp");
-  dataTimestamp.innerHTML = "<b>Timestamp:</b><br>" + formattedDataTimestamp;
-
+      let dataTimestamp = document.getElementById("dataTimestamp");
+      dataTimestamp.innerHTML = "<b>Timestamp of current timestep:</b><br>" + formattedTimestamp;
 
       // add the correct layer
       if (layerID.includes("radar")) {
