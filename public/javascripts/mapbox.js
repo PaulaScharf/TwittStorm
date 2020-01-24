@@ -262,7 +262,7 @@ function showMap() {
 			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-// TODO: hier auch readURL verwenden?
+			// TODO: hier auch readURL verwenden?
 			// if rasterProduct is defined
 			if (paramArray.rasterProduct !== undefined) {
 
@@ -407,7 +407,7 @@ function getAndUseAOIFromURL(draw) {
 function requestAndDisplayAllRainRadar(map, product) {
 
 	let currentTimestamp = Date.now();
-		// is there a timestamp?
+	// is there a timestamp?
 	if (typeof paramArray.timestamp === "undefined") {
 		// none found, use just created "now"
 	} else {
@@ -421,20 +421,18 @@ function requestAndDisplayAllRainRadar(map, product) {
 		}
 	}
 
-let timestampLastRequest = document.getElementById("timestampLastRequest");
-if (readURL("wtype") == "radar") {
+	let timestampLastRequest = document.getElementById("timestampLastRequest");
+	if (readURL("wtype") == "radar") {
 		timestampLastRequest.innerHTML = "";
-}
+	}
 
-		let url = "/api/v1/radar/" + product + "/" + currentTimestamp;
+	let url = "/api/v1/radar/" + product + "/" + currentTimestamp;
 
 	// update the status display
 	$('#information').html("Retrieving the requested " + product + " rain radar product.");
 
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
-
-		console.log(result);
 
 		// ***************************************************************************************************************
 		// for displaying the radar stuff only in the map for radar and not in the map for severe weather warnings
@@ -445,18 +443,14 @@ if (readURL("wtype") == "radar") {
 			let dataTimestamp = document.getElementById("dataTimestamp");
 			dataTimestamp.innerHTML = "<b>Timestamp of data:</b><br>" + formattedDataTimestamp;
 
+			// if the radar data shown are no demodata
+			if (currentTimestamp > paramArray.config.demo.timestamp_end) {
+				// show timestamp of the last request in legend
+				let formattedRequestTimestamp = timestampFormatting(result.timestampOfRequest);
+				timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedRequestTimestamp;
+			}
 
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			// TODO: if timestamp größer als ?? --> falls keine demodaten oder keine animation:
-//if (currentTimestamp) {
-			// show timestamp of the last request in legend
-			let formattedRequestTimestamp = timestampFormatting(result.timestampOfRequest);
-	//		let timestampLastRequest = document.getElementById("timestampLastRequest");
-			timestampLastRequest.innerHTML = "<b>Timestamp of last request:</b><br>" + formattedRequestTimestamp;
-//		}
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			// ***************************************************************************************************************
-
 
 			//see if layer needs to be updated or added
 			let sourceObject = map.getSource("rainradar");

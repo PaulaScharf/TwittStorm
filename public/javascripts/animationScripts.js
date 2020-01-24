@@ -516,16 +516,12 @@ function loadAnimation(position, map){
 
 console.log(usedTimestamps[position]);
 
-
 console.log(final);
-//  console.log(final[i].timestamp); // ergibt z.B. 1579725600000
+
+
   let formattedDataTimestamp = timestampFormatting(usedTimestamps[position]);
 
-  // new Date(timestamp); innerhalb von timestampFormatting(1579725600000) führt zu Invalid Date, wenn hierraus aufgerufen, wenn direkt im Browser mit timestamp, dann nicht:
-
   console.log(formattedDataTimestamp); // ergibt Invalid Date
-  console.log(timestampFormatting(final[i].timestamp));  // ergibt Invalid Date
-  console.log(timestampFormatting(1579725600000)); // ergibt richtig formatiertes datum
 
   let dataTimestamp = document.getElementById("dataTimestamp");
   dataTimestamp.innerHTML = "<b>Timestamp:</b><br>" + formattedDataTimestamp;
