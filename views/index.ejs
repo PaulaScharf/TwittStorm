@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/mapbox/mapbox-gl.css"/>
   <link rel="stylesheet" href="/mapbox-draw/mapbox-gl-draw.css"/>
+  <link rel="stylesheet" href="/mapbox-geocoder/mapbox-gl-geocoder.css"/>
 </head>
 
 <body onload = "showMap()">
@@ -117,6 +118,9 @@
           </div>
         </nav>
 
+        <!-- Geocoder -->
+        <div id="geocoder"></div>
+
         <!-- Tweetfilter -->
         <div class="green-border-focus tweetfilter">
           <textarea id="tweetfilter-ta" rows="3" placeholder="Filter all tweets by words..."></textarea>
@@ -136,6 +140,7 @@
   <script src="/bootstrap/js/bootstrap.min.js"></script>
   <script src="/mapbox/mapbox-gl.js"></script>
   <script src="/mapbox-draw/mapbox-gl-draw.js"></script>
+  <script src="/mapbox-geocoder/mapbox-gl-geocoder.min.js"></script>
   <script src="/turf/turf.min.js"></script>
   <script src="/jsnlog/jsnlog.min.js"></script>
 

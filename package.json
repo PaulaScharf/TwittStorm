@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@mapbox/mapbox-gl-draw": "1.1.2",
+    "@mapbox/mapbox-gl-geocoder": "4.5.1",
     "@popperjs/core": "2.0.0",
     "@turf/turf": "5.1.6",
     "body-parser": "1.19.0",

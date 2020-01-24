@@ -254,6 +254,17 @@ function showMap() {
 		// process drawn polygons
 		drawForAOI(map, draw);
 
+
+		// add a geocoder to the map
+		let geocoder = new MapboxGeocoder({
+			accessToken: mapboxgl.accessToken,
+			mapboxgl: mapboxgl
+		});
+		geocoder.setLanguage("en");
+		geocoder.setZoom(8);
+		document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
+
+
 		// if there is an AOI given in the URL, then show it in map and do Tweet-search
 		if (paramArray.aoi !== undefined) {
 			getAndUseAOIFromURL(draw);
@@ -647,7 +658,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
 		if (readURL("wtype") == "unwetter") {
 
-		let timestampLastRequest = document.getElementById("timestampLastRequest");
+			let timestampLastRequest = document.getElementById("timestampLastRequest");
 
 			// if the warnings shown are no demodata
 			if (currentTimestamp > paramArray.config.demo.timestamp_end) {
@@ -1116,91 +1127,91 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	*/
 	function onlyShowUnwetterAndTweetsInPolygon(map, polygon) {
 
-	let requests = [];
-	for (let i = 0; i<customLayerIds.length; i++) {
-		let layerID = customLayerIds[i];
-		// make sure to only check layers which contain an Unwetter
-		if (layerID.includes("unwetter")) {
-			let isInAOI = false;
-			let source = map.getSource(layerID);
-			// if any polygon of the layer is not contained by the given polygon, it is not inside the AOI
-			source._data.features[0].geometry.coordinates[0].forEach(function (item) {
-				let coordinateArray = [item];
-				let currentlayerPolygon = turf.polygon(coordinateArray);
-				if (turf.booleanContains(polygon, currentlayerPolygon) &&
+		let requests = [];
+		for (let i = 0; i<customLayerIds.length; i++) {
+			let layerID = customLayerIds[i];
+			// make sure to only check layers which contain an Unwetter
+			if (layerID.includes("unwetter")) {
+				let isInAOI = false;
+				let source = map.getSource(layerID);
+				// if any polygon of the layer is not contained by the given polygon, it is not inside the AOI
+				source._data.features[0].geometry.coordinates[0].forEach(function (item) {
+					let coordinateArray = [item];
+					let currentlayerPolygon = turf.polygon(coordinateArray);
+					if (turf.booleanContains(polygon, currentlayerPolygon) &&
 					(typeof turf.intersect(polygon, currentlayerPolygon) !== 'undefined')) {
-					isInAOI = true;
-				}
-			});
-			// change visibility of corresponding tweet layer
-			let layerIDSplit = layerID.split(/[ ]+/);
-
-			let visibility;
-			// decide if the unwetter is gonna be visible or not
-			if (!isInAOI) {
-				visibility = 'none';
-			} else {
-				visibility = 'visible';
-				// is there a timestamp?
-				let currentTimestamp = Date.now();
-				if (typeof paramArray.timestamp === "undefined") {
-					// none found, create "now"
-					currentTimestamp = Date.now();
-				} else {
-					// found, use historic one
-					currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
-					try {
-						Date.parse(currentTimestamp);
-					} catch {
-						console.log("The url is erroneous. Please try a different value for 'timestamp'.")
-						currentTimestamp = Date.now();
+						isInAOI = true;
 					}
-				}
+				});
+				// change visibility of corresponding tweet layer
+				let layerIDSplit = layerID.split(/[ ]+/);
 
-				let query = {
-					query: {
-						twitterSearchQuery: {
-							geometry: source._data.features[0].geometry,
-							searchWords: source._data.features[0].properties.searchWords
+				let visibility;
+				// decide if the unwetter is gonna be visible or not
+				if (!isInAOI) {
+					visibility = 'none';
+				} else {
+					visibility = 'visible';
+					// is there a timestamp?
+					let currentTimestamp = Date.now();
+					if (typeof paramArray.timestamp === "undefined") {
+						// none found, create "now"
+						currentTimestamp = Date.now();
+					} else {
+						// found, use historic one
+						currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
+						try {
+							Date.parse(currentTimestamp);
+						} catch {
+							console.log("The url is erroneous. Please try a different value for 'timestamp'.")
+							currentTimestamp = Date.now();
+						}
+					}
+
+					let query = {
+						query: {
+							twitterSearchQuery: {
+								geometry: source._data.features[0].geometry,
+								searchWords: source._data.features[0].properties.searchWords
+							},
+							dwd_id: layerIDSplit[2],
+							currentTimestamp: currentTimestamp
 						},
-						dwd_id: layerIDSplit[2],
-						currentTimestamp: currentTimestamp
-					},
-					layerIDSplit1: layerIDSplit[1]
+						layerIDSplit1: layerIDSplit[1]
+					}
+					requests.push(query);
 				}
-				requests.push(query);
-			}
-			// change visibility of unwetter layer
-			map.setLayoutProperty(layerID, 'visibility', visibility);
+				// change visibility of unwetter layer
+				map.setLayoutProperty(layerID, 'visibility', visibility);
 
-			let layerIDTweet = "tweet " + layerIDSplit[1] + " " + layerIDSplit[2];
-			let tweetLayer = map.getLayer(layerIDTweet);
+				let layerIDTweet = "tweet " + layerIDSplit[1] + " " + layerIDSplit[2];
+				let tweetLayer = map.getLayer(layerIDTweet);
 
-			if (typeof tweetLayer !== 'undefined') {
-				map.setLayoutProperty(layerIDTweet, 'visibility', visibility);
+				if (typeof tweetLayer !== 'undefined') {
+					map.setLayoutProperty(layerIDTweet, 'visibility', visibility);
+				}
 			}
 		}
-	}
-	for (let i = 0; i < requests.length; i++) {
-		let query = requests[i].query;
-		$.ajax({
-			// use a http POST request
-			type: "POST",
-			// URL to send the request to
-			url: "/api/v1/twitter/tweets",
-			// type of the data that is sent to the server
-			contentType: "application/json; charset=utf-8",
-			// data to send to the server
-			data: JSON.stringify(query),
-			// timeout set to 15 seconds
-			timeout: 15000,
-			// update the status display
-			success: function () {
-				$('#information').html("Trying to find and insert fitting tweets");
-			}
-		})
+		for (let i = 0; i < requests.length; i++) {
+			let query = requests[i].query;
+			$.ajax({
+				// use a http POST request
+				type: "POST",
+				// URL to send the request to
+				url: "/api/v1/twitter/tweets",
+				// type of the data that is sent to the server
+				contentType: "application/json; charset=utf-8",
+				// data to send to the server
+				data: JSON.stringify(query),
+				// timeout set to 15 seconds
+				timeout: 15000,
+				// update the status display
+				success: function () {
+					$('#information').html("Trying to find and insert fitting tweets");
+				}
+			})
 
-		// if the request is done successfully, ...
+			// if the request is done successfully, ...
 			.done(function (result) {
 				// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 				console.log("AJAX request (finding and inserting tweets) is done successfully.");
@@ -1253,11 +1264,11 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					doneProcessingAOI = true;
 				}
 			});
+		}
+		if (requests.length < 1) {
+			doneProcessingAOI = true;
+		}
 	}
-	if (requests.length < 1) {
-		doneProcessingAOI = true;
-	}
-}
 
 
 	/**
