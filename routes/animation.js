@@ -177,6 +177,7 @@ var previousWeather = function(req, res) {
                 let answer = {
                   "type": "previousRainRadar",
                   "length": result.length,
+                  "radProd": prod
                   //"radarImages": result
                 };
 
@@ -191,15 +192,11 @@ var previousWeather = function(req, res) {
               else {
                 // are we looking for not-yet loaded historic data?
                 let pastBorder;
-                if(prod == "ry") {
+                if(prod == "RY") {
                   // 65min
                   pastBorder = 3900000;
                 }
-                if(prod == "rw") {
-                  // 2h
-                  pastBorder = 7200000;
-                }
-                if(prod == "sf") {
+                if(prod == "RW") {
                   // 2h
                   pastBorder = 7200000;
                 }
@@ -239,6 +236,7 @@ var previousWeather = function(req, res) {
                                 let answer = {
                                   "type": "previousRainRadar",
                                   "length": result.length,
+                                  "radProd": prod
                                   //"radarImages": result
                                 };
 
