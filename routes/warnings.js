@@ -66,19 +66,14 @@ const getWarningsForTime = function(req, res, next) {
       // if last request to DWD is more than or exactly 'refresh-rate'-ago, send request to DWD for current warnings and save them in database
       if (config.timestamp_last_warnings_request ? ((currentTimestamp - config.timestamp_last_warnings_request) >= config.refresh_rate) : true) {
 
-        // timestampDeleting = currentTimestamp - 10 timesteps
-        let timestampDeleting = currentTimestamp - (config.refresh_rate * 10);
-
-
-        // TODO: evtl. mit refresh_rate * 11 probieren
-        // diese query tut nicht das richtige, löscht zu früh, da immer nur maximal 9 timestamps im array bleiben???
+        let timestampDeleting = currentTimestamp - (config.refresh_rate * 11);
 
         // $lt means <, $lte means <=
         promiseToUpdateItems({type: "unwetter"}, {"$pull": {"timestamps": {"$lte": timestampDeleting}}},
         req.db)
         .then(function () {
           // get those warnings out of database whose timestamp-array is empty
-          promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 0}}]}, req.db)
+          promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 2}}]}, req.db)
           .then(function (response) {
 
             let oldUnwetterIDs = [];
@@ -88,9 +83,21 @@ const getWarningsForTime = function(req, res, next) {
             }
             // if there are old warnings existing (with empty timestamp-array), delete them and their corresponding tweets:
             if (oldUnwetterIDs.length > 0) {
-              // TODO: OR in query überprüfen!!!!
-              promiseToDeleteItems({$and: [{"$or": [{"type": "unwetter"}, {"type": "tweet"}]}, {"$or": oldUnwetterIDs}]}, req.db)
+// TODO: zurückändern zu Paulas Variante
+              promiseToDeleteItems({$and: [{"type": "tweet"}, {"$or": oldUnwetterIDs}]}, req.db)
               .then(function () {
+
+                promiseToDeleteItems({$and: [{"type": "unwetter"}, {"$or": oldUnwetterIDs}]}, req.db)
+                .then(function () {
+                },
+                function (error) {
+                  error.httpStatusCode = 500;
+                  return next(error);
+                })
+                .catch(function (error) {
+                  error.httpStatusCode = 500;
+                  return next(error);
+                });
               },
               function (error) {
                 error.httpStatusCode = 500;
@@ -100,6 +107,21 @@ const getWarningsForTime = function(req, res, next) {
                 error.httpStatusCode = 500;
                 return next(error);
               });
+              // TODO: OR in query überprüfen!!!!
+
+              //      promiseToDeleteItems({$and: [ {"$or": [{"type": "unwetter"}, {"type": "tweet"}] }, {"$or": oldUnwetterIDs}]}, req.db)
+              //      .then(function () {
+              //      },
+              //      function (error) {
+              //        error.httpStatusCode = 500;
+              //        return next(error);
+              //      })
+              //      .catch(function (error) {
+              //        error.httpStatusCode = 500;
+              //        return next(error);
+              //      });
+
+
             }
           }, function (error) {
             error.httpStatusCode = 500;

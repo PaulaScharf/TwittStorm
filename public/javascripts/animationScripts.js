@@ -9,8 +9,109 @@
 */
 
 
-
 // ****************************** global variables *****************************
+
+/**
+* mapbox-map for the animations
+* @type {Object}
+*/
+let animationMap;
+
+
+// TODO: JSDoc für globale Variablen
+
+/**
+*
+* @type {Array}
+*/
+let resultOutput = [];
+
+
+/**
+*
+* @type {Array}
+*/
+let usedTimestamps = [];
+
+
+/**
+* all individual events from a timestamp get temporally stored in here
+* @type {Array}
+*/
+let outputArray = [];
+
+
+// TODO: nicht mehr verwendet?? dann löschen
+/**
+* contains the sources in GeoJSON format
+* @type {}
+*/
+let final = [];
+
+
+/**
+* a GeoJSON mask
+* @type {Object}
+*/
+let mask;
+
+
+/**
+* an Array where all active layers are stored
+* @type {Array}
+*/
+let allLayers = [];
+
+
+/**
+* stores all GeoJSONs with their timestamps
+* @type {Array}
+*/
+let timestampStorage = [];
+
+
+/**
+* indicates which weathertype is requested
+* @type {String}
+*/
+wtypeFlag = "";
+
+
+/**
+* adds up canvasshots from the map in base64 format
+* @type {Array}
+*/
+var imageArray = [];
+
+
+/**
+* the final output to create a gif from
+* @type {Array}
+*/
+var gifArray = [];
+
+// TODO: type festlegen
+/**
+* the intervall that is started with the animation and used to stop it
+* @type {}
+*/
+var automationIntervall;
+
+
+/**
+* gives the information that the styleswitcher is on the animation page
+* @type {String}
+*/
+var indicator = "";
+
+
+/**
+* gives the wtype information to the style since the paramarray wont change
+* @type {String}
+*/
+var wIndicator = "";
+
+
 
 // TODO: dies in Funktion schreiben??
 // paula fragen
@@ -28,42 +129,7 @@ if (typeof paramArray.timestamp !== "undefined") {
 }
 
 
-/**
-* refers to the layer menu
-* @type {mapbox_map}
-*/
-let animationMap;
-
-
-// TODO: JSDoc für globale Variablen
-
-let resultOutput = [];
-
-let usedTimestamps = [];
-// all individual events from a timestamp get temporally stored in here
-let outputArray = [];
-// contains the sources in geojson format
-let final = [];
-// a geojson mask
-let mask = [];
-// an array where all active layers are stored
-let allLayers = [];
-// stores all geojsons with their timestamps
-let timestampStorage = [];
-// indicates which weathertype is requested
-wtypeFlag = [];
-// adds up canvasshots from the map in base64 format
-var imageArray = [];
-// the final output to create a gif from
-var gifArray = [];
-// the intervall that is started with the animation and used to stop it
-var automationIntervall;
-// gives the information that the styleswitcher is on the animation page
-var indicator = "";
-// // gives the wtype information to the style since the paramarray wont change
-var wIndicator = "";
-
-
+// ******************************** functions **********************************
 
 /**
 * @desc Based on the showMap function in the mapbox.js file.
@@ -438,7 +504,7 @@ $("#downloadButton").click(function() {
   if(gifArray.length){
     // create a gif with the images from the last displayed animation cycle
     createGif(gifArray);
-    $('#downloadPopup').html('Your animation download will start in a few seconds');
+    $('#downloadPopup').html('Your animation download will start in a few seconds.');
   }
 
   //avoid multiple click events
@@ -480,7 +546,7 @@ function setToReady(){
     // adjust the button and the popup
     $("#downloadButton").css({'background-color': 'white'});
     $('#downloadButton').prop('title', 'Download the current animation');
-    $('#downloadPopup').html('Now you can click to download');
+    $('#downloadPopup').html('Now you can click to download.');
     $("#downloadPopup").css({'background-color': 'green'});
 
     // pass the results to a new array for the conversion to a gif file
@@ -804,11 +870,8 @@ function loadPreviousWeather(map, weatherEv){
             // add the current events to the geojson for each timestamp
             if (weatherEv == "radar") {
 
-
-console.log(result);
-
-              // TODO: hier auf product === "rw" zugreifen, testen ob funktioniert
-              if (result) {
+              // TODO: "rw" in großbuchstaben?
+              if (result.radProd === "RW") {
                 showLegend(animationMap, "radar", "rw");
               }
 

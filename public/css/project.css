@@ -462,7 +462,6 @@
   border-radius: 3px;
   width: 130px;
   border: 1px solid rgba(0,0,0,0.4);
-  font-family: 'Open Sans', sans-serif;
 }
 
 #productMenu a {
@@ -507,7 +506,6 @@
   border-radius: 3px;
   width: 130px;
   border: 1px solid rgba(0,0,0,0.4);
-  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
 }
 
@@ -546,7 +544,7 @@
 #germanyButton{
   position: absolute;
   z-index: 1;
-  top: 220px;
+  top: 223px;
   right: 9px;
   width: 2px;
   height: 25px;
@@ -573,7 +571,6 @@
 /* ********************************* LEGEND ********************************* */
 
 .map-overlay {
-  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   width: 300px;
   z-index: 1;
@@ -623,6 +620,7 @@
 }
 
 /* ********************************* Tweetfilter ********************************* */
+
 .green-border-focus .form-control:focus {
   border: 1px solid #8bc34a;
   box-shadow: 0 0 0 0.2rem rgba(139, 195, 74, .25);
@@ -633,7 +631,8 @@
   z-index: 1;
   top: 550px;
   left: 13px;
-  width: 200px;
+  width: 192px;
+  font-size: 14px;
 }
 
 #tweetfilter-ta {
@@ -643,11 +642,12 @@
 
 #tweetfilter-btn {
   background-color: white;
-  top: 0px;
-  left: 204px;
+  top: 8px;
+  left: 200px;
   border-radius: 5px;
-  width: 55px;
-  height: 55px;
+  width: 57px;
+  height: 40px;
+  font-size: 13px;
 }
 
 textarea {

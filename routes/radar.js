@@ -56,7 +56,7 @@ function GeoJSONPolygon(object) {
 /**
   * function to fetch the available radar files from DWD server
   * @author Jonathan Bahlmann
-  * @param product radarProductCode such as sf, rw or ry
+  * @param {String} product radarProductCode such as sf, rw or ry
   * @returns {promise} promises to resolve to fileList
   */
 function findLastTimestamp(product) {
@@ -81,7 +81,7 @@ function findLastTimestamp(product) {
   * @desc this function returns converts given timestamps and a radar product toa timespan in which the
   * timestamp of the actual radarproduct must lay
   * @author Paula Scharf, Jonathan Bahlmann
-  * @param {string} radarProduct
+  * @param {String} radarProduct
   * @param timestamp
   * @param db
   * @returns array containing timespan
@@ -257,7 +257,7 @@ var radarRoute = function(req, res) {
             // read from hist data file
             var allProducts = [];
 
-            // beatuifully cascading part about reading all the demo data
+            // beautifully cascading part about reading all the demo data
             fs.readFile( './demo/radars_ry_1.txt', 'utf8', function (err, data) {
               if(err) {
                 throw err;

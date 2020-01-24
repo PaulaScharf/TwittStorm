@@ -396,7 +396,8 @@ function loadRaster(map, product){
 
 
 /**
-* @desc Hides the warning-polygons, based on the findAndRemoveOldLayerIDs function. Also changes the severeweather Tab to not active
+* @desc Hides the warning-polygons, based on the findAndRemoveOldLayerIDs-function.
+* Also changes the severeweather tab to not active.
 * @author Benjamin Rieke, Katharina Poppinga
 * @param {Object} map - mapbox-map
 */
@@ -435,7 +436,7 @@ function removeSevereWeather(map){
 
 
 /**
-* @desc Loads the Unwetterpolygons, updates the url, and hides previous selected radar data
+* @desc Loads the warnings-polygons, updates the URL and hides previous selected radar data.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
 */

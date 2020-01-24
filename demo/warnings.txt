@@ -1,7 +1,7 @@
 [
   {
     "type": "unwetter",
-    "dwd_id": "1234",
+    "dwd_id": "2.62.0.1.276.0.DWD.PVW.1579265700000.3239c728-865d-4e8c-b457-634f6725a3f1.DEU",
     "timestamps": [1537514100000, 1537514400000],
     "geometry": [
     {"type":"MultiPolygon","coordinates":

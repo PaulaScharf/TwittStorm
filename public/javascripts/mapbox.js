@@ -70,9 +70,20 @@ let filterwords;
 */
 var indicator = "";
 
+
+/**
+*
+* @type {boolean}
+*/
 var doneProcessingAOI = true;
 
+
+/**
+*
+* @type {boolean}
+*/
 var doneLoadingWeather = true;
+
 
 // TODO: folgendes in eine Funktion schreiben:
 // TODO: was macht dieser code?
@@ -298,7 +309,6 @@ function showMap() {
 			}
 		}
 
-
 		// ****************** load severe weather warnings data ********************
 
 		if (readURL("wtype") == "unwetter") {
@@ -319,32 +329,18 @@ function showMap() {
 
 			showLegend(map, "unwetter");
 
-			/*
-			// ... only get current warnings from database (and display them in map) and do not request them from DWD now ...
-			requestNewAndDisplayCurrentUnwetters(map);
-			// ... and calculate the milliseconds in which the next DWD request will take place (it has to be "refresh_rate"-milliseconds later than last request)
-			let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - (Date.now() - paramArray.config.timestamp_last_warnings_request);
-
-			// then do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
-			window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
-			// ... and afterwards each "paramArray.config.refresh_rate" again
-			window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
-			*/
-
-// TODO: Kommentare anpassen/neu!
-
-			// the last Unwetter request was "hm"-milliseconds ago
+			// elapsed milliseconds to last warnings request
 			let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
 
-			// if the timestamp of the last warnings request is empty (no request so far) or equal to or older than "paramArray.config.refresh_rate" ...
+			// if the timestamp of the last warnings request is null (no request so far) or equal to or older than "paramArray.config.refresh_rate" ...
 			if ((paramArray.config.timestamp_last_warnings_request == null) || (msecsToLastUnwetterRequest >= paramArray.config.refresh_rate)) {
-				// ... do a new Unwetter request right now ...
+				// ... do a new warnings request right now ...
 				requestNewAndDisplayCurrentUnwetters(map);
 				// TODO: wird folgendes immer wieder ausgeführt, auch wenn Bedingung in if sich ändert?
-				// ... and afterwards request Unwetter each "paramArray.config.refresh_rate" again
+				// ... and afterwards request warnings each "paramArray.config.refresh_rate" again
 				requestNewAndDisplayCurrentUnwettersEachInterval(map, paramArray.config.refresh_rate);
 
-				// if the last Unwetter request is less than "paramArray.config.refresh_rate" ago ...
+				// if the last warnings request is less than "paramArray.config.refresh_rate" ago ...
 			} else {
 
 				let formattedTimestamp = timestampFormatting(paramArray.config.timestamp_last_warnings_request);
@@ -355,17 +351,13 @@ function showMap() {
 
 				let timeUntilNextUnwetterRequest = paramArray.config.refresh_rate - msecsToLastUnwetterRequest;
 				// ... do a new request in "timeUntilNextUnwetterRequest"-milliseconds ...
-				// TODO: Zeitverzug von setTimeout möglich, daher dauert es evtl. länger als 5 min bis zum Request?
 				window.setTimeout(requestNewAndDisplayCurrentUnwetters, timeUntilNextUnwetterRequest, map);
 				// ... and afterwards each "paramArray.config.refresh_rate" again
 				window.setTimeout(requestNewAndDisplayCurrentUnwettersEachInterval, (timeUntilNextUnwetterRequest + paramArray.config.refresh_rate), map, paramArray.config.refresh_rate);
 			}
 		}
-
-		// TODO: was gehört noch innerhalb von map.on('load', function()...) und was außerhalb?
 	});
 }
-
 
 
 /**
@@ -528,7 +520,6 @@ function requestAndDisplayAllRainRadar(map, product) {
 }
 
 
-
 /**
 * @desc Sets a timeout for the start of the radar-requesting routine.
 * @author Jonathan Bahlmann
@@ -547,6 +538,7 @@ function intervalRainRadar(map) {
 	// pause for 20sec
 	window.setTimeout(callRainRadar, 20000, map, prod);
 }
+
 
 /**
 * @desc Callback for timeout. Handles the API call and updates map if necessary.
@@ -593,36 +585,34 @@ function callRainRadar(map, prod) {
 		}
 	});
 }
-
 // *****************************************************************************************************
 
 
-// TODO: JSDoc, Verwirrung
 /**
-* @desc Arranges a new severe weather warnings request after a given interval
+* @desc Arranges new severe weather warnings requests each given interval
 * and shows the retrieved warnings in given map.
 * @private
 * @author Katharina Poppinga
 * @param {Object} map - mapbox-map in which to display the current warnings
-* @param {number} interval - timestamp in Epoch milliseconds, after this time a new warnings request will start
+* @param {number} interval - timestamp in Epoch milliseconds, each of these a new warnings request will start
 */
 function requestNewAndDisplayCurrentUnwettersEachInterval(map, interval) {
 	window.setInterval(requestNewAndDisplayCurrentUnwetters, interval, map);
 }
 
 
-// TODO: JSDoc
+
 /**
 * @desc Requests severe weather warnings from DWD or out of database (depending on former requests).
 * Shows them in the given map.
 * @author Katharina Poppinga, Paula Scharf
-* @param {Object} map - mapbox-map in which to display the current Unwetter
+* @param {Object} map - mapbox-map in which to display the current warnings
 */
 function requestNewAndDisplayCurrentUnwetters(map) {
 	doneLoadingWeather = false;
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
-	// if following expression is true, then take 'paramArray.timestamp'; if false then create Date.now() ?????????????????????????????????
+	// if there is a timestamp given in the paramArray, take it, if not then create Date.now()
 	let currentTimestamp = (paramArray.timestamp) ? paramArray.timestamp : Date.now();
 
 	// for demo data
@@ -651,7 +641,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 	// if the request is done successfully, ...
 	.done(function (result) {
-		// ... give a notice on the console that the AJAX request for ........... has succeeded
+		// ... give a notice on the console that the AJAX request for reading current warnings has succeeded
 		console.log("AJAX request (reading current warnings) is done successfully.");
 
 		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
@@ -687,14 +677,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 		// if the request has failed, ...
 		.fail(function (xhr, status, error) {
-			// ... give a notice that the AJAX request for .......... has failed and show the error on the console
+			// ... give a notice that the AJAX request for reading current warnings has failed and show the error on the console
 			console.log("AJAX request (reading current warnings) has failed.", error);
 
 			// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 			if (error === "timeout") {
 				JL("ajaxReadingWarningsTimeout").fatalException("ajax: '/warnings/test/currentTimestamp' timeout");
 			}
-			// TODO: testen, ob so richtig
 			else {
 				JL("ajaxReadingWarningsError").fatalException(error);
 			}
@@ -707,7 +696,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @desc Shows given warnings in given map.
 	* Creates checkboxes in menu for showing only certain types of
 	* warnings ("Rain", "Snowfall", "Thunderstorm" or "BlackIce").
-	*
 	* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
 	* @param {Object} map - mapbox-map in which to display the current Unwetters
 	* @param {Array} currentUnwetters -
@@ -778,7 +766,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	/**
 	* @desc Makes a mapbox-layer out of all given events. Sets its layerID to the given one.
 	* Displays the layers events in the map. Colors the created layer by type-attribute.
-	*
 	* @author Katharina Poppinga, Benjamin Rieke, Paula Scharf
 	* @private
 	* @param {Object} map - mapbox-map in which to display the layers events
@@ -924,7 +911,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* If they are expired, removes them from given map. ??
 	findAndRemoveOldLayerIDs from customLayerIds and remove jeweiligen layer und source aus map
 	* ...............................
-	*
 	* @author Katharina Poppinga
 	* @private
 	* @param {Object} map - mapbox-map from which to remove the given warnings
@@ -998,7 +984,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				currentTimestamp = Date.now();
 			}
 		}
-
 
 		// testing a couple things
 		let layer = map.getSource("rainradar");
@@ -1101,11 +1086,23 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			}
 			doneProcessingAOI = true;
 		})
+
+		// if the request has failed, ...
 		.fail(function(xhr, status, error) {
+			// ... give a notice that the AJAX request for finding and inserting tweets has failed and show the error on the console
+			console.log("AJAX request (finding and inserting tweets) has failed.", error);
+
+			// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+			if (error === "timeout") {
+				JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/Twitter/tweets' timeout");
+			}
+			else {
+				JL("ajaxRetrievingTweetsError").fatalException(error);
+			}
 			doneProcessingAOI = true;
 		});
 
-		// and then check whether they lie in the rainRadar polygons
+		// TODO: ???  and then check whether they lie in the rainRadar polygons
 	}
 
 
@@ -1249,7 +1246,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				if (error === "timeout") {
 					JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/Twitter/tweets' timeout");
 				}
-				// TODO: testen, ob so richtig
 				else {
 					JL("ajaxRetrievingTweetsError").fatalException(error);
 				}
@@ -1265,7 +1261,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc This function ensures that all unwetters but no tweets are visible.
+	* @desc This function ensures that all warnings but no tweets are visible.
 	* @author Paula Scharf
 	* @param {Object} map - mapbox-map
 	* @param {String} keyword -
@@ -1307,8 +1303,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc Takes a timestamp in Epoch milliseconds make a Date-String out of it.
-	*
+	* @desc Takes a timestamp in Epoch milliseconds makes a Date-String out of it.
 	* @author Katharina Poppinga
 	* @private
 	* @param {number} timestamp - timestamp in Epoch milliseconds
