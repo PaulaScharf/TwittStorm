@@ -193,30 +193,29 @@ function zoomToCoordinates(map, coordinates) {
 
 
 
-// TODO: wie passt folgende Funktion zum openMenu(this, productMenu, animationMap) -Aufruf in animation.ejs ?????
 /**
-* @desc Opens and closes the menu for the selection of the routes and changes the button to an X
+* @desc Opens and closes the menu for the selection of the routes and changes the button to an X.
 * @author Benjamin Rieke
 * @param {HTML-element} button - links the button to the function
 * @param {HTML-element-ID} menu - ID of the menu that is supposed to open/close
-* @param {String} site - the requested site index or animation
-* @param {Object} map - mapbox-map
+* @param {String} page - optional parameter, just used for animation-page to indicate that the menu on the animation page is requested to open
 */
-function openMenu(button, menu, site) {
+function openMenu(button, menu, page) {
 
 	// if a radar product is selected automatically open up the radar submenu
-	if (site == 'index') {
-
-		if (wtypeFlag == "radar") {
-			var innerRasterMenuToggle = document.getElementById('rasterMenu');
-			innerRasterMenuToggle.style.display = "block";
-		}
-		// if severe weather is selected automatically open up the severe weather submenu
-		else {
-			var innerUnwetterMenuToggle = document.getElementById('menu');
-			innerUnwetterMenuToggle.style.display = "block";
-		};
+	if (wtypeFlag == "radar") {
+		var innerRasterMenuToggle = document.getElementById('rasterMenu');
+		innerRasterMenuToggle.style.display = "block";
 	}
+	// if severe weather is selected automatically open up the severe weather submenu
+	else {
+		var innerUnwetterMenuToggle = document.getElementById('menu');
+		innerUnwetterMenuToggle.style.display = "block";
+
+		if (page === "animation"){
+			innerUnwetterMenuToggle.innerHTML = "First you have to click the play button.";
+		}
+	};
 
 	// displays the germany boundary button if is not visible
 	var boundaryButtonToggle = document.getElementById('germanyButton');
@@ -518,10 +517,7 @@ function createWarningsCheckboxes(map) {
 	// create checkboxes
 	map.style._order.forEach(function(layer) {
 		for (let i = 0; i < warningsTypes.length; i++) {
-		//	console.log(layer);
 			if ((layer.includes(warningsTypes[i][0])) && (warningsTypes[i][1] === "false")) {
-				console.log("Test");
-
 				createWarningsCheckbox(map, warningsMenu, warningsTypes[i][0], true);
 				warningsTypes[i][1] = "true";
 			}

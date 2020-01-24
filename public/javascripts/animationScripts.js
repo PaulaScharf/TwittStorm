@@ -180,14 +180,17 @@ function showAnimationMap() {
     });
     customLayerIds.push('boundaryGermany');
 
+    var innerUnwetterMenuToggle = document.getElementById('menu');
 
     // add functionality for menu selection on radar product call
     $("#raster").click(function() {
+      innerUnwetterMenuToggle.style.display = "none";
       reloadAnimation('radar');
     });
 
     // add functionality for menu selection on severeweather call
     $("#severeWeatherAnimation").click(function() {
+      innerUnwetterMenuToggle.style.display = "block";
       reloadAnimation('unwetter');
     });
 
@@ -763,7 +766,7 @@ function loadPreviousWeather(map, weatherEv){
             // put every polygon from a warning into one array
             if (weatherEv == "severeWeather") {
 
-// assigning warnings-type
+              // assigning warnings-type
               let layerGroup = "";
               let ii = result[key][j].properties.ec_ii;
 
@@ -789,8 +792,6 @@ function loadPreviousWeather(map, weatherEv){
 
               layerID = "unwetter " + key + " " + j + " " + layerGroup;
 
-              console.log(layerID);
-
               // also save the according weather event
               let currentProperties = result[key][j].properties;
               outputArray = [];
@@ -808,10 +809,10 @@ function loadPreviousWeather(map, weatherEv){
 
 
 
-// TODO: hier auf product === "rw" zugreifen
-if (result) {
-  showLegend(animationMap, "radar", "rw");
-}
+              // TODO: hier auf product === "rw" zugreifen
+              if (result) {
+                showLegend(animationMap, "radar", "rw");
+              }
 
 
               layerID = "radar " + key + " " + j;
@@ -939,7 +940,6 @@ function addToSource(map, layerID, previousFeatureCollection){
     }
 
     if (previousFeatureCollection.type == "unwetter/") {
-
       map.addSource(layerID, {
         type: 'geojson',
         data: previousFeatureCollection.geometry
