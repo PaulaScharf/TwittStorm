@@ -383,7 +383,7 @@ function automate(map){
     var min = document.getElementById('slider').min;
 
     // initialize the animation
-    loadAnimation(0, map);
+    loadAnimation(val, map);
 
     // name the intervall to have access to it for stopping
     automationIntervall = setInterval(function(){
