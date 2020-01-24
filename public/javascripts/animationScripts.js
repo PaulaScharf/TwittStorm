@@ -10,8 +10,6 @@
 
 
 
-// TODO: EINTEILUNG DER WARNINGS IN TYPES (RAIN; SNOWFALL; THUNDERSTORM; BLACK ICE) FEHLT FÜR ANIMATION NOCH
-
 // ****************************** global variables *****************************
 
 // TODO: dies in Funktion schreiben??
@@ -66,7 +64,6 @@ var indicator = "";
 var wIndicator = "";
 
 
-// TODO: showAnimationMap-Funktion modularisieren UND/ODER anpassen an showMap-Funktion, neues von dort übernehmen!!
 
 /**
 * @desc Based on the showMap function in the mapbox.js file.
@@ -809,7 +806,7 @@ function loadPreviousWeather(map, weatherEv){
 
 
 
-              // TODO: hier auf product === "rw" zugreifen
+              // TODO: hier auf product === "rw" zugreifen, testen ob funktioniert
               if (result) {
                 showLegend(animationMap, "radar", "rw");
               }
