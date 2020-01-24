@@ -518,12 +518,19 @@ function createWarningsCheckboxes(map) {
 	// create checkboxes
 	map.style._order.forEach(function(layer) {
 		for (let i = 0; i < warningsTypes.length; i++) {
-			if ((layer.includes("unwetter " + warningsTypes[i][0])) && (warningsTypes[i][1] === "false")) {
+		//	console.log(layer);
+			if ((layer.includes(warningsTypes[i][0])) && (warningsTypes[i][1] === "false")) {
+				console.log("Test");
+
 				createWarningsCheckbox(map, warningsMenu, warningsTypes[i][0], true);
 				warningsTypes[i][1] = "true";
 			}
 		}
 	});
+
+	if (warningsTypes[0][1] === "false" && warningsTypes[1][1] === "false" && warningsTypes[2][1] === "false" && warningsTypes[3][1] === "false") {
+		warningsMenu.innerHTML = "Currently no warnings existing.";
+	}
 }
 
 
