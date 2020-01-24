@@ -805,6 +805,7 @@ function loadPreviousWeather(map, weatherEv){
             if (weatherEv == "radar") {
 
 
+console.log(result);
 
               // TODO: hier auf product === "rw" zugreifen, testen ob funktioniert
               if (result) {
