@@ -730,7 +730,7 @@ function loadPreviousWeather(map, weatherEv){
     let layerID;
     // for every timestamp
     for (let key in result) {
-      if ((key != "type") && (key != "length")) {
+      if ((key != "type") && (key != "length") && (key != "radProd")) {
         // log the individual timestamp to refer to them later
         usedTimestamps.push(key);
 
