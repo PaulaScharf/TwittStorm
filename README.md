@@ -51,6 +51,7 @@ Your IP will be shown on start of the dockershell.<br/>
 6. start the test threads and look at the results in "View Results Tree", "Summary Report" and "Response Time Graph"
 
 ## Troubleshoot
+<b>TODO: keyerver Probleme nennen</b><br>
 Ensure that your adblocker does not prevent JSNLog from working.
 
 ## Information for Developers

@@ -157,50 +157,50 @@ function showAnimationMap() {
   var checkedSat = document.getElementById('satellite-v9');
 
   // if not yet in URL, take and update to default streets
-	if (!(readURL("base"))) {
-		style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
-		updateURL("base", "streets");
-		// otherwise use value from URL
-	} else {
-		if (readURL("base") === "streets") {
-			style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
-			checkedStreets.checked ='checked';
-		}
-		if (readURL("base") === "satellite") {
-			style = "mapbox://styles/mapbox/satellite-v9";
-			checkedSat.checked ='checked';
-		}
-	}
+  if (!(readURL("base"))) {
+    style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+    updateURL("base", "streets");
+    // otherwise use value from URL
+  } else {
+    if (readURL("base") === "streets") {
+      style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+      checkedStreets.checked ='checked';
+    }
+    if (readURL("base") === "satellite") {
+      style = "mapbox://styles/mapbox/satellite-v9";
+      checkedSat.checked ='checked';
+    }
+  }
 
-	// if not yet in URL, use default warnings
-	if (!(readURL("wtype"))) {
-		updateURL("wtype", "unwetter");
-	}
-
-	// if not yet in URL, get value from config.yaml
-	if (!(readURL("mapZoom"))) {
-		zoomURL = paramArray.config.map.zoom;
-		updateURL("mapZoom", zoomURL);
-		// otherwise use value from URL
-	} else {
-		zoomURL = readURL("mapZoom");
-	}
+  // if not yet in URL, use default warnings
+  if (!(readURL("wtype"))) {
+    updateURL("wtype", "unwetter");
+  }
 
   // if not yet in URL, get value from config.yaml
-	if (!(readURL("mapCenter"))) {
-		centerURL = paramArray.config.map.center;
-		updateURL("mapCenter", centerURL);
-		// otherwise use value from URL
-	} else {
-		centerURL = readURL("mapCenter");
-		// make Object from String
-		centerURL = centerURL.substring(1);
-		let splittedCenterURL = centerURL.split(',');
-		centerURL = {
-			lng: splittedCenterURL[0],
-			lat: splittedCenterURL[1].substring(0, splittedCenterURL[1].length - 1)
-		};
-	}
+  if (!(readURL("mapZoom"))) {
+    zoomURL = paramArray.config.map.zoom;
+    updateURL("mapZoom", zoomURL);
+    // otherwise use value from URL
+  } else {
+    zoomURL = readURL("mapZoom");
+  }
+
+  // if not yet in URL, get value from config.yaml
+  if (!(readURL("mapCenter"))) {
+    centerURL = paramArray.config.map.center;
+    updateURL("mapCenter", centerURL);
+    // otherwise use value from URL
+  } else {
+    centerURL = readURL("mapCenter");
+    // make Object from String
+    centerURL = centerURL.substring(1);
+    let splittedCenterURL = centerURL.split(',');
+    centerURL = {
+      lng: splittedCenterURL[0],
+      lat: splittedCenterURL[1].substring(0, splittedCenterURL[1].length - 1)
+    };
+  }
 
   // create new map with variable zoom and center
   animationMap = new mapboxgl.Map({
@@ -790,7 +790,7 @@ function loadPreviousWeather(map, weatherEv){
     timeout: 15000,
 
     success: function() {
-      $('#information').html("Retrieving previous weather events");
+      $('#information').html("Retrieving previous weather events.");
     }
   })
 
@@ -961,7 +961,7 @@ function addItem(item) {
 
 
 /**
-* @desc removes all weather sources and layers from the map on wtype change
+* @desc Removes all weather sources and layers from the map on wtype change.
 * @param {Object} map - mapbox-map
 * @author Benjamin Rieke
 */
@@ -969,18 +969,29 @@ function removeAllSource(map) {
   var sources = map.style.sourceCaches;
   var layers = map.getStyle().layers;
 
-  for (let key in sources){
-    // checks if the sources contain a numbered id
-  //  if (key.includes("unwetter") || key.includes("radar") || key.includes("Tweet") ){
+  console.log(sources); // enthält alle
+  console.log(layers); // enthält NICHT ALLE, nur die, die grad angezeigt werden
+
+  for (let key in sources) {
+
+      // checks if the sources contain a numbered id
+    // if (key.includes("unwetter") || key.includes("radar") || key.includes("Tweet") ){
     if (key.includes("unwetter") || key.includes("rainradar") || key.includes("Tweet") ){
 
+//  console.log("Test if");
+//console.log(key);
       // if they are already in the layers
       for (let lays in layers){
-        if(layers[lays].id == key){
+      //  console.log(layers[lays].id);
+      //    console.log(key); // zb unwetter 1537515000000 0 Snowfall
+
+        if (layers[lays].id === key){
+          console.log("Test remove layer");
           //remove them
           map.removeLayer(key);
         }
       }
+      console.log(key);
       map.removeSource(key);
     }
   }
