@@ -4,15 +4,15 @@
 "use strict";  // JavaScript code is executed in "strict mode"
 
 /**
- * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
- * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
- */
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
 
 
 
 /**
 * @desc Processes drawn, updated and deleted mapbox-draw-polygons in the given map and starts tweets-search.
-* Writes drawn polygons-coordinates into URL.
+* Writes drawn polygons-coordinates into URL. It is only possible to draw one polygon at a time.
 * @author Katharina Poppinga
 * @param {Object} map mapbox-map in which the polygons shall be drawn
 * @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
@@ -38,6 +38,13 @@ function drawForAOI(map, draw) {
 		});
 		draw.delete(pids);
 
+// TODO: mit tweets ausprobieren
+// TODO: ausprobieren, ob es so keine probleme für radar gibt, ansonsten folgendes in if mit bedingung URL wtype === unwetter packen
+		// move weather-layerIDs on top of the drawn AOI to be able to open popups for the warnings onclick
+		for (let i = 1; i < customLayerIds.length; i++) {
+			map.moveLayer(customLayerIds[i]);
+		}
+
 		// write AOI into URL and start Tweet-Search
 		processingAOI(map, e.features[0].geometry.coordinates);
 	});
@@ -50,16 +57,18 @@ function drawForAOI(map, draw) {
 		showAllExcept(map, "tweet");
 	});
 
+
 	// if a polygon is edited/updated ...
 	map.on('draw.update', function (e) {
 		// write AOI into URL and start Tweet-Search
 		processingAOI(map, e.features[0].geometry.coordinates);
 	});
 
-	//
+
 	map.on('draw.modechange', function (e) {
 		popupsEnabled = (e.mode !== "draw_polygon");
 	});
+
 
 	map.on('draw.reloadTweets', function () {
 		doneProcessingAOI = false;
