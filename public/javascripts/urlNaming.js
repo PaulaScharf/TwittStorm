@@ -66,6 +66,7 @@ function updateURL(param, newString) {
 	* function to read a specified parameter from the current URL
 	* @author Jonathan Bahlmann
 	* @param {String} param - Parameter to be returned
+	* @returns value of parameter or false, if parameter is not in URL
 	*/
 function readURL(param) {
 	// result

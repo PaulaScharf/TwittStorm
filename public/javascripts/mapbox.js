@@ -210,15 +210,32 @@ function showMap() {
 	// add zoom and rotation controls to the map
 	map.addControl(new mapboxgl.NavigationControl());
 
+	// specify and add a control for DRAWING A POLYGON (area-of-interest for tweets) into the map
+	let	draw = new MapboxDraw({
+		displayControlsDefault: false, // all controls to be off by default for self-specifiying the controls as follows
+		controls: {
+			polygon: true,
+			trash: true // for deleting a drawn polygon
+		}
+	});
+	map.addControl(draw);
+
+	// process drawn polygons
+	drawForAOI(map, draw);
+
+
+	// add a geocoder to the map
+	let geocoder = new MapboxGeocoder({
+		accessToken: mapboxgl.accessToken,
+		mapboxgl: mapboxgl
+	});
+	geocoder.setLanguage("en");
+	geocoder.setZoom(8);
+	document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
+
+
 	// enables the ability to choose between different mapstyles
 	styleSelector(map);
-
-	$("#severeWeather").click(function() {
-		loadSevereWeather(map);
-	});
-
-	// set Interval to accumulate radar data for the animation
-	window.setInterval(intervalRainRadar, paramArray.config.refresh_rate, map);
 
 
 	// ************************ adding boundary of Germany ***********************
@@ -247,31 +264,15 @@ function showMap() {
 		customLayerIds.push('boundaryGermany');
 		// *************************************************************************
 
-		// specify and add a control for DRAWING A POLYGON (area-of-interest for tweets) into the map
-		let	draw = new MapboxDraw({
-			displayControlsDefault: false, // all controls to be off by default for self-specifiying the controls as follows
-			controls: {
-				polygon: true,
-				trash: true // for deleting a drawn polygon
-			}
+		$("#severeWeather").click(function() {
+			loadSevereWeather(map);
 		});
-		map.addControl(draw);
 
-		// process drawn polygons
-		drawForAOI(map, draw);
-
-
-		// add a geocoder to the map
-		let geocoder = new MapboxGeocoder({
-			accessToken: mapboxgl.accessToken,
-			mapboxgl: mapboxgl
-		});
-		geocoder.setLanguage("en");
-		geocoder.setZoom(8);
-		document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
+		// set Interval to accumulate radar data for the animation
+		window.setInterval(intervalRainRadar, paramArray.config.refresh_rate, map);
 
 
-		// if there is an AOI given in the URL, then show it in map and do Tweet-search
+		// if there is an AOI given in the URL and because of a new page load in paramArray, then show it in map and do Tweet-search
 		if (paramArray.aoi !== undefined) {
 			getAndUseAOIFromURL(draw);
 		}
@@ -328,7 +329,7 @@ function showMap() {
 
 		// ****************** load severe weather warnings data ********************
 
-		if (readURL("wtype") == "unwetter") {
+		if (readURL("wtype") === "unwetter") {
 
 			deleteFromURL("radProd");
 

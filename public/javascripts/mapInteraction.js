@@ -309,8 +309,8 @@ function switchLayer(map, layer) {
 	map.setStyle('mapbox://styles/mapbox/' + layerId);
 
 	if (indicator == "animation"){
-		//	reloadAnimation
-		reloadAnimation(wIndicator);
+		// reloadAnimation
+		reloadAnimation();
 	}
 
 	setTimeout(() => {

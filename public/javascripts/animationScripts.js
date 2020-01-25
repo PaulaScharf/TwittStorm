@@ -105,6 +105,7 @@ var automationIntervall;
 var indicator = "";
 
 
+// TODO: löschen, da nicht benötigt?
 /**
 * gives the wtype information to the style since the paramarray wont change
 * @type {String}
@@ -266,22 +267,7 @@ function showAnimationMap() {
     let rasterMenuToggle = document.getElementById('raster');
     let severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
 
-    if (readURL("wtype") == "radar") {
-      // set the flag to radar
-      wtypeFlag = "radar";
-
-      // toggle the menu tabs for radar and severe weather to active or not active
-      rasterMenuToggle.classList.toggle("active");
-      severeWeatherMenuToggle.classList.remove("active");
-
-      showLegend(animationMap, "radar", "ry");
-      let dataTimestamp = document.getElementById("dataTimestamp");
-      dataTimestamp.innerHTML = "<b>Timestamp of current timestep:</b><br>";
-
-      loadPreviousWeather(animationMap, wtypeFlag);
-    }
-
-    if ((paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
+    if ((readURL("wtype") === "unwetter") || (paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
 
       //set URL to requested wtype
       updateURL("wtype", "unwetter");
@@ -296,6 +282,21 @@ function showAnimationMap() {
 
       // the last warnings request was ...-milliseconds ago
       let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
+      loadPreviousWeather(animationMap, wtypeFlag);
+    }
+
+    if (readURL("wtype") == "radar") {
+      // set the flag to radar
+      wtypeFlag = "radar";
+
+      // toggle the menu tabs for radar and severe weather to active or not active
+      rasterMenuToggle.classList.toggle("active");
+      severeWeatherMenuToggle.classList.remove("active");
+
+      showLegend(animationMap, "radar", "ry");
+      let dataTimestamp = document.getElementById("dataTimestamp");
+      dataTimestamp.innerHTML = "<b>Timestamp of current timestep:</b><br>";
+
       loadPreviousWeather(animationMap, wtypeFlag);
     }
 
@@ -322,7 +323,7 @@ function showAnimationMap() {
 
 /**
 * @desc Combines several functions to reload the animation for the chosen weather type.
-* @param {String} wType - the desired type of weather
+* @param {String} wType - the desired type of weather (not used if function is called out of function switchLayer)
 * @author Benjamin Rieke
 */
 function reloadAnimation(wType){
@@ -337,12 +338,16 @@ function reloadAnimation(wType){
   // remove all old sources
   removeAllSource(animationMap);
   closeAllPopups();
+
   //if the weathertype is severeweather
-  if (wType == 'unwetter'){
+  if ((wType === "unwetter") || (readURL(wType) === "unwetter")) {
+
     // weathertype indicator for style switcher
     wIndicator = wType;
     //update the URL
     updateURL("wtype", "unwetter");
+    deleteFromURL("radProd");
+
     // set the weathertype
     wtypeFlag = "severeWeather";
     //display the legend
@@ -357,8 +362,10 @@ function reloadAnimation(wType){
     // activate the severe weather tab
     severeWeatherMenuToggle.classList.add("active");
   }
-  //if the weathertype is radar
-  else {
+
+  // if the weathertype is radar
+  if ((wType === "radar") || (readURL(wType) === "radar")) {
+
     // weathertype indicator for style switcher
     wIndicator = wType;
     //update the URL
