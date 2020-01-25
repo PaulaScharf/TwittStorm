@@ -4,47 +4,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title><%= title %></title>
-    <link rel="stylesheet" type="text/css" href="/css/project.css">
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <title><%= title %></title>
+  <link rel="stylesheet" type="text/css" href="/css/project.css">
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 </head>
 
 <body>
-<!-- navbar -->
-<%- include('partial/navbar', {active: "config"}); %>
+  <!-- navbar -->
+  <%- include('partial/navbar', {active: "config"}); %>
 
-<main>
+  <main>
     <div class="d-flex justify-content-center">
-        <div class="col-med-6 center">
-            <h2 align="center">Configuration</h2>
+      <div class="col-med-6 center">
+        <h2 align="center">Configuration</h2>
 
-            <form action="/api/v1/config" method="POST" target="dummyframe" name="updateForm" id="updateForm">
-                <p>Default map location:</p>
-                <textarea type="text" name="map.center" style="height:30px"><%- JSON.stringify(config.map.center) %></textarea>
-                <br><br>
-                <p>Default map zoom:</p>
-                <textarea type="text" name="map.zoom" style="height:30px;"><%- JSON.stringify(config.map.zoom) %></textarea>
-                <br><br>
-                <p>How far back tweets are being searched from now (in minutes):<br>
-                (Maximum and default is one week back. If you type in '<i>null</i>' the default is used.)</p>
-                <textarea type="text" name="max_age_tweets" style="height:30px;"><%- JSON.stringify(config.max_age_tweets) %></textarea>
-                <br><br>
-                <p>Current time as a timestamp in Epoch milliseconds:<br>
-                (If you put in '<i>null</i>', the actual local current time will be used.)</p>
-                <textarea type="text" name="current_time" style="height:30px;"><%- JSON.stringify(config.current_time) %></textarea>
-                <br><br>
-                <input type="submit" value="Update Configuration" id="submitbutton"/>
-            </form>
-            <iframe width="0" height="0" border="0" name="dummyframe" id="dummyframe" style="display: none;"></iframe>
-        </div>
+        <form action="/api/v1/config" method="POST" target="dummyframe" name="updateForm" id="updateForm">
+          <p>Default map location:</p>
+          <textarea type="text" name="map.center" style="height:30px"><%- JSON.stringify(config.map.center) %></textarea>
+          <br><br>
+          <p>Default map zoom:<br>
+            (Reasonable values lie between 0.55 and 22.)
+          </p>
+          <textarea type="text" name="map.zoom" style="height:30px;"><%- JSON.stringify(config.map.zoom) %></textarea>
+          <br><br>
+          <p>How far back tweets are being searched from now (in minutes):<br>
+            (Maximum and default is one week back. If you type in '<i>null</i>' the default is used.)
+          </p>
+          <textarea type="text" name="max_age_tweets" style="height:30px;"><%- JSON.stringify(config.max_age_tweets) %></textarea>
+          <br><br>
+          <p>Current time as a timestamp in Epoch milliseconds:<br>
+            (If you put in '<i>null</i>', the actual local current time will be used.)
+          </p>
+          <textarea type="text" name="current_time" style="height:30px;"><%- JSON.stringify(config.current_time) %></textarea>
+          <br><br>
+          <input type="submit" value="Update Configuration" id="submitbutton"/>
+        </form>
+        <iframe width="0" height="0" border="0" name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+      </div>
     </div>
-</main>
+  </main>
 
-<!-- footer -->
-<%- include('partial/footer'); %>
+  <!-- footer -->
+  <%- include('partial/footer'); %>
 
 </body>
 </html>
