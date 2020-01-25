@@ -12,7 +12,7 @@
 
 /**
 * @desc Processes drawn, updated and deleted mapbox-draw-polygons in the given map and starts tweets-search.
-* Writes drawn polygons-coordinates into URL. It is only possible to draw one polygon at a time.
+* Writes drawn polygons-coordinates into URL. It is only possible to have one drawn polygon at a time.
 * @author Katharina Poppinga
 * @param {Object} map mapbox-map in which the polygons shall be drawn
 * @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
