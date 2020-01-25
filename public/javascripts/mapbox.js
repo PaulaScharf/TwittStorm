@@ -146,43 +146,49 @@ function showMap() {
 	var checkedSat = document.getElementById('satellite-v9');
 
 	// if not yet in URL, take and update to default streets
-	if (paramArray.base == undefined) {
+	if (!(readURL("base"))) {
 		style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
 		updateURL("base", "streets");
 		// otherwise use value from URL
 	} else {
-		baseURL = paramArray.base;
-		if (baseURL === "streets") {
+		if (readURL("base") === "streets") {
 			style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
 			checkedStreets.checked ='checked';
 		}
-		if (baseURL === "satellite") {
+		if (readURL("base") === "satellite") {
 			style = "mapbox://styles/mapbox/satellite-v9";
 			checkedSat.checked ='checked';
 		}
 	}
 
 	// if not yet in URL, use default warnings
-	if (paramArray.wtype == undefined) {
+	if (!(readURL("wtype"))) {
 		updateURL("wtype", "unwetter");
 	}
 
 	// if not yet in URL, get value from config.yaml
-	if (paramArray.mapZoom == undefined) {
+	if (!(readURL("mapZoom"))) {
 		zoomURL = paramArray.config.map.zoom;
 		updateURL("mapZoom", zoomURL);
 		// otherwise use value from URL
 	} else {
-		zoomURL = paramArray.mapZoom;
+		zoomURL = readURL("mapZoom");
 	}
 
 	// if not yet in URL, get value from config.yaml
-	if (paramArray.mapCenter == undefined) {
+	if (!(readURL("mapCenter"))) {
 		centerURL = paramArray.config.map.center;
 		updateURL("mapCenter", centerURL);
 		// otherwise use value from URL
 	} else {
-		centerURL = JSON.parse(paramArray.mapCenter);
+		centerURL = readURL("mapCenter");
+		// make Object from String
+		centerURL = centerURL.substring(1);
+		let splittedCenterURL = centerURL.split(',');
+		centerURL = {
+			lng: splittedCenterURL[0],
+			lat: splittedCenterURL[1].substring(0, splittedCenterURL[1].length - 1)
+		};
 	}
 
 	// create new map with variable zoom and center

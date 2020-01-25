@@ -156,44 +156,50 @@ function showAnimationMap() {
   var checkedSat = document.getElementById('satellite-v9');
 
   // if not yet in URL, take and update to default streets
-  if (paramArray.base == undefined) {
-    style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
-    updateURL("base", "streets");
-    // otherwise use value from URL
-  } else {
-    baseURL = paramArray.base;
-    if (baseURL === "streets") {
-      style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
-      checkedStreets.checked ='checked';
-    }
-    if (baseURL === "satellite") {
-      style = "mapbox://styles/mapbox/satellite-v9";
-      checkedSat.checked ='checked';
-    }
-  }
+	if (!(readURL("base"))) {
+		style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+		updateURL("base", "streets");
+		// otherwise use value from URL
+	} else {
+		if (readURL("base") === "streets") {
+			style = "mapbox://styles/mapbox/navigation-guidance-day-v4";
+			checkedStreets.checked ='checked';
+		}
+		if (readURL("base") === "satellite") {
+			style = "mapbox://styles/mapbox/satellite-v9";
+			checkedSat.checked ='checked';
+		}
+	}
 
-  // if not yet in URL, use default warnings
-  if (paramArray.wtype == undefined) {
-    updateURL("wtype", "unwetter");
-  }
+	// if not yet in URL, use default warnings
+	if (!(readURL("wtype"))) {
+		updateURL("wtype", "unwetter");
+	}
+
+	// if not yet in URL, get value from config.yaml
+	if (!(readURL("mapZoom"))) {
+		zoomURL = paramArray.config.map.zoom;
+		updateURL("mapZoom", zoomURL);
+		// otherwise use value from URL
+	} else {
+		zoomURL = readURL("mapZoom");
+	}
 
   // if not yet in URL, get value from config.yaml
-  if (paramArray.mapZoom == undefined) {
-    zoomURL = paramArray.config.map.zoom;
-    updateURL("mapZoom", zoomURL);
-    // otherwise use value from URL
-  } else {
-    zoomURL = paramArray.mapZoom;
-  }
-
-  // if not yet in URL, get value from config.yaml
-  if (paramArray.mapCenter == undefined) {
-    centerURL = paramArray.config.map.center;
-    updateURL("mapCenter", centerURL);
-    // otherwise use value from URL
-  } else {
-    centerURL = JSON.parse(paramArray.mapCenter);
-  }
+	if (!(readURL("mapCenter"))) {
+		centerURL = paramArray.config.map.center;
+		updateURL("mapCenter", centerURL);
+		// otherwise use value from URL
+	} else {
+		centerURL = readURL("mapCenter");
+		// make Object from String
+		centerURL = centerURL.substring(1);
+		let splittedCenterURL = centerURL.split(',');
+		centerURL = {
+			lng: splittedCenterURL[0],
+			lat: splittedCenterURL[1].substring(0, splittedCenterURL[1].length - 1)
+		};
+	}
 
   // create new map with variable zoom and center
   animationMap = new mapboxgl.Map({
@@ -958,6 +964,7 @@ function removeAllSource(map) {
 
   for (let key in sources){
     // checks if the sources contain a numbered id
+  //  if (key.includes("unwetter") || key.includes("radar") || key.includes("Tweet") ){
     if (key.includes("unwetter") || key.includes("rainradar") || key.includes("Tweet") ){
 
       // if they are already in the layers
