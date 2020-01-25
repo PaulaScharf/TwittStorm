@@ -115,7 +115,8 @@ function convertTimestamp(radarProduct, timestampString) {
       let reqTime = timestamp + tz + variance - access;
       let reqTimeLower = reqTime - access;
 
-      console.log("converting " + new Date(timestamp) + " .. to sequence: " + new Date(reqTime));
+      console.log("converting newDate timestamp " + new Date(timestamp));
+      console.log(" .. to sequence: " + new Date(reqTime));
       console.log(" from [lower border] " + new Date(reqTimeLower));
 
       return [reqTimeLower, reqTime];
