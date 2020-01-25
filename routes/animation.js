@@ -170,10 +170,144 @@ var previousWeather = function(req, res) {
           }
         })
         .then(function(result) {
+          // are we looking for not-yet loaded historic data?
+          let pastBorder;
+          if(prod == "RY") {
+            // 65min
+            pastBorder = 3900000;
+          }
+          if(prod == "RW") {
+            // 2h
+            pastBorder = 7200000;
+          }
+          pastBorder = Date.now() - pastBorder;
+          let bool = pastBorder > lastTimestamp;
+          console.log("prevWeather radar check: " + new Date(pastBorder) + " > " + new Date(lastTimestamp) + " ? -> " + bool);
 
-              //if results found
-              if(result.length > 0) {
+          if(pastBorder > lastTimestamp) {
+            // TODO if < 5 found, reload
+            if(result.length < 5) {
+              // read from hist data file
+              var allProducts = [];
 
+              // beatuifully cascading part about reading all the demo data
+              fs.readFile( './demo/radars_ry_1.txt', 'utf8', function (err, data) {
+                if(err) {
+                  throw err;
+                }
+                else {
+                  let product = JSON.parse(data);
+                  allProducts.push(product);
+
+                  fs.readFile( './demo/radars_ry_2.txt', 'utf8', function (err, data) {
+                    if(err) {
+                      throw err;
+                    }
+                    else {
+                      let product = JSON.parse(data);
+                      allProducts.push(product);
+
+                      fs.readFile( './demo/radars_ry_3.txt', 'utf8', function (err, data) {
+                        if(err) {
+                          throw err;
+                        }
+                        else {
+                          let product = JSON.parse(data);
+                          allProducts.push(product);
+
+                          fs.readFile( './demo/radars_ry_4.txt', 'utf8', function (err, data) {
+                            if(err) {
+                              throw err;
+                            }
+                            else {
+                              let product = JSON.parse(data);
+                              allProducts.push(product);
+
+                              let loadProducts = [];
+
+                              allProducts.forEach(function(image) {
+                                let load = true;
+                                result.forEach(function(resultImage) {
+                                  if(image.timestamp == resultImage.timestamp) {
+                                    load = false;
+                                  }
+                                });
+
+                                if(load) {
+                                  loadProducts.push(image);
+                                }
+                              });
+
+                                // post them to db
+                                try {
+                                  promiseToPostItems(allProducts, req.db)
+                                  .catch(console.error)
+                                  .then(function() {
+
+                                    let query = {
+                                      type: "rainRadar",
+                                      radarProduct: prod.toUpperCase(),
+                                      $and: [
+                                        {"timestamp": {"$gt": (firstTimestamp)}},
+                                        {"timestamp": {"$lte": (lastTimestamp)}}
+                                      ]
+                                    };
+
+                                    // get them from db
+                                    try {
+                                      promiseToGetItems(query, req.db)
+                                      .catch(console.error)
+                                      .then(function(result) {
+                                        if(result.length > 0) {
+
+                                          let answer = {
+                                            "type": "previousRainRadar",
+                                            "length": result.length,
+                                            "radProd": prod
+                                            //"radarImages": result
+                                          };
+
+                                          result.forEach(function(image) {
+                                            answer[image.timestamp] = [image];
+                                          });
+                                          if (!res.headersSent) {
+                                            res.json(answer);
+                                          }
+                                        }
+                                        else {
+                                          let e = "the requested timestamp lies in the past, with no matching historic data";
+                                          console.log(e);
+                                          if (!res.headersSent) {
+                                            res.status(404).send(e);
+                                          }
+                                        }
+                                      });
+                                    } catch(e) {
+                                      console.dir(e);
+                                      if (!res.headersSent) {
+                                        res.status(500).send(e);
+                                      }
+                                    }
+
+                                  });
+                                } catch(e) {
+                                  console.dir(e);
+                                  if (!res.headersSent) {
+                                    res.status(500).send(e);
+                                  }
+                                }
+
+                              }
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                });
+              }
+              else {
+                // return all found data
                 let answer = {
                   "type": "previousRainRadar",
                   "length": result.length,
@@ -182,148 +316,49 @@ var previousWeather = function(req, res) {
                 };
 
                 result.forEach(function(image, index) {
+                  if(index < 5) {
+                    answer[image.timestamp] = [image];
+                  }
+                });
+                if (!res.headersSent) {
+                  res.json(answer);
+                }
+              }
+            }
+            else {
+              // TODO if not historic, return all
+              //if results found
+              if(result.length > 0) {
+                // return all found data
+                let answer = {
+                  "type": "previousRainRadar",
+                  "length": result.length,
+                  "radProd": prod
+                  //"radarImages": result
+                };
+
+                result.forEach(function(image, index) {
+                  // return max 10 pics
                   if(index < 11) {
                     answer[image.timestamp] = [image];
                   }
                 });
-								if (!res.headersSent) {
-									res.json(answer);
-								}
+                if (!res.headersSent) {
+                  res.json(answer);
+                }
+
               }
-              // if no results found
+              // if not demo and none found, send 404
               else {
-                // are we looking for not-yet loaded historic data?
-                let pastBorder;
-                if(prod == "RY") {
-                  // 65min
-                  pastBorder = 3900000;
+                let e = "no results found for this timestamp.";
+                if (!res.headersSent) {
+                  res.status(404).send(e);
                 }
-                if(prod == "RW") {
-                  // 2h
-                  pastBorder = 7200000;
-                }
-                pastBorder = Date.now() - pastBorder;
-
-                if(pastBorder > lastTimestamp) {
-
-                  // read from hist data file
-                  var allProducts = [];
-
-                  // beatuifully cascading part about reading all the demo data
-                  fs.readFile( './demo/radars_ry_1.txt', 'utf8', function (err, data) {
-                    if(err) {
-                      throw err;
-                    }
-                    else {
-                      let product = JSON.parse(data);
-                      allProducts.push(product);
-
-                      fs.readFile( './demo/radars_ry_2.txt', 'utf8', function (err, data) {
-                        if(err) {
-                          throw err;
-                        }
-                        else {
-                          let product = JSON.parse(data);
-                          allProducts.push(product);
-
-                          fs.readFile( './demo/radars_ry_3.txt', 'utf8', function (err, data) {
-                            if(err) {
-                              throw err;
-                            }
-                            else {
-                              let product = JSON.parse(data);
-                              allProducts.push(product);
-
-                              fs.readFile( './demo/radars_ry_4.txt', 'utf8', function (err, data) {
-                                if(err) {
-                                  throw err;
-                                }
-                                else {
-                                  let product = JSON.parse(data);
-                                  allProducts.push(product);
-
-
-                      // post them to db
-                      try {
-                        promiseToPostItems(allProducts, req.db)
-                        .catch(console.error)
-                        .then(function() {
-
-                          let query = {
-                            type: "rainRadar",
-                            radarProduct: prod.toUpperCase(),
-                            $and: [
-                              {"timestamp": {"$gt": (firstTimestamp)}},
-                              {"timestamp": {"$lte": (lastTimestamp)}}
-                            ]
-                          };
-
-                          // get them from db
-                          try {
-                            promiseToGetItems(query, req.db)
-                            .catch(console.error)
-                            .then(function(result) {
-                              if(result.length > 0) {
-
-                                let answer = {
-                                  "type": "previousRainRadar",
-                                  "length": result.length,
-                                  "radProd": prod
-                                  //"radarImages": result
-                                };
-
-                                result.forEach(function(image) {
-                                  answer[image.timestamp] = [image];
-                                });
-																if (!res.headersSent) {
-																	res.json(answer);
-																}
-                              }
-                              else {
-                                let e = "the requested timestamp lies in the past, with no matching historic data";
-                                console.log(e);
-																if (!res.headersSent) {
-																	res.status(404).send(e);
-																}
-                              }
-                            });
-                          } catch(e) {
-                            console.dir(e);
-														if (!res.headersSent) {
-															res.status(500).send(e);
-														}
-                          }
-
-                        });
-                      } catch(e) {
-                        console.dir(e);
-												if (!res.headersSent) {
-													res.status(500).send(e);
-												}
-                      }
-
-                    }
-                    });
-                  }
-                  });
-                }
-                });      
               }
-              });
+            }
 
-                }
-                // if not demo, send 404
-                else {
-                  let e = "no results found for this timestamp.";
-									if (!res.headersSent) {
-										res.status(404).send(e);
-									}
-                }
-
-              }
-
-        });
-    }
+          });
+        }
   }
 };
 
