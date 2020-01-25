@@ -316,9 +316,7 @@ var previousWeather = function(req, res) {
                 };
 
                 result.forEach(function(image, index) {
-                  if(index < 5) {
                     answer[image.timestamp] = [image];
-                  }
                 });
                 if (!res.headersSent) {
                   res.json(answer);
