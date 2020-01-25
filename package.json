@@ -28,6 +28,7 @@
     "morgan": "1.9.1",
     "nodemon": "^2.0.1",
     "r-script": "0.0.4",
+    "serve-favicon": "2.5.0",
     "twitter": "1.7.1"
   },
   "description": "Project for Geosoftware 2 in the winter semester 2019/2020.",

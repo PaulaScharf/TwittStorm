@@ -10,14 +10,13 @@
 */
 
 
-// ********** load modules: **********
 const http = require('http');
 const https = require('https');
 const path = require('path');
 
-// ********** load third-modules: **********
 var express = require('express');
 var app = express();
+var favicon = require('serve-favicon');
 
 var bodyParser = require('body-parser');
 const mongodb = require('mongodb');   // using the mongo-driver
@@ -49,6 +48,8 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
+app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
+
 // logging HTTP requests
 app.use(logger('dev'));
 
@@ -60,6 +61,7 @@ app.use(express.json());
 
 // use built-in middleware which parses urlencoded bodies, https://expressjs.com/en/4x/api.html#express.urlencoded
 app.use(express.urlencoded({ extended: false }));
+
 
 // set the routes for npm-installed client-libraries
 app.use("/jquery", express.static(path.join(__dirname, 'node_modules', 'jquery', 'dist')));
