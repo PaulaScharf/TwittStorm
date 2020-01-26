@@ -982,7 +982,7 @@ function removeAllSource(map) {
 
       // checks if the sources contain a numbered id
     // if (key.includes("unwetter") || key.includes("radar") || key.includes("Tweet") ){
-    if (key.includes("unwetter") || key.includes("rainradar") || key.includes("Tweet") ){
+    if (key.includes("unwetter") || key.includes("rainradar") || key.includes("tweet") ){
 
 //  console.log("Test if");
 //console.log(key);
@@ -999,6 +999,7 @@ function removeAllSource(map) {
       }
       console.log(key);
       map.removeSource(key);
+      customLayerIds.remove(key)
     }
   }
 }
