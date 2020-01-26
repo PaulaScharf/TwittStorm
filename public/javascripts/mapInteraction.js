@@ -361,7 +361,7 @@ function styleSelector(map){
 function loadRaster(map, product, draw){
 
 	closeAllPopups();
-showAllExcept(map, "germany");
+	showAllExcept(map, "germany");
 
 	// set flag to radar
 	wtypeFlag = "radar";
@@ -379,7 +379,6 @@ showAllExcept(map, "germany");
 
 	// if no rainradar data is displayed load the requested product
 	if (map.style.sourceCaches.rainradar == undefined){
-
 		requestAndDisplayAllRainRadar(map, product);
 	}
 	// if a radar product is already on display remove it first
@@ -394,9 +393,9 @@ showAllExcept(map, "germany");
 	var rasterMenuToggle = document.getElementById('raster');
 	rasterMenuToggle.classList.add("active");
 
-// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
-// TODO: dann löschen, da sonst user-irritierend!!
-// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
+	// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
+	// TODO: dann löschen, da sonst user-irritierend!!
+	// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
 	if ((readURL("aoi")) !== false) {
 		useAOIFromURL(readURL("aoi"), draw);
 	}
@@ -500,9 +499,9 @@ function loadSevereWeather(map, draw){
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
 
-// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
-// TODO: dann löschen, da sonst user-irritierend!!
-// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
+	// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
+	// TODO: dann löschen, da sonst user-irritierend!!
+	// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
 	if ((readURL("aoi")) !== false) {
 		useAOIFromURL(readURL("aoi"), draw);
 	}
