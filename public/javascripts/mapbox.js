@@ -182,6 +182,7 @@ function showMap() {
 		// otherwise use value from URL
 	} else {
 		centerURL = readURL("mapCenter");
+		console.log(centerURL);
 		// make Object from String
 		centerURL = centerURL.substring(1);
 		let splittedCenterURL = centerURL.split(',');
