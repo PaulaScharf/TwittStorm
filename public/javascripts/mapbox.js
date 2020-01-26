@@ -266,16 +266,29 @@ function showMap() {
 		// *************************************************************************
 
 		$("#severeWeather").click(function() {
-			loadSevereWeather(map);
+			loadSevereWeather(map, draw);
 		});
+
+		$("#radio1").click(function() {
+			loadRaster(map, "ry", draw);
+		});
+
+		$("#radio2").click(function() {
+			loadRaster(map, "rw", draw);
+		});
+
+		$("#radio3").click(function() {
+			loadRaster(map, "sf", draw);
+		});
+
 
 		// set Interval to accumulate radar data for the animation
 		window.setInterval(intervalRainRadar, paramArray.config.refresh_rate, map);
 
 
-		// if there is an AOI given in the URL and because of a new page load in paramArray, then show it in map and do Tweet-search
-		if (paramArray.aoi !== undefined) {
-			getAndUseAOIFromURL(draw);
+		// if there is an AOI given in the URL, then show it in map and do Tweet-search
+		if ((readURL("aoi")) !== false) {
+			useAOIFromURL(readURL("aoi"), draw);
 		}
 
 		// ************************* load Rain Radar data **************************
@@ -383,12 +396,12 @@ function showMap() {
 * @desc Reads AOI-coordinates out of URL, makes a GeoJSON out of it and adds it to the given MapboxDraw.
 * Then starts the tweet-search for this AOI.
 * @author Katharina Poppinga
+* @private
+* @param {String} aoiString - AOI-coordinates from URL
 * @param {Object} draw - MapboxDraw-Object in which to add the AOI
 */
-function getAndUseAOIFromURL(draw) {
+function useAOIFromURL(aoiString, draw) {
 	doneProcessingAOI = false;
-
-	let aoiString = paramArray.aoi;
 
 	// turning the AOI-String gotten from URL into the needed coordinates-array for adding it to mapbox-draw afterwards
 	let restAoiString = "";
@@ -476,7 +489,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 	let url = "/api/v1/radar/" + product + "/" + currentTimestamp;
 
 	// update the status display
-	$('#information').html("Retrieving the requested " + product + " rain radar product.");
+	$('#information').html("Retrieving the requested " + product + " rain radar data.");
 
 	// Rain Radar Data
 	$.getJSON(url, function(result) {
@@ -535,6 +548,12 @@ function requestAndDisplayAllRainRadar(map, product) {
 			}
 		}
 		doneLoadingWeather = true;
+
+// TODO: hier sinnlos?? dann löschen
+//		if ((readURL("aoi")) !== false) {
+//			useAOIFromURL(readURL("aoi"), draw);
+//		}
+
 	});
 }
 
@@ -590,7 +609,7 @@ function callRainRadar(map, prod) {
 	// make call
 	let url = "/api/v1/radar/" + prod + "/" + currentTimestamp;
 	$.getJSON(url, function(result) {
-		console.log("Automatically requested new rain radar data.");
+
 		// read from url
 		let wtype = readURL("wtype");
 		let urlProd = readURL("radProd");
@@ -601,6 +620,11 @@ function callRainRadar(map, prod) {
 			requestAndDisplayAllRainRadar(map, prod);
 		} else {
 			doneLoadingWeather = true;
+
+// TODO: hier sinnlos?? dann löschen
+//			if ((readURL("aoi")) !== false) {
+//				useAOIFromURL(readURL("aoi"), draw);
+//			}
 		}
 	});
 }
@@ -1043,7 +1067,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			timeout: 15000,
 			// update the status display
 			success: function() {
-				$('#information').html("Trying to find and insert fitting tweets");
+				$('#information').html("Trying to find and insert fitting tweets.");
 			}
 		})
 		// now what
@@ -1214,7 +1238,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				timeout: 15000,
 				// update the status display
 				success: function () {
-					$('#information').html("Trying to find and insert fitting tweets");
+					$('#information').html("Trying to find and insert fitting tweets.");
 				}
 			})
 
@@ -1360,7 +1384,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			timeout: 15000,
 			// update the status display
 			success: function() {
-				$('#information').html("Deleting a tweet");
+				$('#information').html("Deleting a tweet.");
 			}
 		})
 

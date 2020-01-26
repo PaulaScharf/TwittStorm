@@ -38,7 +38,6 @@ function drawForAOI(map, draw) {
 		});
 		draw.delete(pids);
 
-// TODO: ausprobieren, ob es so keine probleme für radar gibt, ansonsten folgendes in if mit bedingung URL wtype === unwetter packen
 		// move weather-layerIDs on top of the drawn AOI to be able to open popups for the warnings onclick
 		for (let i = 1; i < customLayerIds.length; i++) {
 			map.moveLayer(customLayerIds[i]);

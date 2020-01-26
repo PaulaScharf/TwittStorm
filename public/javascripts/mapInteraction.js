@@ -356,10 +356,12 @@ function styleSelector(map){
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
 * @param {String} product - the desired radar product (check the GitHub-Wiki for further information)
+* @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
 */
-function loadRaster(map, product){
+function loadRaster(map, product, draw){
 
 	closeAllPopups();
+showAllExcept(map, "germany");
 
 	// set flag to radar
 	wtypeFlag = "radar";
@@ -382,8 +384,8 @@ function loadRaster(map, product){
 	}
 	// if a radar product is already on display remove it first
 	else {
-		map.removeLayer('rainradar')
-		map.removeSource('rainradar')
+		map.removeLayer('rainradar');
+		map.removeSource('rainradar');
 
 		requestAndDisplayAllRainRadar(map, product);
 	};
@@ -391,6 +393,13 @@ function loadRaster(map, product){
 	// add active attribute to radar tab
 	var rasterMenuToggle = document.getElementById('raster');
 	rasterMenuToggle.classList.add("active");
+
+// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
+// TODO: dann löschen, da sonst user-irritierend!!
+// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
+	if ((readURL("aoi")) !== false) {
+		useAOIFromURL(readURL("aoi"), draw);
+	}
 }
 
 
@@ -439,8 +448,9 @@ function removeSevereWeather(map){
 * @desc Loads the warnings-polygons, updates the URL and hides previous selected radar data.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
+* @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
 */
-function loadSevereWeather(map){
+function loadSevereWeather(map, draw){
 
 	closeAllPopups();
 	showAllExcept(map, "germany");
@@ -489,6 +499,13 @@ function loadSevereWeather(map){
 	// activate the severe weather tab
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
+
+// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
+// TODO: dann löschen, da sonst user-irritierend!!
+// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
+	if ((readURL("aoi")) !== false) {
+		useAOIFromURL(readURL("aoi"), draw);
+	}
 }
 
 
@@ -615,8 +632,6 @@ function makeLayerInteractive(map, layerID) {
 	});
 
 	// ************************ showing popups on click ************************
-	// TODO: Problem: wenn AOI drüber liegt, können keine Popups ausgewählt werden
-	// TODO: Problem: Wenn mehrere Layer übereinander liegen, wird beim Klick nur eine Info angezeigt
 	map.on('click', layerID, function (e) {
 		if (document.getElementsByClassName("mapboxgl-popup").length < 1) {
 			if (layerID.includes("tweet")) {

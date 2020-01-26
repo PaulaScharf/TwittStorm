@@ -335,6 +335,12 @@ function reloadAnimation(wType){
 
   // when another animation is running stop it first
   clearInterval(automationIntervall);
+
+
+  // TODO: momentan wird radardata nicht entfernt, wenn unwetter im menü ausgewählt werden
+
+
+
   // remove all old sources
   removeAllSource(animationMap);
   closeAllPopups();
