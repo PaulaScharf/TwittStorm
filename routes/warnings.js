@@ -184,8 +184,8 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
       type: "unwetter",
       "timestamps": {
         "$elemMatch": {
-          "$lte": JSON.parse(config.demo.timestamp_end),
-          "$gte": JSON.parse(config.demo.timestamp_start)
+          "$lte": JSON.parse(currentTimestamp),
+          "$gte": JSON.parse(currentTimestamp - 299000)
         }
       }
     };
@@ -204,7 +204,19 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
           var arrayOfItems = JSON.parse(data);
           promiseToPostItems(arrayOfItems, db)
           .then(function () {
-            resolve(arrayOfItems);
+            let outputArray = [];
+            arrayOfItems.forEach(function (item) {
+              let isRecent = false;
+              item.timestamps.forEach(function (timestamp) {
+                if(timestamp>=(currentTimestamp - 299000) && timestamp<=(currentTimestamp)) {
+                  isRecent = true;
+                }
+              });
+              if (isRecent) {
+                outputArray.push(item);
+              }
+            });
+            resolve(outputArray);
           })
           .catch(function (error) {
             reject(error);
