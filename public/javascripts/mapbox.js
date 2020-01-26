@@ -182,7 +182,6 @@ function showMap() {
 		// otherwise use value from URL
 	} else {
 		centerURL = readURL("mapCenter");
-		console.log(centerURL);
 		// make Object from String
 		centerURL = centerURL.substring(1);
 		let splittedCenterURL = centerURL.split(',');
@@ -1041,7 +1040,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 		// ****************************************************************************************
 		// make query
-		// TODO: searchWords anpassen
 		let searchWords = ["rain", "raining", "heavy rain", "rainfall", "precipitation", "Niederschlag", "Regen", "Starkregen", "Dauerregen", "Sturmflut", "Sinnflut", "regnet", "Unwetter", "Gewitter", "Feuerwehr", "Sturm", "Flut"];
 		let query = {
 			twitterSearchQuery: {
@@ -1052,9 +1050,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			dwd_id: "rainRadar",
 			currentTimestamp: currentTimestamp
 		};
-
-console.log(query);
-
 
 		// send query
 		$.ajax({
@@ -1075,11 +1070,7 @@ console.log(query);
 		})
 
 		// if the request is done successfully, ...
-		.done(function(result) {
-			// result is our tweets that lie in the aoi
-
-			console.log(result);
-
+		.done(function(result) { 			// result is our tweets that lie in the aoi
 			// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 			console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
@@ -1107,7 +1098,7 @@ console.log(query);
 							// create a boolean
 							let bool = false;
 							for(let i = 0; i < rainRadarLayer._data.features.length; i++) {
-	//							console.log(rainRadarLayer._data.features[i]);
+								console.log(rainRadarLayer._data.features[i]);
 								let rainRadarPolygon = turf.polygon(rainRadarLayer._data.features[i].geometry.coordinates);
 								// if the point lies in any of these rainRadar polygons, set bool true
 								if(turf.booleanPointInPolygon(tweetLocation, rainRadarPolygon)) {
@@ -1234,8 +1225,6 @@ console.log(query);
 		for (let i = 0; i < requests.length; i++) {
 			let query = requests[i].query;
 
-			console.log(query);
-
 			$.ajax({
 				// use a http POST request
 				type: "POST",
@@ -1255,9 +1244,6 @@ console.log(query);
 
 			// if the request is done successfully, ...
 			.done(function (result) {
-
-console.log(result);
-
 				// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 				console.log("AJAX request (finding and inserting tweets) is done successfully.");
 

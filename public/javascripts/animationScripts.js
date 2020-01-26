@@ -802,9 +802,6 @@ function loadPreviousWeather(map, weatherEv){
 
   // if the request is done successfully, ...
   .done(function (result) {
-
-    console.log(result);
-
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
 
