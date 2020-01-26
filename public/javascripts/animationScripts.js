@@ -491,7 +491,7 @@ function automate(map){
         //save the current map canvas as a base64 formatted array entry
         takeScreenshot();
       }
-    }, 2000);
+    }, 3000);
 
     // after using the playpausebutton once unbind its function
     $("#playButton").unbind();
@@ -802,6 +802,9 @@ function loadPreviousWeather(map, weatherEv){
 
   // if the request is done successfully, ...
   .done(function (result) {
+
+    console.log(result);
+
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
 

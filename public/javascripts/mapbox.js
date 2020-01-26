@@ -986,7 +986,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					}
 				}
 
-				// TODO: paula geändert???
+				// TODO: paula geändert?
 				// if the layer-warning is not (no longer) a current warning, remove its ID from customLayerIds
 				if (isCurrent === false) {
 					showAllExcept(map, layerIdParts[2]);
@@ -1099,7 +1099,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// create a boolean
 							let bool = false;
 							for(let i = 0; i < rainRadarLayer._data.features.length; i++) {
-								console.log(rainRadarLayer._data.features[i]);
+	//							console.log(rainRadarLayer._data.features[i]);
 								let rainRadarPolygon = turf.polygon(rainRadarLayer._data.features[i].geometry.coordinates);
 								// if the point lies in any of these rainRadar polygons, set bool true
 								if(turf.booleanPointInPolygon(tweetLocation, rainRadarPolygon)) {
