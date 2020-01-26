@@ -22,12 +22,12 @@ The code of this project can be found on GitHub: [https://github.com/PaulaScharf
 ## How to start the App
 <b>TODO: DockerHub einfügen</b><br>
 ANPASSEN:<br>
-To start the application via docker, navigate to the app's folder in a dockershell and enter
-``docker-compose up --build``<br/>
-or as an alternative (if the command above does not work): ``docker-compose build`` and ``docker-compose up``.<br/>
+To start the app via docker, navigate to the app's folder in a dockershell. To start the app for the first time, enter
+``docker-compose up --build``. Afterwards, if you do not want to build again but just start it, enter ``docker-compose up``.<br/>
+As an alternative (if the first command above does not work), split it up to: ``docker-compose build`` and ``docker-compose up``.<br/>
 
-The application can be found with your browser at your IP:port. E.g.: http://192.168.99.100:3000/.<br/>
-Your IP will be shown on start of the dockershell.<br/>  
+The started application can be found with your browser at your IP:port. E.g.: http://192.168.99.100:3000/.<br/>
+Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?).<br/>  
 
 ## How to test with JMeter
 1. Download and install JMeter from here: https://jmeter.apache.org/download_jmeter.cgi  
