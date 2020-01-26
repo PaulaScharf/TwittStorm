@@ -763,22 +763,22 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			// if the current warning is of type RAIN ...
 			if ((ii >= 61) && (ii <= 66)) {
 				layerGroup = "Rain";
-				searchWords.push("Starkregen", "Dauerregen");
+				searchWords.push("Starkregen", "Dauerregen", "Niederschlag", "Regen", "regnet", "precipitation", "rain", "heavy rain", "rainfall", "raining");
 			}
 			// if the current warning is of type SNOWFALL ...
 			else if ((ii >= 70) && (ii <= 78)) {
 				layerGroup = "Snowfall";
-				searchWords.push("Schneefall");
+				searchWords.push("Schneefall", "Schnee", "schneit", "snowfall", "snow", "snowing");
 			}
 			// if the current warning is of type THUNDERSTORM ..
 			else if (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96))) {
 				layerGroup = "Thunderstorm";
-				searchWords.push("Gewitter");
+				searchWords.push("Gewitter", "Blitzschlag", "Blitz", "Ungewitter", "blitzt", "thunderstorm", "storminess", "thunder", "lightning");
 			}
 			// if the current warning is of type BLACK ICE ..
 			else if ((ii === 24) || ((ii >= 84) && (ii <= 87))) {
 				layerGroup = "BlackIce";
-				searchWords.push("Blitzeis", "Glätte", "Glatteis");
+				searchWords.push("Blitzeis", "Glätte", "Glatteis", "glatt", "spiegelglatt", "Eisglätte", "gefrierender Regen", "icy", "black ice", "glaze ice", "freezing rain", "verglas");
 			}
 			else {
 				// TODO: if-else if ohne else möglich??
@@ -1042,7 +1042,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		// ****************************************************************************************
 		// make query
 		// TODO: searchWords anpassen
-		let searchWords = ["rain", "Regen", "Unwetter", "Gewitter", "Sinnflut", "regnet", "Feuerwehr", "Sturm", "Flut", "Starkregen"];
+		let searchWords = ["rain", "raining", "heavy rain", "rainfall", "precipitation", "Niederschlag", "Regen", "Starkregen", "Dauerregen", "Sturmflut", "Sinnflut", "regnet", "Unwetter", "Gewitter", "Feuerwehr", "Sturm", "Flut"];
 		let query = {
 			twitterSearchQuery: {
 				// TODO which geometry is correct here
@@ -1052,6 +1052,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			dwd_id: "rainRadar",
 			currentTimestamp: currentTimestamp
 		};
+
+console.log(query);
+
 
 		// send query
 		$.ajax({
@@ -1070,9 +1073,14 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				$('#information').html("Trying to find and insert fitting tweets.");
 			}
 		})
-		// now what
+
+		// if the request is done successfully, ...
 		.done(function(result) {
 			// result is our tweets that lie in the aoi
+
+			console.log(result);
+
+			// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 			console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
 			// if response is valid
@@ -1225,6 +1233,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		}
 		for (let i = 0; i < requests.length; i++) {
 			let query = requests[i].query;
+
+			console.log(query);
+
 			$.ajax({
 				// use a http POST request
 				type: "POST",
@@ -1244,8 +1255,12 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			// if the request is done successfully, ...
 			.done(function (result) {
+
+console.log(result);
+
 				// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 				console.log("AJAX request (finding and inserting tweets) is done successfully.");
+
 				if (typeof result !== "undefined" && result.statuses.length > 0) {
 					try {
 						let turfPolygon = turf.polygon(polygon.geometry.coordinates);
