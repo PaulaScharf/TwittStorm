@@ -278,7 +278,7 @@ var previousWeather = function(req, res) {
                                           let e = "the requested timestamp lies in the past, with no matching historic data";
                                           console.log(e);
                                           if (!res.headersSent) {
-                                            res.status(404).send(e);
+                                            res.status(422).send(e);
                                           }
                                         }
                                       });
@@ -346,11 +346,11 @@ var previousWeather = function(req, res) {
                 }
 
               }
-              // if not demo and none found, send 404
+              // if not demo and none found, send 422
               else {
                 let e = "no results found for this timestamp.";
                 if (!res.headersSent) {
-                  res.status(404).send(e);
+                  res.status(422).send(e);
                 }
               }
             }
