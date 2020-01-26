@@ -656,11 +656,11 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 	// timestamp (in Epoch milliseconds) for this whole specific request
 	// if there is a timestamp given in the paramArray, take it, if not then create Date.now()
-	let currentTimestamp = (paramArray.timestamp) ? paramArray.timestamp : Date.now();
+	let currentTimestamp = Date.now();
 
 	// for demo data
-	if (paramArray.config.current_time && paramArray.config.current_time !== null) {
-		currentTimestamp = paramArray.config.current_time + (currentTimestamp - initTimestamp);
+	if (paramArray.timestamp) {
+		currentTimestamp = JSON.parse(paramArray.timestamp) + (currentTimestamp - initTimestamp);
 		try {
 			Date.parse(currentTimestamp);
 		} catch {
