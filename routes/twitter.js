@@ -86,7 +86,7 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
 	return new Promise((resolve, reject) => {
 		// JSON with the ID of the current Unwetter, needed for following database-check
 		let query = {
-			type: "Tweet",
+			type: "tweet",
 			dwd_id: dwd_id,
 			$and: [
 				{"requestTime": {"$gt": (currentTime - 299000)}},
@@ -118,8 +118,10 @@ const searchTweetsForEvent = function(req, res) {
 	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 	let validParams = checkParamsSearch(req.body);
 
-	if (validParams.err_message !== "") {
-		res.status(422).send(validParams);
+	if (validParams.err_msg !== "") {
+		if (!res.headersSent) {
+			res.status(422).send(validParams);
+		}
 	} else {
 		checkForExistingTweets(req.body.dwd_id, req.body.currentTimestamp, req.db)
 			.catch(function (error) {
@@ -212,7 +214,7 @@ const searchTweetsForEvent = function(req, res) {
 												let tweetLocation = turf.point(currentFeature.coordinates.coordinates);
 												if (turf.booleanPointInPolygon(tweetLocation, polygon)) {
 													let currentStatus = {
-														type: "Tweet",
+														type: "tweet",
 														id: currentFeature.id,
 														idstr: currentFeature.id_str,
 														statusmessage: currentFeature.text,
@@ -233,7 +235,7 @@ const searchTweetsForEvent = function(req, res) {
 									}
 									if (arrayOfTweets.length === 0) {
 										let emptyTweet = {
-											type: "Tweet",
+											type: "tweet",
 											dwd_id: req.body.dwd_id,
 											requestTime: req.body.currentTimestamp
 										};
@@ -246,7 +248,7 @@ const searchTweetsForEvent = function(req, res) {
 											}
 										})
 										.then(function () {
-											let query = {type: "Tweet", dwd_id: req.body.dwd_id};
+											let query = {type: "tweet", dwd_id: req.body.dwd_id};
 											promiseToGetItems(query, req.db)
 												.catch(function (error) {
 													if (!res.headersSent) {
@@ -279,7 +281,7 @@ const searchTweetsForEvent = function(req, res) {
 							});
 					}
 				} else {
-					let query = {type: "Tweet", dwd_id: req.body.dwd_id};
+					let query = {type: "tweet", dwd_id: req.body.dwd_id};
 					promiseToGetItems(query, req.db)
 						.catch(function (error) {
 							if(!res.headersSent) {
@@ -320,32 +322,32 @@ const searchTweetsForEvent = function(req, res) {
 function checkParamsSearch(params) {
 	if (!params.dwd_id) {
 		return {
-			err_message: "'dwd_id' is not defined"
+			err_msg: "'dwd_id' is not defined"
 		};
 	} else if (!params.currentTimestamp) {
 		return {
-			err_message: "'currentTimestamp' is not defined"
+			err_msg: "'currentTimestamp' is not defined"
 		};
 	} if (!params.twitterSearchQuery) {
 		return {
-			err_message: "'twitterSearchQuery' is not defined"
+			err_msg: "'twitterSearchQuery' is not defined"
 		};
 	} if (!params.twitterSearchQuery.geometry) {
 		return {
-			err_message: "'twitterSearchQuery.geometry' is not defined"
+			err_msg: "'twitterSearchQuery.geometry' is not defined"
 		};
 	} if (!params.twitterSearchQuery.searchWords) {
 		return {
-			err_message: "'twitterSearchQuery.searchWords' is not defined"
+			err_msg: "'twitterSearchQuery.searchWords' is not defined"
 		};
 	} if (typeof params.twitterSearchQuery.searchWords !== "object") {
 		return {
-			err_message: "'twitterSearchQuery.searchWords' has to contain an array"
+			err_msg: "'twitterSearchQuery.searchWords' has to contain an array"
 		};
 	}
 
 	return {
-		err_message: ""
+		err_msg: ""
 	};
 }
 
