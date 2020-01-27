@@ -334,6 +334,7 @@ var radarRoute = function(req, res) {
                         else {
                           let e = "the requested timestamp lies in the past, with no matching historic data";
                           console.log(e);
+                          e = { "err_msg": e };
                           res.status(404).send(e);
                         }
                       });
@@ -452,6 +453,7 @@ var radarRoute = function(req, res) {
               else {
                 // not the future case
                 let e = "It is likely that a timestamp error occured. This is dueto DWD publishing delays. Please try again.";
+                e = { "err_msg": e };
                 res.status(404).send(e);
               }
             }
