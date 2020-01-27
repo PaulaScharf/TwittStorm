@@ -4,20 +4,22 @@ TwittStorm for Geosoftware II
 The code of this project can be found on GitHub: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)<br>
 <br>
 <b>TODO: DockerHub-Link einfügen</b>
-## How to construct and use your own API-keys
+## How to get and use your own API-keys
+In order to use this app, you have to sign up for the necessary services. You'll need a Mapbox access key for the map, and a twitter developer account with keys in order to access real-time twitter data.
 #### Mapbox GL JS
 1.
 2.
 3. set the value of the variable ``keys.mapbox.access_key`` in config.yaml to your own created API key
 
 #### Twitter
-1.
-2.
-3. set the value of the variable ``keys.twitter.consumer_key`` in config.yaml to your own created ....... API key
-4. set the value of the variable ``keys.twitter.consumer_secret`` in config.yaml to your own created ....... API key
-5. set the value of the variable ``keys.twitter.access_token_key`` in config.yaml to your own created ....... API key
-6. set the value of the variable ``keys.twitter.access_token_secret`` in config.yaml to your own created ....... API key
-<br><br>TODO: steps 3 to 6 evtl. als einen einzigen Punkt formatieren
+1. If you don't already have one, please create a twitter account. This can be done by downloading and opening the moible app or through the web at https://twitter.com
+2. You'll need to register as a developer. This can be done here: https://developer.twitter.com/en/apply-for-access. You're only going to get and display twitter data, so you can disable all other options in the "how are you going to use twitter"-form.
+3. Create an app. https://developer.twitter.com/en/apps (accessible only with an account). You can name this app whatever you like.
+4. You can see and copy the tokens you'll need from the "Keys and tokens" section in the overview of the app you just created.
+5. set the value of the variable ``keys.twitter.consumer_key`` in config.yaml to your own "API key"
+6. set the value of the variable ``keys.twitter.consumer_secret`` in config.yaml to your own "API secret key"
+7. set the value of the variable ``keys.twitter.access_token_key`` in config.yaml to your own created "access token"
+8. set the value of the variable ``keys.twitter.access_token_secret`` in config.yaml to your own created "access token secret"
 
 ## How to start the App
 <b>TODO: DockerHub einfügen</b><br>
