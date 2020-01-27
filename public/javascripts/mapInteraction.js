@@ -9,7 +9,6 @@
 */
 
 
-
 /**
 * @desc Creates and shows a legend for the given map and given type of data.
 * Contains information about different layers in map, their source and corrsponding timestamps.
@@ -206,15 +205,15 @@ function openMenu(button, menu, page) {
 	if (wtypeFlag == "radar") {
 		var innerRasterMenuToggle = document.getElementById('rasterMenu');
 		innerRasterMenuToggle.style.display = "block";
+		// except the animation site is shown
+			if (page === 'animation'){
+				innerRasterMenuToggle.style.display = "none";
+		}
 	}
 	// if severe weather is selected automatically open up the severe weather submenu
 	else {
 		var innerUnwetterMenuToggle = document.getElementById('menu');
 		innerUnwetterMenuToggle.style.display = "block";
-
-		if (page === "animation"){
-			innerUnwetterMenuToggle.innerHTML = "First you have to click the play button.";
-		}
 	};
 
 	// displays the germany boundary button if is not visible
@@ -309,10 +308,28 @@ function switchLayer(map, layer) {
 	map.setStyle('mapbox://styles/mapbox/' + layerId);
 
 	if (indicator == "animation"){
+		//stop the animation
+		clearInterval(automationIntervall);
 		// reloadAnimation
-		reloadAnimation();
-	}
+		reloadAnimation(readURL('wtype'));
+	//change the sources styles to the chosen basemap
+	setTimeout(() => {
+		Object.entries(savedSources).forEach(([id, source]) => {
+			if (typeof map.getSource(id) === 'undefined') {
+				map.addSource(id, source);
+			}
+		});
+		// in case of animationmap only keep the germany boundary
+		savedLayers.forEach((layer) => {
+			if ( layer.id == "boundaryGermany" ) {
+				map.addLayer(layer);
+			}
+		});
+	}, 1000);
 
+
+}
+else{
 	setTimeout(() => {
 		Object.entries(savedSources).forEach(([id, source]) => {
 			if (typeof map.getSource(id) === 'undefined') {
@@ -326,6 +343,7 @@ function switchLayer(map, layer) {
 			}
 		});
 	}, 1000);
+};
 }
 
 
@@ -345,6 +363,8 @@ function styleSelector(map){
 		// add onclick-functionality for clicking on satellite or streets button
 		inputs[i].addEventListener('click', function(layer){
 			switchLayer(map, layer);
+			clearInterval(automationIntervall);
+
 		});
 	}
 }
@@ -542,7 +562,7 @@ function createWarningsCheckboxes(map) {
 	});
 
 	if (warningsTypes[0][1] === "false" && warningsTypes[1][1] === "false" && warningsTypes[2][1] === "false" && warningsTypes[3][1] === "false") {
-		warningsMenu.innerHTML = "Currently no warnings existing.";
+		warningsMenu.innerHTML = "There are no warnings right now";
 	}
 }
 

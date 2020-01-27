@@ -451,7 +451,7 @@ var radarRoute = function(req, res) {
               }
               else {
                 // not the future case
-                let e = "end of the radar-route. It is likely that a timestamp error occured.";
+                let e = "end of the radar-route. It is likely that a timestamp error occured. Please simply try again.";
                 res.status(404).send(e);
               }
             }

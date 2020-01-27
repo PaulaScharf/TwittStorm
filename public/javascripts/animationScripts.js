@@ -317,7 +317,6 @@ function showAnimationMap() {
     //enable the animation functionality
     automate(animationMap);
   });
-
 }
 
 
@@ -336,17 +335,12 @@ function reloadAnimation(wType){
   // when another animation is running stop it first
   clearInterval(automationIntervall);
 
-
-  // TODO: momentan wird radardata nicht entfernt, wenn unwetter im menü ausgewählt werden
-
-
-
   // remove all old sources
   removeAllSource(animationMap);
   closeAllPopups();
 
   //if the weathertype is severeweather
-  if ((wType === "unwetter") || (readURL(wType) === "unwetter")) {
+  if ((wType === "unwetter") ) {
 
     // weathertype indicator for style switcher
     wIndicator = wType;
@@ -370,8 +364,7 @@ function reloadAnimation(wType){
   }
 
   // if the weathertype is radar
-  if ((wType === "radar") || (readURL(wType) === "radar")) {
-
+  if ((wType === "radar") ) {
     // weathertype indicator for style switcher
     wIndicator = wType;
     //update the URL
@@ -576,7 +569,6 @@ function setToReady(){
 }
 
 
-
 /**
 * @desc Adds the desired layer, removes the others and displays the date according to the timestamp
 * @author Benjamin Rieke
@@ -629,6 +621,7 @@ function loadAnimation(position, map){
           }
         });
       } else if (layerID.includes("unwetter")) {
+
         map.addLayer({
           'id': layerID,
           'type': 'fill',
@@ -730,8 +723,8 @@ function loadAnimation(position, map){
       }
 
       makeLayerInteractive(map, layerID);
-      createWarningsCheckboxes(animationMap);
       allLayers.push(layerID);
+      createWarningsCheckboxes(animationMap);
     }
   });
 }
@@ -751,7 +744,7 @@ function createGif(array) {
   gifshot.createGIF({
     images: array,
     interval: 2.0,
-    sampleInterval: 0.5,
+    sampleInterval: 0.3,
     numWorkers: 5,
     'gifWidth': 800,
     'gifHeight': 400,
@@ -776,6 +769,9 @@ function loadPreviousWeather(map, weatherEv){
   usedTimestamps = [];
   timestampStorage = [];
   resultOutput = [];
+
+  var innerUnwetterMenuToggle = document.getElementById('menu');
+
 
   var weatherEvent;
   if (weatherEv === "radar"){
@@ -805,16 +801,27 @@ function loadPreviousWeather(map, weatherEv){
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
 
+    // if the response is not empty set the menu to inform the user
+    if (Object.keys(result).length == 1){
+      innerUnwetterMenuToggle.innerHTML = "There are no warnings right now.";
+    }
+    else{
+      innerUnwetterMenuToggle.innerHTML = "Please click the play button first.";
+    }
+
+
     resultOutput.push(result);
     let layerID;
     // for every timestamp
     for (let key in result) {
       if ((key != "type") && (key != "length") && (key != "radProd")) {
+
         // log the individual timestamp to refer to them later
         usedTimestamps.push(key);
 
         // for every warnings in the response
         for (let j = 0; j < result[key].length; j++){
+
           if (result[key][j].type === "Tweet") {
             layerID = "tweet " + key + " " + j;
             mask = {
@@ -844,6 +851,7 @@ function loadPreviousWeather(map, weatherEv){
                 "type": "FeatureCollection",
               }
             };
+
 
             // put every polygon from a warning into one array
             if (weatherEv == "severeWeather") {
@@ -971,29 +979,19 @@ function removeAllSource(map) {
   var sources = map.style.sourceCaches;
   var layers = map.getStyle().layers;
 
-  console.log(sources); // enthält alle
-  console.log(layers); // enthält NICHT ALLE, nur die, die grad angezeigt werden
-
   for (let key in sources) {
 
       // checks if the sources contain a numbered id
-    // if (key.includes("unwetter") || key.includes("radar") || key.includes("Tweet") ){
-    if (key.includes("unwetter") || key.includes("rainradar") || key.includes("tweet") ){
+    if (key.includes("unwetter") || key.includes("radar") || key.includes("tweet") ){
 
-//  console.log("Test if");
-//console.log(key);
       // if they are already in the layers
       for (let lays in layers){
-      //  console.log(layers[lays].id);
-      //    console.log(key); // zb unwetter 1537515000000 0 Snowfall
 
         if (layers[lays].id === key){
-          console.log("Test remove layer");
           //remove them
           map.removeLayer(key);
         }
       }
-      console.log(key);
       map.removeSource(key);
       customLayerIds.remove(key)
     }
