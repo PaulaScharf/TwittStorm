@@ -581,6 +581,9 @@ function requestAndDisplayAllRainRadar(map, product) {
 		}
 
 		doneLoadingWeather = true;
+
+		// TODO: mit if status abfangen, bei dem folgendes nötig ist
+		console.log(status);
 		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 
 	});
@@ -657,7 +660,6 @@ function callRainRadar(map, prod) {
 			// TODO hier evtl display modularisieren um nicht noch einen request zu machen
 			requestAndDisplayAllRainRadar(map, prod);
 
-
 		} else {
 
 			// TODO: paula fragen?
@@ -683,7 +685,10 @@ function callRainRadar(map, prod) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
-doneLoadingWeather = true;
+		doneLoadingWeather = true;
+
+		// TODO: mit if status abfangen, bei dem folgendes nötig ist
+		console.log(status);
 		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 	});
 }

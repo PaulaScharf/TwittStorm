@@ -13,3 +13,5 @@ out/
 
 # data
 data/*
+
+.Rhistory

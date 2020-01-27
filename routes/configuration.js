@@ -54,25 +54,7 @@ router.post("/", (req, res) => {
 });
 
 
-// TODO: konform mit API Doc?
-/**
-*
-*
-* @author Katharina Poppinga
-* @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
-*/
-/*
-function updateCurrentTimestampInConfigYaml(currentTimestamp){
 
-	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
-	config["timestamp_last_warnings_request"] = currentTimestamp;
-	let yamlStr = yaml.safeDump(config);
-	fs.writeFileSync('config.yaml', yamlStr, 'utf8');
-}
-*/
-
-
-// TODO: konform mit API Doc?
 /**
 *
 *
@@ -89,5 +71,4 @@ function updateVariableInConfigYaml(variableName, value){
 
 
 module.exports.updateVariableInConfigYaml = updateVariableInConfigYaml;
-
 module.exports.router = router;

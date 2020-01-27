@@ -16,14 +16,16 @@ Open .env and set ........... to your own API keys. See [How to get and use your
 Use those three files to ...<br/>
 <b>TODO: DockerHub einfügen</b><br>
 Pull the image from Docker Hub: https://hub.docker.com/r/paulasch/twittstorm<br/>
-
+<br><br>
+TODO: falls Docker Hub Image genutzt wird, sind config-Möglichkeiten (abgesehen von API-keys) nicht gegeben, dazu wäre GitHub clone und lokales bauen nötig, damit vorher die config.yaml angepasst werden kann - ODER: config.yaml noch in .env ändern!
+<br><br>
 To start the app enter ``docker-compose up``.<br/>
 
-The started application can be found with your browser at your IP:port. E.g.: http://192.168.99.100:3000/.<br/>
+The started application can be found with your browser at _http://<your IP>:3000_. E.g.: http://192.168.99.100:3000/.<br/>
 Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?).<br/>  
 
 ## How to get and use your own API-keys
-In order to use this app, you have to sign up for the necessary services. You'll need a Mapbox access key for the map, and a twitter developer account with keys in order to access real-time twitter data.
+In order to use this app, you have to sign up for the necessary services. You'll need a mapbox access key for the map, and a twitter developer account with keys in order to access real-time twitter data.
 #### Mapbox GL JS
 1.
 2.

@@ -49,7 +49,7 @@ const getWarningsForTime = function(req, res, next) {
         proccessUnwettersFromLocal(currentTimestamp, req.db)
           .then(function (response) {
 
-            updateCurrentTimestampInConfigYaml(currentTimestamp);
+            updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
 
             response = {
               type: "SevereWeatherWarnings",
@@ -155,7 +155,7 @@ const getWarningsForTime = function(req, res, next) {
           processUnwettersFromDWD(currentTimestamp, req.db)
             .then(function () {
 
-              updateCurrentTimestampInConfigYaml(currentTimestamp);
+              updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
               getWarningsFromDB(currentTimestamp, req.db, res, next);
 
             }, function (error) {
