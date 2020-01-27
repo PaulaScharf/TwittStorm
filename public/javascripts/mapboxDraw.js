@@ -108,9 +108,10 @@ function processingAOI(map, aoiCoordinatesGeoJSON) {
 
 	// do tweet-search
 	let attr = readURL("wtype");
+	let prod = readURL("radProd");
 	if (attr === "unwetter") {
 		onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
 	} else {
-		onlyShowRainRadarAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
+		onlyShowRainRadarAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON), prod);
 	}
 }
