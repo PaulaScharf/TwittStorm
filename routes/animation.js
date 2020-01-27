@@ -43,7 +43,7 @@ var previousWeather = function(req, res) {
     var currentTimestamp = req.params.currentTimestamp;
 
 
-    if(wtype == "unwetter") {
+    if(wtype == "warnings") {
 
       let query = {
         "type": wtype,
@@ -64,7 +64,7 @@ var previousWeather = function(req, res) {
           try {
             // this will be the response of the request
             let weatherEvents = {
-              "type": (wtype === "unwetter") ? "severeWeatherWarnings" : "rainRadar"
+              "type": (wtype === "warnings") ? "severeWeatherWarnings" : "rainRadar"
             };
             // this array will contain the timestamps of all the events that were returned
             let arrayOfTimestamps = [];
@@ -401,9 +401,9 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
 */
 function checkParams(params) {
   switch (params) {
-    case (params.wtype !== "unwetter" && params.wtype !== "rainRadar"):
+    case (params.wtype !== "warnings" && params.wtype !== "rainRadar"):
       return {
-        err_message: "'wtype' (weather type) is neither 'unwetter' nor 'rainRadar'"
+        err_message: "'wtype' (weather type) is neither 'warnings' nor 'rainRadar'"
       };
     case (JSON.parse(params.currentTimestamp) < 0):
       return {
