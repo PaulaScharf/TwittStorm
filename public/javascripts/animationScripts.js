@@ -774,6 +774,9 @@ function loadPreviousWeather(map, weatherEv){
   timestampStorage = [];
   resultOutput = [];
 
+  var innerUnwetterMenuToggle = document.getElementById('menu');
+
+
   var weatherEvent;
   if (weatherEv === "radar"){
     weatherEvent = "rainRadar/";
@@ -801,17 +804,27 @@ function loadPreviousWeather(map, weatherEv){
   .done(function (result) {
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
+    // if the response is not empty set the menu to inform the user
+    if (Object.keys(result).length == 1){
+      innerUnwetterMenuToggle.innerHTML = "There are no warnings right now";
+    }
+    else{
+      innerUnwetterMenuToggle.innerHTML = "Please click the play button first";
+    }
+
 
     resultOutput.push(result);
     let layerID;
     // for every timestamp
     for (let key in result) {
       if ((key != "type") && (key != "length") && (key != "radProd")) {
+
         // log the individual timestamp to refer to them later
         usedTimestamps.push(key);
 
         // for every warnings in the response
         for (let j = 0; j < result[key].length; j++){
+
           if (result[key][j].type === "Tweet") {
             layerID = "tweet " + key + " " + j;
             mask = {
@@ -842,13 +855,9 @@ function loadPreviousWeather(map, weatherEv){
               }
             };
 
+
             // put every polygon from a warning into one array
             if (weatherEv == "severeWeather") {
-              // if the response is not empty set the menu to inform the user
-              if (Object.keys(result).length > 1){
-                var innerUnwetterMenuToggle = document.getElementById('menu');
-                innerUnwetterMenuToggle.innerHTML = "First you have to click the play button.";
-              }
 
               // assigning warnings-type
               let layerGroup = "";
