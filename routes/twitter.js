@@ -24,11 +24,6 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 let config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
-console.log(process.env.TWITTER_CONSUMER_KEY);
-console.log(process.env.TWITTER_CONSUMER_SECRET);
-console.log(process.env.TWITTER_ACCESS_TOKEN_KEY);
-console.log(process.env.TWITTER_ACCESS_TOKEN_SECRET);
-
 
 var client = new Twitter({
 	consumer_key: process.env.TWITTER_CONSUMER_KEY,

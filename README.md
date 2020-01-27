@@ -4,6 +4,24 @@ TwittStorm for Geosoftware II
 The code of this project can be found on GitHub: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)<br>
 <br>
 <b>TODO: DockerHub-Link einfügen</b>
+
+## How to start the App
+
+ANPASSEN:<br>
+Get three files from the [TwittStorm-GitHub-Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm):
+- Dockerfile
+- docker-compose.yaml
+- .env
+Open .env and set ........... to your own API keys. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys.<br/>
+Use those three files to ...<br/>
+<b>TODO: DockerHub einfügen</b><br>
+Pull the image from Docker Hub: https://hub.docker.com/r/paulasch/twittstorm<br/>
+
+To start the app enter ``docker-compose up``.<br/>
+
+The started application can be found with your browser at your IP:port. E.g.: http://192.168.99.100:3000/.<br/>
+Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?).<br/>  
+
 ## How to get and use your own API-keys
 In order to use this app, you have to sign up for the necessary services. You'll need a Mapbox access key for the map, and a twitter developer account with keys in order to access real-time twitter data.
 #### Mapbox GL JS
@@ -16,26 +34,10 @@ In order to use this app, you have to sign up for the necessary services. You'll
 2. You'll need to register as a developer. This can be done here: https://developer.twitter.com/en/apply-for-access. You're only going to get and display twitter data, so you can disable all other options in the "how are you going to use twitter"-form.
 3. Create an app at https://developer.twitter.com/en/apps (accessible only with an account). You can name this app whatever you like.
 4. You can see and copy the tokens you'll need from the "Keys and tokens" section in the overview of the app you just created.
-5. Set the value of the variable ``keys.twitter.consumer_key`` in config.yaml to your own "API key".
-6. Set the value of the variable ``keys.twitter.consumer_secret`` in config.yaml to your own "API secret key".
-7. Set the value of the variable ``keys.twitter.access_token_key`` in config.yaml to your own created "access token".
-8. Set the value of the variable ``keys.twitter.access_token_secret`` in config.yaml to your own created "access token secret".
-
-## How to start the App
-<b>TODO: DockerHub einfügen</b><br>
-ANPASSEN:<br>
-Get three files from the [TwittStorm-GitHub-Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm):
-- Dockerfile
-- docker-compose.yaml
-- .env
-Open .env and set ........... to your own API keys.
-Use those three files to ...
-Pull the image from Docker Hub: https://hub.docker.com/r/paulasch/twittstorm
-
-To start the app enter ``docker-compose up``.<br/>
-
-The started application can be found with your browser at your IP:port. E.g.: http://192.168.99.100:3000/.<br/>
-Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?).<br/>  
+5. Set the value of the variable ``keys.twitter.consumer_key`` in ``config.yaml`` to your own "API key".
+6. Set the value of the variable ``keys.twitter.consumer_secret`` in ``config.yaml`` to your own "API secret key".
+7. Set the value of the variable ``keys.twitter.access_token_key`` in ``config.yaml`` to your own created "access token".
+8. Set the value of the variable ``keys.twitter.access_token_secret`` in ``config.yaml`` to your own created "access token secret".
 
 ## How to test with JMeter
 1. Download and install JMeter from here: https://jmeter.apache.org/download_jmeter.cgi  
@@ -63,4 +65,5 @@ Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?)
 Ensure that your adblocker does not prevent JSNLog from working.
 
 ## Information for Developers
-<b>TODO: Config.yaml erklären hier, oder auf Wiki verweisen?</b><br>
+See our [Configuration Wiki](https://github.com/PaulaScharf/TwittStorm/wiki/Configuration) for information about what you are able to configurate in ``config.yaml``.
+<br><b>TODO: (EVTL. ANPASSEN WG. .ENV).<br>

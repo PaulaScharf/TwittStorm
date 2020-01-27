@@ -9,10 +9,6 @@
 */
 
 
-console.log(paramArray.config.mapbox_access_key);
-
-
-
 // an API access token is required for using mapbox GL JS
 mapboxgl.accessToken = paramArray.config.mapbox_access_key;
 
