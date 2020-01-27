@@ -119,7 +119,9 @@ const searchTweetsForEvent = function(req, res) {
 	let validParams = checkParamsSearch(req.body);
 
 	if (validParams.err_message !== "") {
-		res.status(422).send(validParams);
+		if (!res.headersSent) {
+			res.status(422).send(validParams);
+		}
 	} else {
 		checkForExistingTweets(req.body.dwd_id, req.body.currentTimestamp, req.db)
 			.catch(function (error) {
@@ -320,32 +322,32 @@ const searchTweetsForEvent = function(req, res) {
 function checkParamsSearch(params) {
 	if (!params.dwd_id) {
 		return {
-			err_message: "'dwd_id' is not defined"
+			err_msg: "'dwd_id' is not defined"
 		};
 	} else if (!params.currentTimestamp) {
 		return {
-			err_message: "'currentTimestamp' is not defined"
+			err_msg: "'currentTimestamp' is not defined"
 		};
 	} if (!params.twitterSearchQuery) {
 		return {
-			err_message: "'twitterSearchQuery' is not defined"
+			err_msg: "'twitterSearchQuery' is not defined"
 		};
 	} if (!params.twitterSearchQuery.geometry) {
 		return {
-			err_message: "'twitterSearchQuery.geometry' is not defined"
+			err_msg: "'twitterSearchQuery.geometry' is not defined"
 		};
 	} if (!params.twitterSearchQuery.searchWords) {
 		return {
-			err_message: "'twitterSearchQuery.searchWords' is not defined"
+			err_msg: "'twitterSearchQuery.searchWords' is not defined"
 		};
 	} if (typeof params.twitterSearchQuery.searchWords !== "object") {
 		return {
-			err_message: "'twitterSearchQuery.searchWords' has to contain an array"
+			err_msg: "'twitterSearchQuery.searchWords' has to contain an array"
 		};
 	}
 
 	return {
-		err_message: ""
+		err_msg: ""
 	};
 }
 

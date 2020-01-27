@@ -778,7 +778,7 @@ function loadPreviousWeather(map, weatherEv){
     weatherEvent = "rainRadar/";
   }
   if (weatherEv === "severeWeather"){
-    weatherEvent = "unwetter/";
+    weatherEvent = "warnings/";
   }
 
   $.ajax({
