@@ -317,14 +317,13 @@ function showAnimationMap() {
     //enable the animation functionality
     automate(animationMap);
   });
-
 }
 
 
 /**
 * @desc Combines several functions to reload the animation for the chosen weather type.
-* @param {String} wType - the desired type of weather (not used if function is called out of function switchLayer)
 * @author Benjamin Rieke
+* @param {String} wType - the desired type of weather (not used if function is called out of function switchLayer)
 */
 function reloadAnimation(wType){
 
@@ -404,14 +403,13 @@ function reloadAnimation(wType){
   $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
   $('#downloadPopup').html('You have to wait for one animation cycle!');
   $("#downloadPopup").css({'background-color': 'DimGray'});
-
 }
 
 
 /**
 * @desc Adds functionality to the slider and to the pause, play and download buttons.
-* @param {Object} map - links to the mapbox-map
 * @author Benjamin Rieke
+* @param {Object} map - links to the mapbox-map
 */
 function automate(map){
   var popup = document.getElementById("playPopup");
@@ -571,12 +569,11 @@ function setToReady(){
 }
 
 
-
 /**
 * @desc Adds the desired layer, removes the others and displays the date according to the timestamp
-* @param position checks at which position each timestamp is supposed to be displayed
-* @param {Object} map - mapbox-map
 * @author Benjamin Rieke
+* @param {} position checks at which position each timestamp is supposed to be displayed
+* @param {Object} map - mapbox-map
 */
 function loadAnimation(position, map){
   // set a "marker" for the wanted position based on the available timestamps
@@ -728,7 +725,6 @@ function loadAnimation(position, map){
       makeLayerInteractive(map, layerID);
       allLayers.push(layerID);
       createWarningsCheckboxes(animationMap);
-
     }
   });
 }
@@ -736,8 +732,8 @@ function loadAnimation(position, map){
 
 /**
 * @desc Function provided from gif libary Gifshot
-* @param array image containing array
 * @author Benjamin Rieke
+* @param {} array - image containing array
 */
 function createGif(array) {
   var date = new Date();
@@ -747,7 +743,7 @@ function createGif(array) {
 
   gifshot.createGIF({
     images: array,
-    interval: 0.8,
+    interval: 2.0,
     sampleInterval: 0.3,
     numWorkers: 5,
     'gifWidth': 800,
@@ -764,9 +760,9 @@ function createGif(array) {
 /**
 * @desc Performs the actual db call to retrieve the previousWeather data
 * and fits every event according to its timestamp into an array.
+* @author Benjamin Rieke
 * @param {Object} map - Links to the mapbox-map
 * @param {String} weatherEv -
-* @author Benjamin Rieke
 */
 function loadPreviousWeather(map, weatherEv){
   // flush the storage arrays
@@ -792,8 +788,8 @@ function loadPreviousWeather(map, weatherEv){
     url: "/api/v1/previousWeather/" + weatherEvent + currentTimestamp,
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
-    // timeout set to 15 seconds
-    timeout: 15000,
+    // timeout set to 40 seconds
+    timeout: 40000,
 
     success: function() {
       $('#information').html("Retrieving previous weather events.");
@@ -804,12 +800,13 @@ function loadPreviousWeather(map, weatherEv){
   .done(function (result) {
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
+
     // if the response is not empty set the menu to inform the user
     if (Object.keys(result).length == 1){
-      innerUnwetterMenuToggle.innerHTML = "There are no warnings right now";
+      innerUnwetterMenuToggle.innerHTML = "There are no warnings right now.";
     }
     else{
-      innerUnwetterMenuToggle.innerHTML = "Please click the play button first";
+      innerUnwetterMenuToggle.innerHTML = "Please click the play button first.";
     }
 
 
@@ -879,9 +876,6 @@ function loadPreviousWeather(map, weatherEv){
               else if ((ii === 24) || ((ii >= 84) && (ii <= 87))) {
                 layerGroup = "BlackIce";
               }
-              else {
-                // TODO: if-else if ohne else möglich??
-              }
 
               layerID = "unwetter " + key + " " + j + " " + layerGroup;
 
@@ -926,13 +920,12 @@ function loadPreviousWeather(map, weatherEv){
   // if the request has failed, ...
   .fail(function (xhr, status, error) {
     // ... give a notice that the AJAX request for reading previous weather has failed and show the error on the console
-    console.log("Reading previous weather has failed.", error);
+    console.log("AJAX request (reading previous weather) has failed.", error);
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      JL("ajaxReadingPreviousWeatherTimeout").fatalException("ajax: '/previousWeather/weatherEvent/currentTimestamp' timeout");
+      JL("ajaxReadingPreviousWeatherTimeout").fatalException("ajax: '/api/v1/previousWeather/weatherEvent/currentTimestamp' timeout");
     }
-    // TODO: testen, ob so richtig
     else {
       JL("ajaxReadingPreviousWeatherError").fatalException(error);
     }
@@ -943,9 +936,9 @@ function loadPreviousWeather(map, weatherEv){
 /**
 * @desc Function to return a GeoJSON formatted Polygon.
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-* @param object - the individual polygons of an event, containing the coords of a polygon
-* @param time - timestamp of the data
-* @param properties - properties of the event
+* @param {} object - the individual polygons of an event, containing the coords of a polygon
+* @param {} time - timestamp of the data
+* @param {} properties - properties of the event
 */
 function goGeoJson(object, time, properties) {
 
@@ -964,8 +957,8 @@ function goGeoJson(object, time, properties) {
 
 /**
 * @desc Checks if a part of an Object is already in an array.
-* @param item geojson object
 * @author Benjamin Rieke
+* @param {} item - geojson object
 */
 function addItem(item) {
   var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp);
@@ -979,8 +972,8 @@ function addItem(item) {
 
 /**
 * @desc Removes all weather sources and layers from the map on wtype change.
-* @param {Object} map - mapbox-map
 * @author Benjamin Rieke
+* @param {Object} map - mapbox-map
 */
 function removeAllSource(map) {
   var sources = map.style.sourceCaches;
@@ -1008,10 +1001,10 @@ function removeAllSource(map) {
 
 /**
 * @desc Adds a GEOJSON to the map as a source.
-* @param {Object} map - links to the mapbox-map
-* @param layerID to be id of the source. in this case the timestamp
-* @param previousFeatureCollection the geojson featurecollection
 * @author Benjamin Rieke
+* @param {Object} map - links to the mapbox-map
+* @param {} layerID - to be id of the source. in this case the timestamp
+* @param {} previousFeatureCollection - the geojson featurecollection
 */
 function addToSource(map, layerID, previousFeatureCollection){
   //

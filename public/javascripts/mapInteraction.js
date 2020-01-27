@@ -168,7 +168,7 @@ function panMapWithButton(map, directionToPan) {
 * @desc Zoom given map to the given coordinates.
 * @author https://gist.github.com/aerispaha/826a9f2fbbdf37983dc01e6074ce7cd7
 * @param {Object} map - mapbox-map
-* @param coordinates
+* @param {} coordinates -
 */
 function zoomToCoordinates(map, coordinates) {
 
@@ -291,7 +291,7 @@ function removeAddGermany(map){
 * @desc
 * @author Benjamin Rieke, Paula Scharf
 * @param {Object} map mapbox-map
-* @param layer - the chosen maplayer style
+* @param {} layer - the chosen maplayer style
 */
 function switchLayer(map, layer) {
 

@@ -485,17 +485,27 @@ function requestAndDisplayAllRainRadar(map, product) {
 		timestampLastRequest.innerHTML = "";
 	}
 
-	let url = "/api/v1/radar/" + product + "/" + currentTimestamp;
 
-	// update the status display
 	$('#information').html("Retrieving the requested " + product + " rain radar data.");
 
-	// Rain Radar Data
-	$.getJSON(url, function(result) {
+	$.ajax({
+		// use a http GET request
+		type: "GET",
+		// URL to send the request to
+		url: "/api/v1/radar/" + product + "/" + currentTimestamp,
+		// type of the data that is sent to the server
+		contentType: "application/json; charset=utf-8",
+		// timeout set to 40 seconds
+		timeout: 40000
+	})
 
-		// ***************************************************************************************************************
+	// if the request is done successfully, ...
+	.done(function (result) {
+		// ... give a notice on the console that the AJAX request for reading current rain radar has succeeded
+		console.log("AJAX request (reading current rain radar) is done successfully.");
+
 		// for displaying the radar stuff only in the map for radar and not in the map for severe weather warnings
-		if (readURL("wtype") == "radar") {
+		if (readURL("wtype") === "radar") {
 
 			// show timestamp of current radar data in legend
 			let formattedDataTimestamp = timestampFormatting(result.timestamp);
@@ -548,10 +558,27 @@ function requestAndDisplayAllRainRadar(map, product) {
 		}
 		doneLoadingWeather = true;
 
-// TODO: hier sinnlos?? dann löschen
-//		if ((readURL("aoi")) !== false) {
-//			useAOIFromURL(readURL("aoi"), draw);
-//		}
+		// TODO: hier sinnlos?? dann löschen
+		//		if ((readURL("aoi")) !== false) {
+		//			useAOIFromURL(readURL("aoi"), draw);
+		//		}
+	})
+
+	// if the request has failed, ...
+	.fail(function (xhr, status, error) {
+		// ... give a notice that the AJAX request for reading current rain radar has failed and show the error on the console
+		console.log("AJAX request (reading current rain radar) has failed.", error);
+
+		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+		if (error === "timeout") {
+			JL("ajaxReadingRainRadarTimeout").fatalException("ajax: '/api/v1/radar/prod/currentTimestamp' timeout");
+		}
+		else {
+			JL("ajaxReadingRainRadarError").fatalException(error);
+		}
+
+		doneLoadingWeather = true;
+		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 
 	});
 }
@@ -586,9 +613,6 @@ function intervalRainRadar(map) {
 function callRainRadar(map, prod) {
 	doneLoadingWeather = false;
 
-	// progress update info
-	$('#information').html("Retrieving the requested " + prod + " rain radar data.");
-
 	// is there a timestamp?
 	let currentTimestamp = Date.now();
 	if(typeof paramArray.timestamp === "undefined") {
@@ -605,26 +629,61 @@ function callRainRadar(map, prod) {
 		}
 	}
 
-	// make call
-	let url = "/api/v1/radar/" + prod + "/" + currentTimestamp;
-	$.getJSON(url, function(result) {
+	// progress update info
+	$('#information').html("Retrieving the requested " + prod + " rain radar data.");
 
-		// read from url
-		let wtype = readURL("wtype");
-		let urlProd = readURL("radProd");
+	$.ajax({
+		// use a http GET request
+		type: "GET",
+		// URL to send the request to
+		url: "/api/v1/radar/" + prod + "/" + currentTimestamp,
+		// type of the data that is sent to the server
+		contentType: "application/json; charset=utf-8",
+		// timeout set to 40 seconds
+		timeout: 40000
+	})
+
+	// if the request is done successfully, ...
+	.done(function (result) {
+		// ... give a notice on the console that the AJAX request for reading current rain radar has succeeded
+		console.log("AJAX request (reading current rain radar) is done successfully.");
+
 		// if radar is currently shown, update the map
-		if(wtype == "radar" && urlProd == prod) {
+		if((readURL("wtype") === "radar") && (readURL("radProd") === prod)) {
 
-			// TODO hier evtl display modularisieren um nicht noch ein request zu machen
+			// TODO hier evtl display modularisieren um nicht noch einen request zu machen
 			requestAndDisplayAllRainRadar(map, prod);
+
+			// TODO: paula fragen, ob und wo folgendes?
+			//	map.fire('draw.reloadTweets', {});
+
 		} else {
+
+			// TODO: paula fragen?
 			doneLoadingWeather = true;
 
-// TODO: hier sinnlos?? dann löschen
-//			if ((readURL("aoi")) !== false) {
-//				useAOIFromURL(readURL("aoi"), draw);
-//			}
+			// TODO: hier sinnlos?? dann löschen
+			//			if ((readURL("aoi")) !== false) {
+			//				useAOIFromURL(readURL("aoi"), draw);
+			//			}
 		}
+	})
+
+	// if the request has failed, ...
+	.fail(function (xhr, status, error) {
+		// ... give a notice that the AJAX request for reading current rain radar has failed and show the error on the console
+		console.log("AJAX request (reading current rain radar) has failed.", error);
+
+		// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
+		if (error === "timeout") {
+			JL("ajaxReadingRainRadarTimeout").fatalException("ajax: '/api/v1/radar/prod/currentTimestamp' timeout");
+		}
+		else {
+			JL("ajaxReadingRainRadarError").fatalException(error);
+		}
+
+doneLoadingWeather = true;
+		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 	});
 }
 // *****************************************************************************************************
@@ -677,8 +736,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		url: "/api/v1/warnings/" + currentTimestamp,
 		// type of the data that is sent to the server
 		contentType: "application/json; charset=utf-8",
-		// timeout set to 15 seconds
-		timeout: 15000
+		// timeout set to 30 seconds
+		timeout: 30000
 	})
 
 	// if the request is done successfully, ...
@@ -724,11 +783,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 			if (error === "timeout") {
-				JL("ajaxReadingWarningsTimeout").fatalException("ajax: '/warnings/test/currentTimestamp' timeout");
+				JL("ajaxReadingWarningsTimeout").fatalException("ajax: '/api/v1/warnings/currentTimestamp' timeout");
 			}
 			else {
 				JL("ajaxReadingWarningsError").fatalException(error);
 			}
+
+			doneLoadingWeather = true;
 		});
 	}
 
@@ -779,11 +840,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				layerGroup = "BlackIce";
 				searchWords.push("Blitzeis", "Glätte", "Glatteis", "glatt", "spiegelglatt", "Eisglätte", "gefrierender Regen", "icy", "black ice", "glaze ice", "freezing rain", "verglas");
 			}
-			else {
-				// TODO: if-else if ohne else möglich??
-			}
 
-			//
+
 			for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
 				let currentPolygon = currentUnwetterEvent.geometry[i];
 				// make a GeoJSON-FeatureCollection out of the current warnings
@@ -1004,7 +1062,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	/**
 	* @desc
 	* @author Paula Scharf, Jonathan Bahlmann
-	* @param polygon a turf polygon (aoi)
+	* @param {Object} map - mapbox-map in which to show the data
+	* @param {} polygon a turf polygon (aoi)
 	*/
 	function onlyShowRainRadarAndTweetsInPolygon(map, polygon) {
 		// so polygon is the turf - aoi
@@ -1061,8 +1120,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			contentType: "application/json; charset=utf-8",
 			// data to send to the server
 			data: JSON.stringify(query),
-			// timeout set to 15 seconds
-			timeout: 15000,
+			// timeout set to 30 seconds
+			timeout: 30000,
 			// update the status display
 			success: function() {
 				$('#information').html("Trying to find and insert fitting tweets.");
@@ -1122,7 +1181,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					});
 				} catch (e) {
 					console.dir("There was an error while processing the tweets from the database", e);
-					// TODO: error catchen und dann hier auch den error ausgeben?
 				}
 			}
 			doneProcessingAOI = true;
@@ -1135,7 +1193,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 			if (error === "timeout") {
-				JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/Twitter/tweets' timeout");
+				JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/api/v1/twitter/tweets' timeout");
 			}
 			else {
 				JL("ajaxRetrievingTweetsError").fatalException(error);
@@ -1153,7 +1211,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf
 	* @param {Object} map mapbox-map
-	* @param polygon - a turf polygon (e.g. the AOI)
+	* @param {} polygon - a turf polygon (e.g. the AOI)
 	*/
 	function onlyShowUnwetterAndTweetsInPolygon(map, polygon) {
 
@@ -1234,8 +1292,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				contentType: "application/json; charset=utf-8",
 				// data to send to the server
 				data: JSON.stringify(query),
-				// timeout set to 15 seconds
-				timeout: 15000,
+				// timeout set to 30 seconds
+				timeout: 30000,
 				// update the status display
 				success: function () {
 					$('#information').html("Trying to find and insert fitting tweets.");
@@ -1287,7 +1345,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 				// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 				if (error === "timeout") {
-					JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/Twitter/tweets' timeout");
+					JL("ajaxRetrievingTweetsTimeout").fatalException("ajax: '/api/v1/twitter/tweets' timeout");
 				}
 				else {
 					JL("ajaxRetrievingTweetsError").fatalException(error);
@@ -1332,7 +1390,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @desc Calls a given function (cb) for all layers of the map.
 	* @author Paula Scharf
 	* @param {Object} map mapbox-map
-	* @param cb - function to perform for each layer
+	* @param {} cb - function to perform for each layer
 	*/
 	function forEachLayer(map, cb) {
 
@@ -1364,7 +1422,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @desc
 	* @author Paula Scharf
 	* @param {Object} map mapbox-map
-	* @param {} id
+	* @param {} id -
+	* @param {} popup -
 	*/
 	function deleteTweet(map, id, popup) {
 
@@ -1381,8 +1440,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			contentType: "application/json; charset=utf-8",
 			// data to send to the server
 			data: JSON.stringify(query),
-			// timeout set to 15 seconds
-			timeout: 15000,
+			// timeout set to 20 seconds
+			timeout: 20000,
 			// update the status display
 			success: function() {
 				$('#information').html("Deleting a tweet.");
@@ -1405,9 +1464,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			// send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
 			if (error === "timeout") {
-				JL("ajaxDeletingTweetTimeout").fatalException("ajax: '/twitter/tweet' timeout");
+				JL("ajaxDeletingTweetTimeout").fatalException("ajax: '/api/v1/twitter/tweet' timeout");
 			}
-			// TODO: testen, ob so richtig
 			else {
 				JL("ajaxDeletingTweetError").fatalException(error);
 			}
