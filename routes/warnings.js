@@ -15,7 +15,7 @@ const https = require("https");
 
 // import functions that are declared within other routes-files
 const {promiseToGetItems, promiseToPostItems, promiseToUpdateItems, promiseToDeleteItems} = require('./dataPromisesHelpers.js');
-const updateCurrentTimestampInConfigYaml = require('./configuration.js').updateCurrentTimestampInConfigYaml;
+const updateVariableInConfigYaml = require('./configuration.js').updateVariableInConfigYaml;
 
 // yaml configuration
 const fs = require('fs');
@@ -47,26 +47,26 @@ const getWarningsForTime = function(req, res, next) {
       // 1. case: use demodata, do not send request to DWD:
       if ((currentTimestamp >= config.demo.timestamp_start && currentTimestamp <= config.demo.timestamp_end)) {
         proccessUnwettersFromLocal(currentTimestamp, req.db)
-          .then(function (response) {
+        .then(function (response) {
 
-            updateCurrentTimestampInConfigYaml(currentTimestamp);
+          updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
 
-            response = {
-              type: "SevereWeatherWarnings",
-              events: response
-            };
-            if (!res.headersSent) {
-              res.send(response);
-            }
+          response = {
+            type: "SevereWeatherWarnings",
+            events: response
+          };
+          if (!res.headersSent) {
+            res.send(response);
+          }
 
-          }, function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          })
-          .catch(function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          });
+        }, function (error) {
+          error.httpStatusCode = 500;
+          return next(error);
+        })
+        .catch(function (error) {
+          error.httpStatusCode = 500;
+          return next(error);
+        });
 
         // 2. case: do not use demodata:
       } else {
@@ -77,60 +77,36 @@ const getWarningsForTime = function(req, res, next) {
 
           // $lt means <, $lte means <=
           promiseToUpdateItems({type: "unwetter"}, {"$pull": {"timestamps": {"$lte": timestampDeleting}}},
-            req.db)
-            .then(function () {
-              // get those warnings out of database whose timestamp-array is empty
-              promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 2}}]}, req.db)
-                .then(function (response) {
+          req.db)
+          .then(function () {
+            // get those warnings out of database whose timestamp-array is empty
+            promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 0}}]}, req.db)
+            .then(function (response) {
 
-                  let oldUnwetterIDs = [];
-                  // put together all JSON-objects of old warning dwd_ids in one array
-                  for (let u = 0; u < response.length; u++) {
-                    oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
-                  }
-                  // if there are old warnings existing (with empty timestamp-array), delete them and their corresponding tweets:
-                  if (oldUnwetterIDs.length > 0) {
-// TODO: zurückändern zu Paulas Variante
-                    promiseToDeleteItems({$and: [{"type": "tweet"}, {"$or": oldUnwetterIDs}]}, req.db)
-                      .then(function () {
+              let oldUnwetterIDs = [];
+              // put together all JSON-objects of old warning dwd_ids in one array
+              for (let u = 0; u < response.length; u++) {
+                oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
+              }
+              // if there are old warnings existing (with empty timestamp-array), delete them and their corresponding tweets:
+              if (oldUnwetterIDs.length > 0) {
+                // TODO: zurückändern zu Paulas Variante
+                promiseToDeleteItems({$and: [{"type": "tweet"}, {"$or": oldUnwetterIDs}]}, req.db)
+                .then(function () {
 
-                          promiseToDeleteItems({$and: [{"type": "unwetter"}, {"$or": oldUnwetterIDs}]}, req.db)
-                            .then(function () {
-                              },
-                              function (error) {
-                                error.httpStatusCode = 500;
-                                return next(error);
-                              })
-                            .catch(function (error) {
-                              error.httpStatusCode = 500;
-                              return next(error);
-                            });
-                        },
-                        function (error) {
-                          error.httpStatusCode = 500;
-                          return next(error);
-                        })
-                      .catch(function (error) {
-                        error.httpStatusCode = 500;
-                        return next(error);
-                      });
-                    // TODO: OR in query überprüfen!!!!
-
-                    //      promiseToDeleteItems({$and: [ {"$or": [{"type": "unwetter"}, {"type": "tweet"}] }, {"$or": oldUnwetterIDs}]}, req.db)
-                    //      .then(function () {
-                    //      },
-                    //      function (error) {
-                    //        error.httpStatusCode = 500;
-                    //        return next(error);
-                    //      })
-                    //      .catch(function (error) {
-                    //        error.httpStatusCode = 500;
-                    //        return next(error);
-                    //      });
-
-
-                  }
-                }, function (error) {
+                  promiseToDeleteItems({$and: [{"type": "unwetter"}, {"$or": oldUnwetterIDs}]}, req.db)
+                  .then(function () {
+                  },
+                  function (error) {
+                    error.httpStatusCode = 500;
+                    return next(error);
+                  })
+                  .catch(function (error) {
+                    error.httpStatusCode = 500;
+                    return next(error);
+                  });
+                },
+                function (error) {
                   error.httpStatusCode = 500;
                   return next(error);
                 })
@@ -138,6 +114,22 @@ const getWarningsForTime = function(req, res, next) {
                   error.httpStatusCode = 500;
                   return next(error);
                 });
+                // TODO: OR in query überprüfen!!!!
+
+                //      promiseToDeleteItems({$and: [ {"$or": [{"type": "unwetter"}, {"type": "tweet"}] }, {"$or": oldUnwetterIDs}]}, req.db)
+                //      .then(function () {
+                //      },
+                //      function (error) {
+                //        error.httpStatusCode = 500;
+                //        return next(error);
+                //      })
+                //      .catch(function (error) {
+                //        error.httpStatusCode = 500;
+                //        return next(error);
+                //      });
+
+
+              }
             }, function (error) {
               error.httpStatusCode = 500;
               return next(error);
@@ -146,23 +138,31 @@ const getWarningsForTime = function(req, res, next) {
               error.httpStatusCode = 500;
               return next(error);
             });
+          }, function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          })
+          .catch(function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          });
 
           // ".then" is used here, to ensure that the .......... has finished and a result is available
           // saves new requested warnings in database
           processUnwettersFromDWD(currentTimestamp, req.db)
-            .then(function () {
+          .then(function () {
 
-              updateCurrentTimestampInConfigYaml(currentTimestamp);
-              getWarningsFromDB(currentTimestamp, req.db, res, next);
+            updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
+            getWarningsFromDB(currentTimestamp, req.db, res, next);
 
-            }, function (error) {
-              error.httpStatusCode = 500;
-              return next(error);
-            })
-            .catch(function (error) {
-              error.httpStatusCode = 500;
-              return next(error);
-            });
+          }, function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          })
+          .catch(function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          });
 
           // do not send request to DWD, because last request to DWD is less than refresh-rate ago
           // therefore use last requested and already stored warnings
@@ -535,23 +535,30 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
       return rv;
     }, []);
   }
-/**
- *
- * @author Paula Scharf
- * @param params
- */
-function checkParamsSearch(params) {
-  try {
-    Date.parse(currentTimestamp);
-  } catch {
-    return {
-      err_message: "'dwd_id' is not defined"
-    };
+
+
+  /**
+  *
+  * @author Paula Scharf
+  * @param {} params -
+  */
+  function checkParamsSearch(params) {
+    try {
+      if (JSON.parse(params.timestamp) > 0) {
+        return {
+          err_msg: ""
+        };
+      } else {
+        return {
+          err_msg: "'timestamp' is not a valid epoch timestamp"
+        };
+      }
+    } catch {
+      return {
+        err_msg: "'timestamp' is not a valid epoch timestamp"
+      };
+    }
   }
-  return {
-    err_message: ""
-  };
-}
 
 
   router.route("/:timestamp").get(getWarningsForTime);

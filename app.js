@@ -136,7 +136,7 @@ function connectMongoDb() {
 
         // TODO: URL anpassen, docker nutzt immer port 3000?
         // tell the user the URL for starting the application
-        console.log("URL for starting the app: http://<yourIP>:<port>");
+        console.log("URL for starting the app: http://<yourIP>:3000");
 
         // if it is not possible to connect on localhost:27017 or mongodbservice:27017,
         // catch possible errors and print them in the console:

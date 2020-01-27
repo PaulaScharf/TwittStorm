@@ -15,15 +15,7 @@ demo:
   timestamp_start: 1537513200000
   timestamp_end: 1537524006000
   location: ../demo/
-keys:
-  twitter:
-    consumer_key: 6Fj10fMp8EMNJPA5DzdE1RASs
-    consumer_secret: NEWEkcmMyAKHCDUMTnzOCQkAX898lLpZYk13DtFVFFW1HncEBs
-    access_token_key: 1219561525809164322-0OOX3rRj84BsXedBhscV4d7gEOIAsk
-    access_token_secret: QEhuKDgcqWo9X8VgG34LvWo4J1Hxp2hV8dDWoiZb1nw4t
-  mapbox:
-    access_key: >-
-      pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA
+mapbox_access_key: null
 dwd:
   warnings: >-
     https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson

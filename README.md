@@ -24,10 +24,15 @@ In order to use this app, you have to sign up for the necessary services. You'll
 ## How to start the App
 <b>TODO: DockerHub einfügen</b><br>
 ANPASSEN:<br>
-To start the app via docker, navigate to the app's folder in a dockershell. To start the app for the first time, enter
-``docker-compose up --build``. Afterwards, if you do not want to build again but just start it, enter ``docker-compose up``.<br/>
-TODO: funktioniert auch immer mit nur ``docker-compose up`` ?<br>
-As an alternative (if the first command above does not work), split it up to: ``docker-compose build`` and ``docker-compose up``.<br/>
+Get three files from the [TwittStorm-GitHub-Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm):
+- Dockerfile
+- docker-compose.yaml
+- .env
+Open .env and set ........... to your own API keys.
+Use those three files to ...
+Pull the image from Docker Hub: https://hub.docker.com/r/paulasch/twittstorm
+
+To start the app enter ``docker-compose up``.<br/>
 
 The started application can be found with your browser at your IP:port. E.g.: http://192.168.99.100:3000/.<br/>
 Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?).<br/>  

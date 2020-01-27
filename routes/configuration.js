@@ -17,6 +17,10 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 let config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
+
+updateVariableInConfigYaml("mapbox_access_key", process.env.MAPBOX_ACCESS_KEY);
+
+
 //
 router.post("/", (req, res) => {
 	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
@@ -30,7 +34,6 @@ router.post("/", (req, res) => {
 					for (var i = 0; i < len - 1; i++) {
 						var elem = pList[i];
 
-						// TODO: was passiert hier??
 						if (!schema[elem]) schema[elem] = {};
 						schema = schema[elem];
 					}
@@ -58,6 +61,7 @@ router.post("/", (req, res) => {
 * @author Katharina Poppinga
 * @param {number} currentTimestamp - timestamp of .....(Zeitpunkt der Erstellung)..... in Epoch milliseconds
 */
+/*
 function updateCurrentTimestampInConfigYaml(currentTimestamp){
 
 	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
@@ -65,8 +69,25 @@ function updateCurrentTimestampInConfigYaml(currentTimestamp){
 	let yamlStr = yaml.safeDump(config);
 	fs.writeFileSync('config.yaml', yamlStr, 'utf8');
 }
+*/
 
 
-module.exports.updateCurrentTimestampInConfigYaml = updateCurrentTimestampInConfigYaml;
+// TODO: konform mit API Doc?
+/**
+*
+*
+* @author Katharina Poppinga
+* @param {String} variableName -
+* @param {} value -
+*/
+function updateVariableInConfigYaml(variableName, value){
+	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
+	config[variableName] = value;
+	let yamlStr = yaml.safeDump(config);
+	fs.writeFileSync('config.yaml', yamlStr, 'utf8');
+}
+
+
+module.exports.updateVariableInConfigYaml = updateVariableInConfigYaml;
 
 module.exports.router = router;

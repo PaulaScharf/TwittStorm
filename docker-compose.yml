@@ -3,10 +3,14 @@ services:
   app:
     build: .
     image: paulasch/twittstorm
+    environment:
+      - TWITTER_CONSUMER_KEY=${CONSUMER_KEY}
+      - TWITTER_CONSUMER_SECRET=${CONSUMER_SECRET}
+      - TWITTER_ACCESS_TOKEN_KEY=${ACCESS_TOKEN_KEY}
+      - TWITTER_ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      - MAPBOX_ACCESS_KEY=${ACCESS_KEY}
     ports:
       - "3000:3000"
-    links:
-      - mongodbservice
     depends_on:
       - mongodbservice
   mongodbservice:
