@@ -46,7 +46,7 @@ var previousWeather = function(req, res) {
     if(wtype == "warnings") {
 
       let query = {
-        "type": wtype,
+        "type": "unwetter",
         "timestamps": {
           "$elemMatch": {
             "$lte": JSON.parse(currentTimestamp),
