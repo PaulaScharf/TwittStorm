@@ -174,7 +174,7 @@ function showAnimationMap() {
 
   // if not yet in URL, use default warnings
   if (!(readURL("wtype"))) {
-    updateURL("wtype", "unwetter");
+    updateURL("wtype", "warnings");
   }
 
   // if not yet in URL, get value from config.yaml
@@ -261,16 +261,16 @@ function showAnimationMap() {
     // add functionality for menu selection on severeweather call
     $("#severeWeatherAnimation").click(function() {
       innerUnwetterMenuToggle.style.display = "block";
-      reloadAnimation('unwetter');
+      reloadAnimation('warnings');
     });
 
     let rasterMenuToggle = document.getElementById('raster');
     let severeWeatherMenuToggle = document.getElementById('severeWeatherAnimation');
 
-    if ((readURL("wtype") === "unwetter") || (paramArray.wtype === "unwetter") || (paramArray.wtype === undefined)) {
+    if ((readURL("wtype") === "warnings") || (paramArray.wtype === "warnings") || (paramArray.wtype === undefined)) {
 
       //set URL to requested wtype
-      updateURL("wtype", "unwetter");
+      updateURL("wtype", "warnings");
       // set the flag to severe weather
       wtypeFlag = "severeWeather";
 
@@ -340,12 +340,12 @@ function reloadAnimation(wType){
   closeAllPopups();
 
   //if the weathertype is severeweather
-  if ((wType === "unwetter") ) {
+  if ((wType === "warnings") ) {
 
     // weathertype indicator for style switcher
     wIndicator = wType;
     //update the URL
-    updateURL("wtype", "unwetter");
+    updateURL("wtype", "warnings");
     deleteFromURL("radProd");
 
     // set the weathertype

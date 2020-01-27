@@ -342,7 +342,7 @@ function showMap() {
 
 		// ****************** load severe weather warnings data ********************
 
-		if (readURL("wtype") === "unwetter") {
+		if (readURL("wtype") === "warnings") {
 
 			deleteFromURL("radProd");
 
@@ -556,6 +556,8 @@ function requestAndDisplayAllRainRadar(map, product) {
 				customLayerIds.push('rainradar');
 			}
 		}
+		// load tweets if aoi is drawn
+		map.fire('draw.reloadTweets', {});
 		doneLoadingWeather = true;
 
 		// TODO: hier sinnlos?? dann löschen
@@ -654,8 +656,6 @@ function callRainRadar(map, prod) {
 			// TODO hier evtl display modularisieren um nicht noch einen request zu machen
 			requestAndDisplayAllRainRadar(map, prod);
 
-			// TODO: paula fragen, ob und wo folgendes?
-			//	map.fire('draw.reloadTweets', {});
 
 		} else {
 
@@ -746,7 +746,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		console.log("AJAX request (reading current warnings) is done successfully.");
 
 		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
-		if (readURL("wtype") == "unwetter") {
+		if (readURL("wtype") == "warnings") {
 
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 
