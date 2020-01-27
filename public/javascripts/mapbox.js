@@ -1105,7 +1105,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				geometry: geom, //polygon.geometry,  //.coordinates,
 				searchWords: searchWords
 			},
-			dwd_id: "rainRadar_" + prod,
+			dwd_id: "rainRadar_" + prod.toLowerCase(),
 			currentTimestamp: currentTimestamp
 		};
 

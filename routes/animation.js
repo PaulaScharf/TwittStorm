@@ -172,7 +172,7 @@ var previousWeather = function(req, res) {
           }
         })
         .then(function(result) {
-          promiseToGetTweetsForEvent("rainRadar_" + prod, req.params.timestamp, req.db)
+          promiseToGetTweetsForEvent("rainRadar_" + prod.toLowerCase(), req.params.timestamp, req.db)
           .catch(console.error)
           .then(function(tweets) {
             // are we looking for not-yet loaded historic data?
@@ -275,7 +275,7 @@ var previousWeather = function(req, res) {
                                             result.forEach(function(image) {
                                               answer[image.timestamp] = [image];
                                               tweets.forEach(function(tweet) {
-                                                if(image.timestamp <= tweet.currentTimestamp) {
+                                                if(image.timestamp <= tweet.timestamp) {
                                                   answer[image.timestamp].push(tweet);
                                                 }
                                               });
@@ -328,7 +328,7 @@ var previousWeather = function(req, res) {
                   result.forEach(function(image) {
                     answer[image.timestamp] = [image];
                     tweets.forEach(function(tweet) {
-                      if(image.timestamp <= tweet.currentTimestamp) {
+                      if(image.timestamp <= tweet.timestamp) {
                         answer[image.timestamp].push(tweet);
                       }
                     });
@@ -354,7 +354,7 @@ var previousWeather = function(req, res) {
                   result.forEach(function(image) {
                     answer[image.timestamp] = [image];
                     tweets.forEach(function(tweet) {
-                      if(image.timestamp <= tweet.currentTimestamp) {
+                      if(image.timestamp <= tweet.timestamp) {
                         answer[image.timestamp].push(tweet);
                       }
                     });
