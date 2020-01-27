@@ -17,48 +17,74 @@
   <!-- navbar -->
   <%- include('partial/navbar', {active: "help"}); %>
 
-  <main>
-    <div class="row">
-      <div class="container-fluid text-center">
-        <h1>User Documentation</h1>
-      </div>
-    </div>
-    <div class="row" style="padding:10px">
-      <div class="col-lg-12 text-center">
-        <h2>about the <b>'Main'</b> page</h2>
-        <div>WIP<br>
-          <div>
-            <p>The drawn AOI has to be big enough to surround the weather-polygons, which should be used for Tweet search, completely.</p>
-            <p>AOI-Lines must not intersect</p>
-            <p>To create an AOI, click the polygon tool (p) button on the right side of the map. You can now draw an AOI by clicking its coordinates in the map. Its outline will be dashed orange in this phase. Double click the last point. To finish, it is important to do a last click in the map but outside of the polygon. Its outline will turn to blue.
-              <br>To pan a drawn AOI, just do a single click on it and move it with your mouse.
-              <br>To update the coordinates of a drawn AOI, do a double click on it, so that its lines will get a new point in its middle. You can pan each of the points to where you want.
-              <br>To delete a drawn AOI, select the drawn AOI with a single click so that its outline turns to dashed orange. Then click the delete button on the right side of the map.</p>
-              <p>Because the coordinates of your AOI are written into the URL, your AOI must not have such a huge number of coordinates that these will exceed the permissible length of the URL
-                <br>(but this limit will not be reached in normal use cases)</p>
-                <p>Checkbox menu for the severe weather warnings only shows the currently existing warning types</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-12 text-center">
-            <h2>about the <b>'Animation'</b> page</h2>
-            <div>WIP</div>
-            <ul>
-              <li>Before viewing the animation, you have to observe the weather and tweet events in the main map</li>
-              <li>Checkbox menu for the severe weather warnings only shows the currently existing warning types</li>
-            </ul>
-          </div>
-          <div class="col-lg-12 text-center">
-            <h2>about the <b>'Configuration'</b> page</h2>
-            <div>WIP</div>
-          </div>
-          <div class="col-lg-12 text-center">
-            <h2>about the <b>'Help'</b> page</h2>
-            <div>Read carefully from top to bottom or explore at own risk.</div>
+  <h1 class="display-4 text-center text-dark mb-5">Twittstorm Help Page</h1>
+  <div class="container">
+    <div id="magicCarousel" class="carousel slide my-5" data-ride="carousel" data-interval="false">
+
+<!--    Carousel Indicators    -->
+      <ol class="carousel-indicators">
+        <li data-target="#magicCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#magicCarousel" data-slide-to="1"></li>
+        <li data-target="#magicCarousel" data-slide-to="2"></li>
+        <li data-target="#magicCarousel" data-slide-to="3"></li>
+      </ol>
+
+<!--    Carousel Slider    -->
+      <div class="carousel-inner" role="listbox">
+        <div class="carousel-item active">
+          <img src="/images/startup_v1.jpg" class="d-block w-100">
+          <div class="carousel-caption">
+            <h3>On Start Up</h3>
+            <p>Upon starting Twittstorm you will arive at this page. Here you have several possibilities to interact with the map and to retrieve the latest weather and twitter data</p>
           </div>
         </div>
-        <p></p>
-      </main>
+
+        <div class="carousel-item">
+          <img src="/images/delete_aoi_v1.jpg" class="d-block w-100">
+          <div class="carousel-caption">
+            <h3>Drawing and deleting AOI</h3>
+          </div>
+        </div>
+
+        <div class="carousel-item">
+          <img src="/images/animation_radar_v1.jpg" class="d-block w-100">
+          <div class="carousel-caption">
+            <h3>Animation of the last ten timesteps</h3>
+          </div>
+        </div>
+
+        <div class="carousel-item">
+          <img src="/images/configuration.jpg" class="d-block w-100">
+          <div class="carousel-caption">
+            <h3>Change your settings</h3>
+        </div>
+
+        </div>
+      </div>
+
+
+
+
+<!--     Carousel Controls     -->
+        <a href="#magicCarousel" class="carousel-control-prev" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a href="#magicCarousel" class="carousel-control-next" role="button" data-slide="next">
+          <span class="carousel-control-next-icon"></span>
+          <span class="sr-only">Next</span>
+        </a>
+
+      </div>
+    </div>
+  </div>
+<!-- Page Content -->
+<section class="py-5">
+    <div class="container">
+        <h5 class="font-weight-light">Explanations</h5>
+        <p class="lead">.</p>
+    </div>
+</section>
 
       <!-- footer -->
       <%- include('partial/footer'); %>
