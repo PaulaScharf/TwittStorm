@@ -96,6 +96,7 @@ function readURL(param) {
 	* function to delete a specified parameter from the URL to maintain permalink integrity
 	* @author Jonathan Bahlmann
 	* @param {String} param - Parameter to delete
+	* @returns nothing or false (if parameter not found)
 	*/
 function deleteFromURL(param) {
 	let oldURL = document.location.href;

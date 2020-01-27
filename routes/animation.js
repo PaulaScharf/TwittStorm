@@ -21,7 +21,9 @@ const {promiseToGetItems,promiseToPostItems} = require('./dataPromisesHelpers.js
 
 
 /**
- * This retrieves weather events from the past 50 minutes and gives the to the result object.
+ * This function retrieves weather events from the past and gives the to the result object.
+ * It is used for the animation page
+ * @author Paula Scharf, Katharina Poppinga, Benjamin Rieke, Jonathan Bahlmann
  * @param req - request
  * @param res - result
  */

@@ -4,14 +4,6 @@
 
 "use strict";  // JavaScript code is executed in "strict mode"
 
-//TODO if nothing found on db, newest is fetched -> func for telling that data from the past will not be returned
-//TODO maybe error handling func that checks timespan and req time
-//TODO or make sure that radarDataRoute does an extra fetch
-//TODO documentation
-
-// this file contains functions not used yet, they are part of the work in progress route /:product/:timestamp instead of
-// /:product/latest
-
 /**
 * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
@@ -32,10 +24,10 @@ var config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 
 /**
-  * function to return a GeoJSON formatted Polygon
-  * @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
-  * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+  * @desc function to return a GeoJSON formatted Polygon. Intended to convert an input from an R script.
+  * @author Jonathan Bahlmann
   * @param object part of the R JSON response, containing the coords of a polygon
+  * @returns {GeoJSON Polygon} Polygon with class and geometry
   */
 function GeoJSONPolygon(object) {
   var result = {
@@ -54,10 +46,10 @@ function GeoJSONPolygon(object) {
 }
 
 /**
-  * function to fetch the available radar files from DWD server
+  * @desc function to fetch the available radar files from DWD server as a List
   * @author Jonathan Bahlmann
   * @param {String} product radarProductCode such as sf, rw or ry
-  * @returns {promise} promises to resolve to fileList
+  * @returns {promise} promises to resolve to a fileList
   */
 function findLastTimestamp(product) {
     return new Promise((resolve, reject) => {
@@ -78,13 +70,13 @@ function findLastTimestamp(product) {
 }
 
 /**
-  * @desc this function returns converts given timestamps and a radar product toa timespan in which the
-  * timestamp of the actual radarproduct must lay
+  * @desc this function converts given timestamps and a radar product to a timespan in which the
+  * timestamp of the actual radarproduct must lay. This is due to the delay of availability of radar products. The timestamp
+  * that is given to the dwd files dos not match the time of availability
   * @author Paula Scharf, Jonathan Bahlmann
   * @param {String} radarProduct
   * @param timestamp
-  * @param db
-  * @returns array containing timespan
+  * @returns array containing timespan [lower, upper] - borders
   */
 function convertTimestamp(radarProduct, timestampString) {
       // prod is uppercase product code
@@ -122,6 +114,13 @@ function convertTimestamp(radarProduct, timestampString) {
       return [reqTimeLower, reqTime];
 }
 
+/**
+  * @desc this function fetches the newest radar product from the dwd server. This is done through an R script that is called using
+  * node 'r-script'.
+  * @author Jonathan Bahlmann
+  * @param {String} radarProduct radarProduct code, see wiki on github
+  * @returns {promise} resolves to JSON desciption of the output rain Radar polygons
+  */
 var promiseToFetchRadarData = function(radarProduct) {
 
   let classification = "dwd";
@@ -183,8 +182,10 @@ var promiseToFetchRadarData = function(radarProduct) {
 
 
 /**
-  * function in variable to execute the "radar-latest" route
-  * posts to req.res
+  * function in variable to execute the radar route. After conversion of the timestamps into "dwd-like" time, it checks whether
+  * historic/demo data or live data should be fetched. Beofore fetching, a db check is done. The route cannot return any data that
+  * is neither given demo data, arleady in the database or the newest data product.
+  * the response is postet to req.res
   * @author Paula Scharf, Jonathan Bahlmann
   * @param req the request object
   * @param res the response object
