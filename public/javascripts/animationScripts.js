@@ -255,14 +255,12 @@ function showAnimationMap() {
     // add functionality for menu selection on radar product call
     $("#raster").click(function() {
       innerUnwetterMenuToggle.style.display = "none";
-      clearInterval(automationIntervall);
       reloadAnimation('radar');
     });
 
     // add functionality for menu selection on severeweather call
     $("#severeWeatherAnimation").click(function() {
       innerUnwetterMenuToggle.style.display = "block";
-      clearInterval(automationIntervall);
       reloadAnimation('unwetter');
     });
 
@@ -343,7 +341,7 @@ function reloadAnimation(wType){
   closeAllPopups();
 
   //if the weathertype is severeweather
-  if ((wType === "unwetter") || (readURL('wtype') === "unwetter")) {
+  if ((wType === "unwetter") ) {
 
     // weathertype indicator for style switcher
     wIndicator = wType;
@@ -367,8 +365,7 @@ function reloadAnimation(wType){
   }
 
   // if the weathertype is radar
-  if ((wType === "radar") || (readURL('wtype') === "radar")) {
-
+  if ((wType === "radar") ) {
     // weathertype indicator for style switcher
     wIndicator = wType;
     //update the URL
@@ -407,12 +404,6 @@ function reloadAnimation(wType){
   $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
   $('#downloadPopup').html('You have to wait for one animation cycle!');
   $("#downloadPopup").css({'background-color': 'DimGray'});
-
-  var sources = animationMap.style.sourceCaches;
-  var layers = animationMap.getStyle().layers;
-
-  console.log(sources); // enthält alle
-  console.log(layers); // enthält NICHT ALLE, nur die, die grad angezeigt werden
 
 }
 
@@ -853,6 +844,11 @@ function loadPreviousWeather(map, weatherEv){
 
             // put every polygon from a warning into one array
             if (weatherEv == "severeWeather") {
+              // if the response is not empty set the menu to inform the user
+              if (Object.keys(result).length > 1){
+                var innerUnwetterMenuToggle = document.getElementById('menu');
+                innerUnwetterMenuToggle.innerHTML = "First you have to click the play button.";
+              }
 
               // assigning warnings-type
               let layerGroup = "";
@@ -981,29 +977,19 @@ function removeAllSource(map) {
   var sources = map.style.sourceCaches;
   var layers = map.getStyle().layers;
 
-  console.log(sources); // enthält alle
-  console.log(layers); // enthält NICHT ALLE, nur die, die grad angezeigt werden
-
   for (let key in sources) {
 
       // checks if the sources contain a numbered id
-    // if (key.includes("unwetter") || key.includes("radar") || key.includes("Tweet") ){
     if (key.includes("unwetter") || key.includes("radar") || key.includes("tweet") ){
 
-//  console.log("Test if");
-//console.log(key);
       // if they are already in the layers
       for (let lays in layers){
-      //  console.log(layers[lays].id);
-      //    console.log(key); // zb unwetter 1537515000000 0 Snowfall
 
         if (layers[lays].id === key){
-          console.log("Test remove layer");
           //remove them
           map.removeLayer(key);
         }
       }
-      console.log(key);
       map.removeSource(key);
       customLayerIds.remove(key)
     }

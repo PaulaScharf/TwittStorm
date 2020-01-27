@@ -9,7 +9,6 @@
 */
 
 
-
 /**
 * @desc Creates and shows a legend for the given map and given type of data.
 * Contains information about different layers in map, their source and corrsponding timestamps.
@@ -206,15 +205,15 @@ function openMenu(button, menu, page) {
 	if (wtypeFlag == "radar") {
 		var innerRasterMenuToggle = document.getElementById('rasterMenu');
 		innerRasterMenuToggle.style.display = "block";
+		// except the animation site is shown
+			if (page === 'animation'){
+				innerRasterMenuToggle.style.display = "none";
+		}
 	}
 	// if severe weather is selected automatically open up the severe weather submenu
 	else {
 		var innerUnwetterMenuToggle = document.getElementById('menu');
 		innerUnwetterMenuToggle.style.display = "block";
-
-		if (page === "animation"){
-			innerUnwetterMenuToggle.innerHTML = "First you have to click the play button.";
-		}
 	};
 
 	// displays the germany boundary button if is not visible
@@ -312,7 +311,7 @@ function switchLayer(map, layer) {
 		//stop the animation
 		clearInterval(automationIntervall);
 		// reloadAnimation
-		reloadAnimation();
+		reloadAnimation(readURL('wtype'));
 	//change the sources styles to the chosen basemap
 	setTimeout(() => {
 		Object.entries(savedSources).forEach(([id, source]) => {
@@ -323,8 +322,6 @@ function switchLayer(map, layer) {
 		// in case of animationmap only keep the germany boundary
 		savedLayers.forEach((layer) => {
 			if ( layer.id == "boundaryGermany" ) {
-				console.log(layer.id);
-
 				map.addLayer(layer);
 			}
 		});
