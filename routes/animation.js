@@ -419,7 +419,7 @@ function checkParams(params) {
 
 router.route("/:wtype/:currentTimestamp").get(previousWeather);
 router.route("*").get(function(req, res){
-  res.status(404).send({err_msg: "Parameters are not valid"});
+  res.status(422).send({err_msg: "Parameters are not valid"});
 });
 
 module.exports = router;
