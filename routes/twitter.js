@@ -86,7 +86,7 @@ function checkForExistingTweets(dwd_id, currentTime, db) {
 	return new Promise((resolve, reject) => {
 		// JSON with the ID of the current Unwetter, needed for following database-check
 		let query = {
-			type: "Tweet",
+			type: "tweet",
 			dwd_id: dwd_id,
 			$and: [
 				{"requestTime": {"$gt": (currentTime - 299000)}},
@@ -212,7 +212,7 @@ const searchTweetsForEvent = function(req, res) {
 												let tweetLocation = turf.point(currentFeature.coordinates.coordinates);
 												if (turf.booleanPointInPolygon(tweetLocation, polygon)) {
 													let currentStatus = {
-														type: "Tweet",
+														type: "tweet",
 														id: currentFeature.id,
 														idstr: currentFeature.id_str,
 														statusmessage: currentFeature.text,
@@ -233,7 +233,7 @@ const searchTweetsForEvent = function(req, res) {
 									}
 									if (arrayOfTweets.length === 0) {
 										let emptyTweet = {
-											type: "Tweet",
+											type: "tweet",
 											dwd_id: req.body.dwd_id,
 											requestTime: req.body.currentTimestamp
 										};
@@ -246,7 +246,7 @@ const searchTweetsForEvent = function(req, res) {
 											}
 										})
 										.then(function () {
-											let query = {type: "Tweet", dwd_id: req.body.dwd_id};
+											let query = {type: "tweet", dwd_id: req.body.dwd_id};
 											promiseToGetItems(query, req.db)
 												.catch(function (error) {
 													if (!res.headersSent) {
@@ -279,7 +279,7 @@ const searchTweetsForEvent = function(req, res) {
 							});
 					}
 				} else {
-					let query = {type: "Tweet", dwd_id: req.body.dwd_id};
+					let query = {type: "tweet", dwd_id: req.body.dwd_id};
 					promiseToGetItems(query, req.db)
 						.catch(function (error) {
 							if(!res.headersSent) {

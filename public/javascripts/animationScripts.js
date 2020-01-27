@@ -822,7 +822,7 @@ function loadPreviousWeather(map, weatherEv){
         // for every warnings in the response
         for (let j = 0; j < result[key].length; j++){
 
-          if (result[key][j].type === "Tweet") {
+          if (result[key][j].type === "tweet") {
             layerID = "tweet " + key + " " + j;
             mask = {
               "timestamp": key,

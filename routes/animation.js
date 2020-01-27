@@ -375,7 +375,7 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
   return new Promise((resolve, reject) => {
     // JSON with the ID of the current event, needed for following database-check
     let query = {
-      type: "Tweet",
+      type: "tweet",
       dwd_id: dwd_id,
       $and: [
         {"timestamp": {"$gte": ((timestamp - 299000) < 0) ? 0 : (timestamp - 299000)}},
