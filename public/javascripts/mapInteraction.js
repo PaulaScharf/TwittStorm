@@ -747,3 +747,64 @@ function showTweetPopup(map, e) {
 		}
 	}
 }
+
+/**
+* @desc This function will add functionality to the helppages image carousel and changes the texts according
+* to the shown image.
+* @author Benjamin Rieke
+*/
+
+function helpPageHandler(){
+
+	// functionality for the next and prev buttons on the help page
+	// counters for the helppage carousel
+	var mover = 0
+	// link to the helptext
+	var changer = document.getElementById('helpText');
+	// the helptext for the first image
+	var first = document.getElementById('0 text').innerHTML;
+
+	changer.innerHTML = first;
+
+
+	// functionality for the next button
+	$("#next").click(function() {
+	//cycle forward through the text ids
+		if(mover <= 2){
+			mover ++;
+		}
+		else {
+			mover = 0;
+		};
+		// if the first image should be shown
+		if(mover == 0){
+			changer.innerHTML = first;
+		}
+		else {
+		var inserter = document.getElementById(mover + ' text')
+		//change explanation text to the accoriding text
+		changer.innerHTML = inserter.innerHTML;
+	};
+	});
+
+	// functionality for the prev button on the help page
+	$("#prev").click(function() {
+
+		//cycle backwards through the text ids
+		if(mover >= 1){
+			mover --;
+		}
+		else {
+			mover = 3;
+		};
+		// if the first image should be shown
+		if(mover == 0){
+			changer.innerHTML = first;
+		}
+		else {
+		var inserter = document.getElementById(mover + ' text')
+		//change explanation text to the accoriding text
+		changer.innerHTML = inserter.innerHTML;
+		};
+	});
+}
