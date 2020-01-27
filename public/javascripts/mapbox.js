@@ -347,7 +347,7 @@ function showMap() {
 
 		// ****************** load severe weather warnings data ********************
 
-		if (readURL("wtype") === "unwetter") {
+		if (readURL("wtype") === "warnings") {
 
 			deleteFromURL("radProd");
 
@@ -561,6 +561,8 @@ function requestAndDisplayAllRainRadar(map, product) {
 				customLayerIds.push('rainradar');
 			}
 		}
+		// load tweets if aoi is drawn
+		map.fire('draw.reloadTweets', {});
 		doneLoadingWeather = true;
 
 		// TODO: hier sinnlos?? dann löschen
@@ -659,8 +661,6 @@ function callRainRadar(map, prod) {
 			// TODO hier evtl display modularisieren um nicht noch einen request zu machen
 			requestAndDisplayAllRainRadar(map, prod);
 
-			// TODO: paula fragen, ob und wo folgendes?
-			//	map.fire('draw.reloadTweets', {});
 
 		} else {
 
@@ -751,7 +751,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		console.log("AJAX request (reading current warnings) is done successfully.");
 
 		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
-		if (readURL("wtype") == "unwetter") {
+		if (readURL("wtype") == "warnings") {
 
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 
@@ -1070,7 +1070,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @param {Object} map - mapbox-map in which to show the data
 	* @param {} polygon a turf polygon (aoi)
 	*/
-	function onlyShowRainRadarAndTweetsInPolygon(map, polygon) {
+	function onlyShowRainRadarAndTweetsInPolygon(map, polygon, prod) {
 		// so polygon is the turf - aoi
 		// we want to search for tweets in the aoi
 
@@ -1090,7 +1090,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			}
 		}
 
-		// testing a couple things
 		let layer = map.getSource("rainradar");
 		layer = layer._data.features;
 
@@ -1111,7 +1110,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				geometry: geom, //polygon.geometry,  //.coordinates,
 				searchWords: searchWords
 			},
-			dwd_id: "rainRadar",
+			dwd_id: "rainRadar_" + prod.toLowerCase(),
 			currentTimestamp: currentTimestamp
 		};
 

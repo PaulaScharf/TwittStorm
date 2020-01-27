@@ -72,7 +72,11 @@ function drawForAOI(map, draw) {
 		doneProcessingAOI = false;
 		let polygons = draw.getAll();
 		if (polygons.features[0]) {
-			onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates));
+			if (attr === "warnings") {
+				onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates));
+			} else {
+				onlyShowRainRadarAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates), prod);
+			}
 		}
 	})
 }
@@ -108,9 +112,10 @@ function processingAOI(map, aoiCoordinatesGeoJSON) {
 
 	// do tweet-search
 	let attr = readURL("wtype");
-	if (attr === "unwetter") {
+	let prod = readURL("radProd");
+	if (attr === "warnings") {
 		onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
 	} else {
-		onlyShowRainRadarAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON));
+		onlyShowRainRadarAndTweetsInPolygon(map, turf.polygon(aoiCoordinatesGeoJSON), prod);
 	}
 }

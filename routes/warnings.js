@@ -76,37 +76,64 @@ const getWarningsForTime = function(req, res, next) {
           let timestampDeleting = currentTimestamp - (config.refresh_rate * 11);
 
           // $lt means <, $lte means <=
-          promiseToUpdateItems({type: "unwetter"}, {"$pull": {"timestamps": {"$lte": timestampDeleting}}},
-          req.db)
-          .then(function () {
-            // get those warnings out of database whose timestamp-array is empty
-            promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 0}}]}, req.db)
-            .then(function (response) {
+          promiseToUpdateItems({type: "unwetter", timestamps: {"$all": [{"$and": [
+                {"$gt": config.demo.timestamp_end},
+                {"$lt": config.demo.timestamp_start}
+              ]}]}}, {"$pull": {"timestamps": {"$lte": timestampDeleting}}},
+            req.db)
+            .then(function () {
+              // get those warnings out of database whose timestamp-array is empty
+              promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 0}}]}, req.db)
+                .then(function (response) {
 
-              let oldUnwetterIDs = [];
-              // put together all JSON-objects of old warning dwd_ids in one array
-              for (let u = 0; u < response.length; u++) {
-                oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
-              }
-              // if there are old warnings existing (with empty timestamp-array), delete them and their corresponding tweets:
-              if (oldUnwetterIDs.length > 0) {
-                // TODO: zurückändern zu Paulas Variante
-                promiseToDeleteItems({$and: [{"type": "tweet"}, {"$or": oldUnwetterIDs}]}, req.db)
-                .then(function () {
+                  let oldUnwetterIDs = [];
+                  // put together all JSON-objects of old warning dwd_ids in one array
+                  for (let u = 0; u < response.length; u++) {
+                    oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
+                  }
+                  // if there are old warnings existing (with empty timestamp-array), delete them and their corresponding tweets:
+                  if (oldUnwetterIDs.length > 0) {
+// TODO: zurückändern zu Paulas Variante
+                    promiseToDeleteItems({$and: [{"type": "tweet"}, {"$or": oldUnwetterIDs}]}, req.db)
+                      .then(function () {
 
-                  promiseToDeleteItems({$and: [{"type": "unwetter"}, {"$or": oldUnwetterIDs}]}, req.db)
-                  .then(function () {
-                  },
-                  function (error) {
-                    error.httpStatusCode = 500;
-                    return next(error);
-                  })
-                  .catch(function (error) {
-                    error.httpStatusCode = 500;
-                    return next(error);
-                  });
-                },
-                function (error) {
+                          promiseToDeleteItems({$and: [{"type": "unwetter"}, {"$or": oldUnwetterIDs}]}, req.db)
+                            .then(function () {
+                              },
+                              function (error) {
+                                error.httpStatusCode = 500;
+                                return next(error);
+                              })
+                            .catch(function (error) {
+                              error.httpStatusCode = 500;
+                              return next(error);
+                            });
+                        },
+                        function (error) {
+                          error.httpStatusCode = 500;
+                          return next(error);
+                        })
+                      .catch(function (error) {
+                        error.httpStatusCode = 500;
+                        return next(error);
+                      });
+                    // TODO: OR in query überprüfen!!!!
+
+                    //      promiseToDeleteItems({$and: [ {"$or": [{"type": "unwetter"}, {"type": "tweet"}] }, {"$or": oldUnwetterIDs}]}, req.db)
+                    //      .then(function () {
+                    //      },
+                    //      function (error) {
+                    //        error.httpStatusCode = 500;
+                    //        return next(error);
+                    //      })
+                    //      .catch(function (error) {
+                    //        error.httpStatusCode = 500;
+                    //        return next(error);
+                    //      });
+
+
+                  }
+                }, function (error) {
                   error.httpStatusCode = 500;
                   return next(error);
                 })
@@ -535,14 +562,12 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
       return rv;
     }, []);
   }
-
-
-  /**
-  *
-  * @author Paula Scharf
-  * @param {} params -
-  */
-  function checkParamsSearch(params) {
+/**
+ *
+ * @author Paula Scharf
+ * @param params
+ */
+function checkParamsSearch(params) {
     try {
       if (JSON.parse(params.timestamp) > 0) {
         return {

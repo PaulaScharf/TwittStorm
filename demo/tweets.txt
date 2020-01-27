@@ -1,6 +1,6 @@
 [
   {
-    "type": "Tweet",
+    "type": "tweet",
     "id": 20,
     "idstr": "20",
     "statusmessage": "just setting up my twttr",
@@ -15,7 +15,7 @@
     "requestTime": 1537513834020
   },
   {
-      "type": "Tweet",
+      "type": "tweet",
       "id": 1219954878971359233,
       "idstr": "1219954878971359233",
       "statusmessage": "test",
@@ -24,9 +24,24 @@
         "name": "Paul",
         "location_home": "Moers"
       },
-      "timestamp": 1537514586000,
+      "timestamp": 1537514390000,
       "location_actual": { "type":"Point", "coordinates":[6.44622802734375, 51.4163381064004] },
       "dwd_id": "2.62.0.1.276.0.DWD.PVW.1579265700000.3239c728-865d-4e8c-b457-634f6725a3f1.DEU",
       "requestTime": 1537514586000
-    }
+    },
+    {
+        "type": "Tweet",
+        "id": 1219954878971359233,
+        "idstr": "1219954878971359233",
+        "statusmessage": "test",
+        "author": {
+          "id": 1,
+          "name": "Paul",
+          "location_home": "Moers"
+        },
+        "timestamp": 1537513500000,
+        "location_actual": { "type":"Point", "coordinates":[6.44622802744375, 51.4167381264004] },
+        "dwd_id": "rainRadar_ry",
+        "requestTime": 1537514586000
+      }
 ]

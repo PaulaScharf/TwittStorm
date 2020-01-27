@@ -35,11 +35,6 @@
           </p>
           <textarea type="text" name="max_age_tweets" style="height:30px;"><%- JSON.stringify(config.max_age_tweets) %></textarea>
           <br><br>
-          <p>Current time as a timestamp in Epoch milliseconds:<br>
-            (If you put in '<i>null</i>', the actual local current time will be used.)
-          </p>
-          <textarea type="text" name="current_time" style="height:30px;"><%- JSON.stringify(config.current_time) %></textarea>
-          <br><br>
           <input type="submit" value="Update Configuration" id="submitbutton"/>
         </form>
         <iframe width="0" height="0" border="0" name="dummyframe" id="dummyframe" style="display: none;"></iframe>
