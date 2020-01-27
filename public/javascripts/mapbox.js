@@ -495,8 +495,8 @@ function requestAndDisplayAllRainRadar(map, product) {
 		url: "/api/v1/radar/" + product + "/" + currentTimestamp,
 		// type of the data that is sent to the server
 		contentType: "application/json; charset=utf-8",
-		// timeout set to 20 seconds
-		timeout: 20000
+		// timeout set to 40 seconds
+		timeout: 40000
 	})
 
 	// if the request is done successfully, ...
@@ -639,8 +639,8 @@ function callRainRadar(map, prod) {
 		url: "/api/v1/radar/" + prod + "/" + currentTimestamp,
 		// type of the data that is sent to the server
 		contentType: "application/json; charset=utf-8",
-		// timeout set to 20 seconds
-		timeout: 20000
+		// timeout set to 40 seconds
+		timeout: 40000
 	})
 
 	// if the request is done successfully, ...
@@ -736,8 +736,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		url: "/api/v1/warnings/" + currentTimestamp,
 		// type of the data that is sent to the server
 		contentType: "application/json; charset=utf-8",
-		// timeout set to 15 seconds
-		timeout: 15000
+		// timeout set to 30 seconds
+		timeout: 30000
 	})
 
 	// if the request is done successfully, ...
@@ -1120,8 +1120,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			contentType: "application/json; charset=utf-8",
 			// data to send to the server
 			data: JSON.stringify(query),
-			// timeout set to 15 seconds
-			timeout: 15000,
+			// timeout set to 30 seconds
+			timeout: 30000,
 			// update the status display
 			success: function() {
 				$('#information').html("Trying to find and insert fitting tweets.");
@@ -1292,8 +1292,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				contentType: "application/json; charset=utf-8",
 				// data to send to the server
 				data: JSON.stringify(query),
-				// timeout set to 15 seconds
-				timeout: 15000,
+				// timeout set to 30 seconds
+				timeout: 30000,
 				// update the status display
 				success: function () {
 					$('#information').html("Trying to find and insert fitting tweets.");
@@ -1440,8 +1440,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			contentType: "application/json; charset=utf-8",
 			// data to send to the server
 			data: JSON.stringify(query),
-			// timeout set to 15 seconds
-			timeout: 15000,
+			// timeout set to 20 seconds
+			timeout: 20000,
 			// update the status display
 			success: function() {
 				$('#information').html("Deleting a tweet.");

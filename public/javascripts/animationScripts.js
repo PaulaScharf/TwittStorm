@@ -788,8 +788,8 @@ function loadPreviousWeather(map, weatherEv){
     url: "/api/v1/previousWeather/" + weatherEvent + currentTimestamp,
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
-    // timeout set to 20 seconds
-    timeout: 20000,
+    // timeout set to 40 seconds
+    timeout: 40000,
 
     success: function() {
       $('#information').html("Retrieving previous weather events.");
