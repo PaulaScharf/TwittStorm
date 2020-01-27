@@ -47,26 +47,26 @@ const getWarningsForTime = function(req, res, next) {
       // 1. case: use demodata, do not send request to DWD:
       if ((currentTimestamp >= config.demo.timestamp_start && currentTimestamp <= config.demo.timestamp_end)) {
         proccessUnwettersFromLocal(currentTimestamp, req.db)
-        .then(function (response) {
+          .then(function (response) {
 
-          updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
+            updateCurrentTimestampInConfigYaml(currentTimestamp);
 
-          response = {
-            type: "SevereWeatherWarnings",
-            events: response
-          };
-          if (!res.headersSent) {
-            res.send(response);
-          }
+            response = {
+              type: "SevereWeatherWarnings",
+              events: response
+            };
+            if (!res.headersSent) {
+              res.send(response);
+            }
 
-        }, function (error) {
-          error.httpStatusCode = 500;
-          return next(error);
-        })
-        .catch(function (error) {
-          error.httpStatusCode = 500;
-          return next(error);
-        });
+          }, function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          })
+          .catch(function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          });
 
         // 2. case: do not use demodata:
       } else {
@@ -141,22 +141,6 @@ const getWarningsForTime = function(req, res, next) {
                   error.httpStatusCode = 500;
                   return next(error);
                 });
-                // TODO: OR in query überprüfen!!!!
-
-                //      promiseToDeleteItems({$and: [ {"$or": [{"type": "unwetter"}, {"type": "tweet"}] }, {"$or": oldUnwetterIDs}]}, req.db)
-                //      .then(function () {
-                //      },
-                //      function (error) {
-                //        error.httpStatusCode = 500;
-                //        return next(error);
-                //      })
-                //      .catch(function (error) {
-                //        error.httpStatusCode = 500;
-                //        return next(error);
-                //      });
-
-
-              }
             }, function (error) {
               error.httpStatusCode = 500;
               return next(error);
@@ -165,31 +149,23 @@ const getWarningsForTime = function(req, res, next) {
               error.httpStatusCode = 500;
               return next(error);
             });
-          }, function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          })
-          .catch(function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          });
 
           // ".then" is used here, to ensure that the .......... has finished and a result is available
           // saves new requested warnings in database
           processUnwettersFromDWD(currentTimestamp, req.db)
-          .then(function () {
+            .then(function () {
 
-            updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
-            getWarningsFromDB(currentTimestamp, req.db, res, next);
+              updateCurrentTimestampInConfigYaml(currentTimestamp);
+              getWarningsFromDB(currentTimestamp, req.db, res, next);
 
-          }, function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          })
-          .catch(function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          });
+            }, function (error) {
+              error.httpStatusCode = 500;
+              return next(error);
+            })
+            .catch(function (error) {
+              error.httpStatusCode = 500;
+              return next(error);
+            });
 
           // do not send request to DWD, because last request to DWD is less than refresh-rate ago
           // therefore use last requested and already stored warnings
