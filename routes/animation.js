@@ -43,10 +43,10 @@ var previousWeather = function(req, res) {
     var currentTimestamp = req.params.currentTimestamp;
 
 
-    if(wtype == "unwetter") {
+    if(wtype == "warnings") {
 
       let query = {
-        "type": wtype,
+        "type": "unwetter",
         "timestamps": {
           "$elemMatch": {
             "$lte": JSON.parse(currentTimestamp),
@@ -64,7 +64,7 @@ var previousWeather = function(req, res) {
           try {
             // this will be the response of the request
             let weatherEvents = {
-              "type": (wtype === "unwetter") ? "severeWeatherWarnings" : "rainRadar"
+              "type": (wtype === "warnings") ? "severeWeatherWarnings" : "rainRadar"
             };
             // this array will contain the timestamps of all the events that were returned
             let arrayOfTimestamps = [];
@@ -394,7 +394,7 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
   return new Promise((resolve, reject) => {
     // JSON with the ID of the current event, needed for following database-check
     let query = {
-      type: "Tweet",
+      type: "tweet",
       dwd_id: dwd_id,
       $and: [
         {"timestamp": {"$gte": ((timestamp - 299000) < 0) ? 0 : (timestamp - 299000)}},
@@ -420,9 +420,9 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
 */
 function checkParams(params) {
   switch (params) {
-    case (params.wtype !== "unwetter" && params.wtype !== "rainRadar"):
+    case (params.wtype !== "warnings" && params.wtype !== "rainRadar"):
       return {
-        err_message: "'wtype' (weather type) is neither 'unwetter' nor 'rainRadar'"
+        err_message: "'wtype' (weather type) is neither 'warnings' nor 'rainRadar'"
       };
     case (JSON.parse(params.currentTimestamp) < 0):
       return {
@@ -438,7 +438,7 @@ function checkParams(params) {
 
 router.route("/:wtype/:currentTimestamp").get(previousWeather);
 router.route("*").get(function(req, res){
-  res.status(404).send({err_msg: "Parameters are not valid"});
+  res.status(422).send({err_msg: "Parameters are not valid"});
 });
 
 module.exports = router;

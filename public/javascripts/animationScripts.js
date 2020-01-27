@@ -778,7 +778,7 @@ function loadPreviousWeather(map, weatherEv){
     weatherEvent = "rainRadar/";
   }
   if (weatherEv === "severeWeather"){
-    weatherEvent = "unwetter/";
+    weatherEvent = "warnings/";
   }
 
   $.ajax({
@@ -822,7 +822,7 @@ function loadPreviousWeather(map, weatherEv){
         // for every warnings in the response
         for (let j = 0; j < result[key].length; j++){
 
-          if (result[key][j].type === "Tweet") {
+          if (result[key][j].type === "tweet") {
             layerID = "tweet " + key + " " + j;
             mask = {
               "timestamp": key,
@@ -1026,7 +1026,7 @@ function addToSource(map, layerID, previousFeatureCollection){
       });
     }
 
-    if (previousFeatureCollection.type == "unwetter/") {
+    if (previousFeatureCollection.type == "warnings/") {
       map.addSource(layerID, {
         type: 'geojson',
         data: previousFeatureCollection.geometry
