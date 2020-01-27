@@ -10,15 +10,17 @@
   <title><%= title %></title>
   <link rel="stylesheet" type="text/css" href="/css/project.css">
   <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <script src="/jquery/jquery.min.js"></script>
+
 </head>
 
-<body>
+<body onload = "helpPageHandler()">
 
   <!-- navbar -->
   <%- include('partial/navbar', {active: "help"}); %>
 
   <div class="container">
-    <div id="magicCarousel" class="carousel slide my-5" data-ride="carousel" data-interval="false">
+    <div id="magicCarousel" class="carousel slide my-5" data-ride="carousel" data-interval="false" id="carousel">
 
       <!--    Carousel Indicators    -->
       <ol class="carousel-indicators">
@@ -34,25 +36,25 @@
           <img src="/images/startup_v1.jpg" class="d-block w-100">
           <div class="carousel-caption">
             <h3>On Start Up</h3>
-            <p>Upon starting Twittstorm you will arrive at this page. Here you have several possibilities to interact with the map and to retrieve the latest weather and twitter data</p>
+            <p '>Upon starting Twittstorm you will arive at this page. Here you have several possibilities to interact with the map and to retrieve the latest weather and twitter data</p>
           </div>
         </div>
 
-        <div class="carousel-item">
+        <div class="carousel-item" id='1'>
           <img src="/images/delete_aoi_v1.jpg" class="d-block w-100">
           <div class="carousel-caption">
             <h3>Creating and deleting AOI</h3>
           </div>
         </div>
 
-        <div class="carousel-item">
+        <div class="carousel-item" id='2'>
           <img src="/images/animation_radar_v1.jpg" class="d-block w-100">
           <div class="carousel-caption">
             <h3>Animation of previous timesteps</h3>
           </div>
         </div>
 
-        <div class="carousel-item">
+        <div class="carousel-item" id='3'>
           <img src="/images/configuration.jpg" class="d-block w-100">
           <div class="carousel-caption">
             <h3>Change your settings</h3>
@@ -62,35 +64,87 @@
       </div>
 
 
+<!--     Carousel Controls     -->
+        <a href="#magicCarousel" class="carousel-control-prev" id="prev" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a href="#magicCarousel" class="carousel-control-next" id="next" role="button" data-slide="next">
+          <span class="carousel-control-next-icon"></span>
+          <span class="sr-only">Next</span>
+        </a>
 
-
-      <!--     Carousel Controls     -->
-      <a href="#magicCarousel" class="carousel-control-prev" role="button" data-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a href="#magicCarousel" class="carousel-control-next" role="button" data-slide="next">
-        <span class="carousel-control-next-icon"></span>
-        <span class="sr-only">Next</span>
-      </a>
 
     </div>
-  </div>
-
-  <!-- Page Content -->
-  <section class="py-5">
+<!-- Page Content -->
+<section class="py-5">
     <div class="container">
-      <h5 class="font-weight-light">Explanations</h5>
-      <p class="lead">.</p>
+        <h3 class="font-weight-light">Explanations:</h3>
+        <p class="lead" id='helpText'>Upon starting Twittstorm you will arive at this page. Here you have several possibilities to interact with the map and to retrieve the latest weather and twitter data.</p>
+
+
     </div>
   </section>
 
-  <!-- footer -->
-  <%- include('partial/footer'); %>
+<!-- Explanation texts -->
 
-</body>
-</html>
+<div class='texts' id ="0 text"  >
+    <ul>
+    <li>Menu: Through these dropdown-menus you can select between live data or the animation of previous weather events. You can also access the demo data right here.</li>
+    <li>Geocoder: The geocoder gives you the possibility to search for places, that you would like to see on your map.</li>
+    <li>Basemap switch: With a simple click you can chosse between two basemaps. A satellite or a street view.</li>
+    <li>Zoom/Northing: This panel enabels the ability to zoom in and out by clicking the + or - symbol. The compass symbol lets you tilt the map in different angles.</li>
+    <li>Aoi-tools: On this position you will find the tools for drawing and deleting your own area-of-interest. For further informations check out the next image to the right.</li>
+    <li>Layer selector: The layer selector will help you to access the type of data that you want. You can select between polygonal weatherwarnings and various rain radar products, both provided through the DWD.</li>
+    <li>Pan-buttons: Simply press the direction, that you want your map to move to.</li>
+    <li>Filter tweets: This field will act as a filter for the display of tweets by words. Multiple search words must be inidicated with a simple linebreak.</li>
+    <li>Legend: The legend will provide you with several informations for your requested data type.</li>
+  </ul>
+  </div>
 
-<script src="/jquery/jquery.min.js"></script>
-<script src="/popper/umd/popper.min.js"></script>
-<script src="/bootstrap/js/bootstrap.min.js"></script>
+  <div  class='texts' id ="1 text" >
+    <ul>
+      <li>The drawn AOI has to be big enough to surround the weather-polygons, which should be used for Tweet search, completely.</li>
+      <li>AOI-Lines must not intersect!</li>
+      <li>To create an AOI, click the polygon tool (p) button on the right side of the map. You can now draw an AOI by clicking its coordinates in the map. Its outline will be dashed orange in this phase. Double click the last point. To finish, it is important to do a last click in the map but outside of the polygon. Its outline will turn to blue.</li>
+      <li>To pan a drawn AOI, just do a single click on it and move it with your mouse.</li>
+      <li>To update the coordinates of a drawn AOI, do a double click on it, so that its lines will get a new point in its middle. You can pan each of the points to where you want.</li>
+      <li>To delete a drawn AOI, select the drawn AOI with a single click so that its outline turns to dashed orange. Then click the delete button on the right side of the map.</li>
+      <li>Because the coordinates of your AOI are written into the URL, your AOI must not have such a huge number of coordinates that these will exceed the permissible length of the URL
+        <br>(but this limit will not be reached in normal use cases)</li>
+      <li>Checkbox menu for the severe weather warnings only shows the currently existing warning types.</li>
+  </ul>
+
+    </div>
+    <div class='texts' id ="2 text"  >
+      <ul>
+        <li>Exact time of shown data: This timestamp will inform you about the time of the data that is currently shown.</li>
+        <li>"Jump-to"-slider": With this slider you can manually select the timestamp that you want to see.</li>
+        <li>Play/Pause-button: By clicking this button you can start and stop the animation.</li>
+        <li>Download-button: If you click this button after a complete animationcycle you will be able to download the current animation. The download will start automatically and will be in the .gif format.</li>
+        <li>Layer menu: On the animation page the layer menu functions as a selector for the desired data type.</li>
+    </ul>
+      </div>
+
+
+      <div class='texts' id ="3 text"  >
+        <ul>
+          Changes on this page will result in a permanent change that is saved in the config.yaml.
+          <li>Default map location: [X,Y] - coordinate based input that will change the default map location.</li>
+          <li>Default map zoom: If you change this value the default zoom level will be changed accordingly.</li>
+          <li>Tweet History: By changing this value to a number that is smaller than 10080 you can adjust how old tweets will be. The value is based on minutes</li>
+          <li>Change Twittstorms time: If you want to go back in time change this value.</li>
+      </ul>
+        </div>
+
+
+
+      <!-- footer -->
+      <%- include('partial/footer'); %>
+
+    </body>
+    </html>
+    <script src="/javascripts/mapInteraction.js"></script>
+    <script src="/jquery/jquery.min.js"></script>
+    <script src="/popper/umd/popper.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
