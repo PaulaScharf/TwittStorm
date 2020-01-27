@@ -577,6 +577,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
+		doneLoadingWeather = true;
 		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 
 	});
@@ -681,6 +682,7 @@ function callRainRadar(map, prod) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
+doneLoadingWeather = true;
 		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 	});
 }
@@ -786,6 +788,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			else {
 				JL("ajaxReadingWarningsError").fatalException(error);
 			}
+
+			doneLoadingWeather = true;
 		});
 	}
 
@@ -836,11 +840,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				layerGroup = "BlackIce";
 				searchWords.push("Blitzeis", "Glätte", "Glatteis", "glatt", "spiegelglatt", "Eisglätte", "gefrierender Regen", "icy", "black ice", "glaze ice", "freezing rain", "verglas");
 			}
-			else {
-				// TODO: if-else if ohne else möglich??
-			}
 
-			//
+
 			for (let i = 0; i < currentUnwetterEvent.geometry.length; i++) {
 				let currentPolygon = currentUnwetterEvent.geometry[i];
 				// make a GeoJSON-FeatureCollection out of the current warnings
@@ -1061,7 +1062,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	/**
 	* @desc
 	* @author Paula Scharf, Jonathan Bahlmann
-	* @param polygon a turf polygon (aoi)
+	* @param {Object} map - mapbox-map in which to show the data
+	* @param {} polygon a turf polygon (aoi)
 	*/
 	function onlyShowRainRadarAndTweetsInPolygon(map, polygon) {
 		// so polygon is the turf - aoi
@@ -1179,7 +1181,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					});
 				} catch (e) {
 					console.dir("There was an error while processing the tweets from the database", e);
-					// TODO: error catchen und dann hier auch den error ausgeben?
 				}
 			}
 			doneProcessingAOI = true;
@@ -1210,7 +1211,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf
 	* @param {Object} map mapbox-map
-	* @param polygon - a turf polygon (e.g. the AOI)
+	* @param {} polygon - a turf polygon (e.g. the AOI)
 	*/
 	function onlyShowUnwetterAndTweetsInPolygon(map, polygon) {
 
@@ -1389,7 +1390,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @desc Calls a given function (cb) for all layers of the map.
 	* @author Paula Scharf
 	* @param {Object} map mapbox-map
-	* @param cb - function to perform for each layer
+	* @param {} cb - function to perform for each layer
 	*/
 	function forEachLayer(map, cb) {
 
@@ -1421,7 +1422,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @desc
 	* @author Paula Scharf
 	* @param {Object} map mapbox-map
-	* @param {} id
+	* @param {} id -
+	* @param {} popup -
 	*/
 	function deleteTweet(map, id, popup) {
 
@@ -1464,7 +1466,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			if (error === "timeout") {
 				JL("ajaxDeletingTweetTimeout").fatalException("ajax: '/api/v1/twitter/tweet' timeout");
 			}
-			// TODO: testen, ob so richtig
 			else {
 				JL("ajaxDeletingTweetError").fatalException(error);
 			}
