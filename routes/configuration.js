@@ -23,7 +23,7 @@ router.post("/", (req, res) => {
 	try {
 		for (let key in req.body) {
 			if (req.body.hasOwnProperty(key)) {
-				if (key === "map.zoom" || key === "map.center" || key === "max_age_tweets" || key === "current_time") {
+				if (key === "map.zoom" || key === "map.center" || key === "max_age_tweets") {
 					var schema = config;
 					var pList = key.split('.');
 					var len = pList.length;

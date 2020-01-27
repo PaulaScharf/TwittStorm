@@ -118,7 +118,7 @@ const searchTweetsForEvent = function(req, res) {
 	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 	let validParams = checkParamsSearch(req.body);
 
-	if (validParams.err_message !== "") {
+	if (validParams.err_msg !== "") {
 		if (!res.headersSent) {
 			res.status(422).send(validParams);
 		}

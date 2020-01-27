@@ -76,7 +76,10 @@ const getWarningsForTime = function(req, res, next) {
           let timestampDeleting = currentTimestamp - (config.refresh_rate * 11);
 
           // $lt means <, $lte means <=
-          promiseToUpdateItems({type: "unwetter"}, {"$pull": {"timestamps": {"$lte": timestampDeleting}}},
+          promiseToUpdateItems({type: "unwetter", timestamps: {"$all": [{"$and": [
+                {"$gt": config.demo.timestamp_end},
+                {"$lt": config.demo.timestamp_start}
+              ]}]}}, {"$pull": {"timestamps": {"$lte": timestampDeleting}}},
             req.db)
             .then(function () {
               // get those warnings out of database whose timestamp-array is empty
@@ -542,15 +545,20 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
  */
 function checkParamsSearch(params) {
   try {
-    Date.parse(currentTimestamp);
+    if (JSON.parse(params.timestamp) > 0) {
+      return {
+        err_msg: ""
+      };
+    } else {
+      return {
+        err_msg: "'timestamp' is not a valid epoch timestamp"
+      };
+    }
   } catch {
     return {
-      err_message: "'dwd_id' is not defined"
+      err_msg: "'timestamp' is not a valid epoch timestamp"
     };
   }
-  return {
-    err_message: ""
-  };
 }
 
 

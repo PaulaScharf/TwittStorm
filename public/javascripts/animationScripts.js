@@ -1026,7 +1026,7 @@ function addToSource(map, layerID, previousFeatureCollection){
       });
     }
 
-    if (previousFeatureCollection.type == "unwetter/") {
+    if (previousFeatureCollection.type == "warnings/") {
       map.addSource(layerID, {
         type: 'geojson',
         data: previousFeatureCollection.geometry
