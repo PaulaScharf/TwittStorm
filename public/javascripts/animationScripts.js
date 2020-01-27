@@ -750,7 +750,7 @@ function createGif(array) {
 
   gifshot.createGIF({
     images: array,
-    interval: 0.8,
+    interval: 2.0,
     sampleInterval: 0.5,
     numWorkers: 5,
     'gifWidth': 800,
@@ -792,8 +792,8 @@ function loadPreviousWeather(map, weatherEv){
     url: "/api/v1/previousWeather/" + weatherEvent + currentTimestamp,
     // type of the data that is sent to the server
     contentType: "application/json; charset=utf-8",
-    // timeout set to 15 seconds
-    timeout: 15000,
+    // timeout set to 20 seconds
+    timeout: 20000,
 
     success: function() {
       $('#information').html("Retrieving previous weather events.");
@@ -915,13 +915,12 @@ function loadPreviousWeather(map, weatherEv){
   // if the request has failed, ...
   .fail(function (xhr, status, error) {
     // ... give a notice that the AJAX request for reading previous weather has failed and show the error on the console
-    console.log("Reading previous weather has failed.", error);
+    console.log("AJAX request (reading previous weather) has failed.", error);
 
     // send JSNLog message to the own server-side to tell that this ajax-request has failed because of a timeout
     if (error === "timeout") {
-      JL("ajaxReadingPreviousWeatherTimeout").fatalException("ajax: '/previousWeather/weatherEvent/currentTimestamp' timeout");
+      JL("ajaxReadingPreviousWeatherTimeout").fatalException("ajax: '/api/v1/previousWeather/weatherEvent/currentTimestamp' timeout");
     }
-    // TODO: testen, ob so richtig
     else {
       JL("ajaxReadingPreviousWeatherError").fatalException(error);
     }
