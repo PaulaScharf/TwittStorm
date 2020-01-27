@@ -1,10 +1,8 @@
-data_path: ~/data
 mongodb:
   host: localhost
   port: 27017
   db_name: itemdb
   collection_name: item
-current_time: null
 map:
   center:
     - 10.5
