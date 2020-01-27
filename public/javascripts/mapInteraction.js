@@ -309,10 +309,30 @@ function switchLayer(map, layer) {
 	map.setStyle('mapbox://styles/mapbox/' + layerId);
 
 	if (indicator == "animation"){
+		//stop the animation
+		clearInterval(automationIntervall);
 		// reloadAnimation
 		reloadAnimation();
-	}
+	//change the sources styles to the chosen basemap
+	setTimeout(() => {
+		Object.entries(savedSources).forEach(([id, source]) => {
+			if (typeof map.getSource(id) === 'undefined') {
+				map.addSource(id, source);
+			}
+		});
+		// in case of animationmap only keep the germany boundary
+		savedLayers.forEach((layer) => {
+			if ( layer.id == "boundaryGermany" ) {
+				console.log(layer.id);
 
+				map.addLayer(layer);
+			}
+		});
+	}, 1000);
+
+
+}
+else{
 	setTimeout(() => {
 		Object.entries(savedSources).forEach(([id, source]) => {
 			if (typeof map.getSource(id) === 'undefined') {
@@ -326,6 +346,7 @@ function switchLayer(map, layer) {
 			}
 		});
 	}, 1000);
+};
 }
 
 
@@ -345,6 +366,8 @@ function styleSelector(map){
 		// add onclick-functionality for clicking on satellite or streets button
 		inputs[i].addEventListener('click', function(layer){
 			switchLayer(map, layer);
+			clearInterval(automationIntervall);
+
 		});
 	}
 }
@@ -542,7 +565,7 @@ function createWarningsCheckboxes(map) {
 	});
 
 	if (warningsTypes[0][1] === "false" && warningsTypes[1][1] === "false" && warningsTypes[2][1] === "false" && warningsTypes[3][1] === "false") {
-		warningsMenu.innerHTML = "Currently no warnings existing.";
+		warningsMenu.innerHTML = "There are no warnings right now";
 	}
 }
 

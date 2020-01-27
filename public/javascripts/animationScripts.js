@@ -255,12 +255,14 @@ function showAnimationMap() {
     // add functionality for menu selection on radar product call
     $("#raster").click(function() {
       innerUnwetterMenuToggle.style.display = "none";
+      clearInterval(automationIntervall);
       reloadAnimation('radar');
     });
 
     // add functionality for menu selection on severeweather call
     $("#severeWeatherAnimation").click(function() {
       innerUnwetterMenuToggle.style.display = "block";
+      clearInterval(automationIntervall);
       reloadAnimation('unwetter');
     });
 
@@ -336,17 +338,12 @@ function reloadAnimation(wType){
   // when another animation is running stop it first
   clearInterval(automationIntervall);
 
-
-  // TODO: momentan wird radardata nicht entfernt, wenn unwetter im menü ausgewählt werden
-
-
-
   // remove all old sources
   removeAllSource(animationMap);
   closeAllPopups();
 
   //if the weathertype is severeweather
-  if ((wType === "unwetter") || (readURL(wType) === "unwetter")) {
+  if ((wType === "unwetter") || (readURL('wtype') === "unwetter")) {
 
     // weathertype indicator for style switcher
     wIndicator = wType;
@@ -370,7 +367,7 @@ function reloadAnimation(wType){
   }
 
   // if the weathertype is radar
-  if ((wType === "radar") || (readURL(wType) === "radar")) {
+  if ((wType === "radar") || (readURL('wtype') === "radar")) {
 
     // weathertype indicator for style switcher
     wIndicator = wType;
@@ -410,6 +407,13 @@ function reloadAnimation(wType){
   $('#downloadButton').prop('title', 'Please wait for one animation cycle!');
   $('#downloadPopup').html('You have to wait for one animation cycle!');
   $("#downloadPopup").css({'background-color': 'DimGray'});
+
+  var sources = animationMap.style.sourceCaches;
+  var layers = animationMap.getStyle().layers;
+
+  console.log(sources); // enthält alle
+  console.log(layers); // enthält NICHT ALLE, nur die, die grad angezeigt werden
+
 }
 
 
@@ -629,6 +633,7 @@ function loadAnimation(position, map){
           }
         });
       } else if (layerID.includes("unwetter")) {
+
         map.addLayer({
           'id': layerID,
           'type': 'fill',
@@ -730,8 +735,9 @@ function loadAnimation(position, map){
       }
 
       makeLayerInteractive(map, layerID);
-      createWarningsCheckboxes(animationMap);
       allLayers.push(layerID);
+      createWarningsCheckboxes(animationMap);
+
     }
   });
 }
@@ -751,7 +757,7 @@ function createGif(array) {
   gifshot.createGIF({
     images: array,
     interval: 0.8,
-    sampleInterval: 0.5,
+    sampleInterval: 0.3,
     numWorkers: 5,
     'gifWidth': 800,
     'gifHeight': 400,
@@ -982,7 +988,7 @@ function removeAllSource(map) {
 
       // checks if the sources contain a numbered id
     // if (key.includes("unwetter") || key.includes("radar") || key.includes("Tweet") ){
-    if (key.includes("unwetter") || key.includes("rainradar") || key.includes("tweet") ){
+    if (key.includes("unwetter") || key.includes("radar") || key.includes("tweet") ){
 
 //  console.log("Test if");
 //console.log(key);
