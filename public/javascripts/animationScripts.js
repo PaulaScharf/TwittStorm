@@ -551,7 +551,7 @@ function loadAnimation(position, map){
   //check if a layer is shown
   for (let i = 0; i < allLayers.length; i++) {
     // if yes remove them
-    if (typeof map.getLayer(layerID) !== "undefined") {
+    if (typeof map.getLayer(allLayers[i]) !== "undefined") {
       map.removeLayer(allLayers[i]);
     }
   }
