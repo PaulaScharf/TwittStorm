@@ -69,13 +69,17 @@ function drawForAOI(map, draw) {
 
 
 	map.on('draw.reloadTweets', function () {
-		doneProcessingAOI = false;
-		let polygons = draw.getAll();
-		if (polygons.features[0]) {
-			if (attr === "warnings") {
-				onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates));
-			} else {
-				onlyShowRainRadarAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates), prod);
+		if (readURL("aoi") !== false) {
+			doneProcessingAOI = false;
+			let polygons = draw.getAll();
+			if (polygons.features[0]) {
+				let attr = readURL("wtype");
+				if (attr === "warnings") {
+					onlyShowUnwetterAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates));
+				} else {
+					let prod = readURL("radProd");
+					onlyShowRainRadarAndTweetsInPolygon(map, turf.polygon(polygons.features[0].geometry.coordinates), prod);
+				}
 			}
 		}
 	})

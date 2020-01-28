@@ -560,11 +560,6 @@ function requestAndDisplayAllRainRadar(map, product) {
 		// load tweets if aoi is drawn
 		map.fire('draw.reloadTweets', {});
 		doneLoadingWeather = true;
-
-		// TODO: hier sinnlos?? dann löschen
-		//		if ((readURL("aoi")) !== false) {
-		//			useAOIFromURL(readURL("aoi"), draw);
-		//		}
 	})
 
 	// if the request has failed, ...
@@ -580,12 +575,12 @@ function requestAndDisplayAllRainRadar(map, product) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
+console.log(xhr.responseJSON.err_msg[0].code);
+		if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
+			window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
+		}
+
 		doneLoadingWeather = true;
-
-		// TODO: mit if status abfangen, bei dem folgendes nötig ist
-		console.log(status);
-		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
-
 	});
 }
 
@@ -661,14 +656,7 @@ function callRainRadar(map, prod) {
 			requestAndDisplayAllRainRadar(map, prod);
 
 		} else {
-
-			// TODO: paula fragen?
 			doneLoadingWeather = true;
-
-			// TODO: hier sinnlos?? dann löschen
-			//			if ((readURL("aoi")) !== false) {
-			//				useAOIFromURL(readURL("aoi"), draw);
-			//			}
 		}
 	})
 
@@ -685,11 +673,12 @@ function callRainRadar(map, prod) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
-		doneLoadingWeather = true;
+console.log(xhr.responseJSON.err_msg[0].code);
+		if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
+			window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
+		}
 
-		// TODO: mit if status abfangen, bei dem folgendes nötig ist
-		console.log(status);
-		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
+		doneLoadingWeather = true;
 	});
 }
 // *****************************************************************************************************
@@ -768,7 +757,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				}
 				// if the warnings shown are demodata
 				else {
-					// TODO: eher im Code nötig, direkt wenn Legende eingeladen wird, aber wie dann an currentTimestamp kommen??
 					timestampLastRequest.innerHTML = "";
 
 					let posAccuracy = document.getElementById("posAccuracy");
@@ -912,7 +900,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				// Layer-adding for warnings with a polygon-geometry
 			} else {
 				// add the given warnings as a layer to the map and create checkboxes for the menu
-			addWarningsLayerAndCheckboxes(map, layerID);
+				addWarningsLayerAndCheckboxes(map, layerID);
 			}
 
 			makeLayerInteractive(map, layerID);
@@ -932,95 +920,95 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	*/
 	function addWarningsLayerAndCheckboxes(map, layerID, animationBool){
 
-	  map.addLayer({
-	    'id': layerID,
-	    'type': 'fill',
-	    'source': layerID,
-	    "paint": {
-	      "fill-color": [
-	        "match", ["string", ["get", "ec_ii"]],
-	        "24", // black ice
-	        "yellow",
-	        "84",
-	        "yellow",
-	        "85",
-	        "yellow",
-	        "87",
-	        "yellow",
-	        "31", // thunderstorm
-	        "red",
-	        "33",
-	        "red",
-	        "34",
-	        "red",
-	        "36",
-	        "red",
-	        "38",
-	        "red",
-	        "40",
-	        "red",
-	        "41",
-	        "red",
-	        "42",
-	        "red",
-	        "44",
-	        "red",
-	        "45",
-	        "red",
-	        "46",
-	        "red",
-	        "48",
-	        "red",
-	        "49",
-	        "red",
-	        "90",
-	        "red",
-	        "91",
-	        "red",
-	        "92",
-	        "red",
-	        "93",
-	        "red",
-	        "95",
-	        "red",
-	        "96",
-	        "red",
-	        "61", // rain
-	        "blue",
-	        "62",
-	        "blue",
-	        "63",
-	        "blue",
-	        "64",
-	        "blue",
-	        "65",
-	        "blue",
-	        "66",
-	        "blue",
-	        "70", // snowfall
-	        "darkviolet",
-	        "71",
-	        "darkviolet",
-	        "72",
-	        "darkviolet",
-	        "73",
-	        "darkviolet",
-	        "74",
-	        "darkviolet",
-	        "75",
-	        "darkviolet",
-	        "76",
-	        "darkviolet",
-	        "77",
-	        "darkviolet",
-	        "78",
-	        "darkviolet",
-	        "black" // other events
-	      ],
-	      "fill-opacity": 0.3
-	    }
-	  });
-	  createWarningsCheckboxes(map, animationBool);
+		map.addLayer({
+			'id': layerID,
+			'type': 'fill',
+			'source': layerID,
+			"paint": {
+				"fill-color": [
+					"match", ["string", ["get", "ec_ii"]],
+					"24", // black ice
+					"yellow",
+					"84",
+					"yellow",
+					"85",
+					"yellow",
+					"87",
+					"yellow",
+					"31", // thunderstorm
+					"red",
+					"33",
+					"red",
+					"34",
+					"red",
+					"36",
+					"red",
+					"38",
+					"red",
+					"40",
+					"red",
+					"41",
+					"red",
+					"42",
+					"red",
+					"44",
+					"red",
+					"45",
+					"red",
+					"46",
+					"red",
+					"48",
+					"red",
+					"49",
+					"red",
+					"90",
+					"red",
+					"91",
+					"red",
+					"92",
+					"red",
+					"93",
+					"red",
+					"95",
+					"red",
+					"96",
+					"red",
+					"61", // rain
+					"blue",
+					"62",
+					"blue",
+					"63",
+					"blue",
+					"64",
+					"blue",
+					"65",
+					"blue",
+					"66",
+					"blue",
+					"70", // snowfall
+					"darkviolet",
+					"71",
+					"darkviolet",
+					"72",
+					"darkviolet",
+					"73",
+					"darkviolet",
+					"74",
+					"darkviolet",
+					"75",
+					"darkviolet",
+					"76",
+					"darkviolet",
+					"77",
+					"darkviolet",
+					"78",
+					"darkviolet",
+					"black" // other events
+				],
+				"fill-opacity": 0.3
+			}
+		});
+		createWarningsCheckboxes(map, animationBool);
 	}
 
 
@@ -1177,7 +1165,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// create a boolean
 							let bool = false;
 							for(let i = 0; i < rainRadarLayer._data.features.length; i++) {
-								console.log(rainRadarLayer._data.features[i]);
 								let rainRadarPolygon = turf.polygon(rainRadarLayer._data.features[i].geometry.coordinates);
 								// if the point lies in any of these rainRadar polygons, set bool true
 								if(turf.booleanPointInPolygon(tweetLocation, rainRadarPolygon)) {
@@ -1188,13 +1175,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// if bool is true, displayEvent()
 
 							if(bool) {
-							let tweetFeature = {
-								"type": "Feature",
-								"geometry": item.location_actual,
-								"properties": item
-							};
-							tweetFeatureCollection.features = [tweetFeature];
-							displayEvent(map, "tweet rainradar", tweetFeatureCollection);
+								let tweetFeature = {
+									"type": "Feature",
+									"geometry": item.location_actual,
+									"properties": item
+								};
+								tweetFeatureCollection.features = [tweetFeature];
+								displayEvent(map, "tweet rainradar", tweetFeatureCollection);
 							}
 
 						}
@@ -1218,6 +1205,11 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			else {
 				JL("ajaxRetrievingTweetsError").fatalException(error);
 			}
+
+			if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
+				window.alert("The twitter API rate limit exceeded.\nPlease try again later.");
+			}
+
 			doneProcessingAOI = true;
 		});
 
@@ -1312,8 +1304,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				contentType: "application/json; charset=utf-8",
 				// data to send to the server
 				data: JSON.stringify(query),
-				// timeout set to 30 seconds
-				timeout: 30000,
+				// timeout set to 50 seconds
+				timeout: 50000,
 				// update the status display
 				success: function () {
 					$('#information').html("Trying to find and insert fitting tweets.");
@@ -1322,6 +1314,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			// if the request is done successfully, ...
 			.done(function (result) {
+
 				// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 				console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
@@ -1373,6 +1366,11 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				if (i >= requests.length - 1) {
 					doneProcessingAOI = true;
 				}
+
+				if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
+					window.alert("The twitter API rate limit exceeded.\nPlease try again later.");
+				}
+
 			});
 		}
 		if (requests.length < 1) {

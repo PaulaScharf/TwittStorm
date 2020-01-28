@@ -190,6 +190,7 @@ const searchTweetsForEvent = function(req, res) {
 						promiseToGetTweetsFromTwitter(searchQuery)
 							.catch(function (error) {
 								if (!res.headersSent) {
+									console.log(error);
 									res.status(500).send({
 										err_msg: error,
 										while: "retrieving new tweets through the twitter client"

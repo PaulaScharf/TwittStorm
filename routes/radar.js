@@ -452,8 +452,8 @@ var radarRoute = function(req, res) {
               }
               else {
                 // not the future case
-                let e = "It is likely that a timestamp error occured. This is dueto DWD publishing delays. Please try again.";
-                e = { "err_msg": e };
+                let e_String = "It is likely that a timestamp error occured. This is due to DWD publishing delays. Please try again.";
+                let e = { "err_msg": e_String, "code": 123};
                 res.status(422).send(e);
               }
             }
