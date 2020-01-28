@@ -89,7 +89,7 @@
 <!-- Explanation texts -->
 
 <div class='texts' id ="0 text"  >
-  This is the <b>core of our application</b>. Here on "Map" you can explore recent precipitation data, warnings, and tweets.
+  This is the <b>core of our application</b>. Here on "Map" you can explore recent precipitation data, warnings and tweets.
   Go ahead and see how each element works, or just explore on your own. You can use this page as <b>your "monitoring page"</b>, as new data is requested for you automatically. This data will be available in the "animation" part.
   <br><br>
   <b>Good to know:</b> Weather warnings, as shown in the screenshot, are clickable for a detailed popup. Tweets will be requested upon drawing an AOI and will then also have a popup.
@@ -97,14 +97,14 @@
     <ul>
     <li>Menu: Through this menu you can select between the map view (the page seen above) or the animation of previous weather events (see third slide). You can also access the demo data right here through the dropdowns.</li>
     <li>Geocoder: The geocoder gives you the possibility to search for places that you would like to pinpoint on the map.</li>
-    <li>Basemap switch: With a simple click you can chosse between two basemaps. A satellite image or a street view.</li>
+    <li>Basemap switch: With a simple click you can chosse between two basemaps: a satellite image or a street map.</li>
     <li>Zoom/Tilt: This panel gives you the ability to zoom in and out by clicking the + or - symbol. The compass symbol lets you tilt the map in different angles and also to reset it to north.</li>
-    <li>Aoi-tools: On this position you can find the tools for drawing and deleting your own area-of-interest. Drawing an AOI invokes searching for tweets. For further informations check out the next slide to the right.</li>
-    <li>Layer selector: The layer selector will help you to access the type of data that you want. You can select between polygonal weatherwarnings and various rain radar products, both provided through the DWD.</li>
-    <li>The checkbox menu for the severe weather warnings only shows the currently existing warning types.</li>
+    <li>AOI-tools: On this position you can find the tools for drawing and deleting your own area-of-interest. Drawing an AOI invokes searching for tweets. For further informations check out the next slide to the right.</li>
+    <li>Layer selector: The layer selector will help you to access the type of data that you want. You can select between polygonal severe weather warnings and various rain radar products, both provided through the DWD.
+    <br>The checkbox menu for the severe weather warnings only shows the currently existing warning types.</li>
     <li>Pan-buttons: Simply press the direction that you want your map to move to.</li>
-    <li>Filter tweets: This field will act as a filter for the display of tweets by words. Multiple search words must be inidicated with a single linebreak.</li>
-    <li>Legend: The legend will provide you with detailed informations for the shown data, such as orign, age, accuracy and most importantly how to interpret different colors in the map.</li>
+    <li>Filter tweets: This field will act as a filter for the display of tweets by words. Multiple search words must be indicated with a single line break.</li>
+    <li>Legend: The legend will provide you with detailed informations for the shown data, such as data source, data age, accuracy and most importantly how to interpret different colors in the map.</li>
   </ul>
   </div>
 
@@ -126,7 +126,7 @@
         <li>Exact time of shown data: This timestamp will inform you about the time of the data that is currently shown.</li>
         <li>"Jump-to"-slider": With this slider you can manually select the timestep that you want to see.</li>
         <li>Play/Pause-button: By clicking this button you can start and stop the animation.</li>
-        <li>Download-button: If you click this button a .gif of the shown data will be computed for you to download. Any changes in the data need to make one "complete run" though the loop, as the frames for the gif are recorded right out of the map. This also means you can personalize the map extent, zoom, tilt etc.</li>
+        <li>Download-button: If you click this button a .gif of the shown data will be computed for you to download. Any changes in the data need to make one "complete run" though the loop, as the frames for the .gif are recorded right out of the map. This also means you can personalize the map extent, zoom, tilt etc.</li>
         <li>Layer menu: On the animation page the layer menu functions as a selector for the desired data type. If you choose radar, suitable data will be chosen for you depending on how often new data is fetched. Information about that data is found in the legend as usual.</li>
     </ul>
       </div>
@@ -136,9 +136,9 @@
         Changes on this page will result in a <b>permanent change</b> that is saved in the config.yaml.
         <br><br>
         <ul>
-          <li>Default map location: [X,Y] - coordinate based input that will change the default map location.</li>
+          <li>Default map location: [longitude, latitude] - coordinate based input that will change the default map location.</li>
           <li>Default map zoom: If you change this value the default zoom level will be changed accordingly.</li>
-          <li>Tweet History: By changing this value to a number that is smaller than 10080 you can adjust how old tweets will be. The value is based on minutes</li>
+          <li>Tweet History: By changing this value to a number that is smaller than 10080 you can adjust how old tweets will be. The value is based on minutes.</li>
       </ul>
         </div>
 
