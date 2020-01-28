@@ -8,6 +8,11 @@
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 */
 
+/**
+* indicator for the current position of the image carousel
+* @type {number}
+*/
+var mover = 0;
 
 /**
 * @desc Creates and shows a legend for the given map and given type of data.
@@ -352,8 +357,9 @@ function switchLayer(map, layer) {
 * @desc Uses the styles that are set on the index page to switch between them on click of the switcher field
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
+* @param {String} base - the current page ()"index" or "animation")
 */
-function styleSelector(map){
+function styleSelector(map, base){
 
 	// takes the map styles from the selection on the corresponding ejs-page
 	let layerList = document.getElementById('styleMenu');
@@ -363,10 +369,10 @@ function styleSelector(map){
 		// add onclick-functionality for clicking on satellite or streets button
 		inputs[i].addEventListener('click', function(layer){
 			switchLayer(map, layer);
-
-			if (indicator === "animation"){
-				clearInterval(automationIntervall);
-			}
+			// if the style is selected on the animationpage, stop the animation first
+			if (base === "animation"){
+			clearInterval(automationIntervall);
+			};
 		});
 	}
 }
