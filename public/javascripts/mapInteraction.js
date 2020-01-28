@@ -14,7 +14,7 @@
 * Contains information about different layers in map, their source and corrsponding timestamps.
 * @author Katharina Poppinga
 * @param {Object} map - mapbox-map for and in which to display the legend
-* @param {String} typeOfData - "unwetter" or "radar"
+* @param {String} typeOfData - "warnings" or "radar"
 * @param {String} product - type of rain radar: "ry", "rw" or "sf"
 */
 function showLegend(map, typeOfData, product) {
@@ -39,7 +39,7 @@ function showLegend(map, typeOfData, product) {
 
 
 	// ******************************* legend for warnings *******************************
-	if (typeOfData === "unwetter") {
+	if (typeOfData === "warnings") {
 
 		// set titel of legend
 		paraTypeOfData.innerHTML = "<b>Severe weather</b>";
@@ -206,8 +206,8 @@ function openMenu(button, menu, page) {
 		var innerRasterMenuToggle = document.getElementById('rasterMenu');
 		innerRasterMenuToggle.style.display = "block";
 		// except the animation site is shown
-			if (page === 'animation'){
-				innerRasterMenuToggle.style.display = "none";
+		if (page === 'animation'){
+			innerRasterMenuToggle.style.display = "none";
 		}
 	}
 	// if severe weather is selected automatically open up the severe weather submenu
@@ -312,38 +312,38 @@ function switchLayer(map, layer) {
 		clearInterval(automationIntervall);
 		// reloadAnimation
 		reloadAnimation(readURL('wtype'));
-	//change the sources styles to the chosen basemap
-	setTimeout(() => {
-		Object.entries(savedSources).forEach(([id, source]) => {
-			if (typeof map.getSource(id) === 'undefined') {
-				map.addSource(id, source);
-			}
-		});
-		// in case of animationmap only keep the germany boundary
-		savedLayers.forEach((layer) => {
-			if ( layer.id == "boundaryGermany" ) {
-				map.addLayer(layer);
-			}
-		});
-	}, 1000);
+		//change the sources styles to the chosen basemap
+		setTimeout(() => {
+			Object.entries(savedSources).forEach(([id, source]) => {
+				if (typeof map.getSource(id) === 'undefined') {
+					map.addSource(id, source);
+				}
+			});
+			// in case of animationmap only keep the germany boundary
+			savedLayers.forEach((layer) => {
+				if ( layer.id == "boundaryGermany" ) {
+					map.addLayer(layer);
+				}
+			});
+		}, 1000);
 
 
-}
-else{
-	setTimeout(() => {
-		Object.entries(savedSources).forEach(([id, source]) => {
-			if (typeof map.getSource(id) === 'undefined') {
-				map.addSource(id, source);
-			}
-		});
+	}
+	else{
+		setTimeout(() => {
+			Object.entries(savedSources).forEach(([id, source]) => {
+				if (typeof map.getSource(id) === 'undefined') {
+					map.addSource(id, source);
+				}
+			});
 
-		savedLayers.forEach((layer) => {
-			if (typeof map.getLayer(layer.id) === 'undefined') {
-				map.addLayer(layer);
-			}
-		});
-	}, 1000);
-};
+			savedLayers.forEach((layer) => {
+				if (typeof map.getLayer(layer.id) === 'undefined') {
+					map.addLayer(layer);
+				}
+			});
+		}, 1000);
+	};
 }
 
 
@@ -476,7 +476,7 @@ function loadSevereWeather(map, draw){
 
 	// if there was the rainradar data shown before, change the legend
 	if (wtypeFlag == "radar") {
-		showLegend(map, "unwetter");
+		showLegend(map, "warnings");
 	}
 
 	// set flag to severeWeather
@@ -535,8 +535,9 @@ function loadSevereWeather(map, draw){
 * @private
 * @author Katharina Poppinga
 * @param {Object} map - mapbox-map
+* @param {boolean} animationBool - true, if the checkbox is for the animation menu (otherwise this variable is not existing)
 */
-function createWarningsCheckboxes(map) {
+function createWarningsCheckboxes(map, animationBool) {
 
 	// get the HTML-div, in which the checkboxes for the warning types will be written
 	let warningsMenu = document.getElementById("menu");
@@ -555,14 +556,14 @@ function createWarningsCheckboxes(map) {
 	map.style._order.forEach(function(layer) {
 		for (let i = 0; i < warningsTypes.length; i++) {
 			if ((layer.includes(warningsTypes[i][0])) && (warningsTypes[i][1] === "false")) {
-				createWarningsCheckbox(map, warningsMenu, warningsTypes[i][0], true);
+				createWarningsCheckbox(map, warningsMenu, warningsTypes[i][0], true, animationBool);
 				warningsTypes[i][1] = "true";
 			}
 		}
 	});
 
 	if (warningsTypes[0][1] === "false" && warningsTypes[1][1] === "false" && warningsTypes[2][1] === "false" && warningsTypes[3][1] === "false") {
-		warningsMenu.innerHTML = "There are no warnings right now";
+		warningsMenu.innerHTML = "Currently no warnings existing";
 	}
 }
 
@@ -577,20 +578,35 @@ function createWarningsCheckboxes(map) {
 * @param {HTML-element-ID} warningsMenu - ID of HTML element into which the checkboxes will be written
 * @param {String} type - type of warnings (equals content of layerGroup), one of the following: ("Rain", "Snowfall", "Thunderstorm", "BlackIce")
 * @param {boolean} checked - true if a route is selected, false if not
+* @param {boolean} animationBool - true, if the checkbox is for the animation menu (otherwise this variable is not existing)
 */
-function createWarningsCheckbox(map, warningsMenu, type, checked) {
+function createWarningsCheckbox(map, warningsMenu, type, checked, animationBool) {
 
-	// the type BlackIce needs a separate call because in the menu its type has to be changed to "Black ice" (with a space)
-	if (type === "BlackIce") {
-		// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenuDiv"
-		warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(map, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> Black ice<br>";
-	}
-	else {
-		// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenuDiv"
-		warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(map, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> " + type + "<br>";
+	// if the checkbox is for the animation menu
+	if (animationBool) {
+		// the type BlackIce needs a separate call because in the menu its type has to be changed to "Black ice" (with a space)
+		if (type === "BlackIce") {
+			// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenu"
+			warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(animationMap, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> Black ice<br>";
+		}
+		else {
+			// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenu"
+			warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(animationMap, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> " + type + "<br>";
+		}
+
+		// if the checkbox is for the main map, not the animation
+	} else {
+		// the type BlackIce needs a separate call because in the menu its type has to be changed to "Black ice" (with a space)
+		if (type === "BlackIce") {
+			// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenu"
+			warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(map, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> Black ice<br>";
+		}
+		else {
+			// add the checkbox for the warnings-type (which calls the function showWarningsType(i) if clicked) to the content of the "warningsMenu"
+			warningsMenu.innerHTML = warningsMenu.innerHTML + "  <input type='checkbox' id='warningsCheckbox_" + type + "' onclick='showHideWarningsType(map, \"" + type + "\")'" + ((checked) ? "checked" : "") + "> " + type + "<br>";
+		}
 	}
 }
-
 
 
 /**
@@ -610,7 +626,7 @@ function showHideWarningsType(map, type){
 	// if the checkbox is checked, show the corresponding warnings in the map
 	if (checkBox.checked) {
 		map.style._order.forEach(function(layer) {
-			if (layer.includes("unwetter " + type)) {
+			if ((layer.includes("unwetter")) && (layer.includes(type))) {
 				map.setLayoutProperty(layer, 'visibility', 'visible');
 			}
 		});
@@ -620,7 +636,7 @@ function showHideWarningsType(map, type){
 	else {
 		closeAllPopups();
 		map.style._order.forEach(function(layer) {
-			if (layer.includes("unwetter " + type)) {
+			if ((layer.includes("unwetter")) && (layer.includes(type))) {
 				map.setLayoutProperty(layer, 'visibility', 'none');
 			}
 		});
@@ -769,7 +785,7 @@ function helpPageHandler(){
 
 	// functionality for the next button
 	$("#next").click(function() {
-	//cycle forward through the text ids
+		//cycle forward through the text ids
 		if(mover <= 2){
 			mover ++;
 		}
@@ -781,10 +797,10 @@ function helpPageHandler(){
 			changer.innerHTML = first;
 		}
 		else {
-		var inserter = document.getElementById(mover + ' text')
-		//change explanation text to the accoriding text
-		changer.innerHTML = inserter.innerHTML;
-	};
+			var inserter = document.getElementById(mover + ' text')
+			//change explanation text to the accoriding text
+			changer.innerHTML = inserter.innerHTML;
+		};
 	});
 
 	// functionality for the prev button on the help page
@@ -802,9 +818,9 @@ function helpPageHandler(){
 			changer.innerHTML = first;
 		}
 		else {
-		var inserter = document.getElementById(mover + ' text')
-		//change explanation text to the accoriding text
-		changer.innerHTML = inserter.innerHTML;
+			var inserter = document.getElementById(mover + ' text')
+			//change explanation text to the accoriding text
+			changer.innerHTML = inserter.innerHTML;
 		};
 	});
 }

@@ -164,7 +164,7 @@ function showMap() {
 
 	// if not yet in URL, use default warnings
 	if (!(readURL("wtype"))) {
-		updateURL("wtype", "unwetter");
+		updateURL("wtype", "warnings");
 	}
 
 	// if not yet in URL, get value from config.yaml
@@ -359,7 +359,7 @@ function showMap() {
 			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.add("active");
 
-			showLegend(map, "unwetter");
+			showLegend(map, "warnings");
 
 			// elapsed milliseconds to last warnings request
 			let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
@@ -752,7 +752,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		console.log("AJAX request (reading current warnings) is done successfully.");
 
 		// for displaying the warnings stuff only in the map for severe weather warnings and not in the map for radar data
-		if (readURL("wtype") == "warnings") {
+		if (readURL("wtype") === "warnings") {
 
 			let timestampLastRequest = document.getElementById("timestampLastRequest");
 
@@ -911,103 +911,118 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 				// Layer-adding for warnings with a polygon-geometry
 			} else {
-				// add the given warnings as a layer to the map
-				map.addLayer({
-					"id": layerID,
-					"type": "fill",
-					"source": layerID,
-					"layout": {"visibility": "visible"},
-					"paint": {
-						"fill-color": [
-							"match", ["string", ["get", "ec_ii"]],
-							"24", // black ice
-							"yellow",
-							"84",
-							"yellow",
-							"85",
-							"yellow",
-							"87",
-							"yellow",
-							"31", // thunderstorm
-							"red",
-							"33",
-							"red",
-							"34",
-							"red",
-							"36",
-							"red",
-							"38",
-							"red",
-							"40",
-							"red",
-							"41",
-							"red",
-							"42",
-							"red",
-							"44",
-							"red",
-							"45",
-							"red",
-							"46",
-							"red",
-							"48",
-							"red",
-							"49",
-							"red",
-							"90",
-							"red",
-							"91",
-							"red",
-							"92",
-							"red",
-							"93",
-							"red",
-							"95",
-							"red",
-							"96",
-							"red",
-							"61", // rain
-							"blue",
-							"62",
-							"blue",
-							"63",
-							"blue",
-							"64",
-							"blue",
-							"65",
-							"blue",
-							"66",
-							"blue",
-							"70", // snowfall
-							"darkviolet",
-							"71",
-							"darkviolet",
-							"72",
-							"darkviolet",
-							"73",
-							"darkviolet",
-							"74",
-							"darkviolet",
-							"75",
-							"darkviolet",
-							"76",
-							"darkviolet",
-							"77",
-							"darkviolet",
-							"78",
-							"darkviolet",
-							"black" // other events
-						],
-						"fill-opacity": 0.3
-					}
-				});
+				// add the given warnings as a layer to the map and create checkboxes for the menu
+			addWarningsLayerAndCheckboxes(map, layerID);
 			}
 
 			makeLayerInteractive(map, layerID);
-			createWarningsCheckboxes(map);
 			customLayerIds.push(layerID);
 		}
 	}
+
+
+	/**
+	* @desc Adds a layer with given layerID to the given mapbox-map.
+	* Colors the layer by color depending on its attribute "ec_ii".
+	* Creates checkboxes for the layer menu.
+	* @author Katharina Poppinga
+	* @param {Object} map - mapbox-map
+	* @param {String} layerID - ID of the mapbox-layer
+	* @param {boolean} animationBool - true, if the checkboxes are for the animation menu (otherwise this variable is not existing)
+	*/
+	function addWarningsLayerAndCheckboxes(map, layerID, animationBool){
+
+	  map.addLayer({
+	    'id': layerID,
+	    'type': 'fill',
+	    'source': layerID,
+	    "paint": {
+	      "fill-color": [
+	        "match", ["string", ["get", "ec_ii"]],
+	        "24", // black ice
+	        "yellow",
+	        "84",
+	        "yellow",
+	        "85",
+	        "yellow",
+	        "87",
+	        "yellow",
+	        "31", // thunderstorm
+	        "red",
+	        "33",
+	        "red",
+	        "34",
+	        "red",
+	        "36",
+	        "red",
+	        "38",
+	        "red",
+	        "40",
+	        "red",
+	        "41",
+	        "red",
+	        "42",
+	        "red",
+	        "44",
+	        "red",
+	        "45",
+	        "red",
+	        "46",
+	        "red",
+	        "48",
+	        "red",
+	        "49",
+	        "red",
+	        "90",
+	        "red",
+	        "91",
+	        "red",
+	        "92",
+	        "red",
+	        "93",
+	        "red",
+	        "95",
+	        "red",
+	        "96",
+	        "red",
+	        "61", // rain
+	        "blue",
+	        "62",
+	        "blue",
+	        "63",
+	        "blue",
+	        "64",
+	        "blue",
+	        "65",
+	        "blue",
+	        "66",
+	        "blue",
+	        "70", // snowfall
+	        "darkviolet",
+	        "71",
+	        "darkviolet",
+	        "72",
+	        "darkviolet",
+	        "73",
+	        "darkviolet",
+	        "74",
+	        "darkviolet",
+	        "75",
+	        "darkviolet",
+	        "76",
+	        "darkviolet",
+	        "77",
+	        "darkviolet",
+	        "78",
+	        "darkviolet",
+	        "black" // other events
+	      ],
+	      "fill-opacity": 0.3
+	    }
+	  });
+	  createWarningsCheckboxes(map, animationBool);
+	}
+
 
 
 	// TODO: JSDoc

@@ -18,10 +18,10 @@ const yaml = require('js-yaml');
 let config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 
 
+// get mapbox-access key out of .env and write it into config.yaml, so that client-side can get it out of config.yaml
 updateVariableInConfigYaml("mapbox_access_key", process.env.MAPBOX_ACCESS_KEY);
 
 
-//
 router.post("/", (req, res) => {
 	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 	try {

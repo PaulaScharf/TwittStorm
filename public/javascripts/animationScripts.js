@@ -278,7 +278,7 @@ function showAnimationMap() {
       rasterMenuToggle.classList.remove("active");
       severeWeatherMenuToggle.classList.add("active");
       //display the legend according to the weathertype
-      showLegend(animationMap, "unwetter");
+      showLegend(animationMap, "warnings");
 
       // the last warnings request was ...-milliseconds ago
       let msecsToLastUnwetterRequest = Date.now() - paramArray.config.timestamp_last_warnings_request;
@@ -351,7 +351,7 @@ function reloadAnimation(wType){
     // set the weathertype
     wtypeFlag = "severeWeather";
     //display the legend
-    showLegend(animationMap, "unwetter");
+    showLegend(animationMap, "warnings");
     //request the previous weather
     loadPreviousWeather(animationMap, wtypeFlag);
 
@@ -572,10 +572,11 @@ function setToReady(){
 /**
 * @desc Adds the desired layer, removes the others and displays the date according to the timestamp
 * @author Benjamin Rieke
-* @param {} position checks at which position each timestamp is supposed to be displayed
+* @param {String} or {number} position checks at which position each timestamp is supposed to be displayed
 * @param {Object} map - mapbox-map
 */
 function loadAnimation(position, map){
+
   // set a "marker" for the wanted position based on the available timestamps
   let posMarker = usedTimestamps[position];
 
@@ -620,96 +621,32 @@ function loadAnimation(position, map){
             "fill-opacity": 0.4
           }
         });
+
       } else if (layerID.includes("unwetter")) {
 
-        map.addLayer({
-          'id': layerID,
-          'type': 'fill',
-          'source': layerID,
-          "paint": {
-            "fill-color": [
-              "match", ["string", ["get", "ec_ii"]],
-              "24", // black ice
-              "yellow",
-              "84",
-              "yellow",
-              "85",
-              "yellow",
-              "87",
-              "yellow",
-              "31", // thunderstorm
-              "red",
-              "33",
-              "red",
-              "34",
-              "red",
-              "36",
-              "red",
-              "38",
-              "red",
-              "40",
-              "red",
-              "41",
-              "red",
-              "42",
-              "red",
-              "44",
-              "red",
-              "45",
-              "red",
-              "46",
-              "red",
-              "48",
-              "red",
-              "49",
-              "red",
-              "90",
-              "red",
-              "91",
-              "red",
-              "92",
-              "red",
-              "93",
-              "red",
-              "95",
-              "red",
-              "96",
-              "red",
-              "61", // rain
-              "blue",
-              "62",
-              "blue",
-              "63",
-              "blue",
-              "64",
-              "blue",
-              "65",
-              "blue",
-              "66",
-              "blue",
-              "70", // snowfall
-              "darkviolet",
-              "71",
-              "darkviolet",
-              "72",
-              "darkviolet",
-              "73",
-              "darkviolet",
-              "74",
-              "darkviolet",
-              "75",
-              "darkviolet",
-              "76",
-              "darkviolet",
-              "77",
-              "darkviolet",
-              "78",
-              "darkviolet",
-              "black" // other events
-            ],
-            "fill-opacity": 0.3
-          }
-        });
+        // add the given warnings as a layer to the map and create checkboxes for the menu
+        addWarningsLayerAndCheckboxes(map, layerID, true);
+
+
+        // check whether corresponding checkbox is checked for showing the layer
+        //    if ((layerIdParts[3] === "Rain" || layerIdParts[3] === "Snowfall" || layerIdParts[3] === "Thunderstorm" || layerIdParts[3] === "BlackIce")) {
+
+        //addWarningsLayerAndCheckboxes(map, layerID, true);
+
+        //          if (document.getElementById("warningsCheckbox_" + layerIdParts[3]) == null) {
+        //            console.log(document.getElementById("warningsCheckbox_" + layerIdParts[3]));
+        //            addWarningsLayerAndCheckboxes(map, layerID, true);
+        //            console.log(layerID);
+        //          }
+
+        //          if ((document.getElementById("warningsCheckbox_" + layerIdParts[3]) != null) && (document.getElementById("warningsCheckbox_" + layerIdParts[3]).checked)) {
+        //            console.log(document.getElementById("warningsCheckbox_" + layerIdParts[3]));
+        //            addWarningsLayerAndCheckboxes(map, layerID, true);
+        //            console.log(layerID);
+        //          }
+        //    }
+
+
       } else if (layerID.includes("tweet")) {
         map.addLayer({
           "id": layerID,
@@ -724,10 +661,10 @@ function loadAnimation(position, map){
 
       makeLayerInteractive(map, layerID);
       allLayers.push(layerID);
-      createWarningsCheckboxes(animationMap);
     }
   });
 }
+
 
 
 /**
@@ -981,7 +918,7 @@ function removeAllSource(map) {
 
   for (let key in sources) {
 
-      // checks if the sources contain a numbered id
+    // checks if the sources contain a numbered id
     if (key.includes("unwetter") || key.includes("radar") || key.includes("tweet") ){
 
       // if they are already in the layers

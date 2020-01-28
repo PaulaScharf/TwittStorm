@@ -26,6 +26,9 @@ var jsnlog_nodejs = require('jsnlog-nodejs').jsnlog_nodejs;
 
 var logger = require('morgan');
 
+// for using variables in .env file
+require('dotenv').config();
+
 // R
 const R = require('r-script');
 

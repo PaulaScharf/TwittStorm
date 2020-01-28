@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node --inspect ./bin/www",
+    "start": "node ./bin/www",
     "debug": "node --inspect ./bin/www"
   },
   "dependencies": {
@@ -14,6 +14,7 @@
     "body-parser": "1.19.0",
     "bootstrap": "4.4.1",
     "debug": "~2.6.9",
+    "dotenv": "8.2.0",
     "downloadjs": "1.4.7",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
