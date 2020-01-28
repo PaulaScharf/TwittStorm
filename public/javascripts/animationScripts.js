@@ -17,15 +17,11 @@
 */
 let animationMap;
 
-
-// TODO: JSDoc für globale Variablen
-
 /**
 *
 * @type {Array}
 */
 let resultOutput = [];
-
 
 /**
 *
@@ -33,21 +29,11 @@ let resultOutput = [];
 */
 let usedTimestamps = [];
 
-
 /**
 * all individual events from a timestamp get temporally stored in here
 * @type {Array}
 */
 let outputArray = [];
-
-
-// TODO: nicht mehr verwendet?? dann löschen
-/**
-* contains the sources in GeoJSON format
-* @type {}
-*/
-let final = [];
-
 
 /**
 * a GeoJSON mask
@@ -55,13 +41,11 @@ let final = [];
 */
 let mask;
 
-
 /**
 * an Array where all active layers are stored
 * @type {Array}
 */
 let allLayers = [];
-
 
 /**
 * stores all GeoJSONs with their timestamps
@@ -69,13 +53,11 @@ let allLayers = [];
 */
 let timestampStorage = [];
 
-
 /**
 * indicates which weathertype is requested
 * @type {String}
 */
 wtypeFlag = "";
-
 
 /**
 * adds up canvasshots from the map in base64 format
@@ -83,20 +65,17 @@ wtypeFlag = "";
 */
 var imageArray = [];
 
-
 /**
 * the final output to create a gif from
 * @type {Array}
 */
 var gifArray = [];
 
-// TODO: type festlegen
 /**
 * the intervall that is started with the animation and used to stop it
-* @type {}
+* @type {number}
 */
 var automationIntervall;
-
 
 /**
 * gives the information that the styleswitcher is on the animation page
@@ -105,17 +84,6 @@ var automationIntervall;
 var indicator = "";
 
 
-// TODO: löschen, da nicht benötigt?
-/**
-* gives the wtype information to the style since the paramarray wont change
-* @type {String}
-*/
-var wIndicator = "";
-
-
-
-// TODO: dies in Funktion schreiben??
-// paula fragen
 // is there a timestamp?
 let currentTimestamp = Date.now();
 if (typeof paramArray.timestamp !== "undefined") {
@@ -507,7 +475,6 @@ function automate(map){
 }
 
 
-// TODO: in onload-Funktion?
 // functionality for the download button
 $("#downloadButton").click(function() {
   // set reference for the popup
@@ -538,7 +505,7 @@ $("#downloadButton").click(function() {
 */
 function takeScreenshot(){
   //save the current map canvas as a base64 formatted array entry
-  html2canvas(document.querySelector("#animationMap")).then(function(canvas){
+  html2canvas(document.querySelector("#animationMap"), {logging: false}).then(function(canvas){
     var gifImage = canvas.toDataURL('image/jpeg');
     imageArray.push(gifImage);
     // activate the downloadbutton if ready
@@ -627,7 +594,7 @@ function loadAnimation(position, map){
         // add the given warnings as a layer to the map and create checkboxes for the menu
         addWarningsLayerAndCheckboxes(map, layerID, true);
 
-
+// TODO: löschen
         // check whether corresponding checkbox is checked for showing the layer
         //    if ((layerIdParts[3] === "Rain" || layerIdParts[3] === "Snowfall" || layerIdParts[3] === "Thunderstorm" || layerIdParts[3] === "BlackIce")) {
 
@@ -670,9 +637,10 @@ function loadAnimation(position, map){
 /**
 * @desc Function provided from gif libary Gifshot
 * @author Benjamin Rieke
-* @param {} array - image containing array
+* @param {Array} array - image containing array
 */
 function createGif(array) {
+
   var date = new Date();
   var utc = date.toJSON().slice(0,10).replace(/-/g,'/');
   var time = date.toLocaleTimeString();
@@ -735,6 +703,7 @@ function loadPreviousWeather(map, weatherEv){
 
   // if the request is done successfully, ...
   .done(function (result) {
+
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
 
@@ -836,7 +805,6 @@ function loadPreviousWeather(map, weatherEv){
                 showLegend(animationMap, "radar", "rw");
               }
 
-
               layerID = "radar " + key + " " + j;
               mask.geometry.features = currentUnwetter;
             }
@@ -873,9 +841,9 @@ function loadPreviousWeather(map, weatherEv){
 /**
 * @desc Function to return a GeoJSON formatted Polygon.
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-* @param {} object - the individual polygons of an event, containing the coords of a polygon
-* @param {} time - timestamp of the data
-* @param {} properties - properties of the event
+* @param {Array} object - the individual polygons of an event, containing the coords of a polygon
+* @param {String} time - timestamp of the data
+* @param {Object} properties - properties of the event
 */
 function goGeoJson(object, time, properties) {
 
@@ -895,9 +863,10 @@ function goGeoJson(object, time, properties) {
 /**
 * @desc Checks if a part of an Object is already in an array.
 * @author Benjamin Rieke
-* @param {} item - geojson object
+* @param {Object} item - geojson object
 */
 function addItem(item) {
+
   var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp);
   if (index === -1) {
     timestampStorage.push(item);
@@ -940,11 +909,11 @@ function removeAllSource(map) {
 * @desc Adds a GEOJSON to the map as a source.
 * @author Benjamin Rieke
 * @param {Object} map - links to the mapbox-map
-* @param {} layerID - to be id of the source. in this case the timestamp
-* @param {} previousFeatureCollection - the geojson featurecollection
+* @param {String} layerID - to be id of the source. in this case the timestamp
+* @param {Object} previousFeatureCollection - the geojson featurecollection
 */
 function addToSource(map, layerID, previousFeatureCollection){
-  //
+
   let sourceObject = map.getSource(layerID);
   // if there is already an existing Source of this map with the given layerID ...
   if (typeof sourceObject !== 'undefined') {

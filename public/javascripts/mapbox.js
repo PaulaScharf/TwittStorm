@@ -21,13 +21,11 @@ mapboxgl.accessToken = paramArray.config.mapbox_access_key;
 */
 let map;
 
-
 /**
 * refers to the layer menu
 * @type {HTML-element-ID}
 */
 let layers = document.getElementById('menu');
-
 
 /**
 * referes to all the layers that are not defaults
@@ -35,29 +33,23 @@ let layers = document.getElementById('menu');
 */
 let customLayerIds = [];
 
-
 /**
-* Indicates whether popups are enabled (if value is true) or not (if value is false)
+* indicates whether popups are enabled (if value is true) or not (if value is false)
 * @type {boolean}
 */
 let popupsEnabled = true;
 
-
 /**
-* time of app start
-* @type {}
+* time of app start (in Epoch milliseconds)
+* @type {number}
 */
 let initTimestamp = Date.now();
-
-console.log(initTimestamp);
-
 
 /**
 * Flag that indicates which weathertype is requested
 * @type {String}
 */
 let wtypeFlag = "";
-
 
 /**
 *
@@ -66,23 +58,20 @@ let wtypeFlag = "";
 */
 let filterwords;
 
-
 /**
 * gives the information that the styleswitcher is on the animation page
 * @type {String}
 */
 var indicator = "";
 
-
 /**
-*
+* indicates whether processing AOI is finished (if value is true) or not (if value is false)
 * @type {boolean}
 */
 var doneProcessingAOI = true;
 
-
 /**
-*
+* indicates whether loading weather is finished (if value is true) or not (if value is false)
 * @type {boolean}
 */
 var doneLoadingWeather = true;
@@ -104,7 +93,6 @@ window.twttr = (function(d, s, id) {
 
 	return t;
 }(document, "script", "twitter-wjs"));
-
 
 
 // ******************************** functions **********************************
@@ -266,19 +254,19 @@ function showMap() {
 		// *************************************************************************
 
 		$("#severeWeather").click(function() {
-			loadSevereWeather(map, draw);
+			loadSevereWeather(map);
 		});
 
 		$("#radio1").click(function() {
-			loadRaster(map, "ry", draw);
+			loadRaster(map, "ry");
 		});
 
 		$("#radio2").click(function() {
-			loadRaster(map, "rw", draw);
+			loadRaster(map, "rw");
 		});
 
 		$("#radio3").click(function() {
-			loadRaster(map, "sf", draw);
+			loadRaster(map, "sf");
 		});
 
 
@@ -307,7 +295,6 @@ function showMap() {
 			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-			// TODO: hier auch readURL verwenden?
 			// if rasterProduct is defined
 			if (paramArray.rasterProduct !== undefined) {
 
@@ -1013,7 +1000,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	/**
 	* @desc Takes an Array of warnings-Objects and checks wether they are expired or not.
 	* If they are expired, removes them from given map.
-	* @author Katharina Poppinga
+	* @author Katharina Poppinga, Paula Scharf
 	* @private
 	* @param {Object} map - mapbox-map from which to remove the given warnings
 	* @param {Array} currentUnwetters - all so far shown warnings
@@ -1046,7 +1033,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					}
 				}
 
-				// TODO: paula geändert?
 				// if the layer-warning is not (no longer) a current warning, remove its ID from customLayerIds
 				if (isCurrent === false) {
 					showAllExcept(map, layerIdParts[2]);
@@ -1110,8 +1096,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		let searchWords = ["rain", "raining", "heavy rain", "rainfall", "precipitation", "Niederschlag", "Regen", "Starkregen", "Dauerregen", "Sturmflut", "Sinnflut", "regnet", "Unwetter", "Gewitter", "Feuerwehr", "Sturm", "Flut"];
 		let query = {
 			twitterSearchQuery: {
-				// TODO which geometry is correct here
-				geometry: geom, //polygon.geometry,  //.coordinates,
+				geometry: geom,
 				searchWords: searchWords
 			},
 			dwd_id: "rainRadar_" + prod.toLowerCase(),
@@ -1207,15 +1192,12 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			}
 
 			if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
-
-				//show the user a popup to inform that the limit has exceeded
+				// show the user a popup to inform that the twitter API rate limit has exceeded
 				$("#twitterInf").css("display","block");
 			}
 
 			doneProcessingAOI = true;
 		});
-
-		// TODO: ???  and then check whether they lie in the rainRadar polygons
 	}
 
 
@@ -1370,8 +1352,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				}
 
 				if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
-
-					//show the user a popup to inform that the limit has exceeded
+					// show the user a popup to inform that the twitter API rate limit has exceeded
 					$("#twitterInf").css("display","block");
 				}
 

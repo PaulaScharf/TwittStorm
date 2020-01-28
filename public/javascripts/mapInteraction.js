@@ -168,7 +168,7 @@ function panMapWithButton(map, directionToPan) {
 * @desc Zoom given map to the given coordinates.
 * @author https://gist.github.com/aerispaha/826a9f2fbbdf37983dc01e6074ce7cd7
 * @param {Object} map - mapbox-map
-* @param {} coordinates -
+* @param {Array} coordinates -
 */
 function zoomToCoordinates(map, coordinates) {
 
@@ -286,12 +286,12 @@ function removeAddGermany(map){
 }
 
 
-// TODO: JSDoc
+
 /**
 * @desc
 * @author Benjamin Rieke, Paula Scharf
 * @param {Object} map mapbox-map
-* @param {} layer - the chosen maplayer style
+* @param {Object} layer - the chosen maplayer style
 */
 function switchLayer(map, layer) {
 
@@ -363,6 +363,8 @@ function styleSelector(map){
 		// add onclick-functionality for clicking on satellite or streets button
 		inputs[i].addEventListener('click', function(layer){
 			switchLayer(map, layer);
+
+			// TODO: nur für animationsseite, abfangen!!
 			clearInterval(automationIntervall);
 
 		});
@@ -376,9 +378,8 @@ function styleSelector(map){
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
 * @param {String} product - the desired radar product (check the GitHub-Wiki for further information)
-* @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
 */
-function loadRaster(map, product, draw){
+function loadRaster(map, product){
 
 	closeAllPopups();
 	showAllExcept(map, "germany");
@@ -412,13 +413,6 @@ function loadRaster(map, product, draw){
 	// add active attribute to radar tab
 	var rasterMenuToggle = document.getElementById('raster');
 	rasterMenuToggle.classList.add("active");
-
-	// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
-	// TODO: dann löschen, da sonst user-irritierend!!
-	// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
-	if ((readURL("aoi")) !== false) {
-		useAOIFromURL(readURL("aoi"), draw);
-	}
 }
 
 
@@ -467,9 +461,8 @@ function removeSevereWeather(map){
 * @desc Loads the warnings-polygons, updates the URL and hides previous selected radar data.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
-* @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
 */
-function loadSevereWeather(map, draw){
+function loadSevereWeather(map){
 
 	closeAllPopups();
 	showAllExcept(map, "germany");
@@ -518,13 +511,6 @@ function loadSevereWeather(map, draw){
 	// activate the severe weather tab
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
-
-	// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
-	// TODO: dann löschen, da sonst user-irritierend!!
-	// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
-	if ((readURL("aoi")) !== false) {
-		useAOIFromURL(readURL("aoi"), draw);
-	}
 }
 
 
@@ -782,14 +768,13 @@ function tabSelector(tab){
 	changer.innerHTML = tabInserter.innerHTML;
 	// change the movers value so that the usage of the arrows is working correctly
 	mover = tab;
-	}
+}
 
 /**
 * @desc This function will add functionality to the helppages image carousel and changes the texts according
 * to the shown image.
 * @author Benjamin Rieke
 */
-
 function helpPageHandler(){
 
 	// functionality for the next and prev buttons on the help page
