@@ -589,6 +589,34 @@
 
 /* ********************************* LEGEND ********************************* */
 
+.d-inline-block {
+  width: 300px;
+  top: 8px;
+  z-index: 1;
+  position: absolute;
+  right: 609px;
+  padding: 1px;
+  display: flex;
+}
+
+
+
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
+
+
 .map-overlay {
   font-size: 14px;
   width: 300px;
