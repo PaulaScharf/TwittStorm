@@ -255,18 +255,22 @@ function showMap() {
 
 		$("#severeWeather").click(function() {
 			loadSevereWeather(map);
+			map.fire('draw.reloadTweets', {});
 		});
 
 		$("#radio1").click(function() {
 			loadRaster(map, "ry");
+			map.fire('draw.reloadTweets', {});
 		});
 
 		$("#radio2").click(function() {
 			loadRaster(map, "rw");
+			map.fire('draw.reloadTweets', {});
 		});
 
 		$("#radio3").click(function() {
 			loadRaster(map, "sf");
+			map.fire('draw.reloadTweets', {});
 		});
 
 
@@ -1076,7 +1080,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 
-		// TODO: layer hier noch nicht immer defined (wenn von unwetter zu radar gewechselt)
+		// TODO: layer hier noch nicht immer defined (wenn von unwetter zu radar gewechselt wird und AOI drin ist)
 		// TODO: erst schauen UND ABWARTEN, ob/dass radar schon in map geladen ist!!
 
 
@@ -1299,6 +1303,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			// if the request is done successfully, ...
 			.done(function (result) {
 
+
+				// TODO: fehlt hier noch ein 4. doneProcessingAOI = true; ??
+
 				// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 				console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
@@ -1372,9 +1379,12 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	*/
 	function showAllExcept(map, keyword) {
 
-		for (let i = 0; i<customLayerIds.length; i++) {
+		// TODO: hier bug, da in der map in diesem moment nicht alle customLayerIds drin sind
+		// kann stattdessen auch map.style._order.forEach(function(layer) {..} verwendet werden?
+
+		for (let i = 0; i < customLayerIds.length; i++) {
 			let layerID = customLayerIds[i];
-			if(layerID.includes(keyword)) {
+			if (layerID.includes(keyword)) {
 				map.removeLayer(layerID);
 				map.removeSource(layerID);
 				customLayerIds.remove(layerID);

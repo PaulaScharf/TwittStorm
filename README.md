@@ -13,7 +13,7 @@ Get three files from [TwittStorm-GitHub-Repository](https://github.com/PaulaScha
 
 Open ``.env`` and set ........... to your own API keys. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys.<br/>
 Then open the docker shell in the same directory and enter ``docker-compose up``.<br/>
-The started application can be found with your browser at `http://<your IP>:3000`. E.g.: http://192.168.99.100:3000/.<br/>
+The started application can be found with your browser at ``http://<your IP>:3000``. E.g.: http://192.168.99.100:3000/.<br/>
 Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?).<br/>  
 
 <br>
