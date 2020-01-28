@@ -1075,12 +1075,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			}
 		}
 
-
-
-		// TODO: layer hier noch nicht immer defined (wenn von unwetter zu radar gewechselt wird und AOI drin ist)
-		// TODO: erst schauen UND ABWARTEN, ob/dass radar schon in map geladen ist!!
-
-
 		let layer = map.getSource("rainradar");
 		layer = layer._data.features;
 
@@ -1373,12 +1367,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @desc This function removes all layers which include the given keyword in their id.
 	* @author Paula Scharf
 	* @param {Object} map - mapbox-map
-	* @param {String} keyword -
+	* @param {String} keyword - the layers that include this keyword in their id will be removed from given map
 	*/
 	function showAllExcept(map, keyword) {
-
-		// TODO: hier bug, da in der map in diesem moment nicht alle customLayerIds drin sind
-		// kann stattdessen auch map.style._order.forEach(function(layer) {..} verwendet werden?
 
 		for (let i = 0; i < customLayerIds.length; i++) {
 			let layerID = customLayerIds[i];

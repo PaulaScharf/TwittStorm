@@ -592,26 +592,6 @@ function loadAnimation(position, map){
         // add the given warnings as a layer to the map and create checkboxes for the menu
         addWarningsLayerAndCheckboxes(map, layerID, true);
 
-// TODO: löschen
-        // check whether corresponding checkbox is checked for showing the layer
-        //    if ((layerIdParts[3] === "Rain" || layerIdParts[3] === "Snowfall" || layerIdParts[3] === "Thunderstorm" || layerIdParts[3] === "BlackIce")) {
-
-        //addWarningsLayerAndCheckboxes(map, layerID, true);
-
-        //          if (document.getElementById("warningsCheckbox_" + layerIdParts[3]) == null) {
-        //            console.log(document.getElementById("warningsCheckbox_" + layerIdParts[3]));
-        //            addWarningsLayerAndCheckboxes(map, layerID, true);
-        //            console.log(layerID);
-        //          }
-
-        //          if ((document.getElementById("warningsCheckbox_" + layerIdParts[3]) != null) && (document.getElementById("warningsCheckbox_" + layerIdParts[3]).checked)) {
-        //            console.log(document.getElementById("warningsCheckbox_" + layerIdParts[3]));
-        //            addWarningsLayerAndCheckboxes(map, layerID, true);
-        //            console.log(layerID);
-        //          }
-        //    }
-
-
       } else if (layerID.includes("tweet")) {
         map.addLayer({
           "id": layerID,

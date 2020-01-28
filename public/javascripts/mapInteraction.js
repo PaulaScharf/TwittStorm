@@ -471,6 +471,7 @@ function removeSevereWeather(map){
 function loadSevereWeather(map){
 
 	closeAllPopups();
+	
 	showAllExcept(map, "tweet");
 	showAllExcept(map, "unwetter");
 

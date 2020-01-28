@@ -109,13 +109,13 @@ function connectMongoDb() {
           useUnifiedTopology: true
         }
       );
-      // connect to and use database "itemdb" (create this database, if it does not exist)
+      // connect to and use database config.mongodb.db_name (create this database, if it does not exist)
       app.locals.db = await app.locals.dbConnection.db(config.mongodb.db_name);
-      // tell the user that the connection is established and database "itemdb" will be used for following operations
+      // tell the user that the connection is established and database config.mongodb.db_name will be used for following operations
       console.log("Using Database " + app.locals.db.databaseName);
 
       // tell the user the URL for starting the application
-      console.log("URL for starting the app: http://localhost:3000/");
+      console.log("URL for starting the app: http://localhost:3000");
 
       // catch possible errors and tell the user about them:
     } catch (error) {
@@ -132,12 +132,11 @@ function connectMongoDb() {
             useUnifiedTopology: true
           }
         );
-        // connect to and use database "itemdb" (create this database, if it does not exist)
-        app.locals.db = await app.locals.dbConnection.db("itemdb");
-        // tell the user that the connection is established and database "itemdb" will be used for following operations
+        // connect to and use database config.mongodb.db_name (create this database, if it does not exist)
+        app.locals.db = await app.locals.dbConnection.db(config.mongodb.db_name);
+        // tell the user that the connection is established and database config.mongodb.db_name will be used for following operations
         console.log("Using Database " + app.locals.db.databaseName);
 
-        // TODO: URL anpassen, docker nutzt immer port 3000?
         // tell the user the URL for starting the application
         console.log("URL for starting the app: http://<yourIP>:3000");
 
