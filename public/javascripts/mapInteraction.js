@@ -376,9 +376,8 @@ function styleSelector(map){
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
 * @param {String} product - the desired radar product (check the GitHub-Wiki for further information)
-* @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
 */
-function loadRaster(map, product, draw){
+function loadRaster(map, product){
 
 	closeAllPopups();
 	showAllExcept(map, "germany");
@@ -412,13 +411,6 @@ function loadRaster(map, product, draw){
 	// add active attribute to radar tab
 	var rasterMenuToggle = document.getElementById('raster');
 	rasterMenuToggle.classList.add("active");
-
-	// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
-	// TODO: dann löschen, da sonst user-irritierend!!
-	// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
-	if ((readURL("aoi")) !== false) {
-		useAOIFromURL(readURL("aoi"), draw);
-	}
 }
 
 
@@ -467,9 +459,8 @@ function removeSevereWeather(map){
 * @desc Loads the warnings-polygons, updates the URL and hides previous selected radar data.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
-* @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
 */
-function loadSevereWeather(map, draw){
+function loadSevereWeather(map){
 
 	closeAllPopups();
 	showAllExcept(map, "germany");
@@ -518,13 +509,6 @@ function loadSevereWeather(map, draw){
 	// activate the severe weather tab
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
-
-	// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
-	// TODO: dann löschen, da sonst user-irritierend!!
-	// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
-	if ((readURL("aoi")) !== false) {
-		useAOIFromURL(readURL("aoi"), draw);
-	}
 }
 
 

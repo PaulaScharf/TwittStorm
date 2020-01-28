@@ -530,7 +530,7 @@ $("#downloadButton").click(function() {
 */
 function takeScreenshot(){
   //save the current map canvas as a base64 formatted array entry
-  html2canvas(document.querySelector("#animationMap")).then(function(canvas){
+  html2canvas(document.querySelector("#animationMap"), {logging: false}).then(function(canvas){
     var gifImage = canvas.toDataURL('image/jpeg');
     imageArray.push(gifImage);
     // activate the downloadbutton if ready
@@ -728,6 +728,9 @@ function loadPreviousWeather(map, weatherEv){
 
   // if the request is done successfully, ...
   .done(function (result) {
+
+    console.log(result);
+    
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
 

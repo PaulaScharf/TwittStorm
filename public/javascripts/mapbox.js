@@ -264,19 +264,19 @@ function showMap() {
 		// *************************************************************************
 
 		$("#severeWeather").click(function() {
-			loadSevereWeather(map, draw);
+			loadSevereWeather(map);
 		});
 
 		$("#radio1").click(function() {
-			loadRaster(map, "ry", draw);
+			loadRaster(map, "ry");
 		});
 
 		$("#radio2").click(function() {
-			loadRaster(map, "rw", draw);
+			loadRaster(map, "rw");
 		});
 
 		$("#radio3").click(function() {
-			loadRaster(map, "sf", draw);
+			loadRaster(map, "sf");
 		});
 
 
@@ -1203,15 +1203,12 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			}
 
 			if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
-
-				//show the user a popup to inform that the limit has exceeded
+				// show the user a popup to inform that the twitter API rate limit has exceeded
 				$("#twitterInf").css("display","block");
 			}
 
 			doneProcessingAOI = true;
 		});
-
-		// TODO: ???  and then check whether they lie in the rainRadar polygons
 	}
 
 
@@ -1366,8 +1363,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				}
 
 				if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
-
-					//show the user a popup to inform that the limit has exceeded
+					// show the user a popup to inform that the twitter API rate limit has exceeded
 					$("#twitterInf").css("display","block");
 				}
 
