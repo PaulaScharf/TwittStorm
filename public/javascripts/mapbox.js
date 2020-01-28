@@ -224,7 +224,7 @@ function showMap() {
 
 
 	// enables the ability to choose between different mapstyles
-	styleSelector(map);
+	styleSelector(map, 'index');
 
 
 	// ************************ adding boundary of Germany ***********************
