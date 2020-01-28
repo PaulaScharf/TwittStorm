@@ -575,7 +575,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
-console.log(xhr.responseJSON.err_msg[0].code);
+		console.log(xhr.responseJSON.err_msg[0].code);
 		if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
 			window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 		}
@@ -673,7 +673,7 @@ function callRainRadar(map, prod) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
-console.log(xhr.responseJSON.err_msg[0].code);
+		console.log(xhr.responseJSON.err_msg[0].code);
 		if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
 			window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 		}
@@ -1094,6 +1094,12 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			}
 		}
 
+
+
+		// TODO: layer hier noch nicht immer defined (wenn von unwetter zu radar gewechselt)
+		// TODO: erst schauen UND ABWARTEN, ob/dass radar schon in map geladen ist!!
+
+
 		let layer = map.getSource("rainradar");
 		layer = layer._data.features;
 
@@ -1207,6 +1213,12 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			}
 
 			if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
+
+				// TODO: zu HTML div ändern!!
+				let rateLimitMessage = "The twitter API rate limit exceeded.<br>Please try again later.";
+				// TODO: rateLimitMessage in div schreiben
+
+				// TODO: folgendes löschen, wenn div fertig
 				window.alert("The twitter API rate limit exceeded.\nPlease try again later.");
 			}
 
@@ -1368,6 +1380,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				}
 
 				if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
+
+					// TODO: zu HTML div ändern!!
+					let rateLimitMessage = "The twitter API rate limit exceeded.<br>Please try again later.";
+					// TODO: rateLimitMessage in div schreiben
+
+					// TODO: folgendes löschen, wenn div fertig
+
 					window.alert("The twitter API rate limit exceeded.\nPlease try again later.");
 				}
 
