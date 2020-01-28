@@ -18,13 +18,13 @@
 let animationMap;
 
 /**
-*
+* Stores the response from the db and is used to check if the play button should be activatable
 * @type {Array}
 */
 let resultOutput = [];
 
 /**
-*
+* An array that stores all timestamps that are delivered in the db response
 * @type {Array}
 */
 let usedTimestamps = [];
@@ -36,19 +36,19 @@ let usedTimestamps = [];
 let outputArray = [];
 
 /**
-* a GeoJSON mask
+* An empty geojson object that gets filled with the desired data
 * @type {Object}
 */
 let mask;
 
 /**
-* an Array where all active layers are stored
+* In this array all active layers get stored
 * @type {Array}
 */
 let allLayers = [];
 
 /**
-* stores all GeoJSONs with their timestamps
+* stores all processed GeoJSONs with their corresponding timestamps
 * @type {Array}
 */
 let timestampStorage = [];
@@ -60,7 +60,7 @@ let timestampStorage = [];
 wtypeFlag = "";
 
 /**
-* adds up canvasshots from the map in base64 format
+* stores the several canvasshots from the map in base64 format
 * @type {Array}
 */
 var imageArray = [];
@@ -191,7 +191,7 @@ function showAnimationMap() {
   animationMap.addControl(new mapboxgl.NavigationControl());
 
   // enables the ability to choose between different mapstyles
-  styleSelector(animationMap);
+  styleSelector(animationMap, 'animation');
 
   // ************************ adding boundary of Germany *************************
   // this event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
@@ -310,8 +310,6 @@ function reloadAnimation(wType){
   //if the weathertype is severeweather
   if ((wType === "warnings") ) {
 
-    // weathertype indicator for style switcher
-    wIndicator = wType;
     //update the URL
     updateURL("wtype", "warnings");
     deleteFromURL("radProd");
@@ -333,8 +331,6 @@ function reloadAnimation(wType){
 
   // if the weathertype is radar
   if ((wType === "radar") ) {
-    // weathertype indicator for style switcher
-    wIndicator = wType;
     //update the URL
     updateURL("wtype", "radar");
     updateURL("radProd", "ry");
