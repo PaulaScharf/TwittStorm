@@ -471,10 +471,8 @@ function removeSevereWeather(map){
 function loadSevereWeather(map){
 
 	closeAllPopups();
-
 	showAllExcept(map, "tweet");
-  showAllExcept(map, "unwetter");
-
+	showAllExcept(map, "unwetter");
 
 	// if there was the rainradar data shown before, change the legend
 	if (wtypeFlag == "radar") {
