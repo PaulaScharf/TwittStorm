@@ -28,9 +28,9 @@ Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?)
 ## How to get and use your own API-keys
 In order to use this app, you have to sign up for the necessary services. You'll need a mapbox access key for the map, and a twitter developer account with keys in order to access real-time twitter data.
 #### Mapbox GL JS
-1.
-2.
-3. Set the value of the variable ``MAPBOX_ACCESS_KEY`` in ``.env`` to your own created API key.
+1. First you will need a Mapbox account. If you are not signed up yet you should go to https://account.mapbox.com/auth/signup/ and create an account. All you need for this process is a valid email address.
+2. After validating your email check out https://account.mapbox.com/access-tokens/. Here you will find your own default token.
+3. Set the value of the variable ``MAPBOX_ACCESS_KEY`` in ``.env`` to your default token.
 
 #### Twitter
 1. If you don't already have one, please create a twitter account. This can be done by downloading and opening the moible app or through the web at https://twitter.com.

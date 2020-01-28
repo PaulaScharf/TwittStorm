@@ -246,11 +246,12 @@
 }
 
 .page-footer {
-  position: fixed;
+  position: auto;
   bottom:5px;
   height: 50px;
   width: 100%;
   text-align: center;
+  margin-top: auto
 }
 
 #menu {
