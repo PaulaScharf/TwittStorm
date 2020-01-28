@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: urlNaming.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: urlNaming.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// jshint esversion: 8
+// jshint maxerr: 1000
+
+"use strict";  // JavaScript code is executed in "strict mode"
+
+/**
+* @desc TwittStorm, Geosoftware 2, WiSe 2019/2020
+* @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
+*/
+
+
+/**
+	* @desc function to alter the URL, in order to keep it updated
+	* can change the value of a parameter or add it to the existing url
+	* @author Jonathan Bahlmann
+	* @param {String} param - the parameter to be updated/inserted
+	* @param {String} newString - the value to above mentioned parameter
+	* @example updateURL("wtype", "radar");
+	*/
+function updateURL(param, newString) {
+	let toInsert = param + "=" + newString;
+	let oldURL = document.location.href;
+	let indexOfPath = oldURL.indexOf("?");
+	let url = oldURL.slice(indexOfPath, oldURL.length);
+	let newURL;
+	// index of parameter desc
+	let index = url.search(param);
+ 	// if param is found, change it
+	if (index > 0) {
+		// slice the complete part of url to the right
+		let right = url.slice(index, url.length);
+		// also get the left parameter
+		let left = url.slice(0, index);
+		// search for "&amp;"
+		let andIndex = right.search("&amp;");
+		// if &amp; is found, param lies in the middle
+		if (andIndex >= 0) {
+			// adjust the right part
+			right = right.slice(andIndex, url.length);
+			// put things together
+			newURL = left + toInsert + right;
+		}
+		// if no &amp; is found, this lies at the end of the string -> adjust left
+		else {
+			newURL = left + toInsert;
+		}
+	}
+	// if param is not found, add it
+	else {
+		newURL = oldURL + "&amp;" + toInsert;
+	}
+
+	// if "?" is not found
+	if (indexOfPath &lt; 0) {
+		// override newURL with "?" + the new param + description
+		newURL = "?".concat(param, "=", newString);
+	}
+
+	//write this to url
+	history.pushState({}, '', newURL);
+}
+
+
+/**
+	* @desc
+	* function to read a specified parameter from the current URL
+	* @author Jonathan Bahlmann
+	* @param {String} param - Parameter to be returned
+	* @returns value of parameter or false, if parameter is not in URL
+	*/
+function readURL(param) {
+	// result
+	let value;
+
+	let oldURL = document.location.href;
+	let index = oldURL.indexOf(param);
+	let url = oldURL.slice(index, oldURL.length);
+	let indexOfEqual = url.search("=");
+	let indexOfAnd = url.search("&amp;");
+	// if and is not found, it is end of string
+	if(indexOfAnd &lt; 0) {
+		indexOfAnd = url.length;
+	}
+
+	if(index > 0) {
+		value = url.slice(indexOfEqual + 1, indexOfAnd);
+		return value;
+	} else {
+		return false;
+	}
+}
+
+
+/**
+	* @desc
+	* function to delete a specified parameter from the URL to maintain permalink integrity
+	* @author Jonathan Bahlmann
+	* @param {String} param - Parameter to delete
+	* @returns nothing or false (if parameter not found)
+	*/
+function deleteFromURL(param) {
+	let oldURL = document.location.href;
+	let index = oldURL.indexOf(param);
+
+	if(index > 0) {
+		// parameter found
+		// +1 for " "
+		let firstPart = oldURL.slice(0, index - 1);
+		let cutURL = oldURL.slice(index, oldURL.length);
+		let indexOfNext = cutURL.indexOf("&amp;");
+		let lastPart;
+		if(indexOfNext &lt; 0) {
+			// last one in url
+			lastPart = "";
+		} else {
+			lastPart = cutURL.slice(indexOfNext, cutURL.length);
+		}
+		let newURL = firstPart.concat(lastPart);
+		// write
+			history.pushState({}, '', newURL);
+	}
+	else {
+		// parameter not found
+		return false;
+	}
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addItem">addItem</a></li><li><a href="global.html#addToSource">addToSource</a></li><li><a href="global.html#addWarningsLayerAndCheckboxes">addWarningsLayerAndCheckboxes</a></li><li><a href="global.html#allLayers">allLayers</a></li><li><a href="global.html#animationMap">animationMap</a></li><li><a href="global.html#automate">automate</a></li><li><a href="global.html#automationIntervall">automationIntervall</a></li><li><a href="global.html#boundaryGermany">boundaryGermany</a></li><li><a href="global.html#callRainRadar">callRainRadar</a></li><li><a href="global.html#closeAllMenus">closeAllMenus</a></li><li><a href="global.html#closeAllPopups">closeAllPopups</a></li><li><a href="global.html#createGif">createGif</a></li><li><a href="global.html#customLayerIds">customLayerIds</a></li><li><a href="global.html#deleteFromURL">deleteFromURL</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#displayCurrentUnwetters">displayCurrentUnwetters</a></li><li><a href="global.html#doneLoadingWeather">doneLoadingWeather</a></li><li><a href="global.html#doneProcessingAOI">doneProcessingAOI</a></li><li><a href="global.html#drawForAOI">drawForAOI</a></li><li><a href="global.html#filterTweetPopups">filterTweetPopups</a></li><li><a href="global.html#filterTweets">filterTweets</a></li><li><a href="global.html#filterwords">filterwords</a></li><li><a href="global.html#final">final</a></li><li><a href="global.html#forEachLayer">forEachLayer</a></li><li><a href="global.html#gifArray">gifArray</a></li><li><a href="global.html#goGeoJson">goGeoJson</a></li><li><a href="global.html#helpPageHandler">helpPageHandler</a></li><li><a href="global.html#imageArray">imageArray</a></li><li><a href="global.html#indicator">indicator</a></li><li><a href="global.html#initTimestamp">initTimestamp</a></li><li><a href="global.html#intervalRainRadar">intervalRainRadar</a></li><li><a href="global.html#layers">layers</a></li><li><a href="global.html#loadAnimation">loadAnimation</a></li><li><a href="global.html#loadPreviousWeather">loadPreviousWeather</a></li><li><a href="global.html#loadRaster">loadRaster</a></li><li><a href="global.html#loadSevereWeather">loadSevereWeather</a></li><li><a href="global.html#makeLayerInteractive">makeLayerInteractive</a></li><li><a href="global.html#map">map</a></li><li><a href="global.html#mask">mask</a></li><li><a href="global.html#msToMin">msToMin</a></li><li><a href="global.html#onlyShowRainRadarAndTweetsInPolygon">onlyShowRainRadarAndTweetsInPolygon</a></li><li><a href="global.html#onlyShowUnwetterAndTweetsInPolygon">onlyShowUnwetterAndTweetsInPolygon</a></li><li><a href="global.html#openMenu">openMenu</a></li><li><a href="global.html#outputArray">outputArray</a></li><li><a href="global.html#panMapWithButton">panMapWithButton</a></li><li><a href="global.html#popupsEnabled">popupsEnabled</a></li><li><a href="global.html#readURL">readURL</a></li><li><a href="global.html#reloadAnimation">reloadAnimation</a></li><li><a href="global.html#removeAddGermany">removeAddGermany</a></li><li><a href="global.html#removeAllSource">removeAllSource</a></li><li><a href="global.html#removeSevereWeather">removeSevereWeather</a></li><li><a href="global.html#requestAndDisplayAllRainRadar">requestAndDisplayAllRainRadar</a></li><li><a href="global.html#requestNewAndDisplayCurrentUnwetters">requestNewAndDisplayCurrentUnwetters</a></li><li><a href="global.html#resultOutput">resultOutput</a></li><li><a href="global.html#setToReady">setToReady</a></li><li><a href="global.html#showAllExcept">showAllExcept</a></li><li><a href="global.html#showAnimationMap">showAnimationMap</a></li><li><a href="global.html#showLegend">showLegend</a></li><li><a href="global.html#showMap">showMap</a></li><li><a href="global.html#showTweetPopup">showTweetPopup</a></li><li><a href="global.html#showUnwetterPopup">showUnwetterPopup</a></li><li><a href="global.html#styleSelector">styleSelector</a></li><li><a href="global.html#switchLayer">switchLayer</a></li><li><a href="global.html#takeScreenshot">takeScreenshot</a></li><li><a href="global.html#timestampStorage">timestampStorage</a></li><li><a href="global.html#updateURL">updateURL</a></li><li><a href="global.html#usedTimestamps">usedTimestamps</a></li><li><a href="global.html#wIndicator">wIndicator</a></li><li><a href="global.html#wtypeFlag">wtypeFlag</a></li><li><a href="global.html#zoomToCoordinates">zoomToCoordinates</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jan 28 2020 11:01:40 GMT+0100 (GMT+01:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
