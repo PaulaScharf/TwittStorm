@@ -255,22 +255,18 @@ function showMap() {
 
 		$("#severeWeather").click(function() {
 			loadSevereWeather(map);
-			map.fire('draw.reloadTweets', {});
 		});
 
 		$("#radio1").click(function() {
 			loadRaster(map, "ry");
-			map.fire('draw.reloadTweets', {});
 		});
 
 		$("#radio2").click(function() {
 			loadRaster(map, "rw");
-			map.fire('draw.reloadTweets', {});
 		});
 
 		$("#radio3").click(function() {
 			loadRaster(map, "sf");
-			map.fire('draw.reloadTweets', {});
 		});
 
 
@@ -1372,7 +1368,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc This function ensures that all warnings but no tweets are visible.
+	* @desc This function removes all layers which include the given keyword in their id.
 	* @author Paula Scharf
 	* @param {Object} map - mapbox-map
 	* @param {String} keyword -
@@ -1384,16 +1380,19 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 		for (let i = 0; i < customLayerIds.length; i++) {
 			let layerID = customLayerIds[i];
-			if (layerID.includes(keyword)) {
-				map.removeLayer(layerID);
-				map.removeSource(layerID);
-				customLayerIds.remove(layerID);
-				if(layerID.includes("tweet") && document.getElementById(layerID.split(/[ ]+/)[1])) {
-					closeAllPopups();
+			if (typeof map.getLayer(layerID) !== "undefined") {
+				if (layerID.includes(keyword)) {
+					customLayerIds.remove(layerID);
+					map.removeLayer(layerID);
+					map.removeSource(layerID);
+					if (layerID.includes("tweet") && document.getElementById(layerID.split(/[ ]+/)[1])) {
+						closeAllPopups();
+					}
+					i--;
+
+				} else {
+					map.setLayoutProperty(layerID, 'visibility', 'visible');
 				}
-				i--;
-			} else {
-				map.setLayoutProperty(layerID, 'visibility', 'visible');
 			}
 		}
 	}

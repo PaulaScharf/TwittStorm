@@ -551,7 +551,9 @@ function loadAnimation(position, map){
   //check if a layer is shown
   for (let i = 0; i < allLayers.length; i++) {
     // if yes remove them
-    map.removeLayer(allLayers[i]);
+    if (typeof map.getLayer(layerID) !== "undefined") {
+      map.removeLayer(allLayers[i]);
+    }
   }
   closeAllPopups();
 
@@ -559,7 +561,7 @@ function loadAnimation(position, map){
   allLayers = [];
   customLayerIds.forEach(function (layerID) {
     let layerIdParts = layerID.split(/[ ]+/);
-    if (layerIdParts[1] == posMarker) {
+    if ((layerIdParts[1] == posMarker) ? !(layerIdParts[2] == posMarker) : (layerIdParts[2] == posMarker)) {
 
       let dataTimestamp = document.getElementById("dataTimestamp");
       dataTimestamp.innerHTML = "<b>Timestamp of current timestep:</b><br>" + formattedTimestamp;
@@ -725,7 +727,7 @@ function loadPreviousWeather(map, weatherEv){
         for (let j = 0; j < result[key].length; j++){
 
           if (result[key][j].type === "tweet") {
-            layerID = "tweet " + key + " " + j;
+            layerID = "tweet " + result[key][j].idstr + " " + key + " " + j;
             mask = {
               "timestamp": key,
               "type": weatherEvent,
