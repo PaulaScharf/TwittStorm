@@ -1,9 +1,9 @@
 # TwittStorm
 TwittStorm for Geosoftware II
 ## Weblinks
-The code of this project can be found on GitHub: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)<br>
+The code of this project is published on GitHub: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)<br>
 <br>
-<b>TODO: DockerHub-Link einfügen</b>
+The corresponding Docker Repository can be found on Docker Hub: [https://hub.docker.com/r/paulasch/twittstorm](https://hub.docker.com/r/paulasch/twittstorm)
 
 ## How to start the App
 
@@ -22,7 +22,7 @@ TODO: falls Docker Hub Image genutzt wird, sind config-Möglichkeiten (abgesehen
 <br><br>
 To start the app enter ``docker-compose up``.<br/>
 
-The started application can be found with your browser at _http://<your IP>:3000_. E.g.: http://192.168.99.100:3000/.<br/>
+The started application can be found with your browser at ``http://<your IP>:3000``. E.g.: http://192.168.99.100:3000/.<br/>
 Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?).<br/>  
 
 ## How to get and use your own API-keys
@@ -30,17 +30,17 @@ In order to use this app, you have to sign up for the necessary services. You'll
 #### Mapbox GL JS
 1.
 2.
-3. Set the value of the variable ``keys.mapbox.access_key`` in config.yaml to your own created API key.
+3. Set the value of the variable ``MAPBOX_ACCESS_KEY`` in ``.env`` to your own created API key.
 
 #### Twitter
 1. If you don't already have one, please create a twitter account. This can be done by downloading and opening the moible app or through the web at https://twitter.com.
 2. You'll need to register as a developer. This can be done here: https://developer.twitter.com/en/apply-for-access. You're only going to get and display twitter data, so you can disable all other options in the "how are you going to use twitter"-form.
 3. Create an app at https://developer.twitter.com/en/apps (accessible only with an account). You can name this app whatever you like.
 4. You can see and copy the tokens you'll need from the "Keys and tokens" section in the overview of the app you just created.
-5. Set the value of the variable ``keys.twitter.consumer_key`` in ``config.yaml`` to your own "API key".
-6. Set the value of the variable ``keys.twitter.consumer_secret`` in ``config.yaml`` to your own "API secret key".
-7. Set the value of the variable ``keys.twitter.access_token_key`` in ``config.yaml`` to your own created "access token".
-8. Set the value of the variable ``keys.twitter.access_token_secret`` in ``config.yaml`` to your own created "access token secret".
+5. Set the value of the variable ``TWITTER_CONSUMER_KEY`` in ``.env`` to your own "API key".
+6. Set the value of the variable ``TWITTER_CONSUMER_SECRET`` in ``.env`` to your own "API secret key".
+7. Set the value of the variable ``TWITTER_ACCESS_TOKEN_KEY`` in ``.env`` to your own created "access token".
+8. Set the value of the variable ``TWITTER_ACCESS_TOKEN_SECRET`` in ``.env`` to your own created "access token secret".
 
 ## How to test with JMeter
 1. Download and install JMeter from here: https://jmeter.apache.org/download_jmeter.cgi  
