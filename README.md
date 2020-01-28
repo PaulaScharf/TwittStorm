@@ -59,4 +59,4 @@ In order to use this app, you have to sign up for the necessary services. You'll
 Ensure that your adblocker does not prevent JSNLog from working.
 
 ## Information for Developers
-When using the image from Docker Hub, the configuration possibilities are limited. If you want to configure some aspects as it is specified in our [Configuration Wiki](https://github.com/PaulaScharf/TwittStorm/wiki/Configuration), you need to clone the [GitHub Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm), edit the ``config.yaml`` and build and use a local image.
+When using the image from Docker Hub, the configuration possibilities are limited. If you want to configure some aspects as it is specified in our [Configuration Wiki](https://github.com/PaulaScharf/TwittStorm/wiki/Configuration), you need to clone the [GitHub Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm), edit the ``config.yaml`` and build your own local image.
