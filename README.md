@@ -11,8 +11,8 @@ Get three files from [TwittStorm-GitHub-Repository](https://github.com/PaulaScha
 - ``docker-compose.yml``
 - ``.env``    
 
-Open ``.env`` and set the values of all five variables to your own API keys. Without doing this the app will not work. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys and where to insert which of them.<br/>
-Then open a docker shell in the same directory and enter `docker-compose up`.<br/>
+Open ``.env`` and replace the XXX-placeholder for the values of all five given variables by your own API keys. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys and where to insert which of them.<br/>
+Then open a docker shell in the same directory and enter ``docker-compose up``.<br/>
 The started application can be found with your browser at ``http://<your IP>:3000`` (e.g.: http://192.168.99.100:3000).<br/>
 (Your IP will be shown on start of the docker shell. <b>TODO: wann, nicht bei allen?<b/>)
 
