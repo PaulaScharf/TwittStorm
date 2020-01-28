@@ -1,4 +1,32 @@
-// jshint esversion: 8
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: animation.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: animation.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// jshint esversion: 8
 // jshint node: true
 // jshint maxerr: 1000
 
@@ -88,8 +116,8 @@ var previousWeather = function(req, res) {
                 weatherEvents[timestamp] = [];
               }
               response.forEach(function (event) {
-                if (event.timestamps.includes(timestamp) &&
-                  ((event.properties.onset) ? true : (event.properties.onset <= timestamp)) &&
+                if (event.timestamps.includes(timestamp) &amp;&amp;
+                  ((event.properties.onset) ? true : (event.properties.onset &lt;= timestamp)) &amp;&amp;
                   ((event.properties.expires) ? true : (event.properties.expires > timestamp))) {
                   weatherEvents[timestamp].push(event);
                   arrayOfPromises.push(promiseToGetTweetsForEvent(event.dwd_id, timestamp, req.db)
@@ -140,8 +168,8 @@ var previousWeather = function(req, res) {
       tz = tz * 60000;
       // config.refresh rate is treated as interval for time steps
       // timestamp needs to be handles accordingly
-      if(config.refresh_rate < 3600000) {
-        // when interval < 1h, use ry product
+      if(config.refresh_rate &lt; 3600000) {
+        // when interval &lt; 1h, use ry product
         prod = "RY";
         variance = 180000;
         access = 300000;
@@ -190,8 +218,8 @@ var previousWeather = function(req, res) {
             console.log("prevWeather radar check: " + new Date(pastBorder) + " > " + new Date(lastTimestamp) + " ? -> " + bool);
 
             if(pastBorder > lastTimestamp) {
-              // TODO if < 5 found, reload
-              if(result.length < 5) {
+              // TODO if &lt; 5 found, reload
+              if(result.length &lt; 5) {
                 // read from hist data file
                 var allProducts = [];
 
@@ -275,7 +303,7 @@ var previousWeather = function(req, res) {
                                             result.forEach(function(image) {
                                               answer[image.timestamp] = [image];
                                               tweets.forEach(function(tweet) {
-                                                if(image.timestamp <= tweet.timestamp) {
+                                                if(image.timestamp &lt;= tweet.timestamp) {
                                                   answer[image.timestamp].push(tweet);
                                                 }
                                               });
@@ -328,7 +356,7 @@ var previousWeather = function(req, res) {
                   result.forEach(function(image) {
                     answer[image.timestamp] = [image];
                     tweets.forEach(function(tweet) {
-                      if(image.timestamp <= tweet.timestamp) {
+                      if(image.timestamp &lt;= tweet.timestamp) {
                         answer[image.timestamp].push(tweet);
                       }
                     });
@@ -354,7 +382,7 @@ var previousWeather = function(req, res) {
                   result.forEach(function(image) {
                     answer[image.timestamp] = [image];
                     tweets.forEach(function(tweet) {
-                      if(image.timestamp <= tweet.timestamp) {
+                      if(image.timestamp &lt;= tweet.timestamp) {
                         answer[image.timestamp].push(tweet);
                       }
                     });
@@ -398,7 +426,7 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
       type: "tweet",
       dwd_id: dwd_id,
       $and: [
-        {"timestamp": {"$gte": ((timestamp - 299000) < 0) ? 0 : (timestamp - 299000)}},
+        {"timestamp": {"$gte": ((timestamp - 299000) &lt; 0) ? 0 : (timestamp - 299000)}},
         {"timestamp": {"$lte": (timestamp)}}
       ]
     };
@@ -421,11 +449,11 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
 */
 function checkParamsPreviousWeather(params) {
   switch (params) {
-    case (params.wtype !== "warnings" && params.wtype !== "rainRadar"):
+    case (params.wtype !== "warnings" &amp;&amp; params.wtype !== "rainRadar"):
       return {
         err_msg: "'wtype' (weather type) is neither 'warnings' nor 'rainRadar'"
       };
-    case (JSON.parse(params.currentTimestamp) < 0):
+    case (JSON.parse(params.currentTimestamp) &lt; 0):
       return {
         err_msg: "'currentTimestamp' is not a valid epoch timestamp (milliseconds)"
       };
@@ -443,3 +471,26 @@ router.route("*").get(function(req, res){
 });
 
 module.exports = router;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#calculateEnclosingCircle">calculateEnclosingCircle</a></li><li><a href="global.html#checkForExistingTweets">checkForExistingTweets</a></li><li><a href="global.html#checkParamsPreviousWeather">checkParamsPreviousWeather</a></li><li><a href="global.html#checkParamsTwitterTweets">checkParamsTwitterTweets</a></li><li><a href="global.html#checkParamsWarnings">checkParamsWarnings</a></li><li><a href="global.html#convertTimestamp">convertTimestamp</a></li><li><a href="global.html#createUnwetterForDB">createUnwetterForDB</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#express">express</a></li><li><a href="global.html#findLastTimestamp">findLastTimestamp</a></li><li><a href="global.html#GeoJSONPolygon">GeoJSONPolygon</a></li><li><a href="global.html#getWarningsForTime">getWarningsForTime</a></li><li><a href="global.html#getWarningsFromDB">getWarningsFromDB</a></li><li><a href="global.html#groupByArray">groupByArray</a></li><li><a href="global.html#mongodb">mongodb</a></li><li><a href="global.html#paramList">paramList</a></li><li><a href="global.html#previousWeather">previousWeather</a></li><li><a href="global.html#proccessUnwettersFromLocal">proccessUnwettersFromLocal</a></li><li><a href="global.html#processUnwettersFromDWD">processUnwettersFromDWD</a></li><li><a href="global.html#promiseToDeleteItems">promiseToDeleteItems</a></li><li><a href="global.html#promiseToFetchRadarData">promiseToFetchRadarData</a></li><li><a href="global.html#promiseToGetItems">promiseToGetItems</a></li><li><a href="global.html#promiseToGetTweetsForEvent">promiseToGetTweetsForEvent</a></li><li><a href="global.html#promiseToGetTweetsFromTwitter">promiseToGetTweetsFromTwitter</a></li><li><a href="global.html#promiseToPostItems">promiseToPostItems</a></li><li><a href="global.html#promiseToUpdateItems">promiseToUpdateItems</a></li><li><a href="global.html#radarRoute">radarRoute</a></li><li><a href="global.html#searchTweetsForEvent">searchTweetsForEvent</a></li><li><a href="global.html#updateConfig">updateConfig</a></li><li><a href="global.html#updateVariableInConfigYaml">updateVariableInConfigYaml</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jan 28 2020 11:36:59 GMT+0100 (GMT+01:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
