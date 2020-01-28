@@ -584,7 +584,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 
 		// TODO: mit if status abfangen, bei dem folgendes nötig ist
 		console.log(status);
-		window.alert("There has been an error while fetching the precipitations radar data.\n This could be due to the dwd server having update delays.\n Please repeat your request.");
+		window.alert("There has been an error while fetching the precipitations radar data.\n This could be due to the dwd server having update delays.\n Please repeat your request by clicking the radar " + prodcut + "button again.");
 
 	});
 }
