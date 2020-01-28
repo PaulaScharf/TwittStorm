@@ -60,7 +60,8 @@ let wtypeFlag = "";
 
 /**
 * // TODO: JSDoc
-* @type {}
+* array
+* @type {Array}
 */
 let filterwords;
 
@@ -764,7 +765,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 				displayCurrentUnwetters(map, result.events);
 			}
-
+			
 			map.fire('draw.reloadTweets', {});
 			doneLoadingWeather = true;
 		})

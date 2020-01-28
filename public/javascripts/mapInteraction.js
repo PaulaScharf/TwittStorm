@@ -483,7 +483,7 @@ function loadSevereWeather(map, draw){
 	wtypeFlag = "severeWeather";
 
 	// update the url
-	updateURL('wtype', 'unwetter');
+	updateURL('wtype', 'warnings');
 	deleteFromURL('radProd');
 
 	// create checkboxes for submenus
