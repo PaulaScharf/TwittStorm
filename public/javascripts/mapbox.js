@@ -488,7 +488,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 
 
 	$('#information').html("Retrieving the requested " + product + " rain radar data.");
-
+/*
 	$.ajax({
 		// use a http GET request
 		type: "GET",
@@ -587,6 +587,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 
 	});
+	*/
 }
 
 
@@ -637,7 +638,7 @@ function callRainRadar(map, prod) {
 
 	// progress update info
 	$('#information').html("Retrieving the requested " + prod + " rain radar data.");
-
+/*
 	$.ajax({
 		// use a http GET request
 		type: "GET",
@@ -691,6 +692,7 @@ function callRainRadar(map, prod) {
 		console.log(status);
 		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
 	});
+	*/
 }
 // *****************************************************************************************************
 
