@@ -562,7 +562,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 		}
 
 		console.log(xhr.responseJSON.err_msg[0].code);
-		if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
+		if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
 			window.alert("There has been an error while fetching the precipitation radar data.\n This could be due to the DWD server having update delays.\n Please repeat your request by clicking the radar " + product + " button again.");
 		}
 
@@ -658,7 +658,7 @@ function callRainRadar(map, prod) {
 		}
 
 		console.log(xhr.responseJSON.err_msg[0].code);
-		if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
+		if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
 			window.alert("There has been an error while fetching the precipitation radar data.\n This could be due to the DWD server having update delays.\n Please repeat your request by clicking the radar " + prod + " button again.");
 		}
 
@@ -1191,7 +1191,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				JL("ajaxRetrievingTweetsError").fatalException(error);
 			}
 
-			if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
+			if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
 				// show the user a popup to inform that the twitter API rate limit has exceeded
 				$("#twitterInf").css("display","block");
 			}
@@ -1351,7 +1351,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					doneProcessingAOI = true;
 				}
 
-				if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
+				if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
 					// show the user a popup to inform that the twitter API rate limit has exceeded
 					$("#twitterInf").css("display","block");
 				}
