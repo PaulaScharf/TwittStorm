@@ -83,7 +83,9 @@ var previousWeather = function(req, res) {
               arrayOfTimestamps = arrayOfTimestamps.slice(0, 10);
             }
             let arrayOfPromises = [];
-            arrayOfTimestamps.forEach( (timestamp) => {
+            for (let i = 0; i<arrayOfTimestamps.length; i++) {
+              let timestamp = arrayOfTimestamps[i];
+              let timeframe = (i === 0) ? Number.MAX_SAFE_INTEGER : 300000;
               if (!weatherEvents[timestamp]) {
                 weatherEvents[timestamp] = [];
               }
@@ -92,8 +94,8 @@ var previousWeather = function(req, res) {
                   ((event.properties.onset) ? true : (event.properties.onset <= timestamp)) &&
                   ((event.properties.expires) ? true : (event.properties.expires > timestamp))) {
                   weatherEvents[timestamp].push(event);
-                  arrayOfPromises.push(promiseToGetTweetsForEvent(event.dwd_id, timestamp, req.db)
-                    .catch(function(error) {
+                  arrayOfPromises.push(promiseToGetTweetsForEvent(event.dwd_id, timestamp, timeframe, req.db)
+                    .catch(function (error) {
                       if (!res.headersSent) {
                         res.status(500).send({err_msg: error});
                       }
@@ -103,14 +105,14 @@ var previousWeather = function(req, res) {
                         weatherEvents[timestamp].push(tweet);
                       });
                     })
-                    .catch(function(error) {
+                    .catch(function (error) {
                       if (!res.headersSent) {
                         res.status(500).send({err_msg: error});
                       }
                     }));
                 }
               });
-            });
+            }
             await Promise.all(arrayOfPromises);
             if (!res.headersSent) {
               res.json(weatherEvents);
@@ -172,7 +174,7 @@ var previousWeather = function(req, res) {
           }
         })
         .then(function(result) {
-          promiseToGetTweetsForEvent("rainRadar_" + prod.toLowerCase(), req.params.timestamp, req.db)
+          promiseToGetTweetsForEvent("rainRadar_" + prod.toLowerCase(), req.params.timestamp, 300000, req.db)
           .catch(console.error)
           .then(function(tweets) {
             // are we looking for not-yet loaded historic data?
@@ -390,7 +392,7 @@ var previousWeather = function(req, res) {
 * @param timestamp {number} - timestamp as an epoch timestamp
 * @param db - the database
 */
-function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
+function promiseToGetTweetsForEvent(dwd_id, timestamp, timeframe, db) {
   //
   return new Promise((resolve, reject) => {
     // JSON with the ID of the current event, needed for following database-check
@@ -398,7 +400,7 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
       type: "tweet",
       dwd_id: dwd_id,
       $and: [
-        {"timestamp": {"$gte": ((timestamp - 299000) < 0) ? 0 : (timestamp - 299000)}},
+        {"timestamp": {"$gt": ((timestamp - timeframe) < 0) ? 0 : (timestamp - timeframe)}},
         {"timestamp": {"$lte": (timestamp)}}
       ]
     };
