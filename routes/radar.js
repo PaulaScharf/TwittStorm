@@ -107,9 +107,9 @@ function convertTimestamp(radarProduct, timestampString) {
       let reqTime = timestamp + tz + variance - access;
       let reqTimeLower = reqTime - access;
 
-      console.log("converting newDate timestamp " + new Date(timestamp));
-      console.log(" .. to sequence: " + new Date(reqTime));
-      console.log(" from [lower border] " + new Date(reqTimeLower));
+      //console.log("converting newDate timestamp " + new Date(timestamp));
+      //console.log(" .. to sequence: " + new Date(reqTime));
+      //console.log(" from [lower border] " + new Date(reqTimeLower));
 
       return [reqTimeLower, reqTime];
 }
@@ -429,7 +429,7 @@ var radarRoute = function(req, res) {
               // this could be because of dwd inconsitencies
               // when a new product should be available, but isn't due to dwd update difficulties
               if(reqTimeUpper > latestTimestamp && reqTimeLower > latestTimestamp) {
-                console.log("the latest radar product is behind the requested timestamp");
+                console.log("DWD updating delay. loading last available product. try again in a few seconds for newest product.");
                 // query for last available prod
                 let query = {
                   type: "rainRadar",
