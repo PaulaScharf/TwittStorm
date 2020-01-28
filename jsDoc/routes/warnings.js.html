@@ -1,4 +1,32 @@
-// jshint esversion: 8
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: warnings.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: warnings.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// jshint esversion: 8
 // jshint node: true
 // jshint maxerr: 1000
 
@@ -45,28 +73,28 @@ const getWarningsForTime = function(req, res, next) {
       let currentTimestamp = JSON.parse(req.params.timestamp);
 
       // 1. case: use demodata, do not send request to DWD:
-      if ((currentTimestamp >= config.demo.timestamp_start && currentTimestamp <= config.demo.timestamp_end)) {
+      if ((currentTimestamp >= config.demo.timestamp_start &amp;&amp; currentTimestamp &lt;= config.demo.timestamp_end)) {
         proccessUnwettersFromLocal(currentTimestamp, req.db)
-        .then(function (response) {
+          .then(function (response) {
 
-          updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
+            updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
 
-          response = {
-            type: "SevereWeatherWarnings",
-            events: response
-          };
-          if (!res.headersSent) {
-            res.send(response);
-          }
+            response = {
+              type: "SevereWeatherWarnings",
+              events: response
+            };
+            if (!res.headersSent) {
+              res.send(response);
+            }
 
-        }, function (error) {
-          error.httpStatusCode = 500;
-          return next(error);
-        })
-        .catch(function (error) {
-          error.httpStatusCode = 500;
-          return next(error);
-        });
+          }, function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          })
+          .catch(function (error) {
+            error.httpStatusCode = 500;
+            return next(error);
+          });
 
         // 2. case: do not use demodata:
       } else {
@@ -75,29 +103,65 @@ const getWarningsForTime = function(req, res, next) {
 
           let timestampDeleting = currentTimestamp - (config.refresh_rate * 11);
 
-          // $lt means <, $lte means <=
+          // $lt means &lt;, $lte means &lt;=
           promiseToUpdateItems({type: "unwetter", timestamps: {"$all": [{"$and": [
-            {"$gt": config.demo.timestamp_end},
-            {"$lt": config.demo.timestamp_start}
-          ]}]}}, {"$pull": {"timestamps": {"$lte": timestampDeleting}}},
-          req.db)
-          .then(function () {
-            // get those warnings out of database whose timestamp-array is empty
-            promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 0}}]}, req.db)
-            .then(function (response) {
+                {"$gt": config.demo.timestamp_end},
+                {"$lt": config.demo.timestamp_start}
+              ]}]}}, {"$pull": {"timestamps": {"$lte": timestampDeleting}}},
+            req.db)
+            .then(function () {
+              // get those warnings out of database whose timestamp-array is empty
+              promiseToGetItems({"$and": [{"type": "unwetter"}, {"timestamps": {"$size": 0}}]}, req.db)
+                .then(function (response) {
 
-              let oldUnwetterIDs = [];
-              // put together all JSON-objects of old warning dwd_ids in one array
-              for (let u = 0; u < response.length; u++) {
-                oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
-              }
-              // if there are old warnings existing (with empty timestamp-array), delete them and their corresponding tweets:
-              if (oldUnwetterIDs.length > 0) {
+                  let oldUnwetterIDs = [];
+                  // put together all JSON-objects of old warning dwd_ids in one array
+                  for (let u = 0; u &lt; response.length; u++) {
+                    oldUnwetterIDs.push({"dwd_id": response[u].dwd_id});
+                  }
+                  // if there are old warnings existing (with empty timestamp-array), delete them and their corresponding tweets:
+                  if (oldUnwetterIDs.length > 0) {
+// TODO: zurückändern zu Paulas Variante
+                    promiseToDeleteItems({$and: [{"type": "tweet"}, {"$or": oldUnwetterIDs}]}, req.db)
+                      .then(function () {
 
-                promiseToDeleteItems({$and: [ {"$or": [{"type": "unwetter"}, {"type": "tweet"}] }, {"$or": oldUnwetterIDs}]}, req.db)
-                .then(function () {
-                },
-                function (error) {
+                          promiseToDeleteItems({$and: [{"type": "unwetter"}, {"$or": oldUnwetterIDs}]}, req.db)
+                            .then(function () {
+                              },
+                              function (error) {
+                                error.httpStatusCode = 500;
+                                return next(error);
+                              })
+                            .catch(function (error) {
+                              error.httpStatusCode = 500;
+                              return next(error);
+                            });
+                        },
+                        function (error) {
+                          error.httpStatusCode = 500;
+                          return next(error);
+                        })
+                      .catch(function (error) {
+                        error.httpStatusCode = 500;
+                        return next(error);
+                      });
+                    // TODO: OR in query überprüfen!!!!
+
+                    //      promiseToDeleteItems({$and: [ {"$or": [{"type": "unwetter"}, {"type": "tweet"}] }, {"$or": oldUnwetterIDs}]}, req.db)
+                    //      .then(function () {
+                    //      },
+                    //      function (error) {
+                    //        error.httpStatusCode = 500;
+                    //        return next(error);
+                    //      })
+                    //      .catch(function (error) {
+                    //        error.httpStatusCode = 500;
+                    //        return next(error);
+                    //      });
+
+
+                  }
+                }, function (error) {
                   error.httpStatusCode = 500;
                   return next(error);
                 })
@@ -105,7 +169,6 @@ const getWarningsForTime = function(req, res, next) {
                   error.httpStatusCode = 500;
                   return next(error);
                 });
-              }
             }, function (error) {
               error.httpStatusCode = 500;
               return next(error);
@@ -114,31 +177,23 @@ const getWarningsForTime = function(req, res, next) {
               error.httpStatusCode = 500;
               return next(error);
             });
-          }, function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          })
-          .catch(function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          });
 
           // ".then" is used here, to ensure that the .......... has finished and a result is available
           // saves new requested warnings in database
           processUnwettersFromDWD(currentTimestamp, req.db)
-          .then(function () {
+            .then(function () {
 
-            updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
-            getWarningsFromDB(currentTimestamp, req.db, res, next);
+              updateVariableInConfigYaml("timestamp_last_warnings_request", currentTimestamp);
+              getWarningsFromDB(currentTimestamp, req.db, res, next);
 
-          }, function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          })
-          .catch(function (error) {
-            error.httpStatusCode = 500;
-            return next(error);
-          });
+            }, function (error) {
+              error.httpStatusCode = 500;
+              return next(error);
+            })
+            .catch(function (error) {
+              error.httpStatusCode = 500;
+              return next(error);
+            });
 
           // do not send request to DWD, because last request to DWD is less than refresh-rate ago
           // therefore use last requested and already stored warnings
@@ -177,7 +232,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
     //
     promiseToGetItems(query, db)
     .then(function(response) {
-      if (typeof response !== "undefined" && response.length > 0) {
+      if (typeof response !== "undefined" &amp;&amp; response.length > 0) {
         resolve(response);
       } else {
         fs.readFile( './demo/warnings.txt', 'utf8', function (err, data) {
@@ -192,7 +247,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
             arrayOfItems.forEach(function (item) {
               let isRecent = false;
               item.timestamps.forEach(function (timestamp) {
-                if(timestamp>=(currentTimestamp - 299000) && timestamp<=(currentTimestamp)) {
+                if(timestamp>=(currentTimestamp - 299000) &amp;&amp; timestamp&lt;=(currentTimestamp)) {
                   isRecent = true;
                 }
               });
@@ -254,12 +309,12 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
 
               let ii = item.properties.EC_II;
               // if the item is a:
-              // rain ((ii >= 61) && (ii <= 66)),
-              // snowfall ((ii >= 70) && (ii <= 78)),
-              // thunderstorm (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96)))
-              // or blackice event ((ii === 24) || ((ii >= 84) && (ii <= 87)))
+              // rain ((ii >= 61) &amp;&amp; (ii &lt;= 66)),
+              // snowfall ((ii >= 70) &amp;&amp; (ii &lt;= 78)),
+              // thunderstorm (((ii >= 31) &amp;&amp; (ii &lt;= 49)) || ((ii >= 90) &amp;&amp; (ii &lt;= 96)))
+              // or blackice event ((ii === 24) || ((ii >= 84) &amp;&amp; (ii &lt;= 87)))
               // than save it in neededFeatures-Array
-              if ( ((ii >= 61) && (ii <= 66)) || ((ii >= 70) && (ii <= 78)) || (((ii >= 31) && (ii <= 49)) || ((ii >= 90) && (ii <= 96))) || ((ii === 24) || ((ii >= 84) && (ii <= 87))) ){
+              if ( ((ii >= 61) &amp;&amp; (ii &lt;= 66)) || ((ii >= 70) &amp;&amp; (ii &lt;= 78)) || (((ii >= 31) &amp;&amp; (ii &lt;= 49)) || ((ii >= 90) &amp;&amp; (ii &lt;= 96))) || ((ii === 24) || ((ii >= 84) &amp;&amp; (ii &lt;= 87))) ){
                 neededFeatures.push(item);
               }
             });
@@ -279,7 +334,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
               currentUnwetter.geometry = [];
 
               //
-              for (let i = 0; i < item.values.length; i++) {
+              for (let i = 0; i &lt; item.values.length; i++) {
                 currentUnwetter.geometry.push(item.values[i].geometry);
               }
               //
@@ -303,7 +358,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
               let expires = Date.parse(currentFeature.properties.EXPIRES);
 
               // use only the notifications that are actual reports and not just tests
-              if ((currentFeature.properties.STATUS === "Actual") && (onset <= currentTimestamp) && (expires >= currentTimestamp)) {
+              if ((currentFeature.properties.STATUS === "Actual") &amp;&amp; (onset &lt;= currentTimestamp) &amp;&amp; (expires >= currentTimestamp)) {
 
                 // check whether exactly this warning is already stored in the database
                 // and, depending on its MSGTYPE (Alert, Update, Cancel), add, update or delete if to/from database
@@ -353,9 +408,9 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
         // response[0] contains the one and only warning that was read out of database with promiseToGetItems
 
         // if the current warning (with given dwd_id) ALREADY EXISTS in the database ...
-        if (typeof response !== "undefined" && response.length > 0) {
+        if (typeof response !== "undefined" &amp;&amp; response.length > 0) {
           // ... do not insert it again but:
-          // if the message (MSGTYPE) is an "Update", the dwd_id will be a new one, see: https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&v=4
+          // if the message (MSGTYPE) is an "Update", the dwd_id will be a new one, see: https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_dwd_implementation_notes_de_pdf.pdf?__blob=publicationFile&amp;v=4
           // if its MSGTYPE is "Alert" or "Update"
           if ((currentFeature.properties.MSGTYPE === "Alert") || (currentFeature.properties.MSGTYPE === "Update")) {
 
@@ -502,7 +557,7 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
   function groupByArray(xs, key) {
     return xs.reduce(function (rv, x) {
       let v = key instanceof Function ? key(x) : x[key];
-      let el = rv.find((r) => r && r.key === v);
+      let el = rv.find((r) => r &amp;&amp; r.key === v);
       if (el) {
         el.values.push(x);
       } else {
@@ -539,3 +594,26 @@ function checkParamsWarnings(params) {
   router.route("/:timestamp").get(getWarningsForTime);
 
   module.exports = router;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#calculateEnclosingCircle">calculateEnclosingCircle</a></li><li><a href="global.html#checkForExistingTweets">checkForExistingTweets</a></li><li><a href="global.html#checkParamsPreviousWeather">checkParamsPreviousWeather</a></li><li><a href="global.html#checkParamsTwitterTweets">checkParamsTwitterTweets</a></li><li><a href="global.html#checkParamsWarnings">checkParamsWarnings</a></li><li><a href="global.html#convertTimestamp">convertTimestamp</a></li><li><a href="global.html#createUnwetterForDB">createUnwetterForDB</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#express">express</a></li><li><a href="global.html#findLastTimestamp">findLastTimestamp</a></li><li><a href="global.html#GeoJSONPolygon">GeoJSONPolygon</a></li><li><a href="global.html#getWarningsForTime">getWarningsForTime</a></li><li><a href="global.html#getWarningsFromDB">getWarningsFromDB</a></li><li><a href="global.html#groupByArray">groupByArray</a></li><li><a href="global.html#mongodb">mongodb</a></li><li><a href="global.html#paramList">paramList</a></li><li><a href="global.html#previousWeather">previousWeather</a></li><li><a href="global.html#proccessUnwettersFromLocal">proccessUnwettersFromLocal</a></li><li><a href="global.html#processUnwettersFromDWD">processUnwettersFromDWD</a></li><li><a href="global.html#promiseToDeleteItems">promiseToDeleteItems</a></li><li><a href="global.html#promiseToFetchRadarData">promiseToFetchRadarData</a></li><li><a href="global.html#promiseToGetItems">promiseToGetItems</a></li><li><a href="global.html#promiseToGetTweetsForEvent">promiseToGetTweetsForEvent</a></li><li><a href="global.html#promiseToGetTweetsFromTwitter">promiseToGetTweetsFromTwitter</a></li><li><a href="global.html#promiseToPostItems">promiseToPostItems</a></li><li><a href="global.html#promiseToUpdateItems">promiseToUpdateItems</a></li><li><a href="global.html#radarRoute">radarRoute</a></li><li><a href="global.html#searchTweetsForEvent">searchTweetsForEvent</a></li><li><a href="global.html#updateConfig">updateConfig</a></li><li><a href="global.html#updateVariableInConfigYaml">updateVariableInConfigYaml</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jan 28 2020 11:36:59 GMT+0100 (GMT+01:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

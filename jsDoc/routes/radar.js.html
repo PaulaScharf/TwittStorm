@@ -1,4 +1,32 @@
-// jshint esversion: 8
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: radar.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: radar.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// jshint esversion: 8
 // jshint node: true
 // jshint maxerr: 1000
 
@@ -165,7 +193,7 @@ var promiseToFetchRadarData = function(radarProduct) {
         };
 
         //make one big GeoJSON featurecollection
-        for(let i = 2; i < d.length; i++) {
+        for(let i = 2; i &lt; d.length; i++) {
           var polygon = GeoJSONPolygon(d[i]);
           //push to collection
           answerJSON.geometry.features.push(polygon);
@@ -255,7 +283,7 @@ var radarRoute = function(req, res) {
           //  res.status(500).send(e);
           }
           // if not found in db
-          if(result.length < 1) {
+          if(result.length &lt; 1) {
             // read from hist data file
             var allProducts = [];
 
@@ -396,9 +424,9 @@ var radarRoute = function(req, res) {
             res.status(500).send(e);
           }
           // not found
-          if(result.length < 1) {
+          if(result.length &lt; 1) {
             // do we need to fetch the latest?
-            if(reqTimeUpper > latestTimestamp && reqTimeLower < latestTimestamp) {
+            if(reqTimeUpper > latestTimestamp &amp;&amp; reqTimeLower &lt; latestTimestamp) {
               // we dont have the newest, we should fetch it
               console.log("newest data is fetched ...");
               try {
@@ -428,7 +456,7 @@ var radarRoute = function(req, res) {
             else {
               // this could be because of dwd inconsitencies
               // when a new product should be available, but isn't due to dwd update difficulties
-              if(reqTimeUpper > latestTimestamp && reqTimeLower > latestTimestamp) {
+              if(reqTimeUpper > latestTimestamp &amp;&amp; reqTimeLower > latestTimestamp) {
                 console.log("the latest radar product is behind the requested timestamp");
                 // query for last available prod
                 let query = {
@@ -452,8 +480,8 @@ var radarRoute = function(req, res) {
               }
               else {
                 // not the future case
-                let e_String = "It is likely that a timestamp error occured. This is due to DWD publishing delays. Please try again.";
-                let e = { "err_msg": e_String, "code": 123};
+                let e = "It is likely that a timestamp error occured. This is dueto DWD publishing delays. Please try again.";
+                e = { "err_msg": e };
                 res.status(422).send(e);
               }
             }
@@ -475,3 +503,26 @@ router.route("*").get(function(req, res){
 });
 
 module.exports = router;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#calculateEnclosingCircle">calculateEnclosingCircle</a></li><li><a href="global.html#checkForExistingTweets">checkForExistingTweets</a></li><li><a href="global.html#checkParamsPreviousWeather">checkParamsPreviousWeather</a></li><li><a href="global.html#checkParamsTwitterTweets">checkParamsTwitterTweets</a></li><li><a href="global.html#checkParamsWarnings">checkParamsWarnings</a></li><li><a href="global.html#convertTimestamp">convertTimestamp</a></li><li><a href="global.html#createUnwetterForDB">createUnwetterForDB</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#express">express</a></li><li><a href="global.html#findLastTimestamp">findLastTimestamp</a></li><li><a href="global.html#GeoJSONPolygon">GeoJSONPolygon</a></li><li><a href="global.html#getWarningsForTime">getWarningsForTime</a></li><li><a href="global.html#getWarningsFromDB">getWarningsFromDB</a></li><li><a href="global.html#groupByArray">groupByArray</a></li><li><a href="global.html#mongodb">mongodb</a></li><li><a href="global.html#paramList">paramList</a></li><li><a href="global.html#previousWeather">previousWeather</a></li><li><a href="global.html#proccessUnwettersFromLocal">proccessUnwettersFromLocal</a></li><li><a href="global.html#processUnwettersFromDWD">processUnwettersFromDWD</a></li><li><a href="global.html#promiseToDeleteItems">promiseToDeleteItems</a></li><li><a href="global.html#promiseToFetchRadarData">promiseToFetchRadarData</a></li><li><a href="global.html#promiseToGetItems">promiseToGetItems</a></li><li><a href="global.html#promiseToGetTweetsForEvent">promiseToGetTweetsForEvent</a></li><li><a href="global.html#promiseToGetTweetsFromTwitter">promiseToGetTweetsFromTwitter</a></li><li><a href="global.html#promiseToPostItems">promiseToPostItems</a></li><li><a href="global.html#promiseToUpdateItems">promiseToUpdateItems</a></li><li><a href="global.html#radarRoute">radarRoute</a></li><li><a href="global.html#searchTweetsForEvent">searchTweetsForEvent</a></li><li><a href="global.html#updateConfig">updateConfig</a></li><li><a href="global.html#updateVariableInConfigYaml">updateVariableInConfigYaml</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jan 28 2020 11:36:59 GMT+0100 (GMT+01:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

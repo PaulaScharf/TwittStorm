@@ -21,8 +21,13 @@ let config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 // get mapbox-access key out of .env and write it into config.yaml, so that client-side can get it out of config.yaml
 updateVariableInConfigYaml("mapbox_access_key", process.env.MAPBOX_ACCESS_KEY);
 
-
-router.post("/", (req, res) => {
+/**
+ * Update "map.center", "map.zoom" or "max_age_tweets" in the config.yaml
+ * @author Paula Scharf
+ * @param req
+ * @param res
+ */
+var updateConfig = function(req, res) {
 	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
 	try {
 		for (let key in req.body) {
@@ -51,7 +56,7 @@ router.post("/", (req, res) => {
 	} catch (error) {
 		res.status(500).send({err_msg: error});
 	}
-});
+};
 
 
 
@@ -60,7 +65,7 @@ router.post("/", (req, res) => {
 *
 * @author Katharina Poppinga
 * @param {String} variableName -
-* @param {} value -
+* @param {any} value -
 */
 function updateVariableInConfigYaml(variableName, value){
 	config = yaml.safeLoad(fs.readFileSync('config.yaml', 'utf8'));
@@ -69,6 +74,6 @@ function updateVariableInConfigYaml(variableName, value){
 	fs.writeFileSync('config.yaml', yamlStr, 'utf8');
 }
 
-
+router.route("/").get(updateConfig);
 module.exports.updateVariableInConfigYaml = updateVariableInConfigYaml;
 module.exports.router = router;
