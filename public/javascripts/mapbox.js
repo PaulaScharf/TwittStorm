@@ -101,6 +101,7 @@ window.twttr = (function(d, s, id) {
 $(document).ajaxSend(function(){
 	$('#loading').fadeIn(250);
 });
+
 $(document).ajaxComplete(function(){
 	$('#loading').fadeOut(250);
 });
@@ -255,22 +256,18 @@ function showMap() {
 
 		$("#severeWeather").click(function() {
 			loadSevereWeather(map);
-			map.fire('draw.reloadTweets', {});
 		});
 
 		$("#radio1").click(function() {
 			loadRaster(map, "ry");
-			map.fire('draw.reloadTweets', {});
 		});
 
 		$("#radio2").click(function() {
 			loadRaster(map, "rw");
-			map.fire('draw.reloadTweets', {});
 		});
 
 		$("#radio3").click(function() {
 			loadRaster(map, "sf");
-			map.fire('draw.reloadTweets', {});
 		});
 
 
@@ -1127,6 +1124,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 		// if the request is done successfully, ...
 		.done(function(result) { 			// result is our tweets that lie in the aoi
+			$('#loading').fadeIn(250);
 			// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 			console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
@@ -1179,6 +1177,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					console.dir("There was an error while processing the tweets from the database", e);
 				}
 			}
+			$('#loading').fadeOut(250);
 			doneProcessingAOI = true;
 		})
 
@@ -1199,11 +1198,12 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				// show the user a popup to inform that the twitter API rate limit has exceeded
 				$("#twitterInf").css("display","block");
 			}
-
 			doneProcessingAOI = true;
 		});
 	}
 
+
+// TODO: loading spinner !!!!
 
 	/**
 	* @desc This function makes only warnings and its tweets visible, if the include a polygon that is fully contained by the given
@@ -1302,10 +1302,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			// if the request is done successfully, ...
 			.done(function (result) {
-
-
-				// TODO: fehlt hier noch ein 4. doneProcessingAOI = true; ??
-
+				$('#loading').fadeIn(250);
 				// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 				console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
@@ -1339,7 +1336,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				}
 				if (i >= requests.length - 1) {
 					doneProcessingAOI = true;
+							$('#loading').fadeOut(250);
 				}
+		//		$('#loading').fadeOut(250);
 			})
 
 			// if the request has failed, ...
@@ -1362,7 +1361,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					// show the user a popup to inform that the twitter API rate limit has exceeded
 					$("#twitterInf").css("display","block");
 				}
-
 			});
 		}
 		if (requests.length < 1) {

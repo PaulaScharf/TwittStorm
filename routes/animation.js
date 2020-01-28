@@ -177,6 +177,8 @@ var previousWeather = function(req, res) {
           promiseToGetTweetsForEvent("rainRadar_" + prod.toLowerCase(), req.params.timestamp, 300000, req.db)
           .catch(console.error)
           .then(function(tweets) {
+              console.log("Test");
+                      console.log(tweets);
             // are we looking for not-yet loaded historic data?
             let pastBorder;
             if(prod == "RY") {
