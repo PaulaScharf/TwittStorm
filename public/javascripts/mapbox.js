@@ -44,12 +44,10 @@ let popupsEnabled = true;
 
 
 /**
-* time of app start
-* @type {}
+* time of app start (in Epoch milliseconds)
+* @type {number}
 */
 let initTimestamp = Date.now();
-
-console.log(initTimestamp);
 
 
 /**
@@ -307,7 +305,6 @@ function showMap() {
 			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-			// TODO: hier auch readURL verwenden?
 			// if rasterProduct is defined
 			if (paramArray.rasterProduct !== undefined) {
 
@@ -1110,8 +1107,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		let searchWords = ["rain", "raining", "heavy rain", "rainfall", "precipitation", "Niederschlag", "Regen", "Starkregen", "Dauerregen", "Sturmflut", "Sinnflut", "regnet", "Unwetter", "Gewitter", "Feuerwehr", "Sturm", "Flut"];
 		let query = {
 			twitterSearchQuery: {
-				// TODO which geometry is correct here
-				geometry: geom, //polygon.geometry,  //.coordinates,
+				geometry: geom,
 				searchWords: searchWords
 			},
 			dwd_id: "rainRadar_" + prod.toLowerCase(),

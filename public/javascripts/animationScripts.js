@@ -41,14 +41,6 @@ let usedTimestamps = [];
 let outputArray = [];
 
 
-// TODO: nicht mehr verwendet?? dann löschen
-/**
-* contains the sources in GeoJSON format
-* @type {}
-*/
-let final = [];
-
-
 /**
 * a GeoJSON mask
 * @type {Object}
@@ -90,10 +82,10 @@ var imageArray = [];
 */
 var gifArray = [];
 
-// TODO: type festlegen
+
 /**
 * the intervall that is started with the animation and used to stop it
-* @type {}
+* @type {number}
 */
 var automationIntervall;
 
@@ -627,7 +619,7 @@ function loadAnimation(position, map){
         // add the given warnings as a layer to the map and create checkboxes for the menu
         addWarningsLayerAndCheckboxes(map, layerID, true);
 
-
+// TODO: löschen
         // check whether corresponding checkbox is checked for showing the layer
         //    if ((layerIdParts[3] === "Rain" || layerIdParts[3] === "Snowfall" || layerIdParts[3] === "Thunderstorm" || layerIdParts[3] === "BlackIce")) {
 
@@ -670,9 +662,10 @@ function loadAnimation(position, map){
 /**
 * @desc Function provided from gif libary Gifshot
 * @author Benjamin Rieke
-* @param {} array - image containing array
+* @param {Array} array - image containing array
 */
 function createGif(array) {
+
   var date = new Date();
   var utc = date.toJSON().slice(0,10).replace(/-/g,'/');
   var time = date.toLocaleTimeString();
@@ -873,9 +866,9 @@ function loadPreviousWeather(map, weatherEv){
 /**
 * @desc Function to return a GeoJSON formatted Polygon.
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-* @param {} object - the individual polygons of an event, containing the coords of a polygon
-* @param {} time - timestamp of the data
-* @param {} properties - properties of the event
+* @param {Array} object - the individual polygons of an event, containing the coords of a polygon
+* @param {String} time - timestamp of the data
+* @param {Object} properties - properties of the event
 */
 function goGeoJson(object, time, properties) {
 
@@ -895,9 +888,10 @@ function goGeoJson(object, time, properties) {
 /**
 * @desc Checks if a part of an Object is already in an array.
 * @author Benjamin Rieke
-* @param {} item - geojson object
+* @param {Object} item - geojson object
 */
 function addItem(item) {
+
   var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp);
   if (index === -1) {
     timestampStorage.push(item);
@@ -940,10 +934,11 @@ function removeAllSource(map) {
 * @desc Adds a GEOJSON to the map as a source.
 * @author Benjamin Rieke
 * @param {Object} map - links to the mapbox-map
-* @param {} layerID - to be id of the source. in this case the timestamp
-* @param {} previousFeatureCollection - the geojson featurecollection
+* @param {String} layerID - to be id of the source. in this case the timestamp
+* @param {Object} previousFeatureCollection - the geojson featurecollection
 */
 function addToSource(map, layerID, previousFeatureCollection){
+
   //
   let sourceObject = map.getSource(layerID);
   // if there is already an existing Source of this map with the given layerID ...
