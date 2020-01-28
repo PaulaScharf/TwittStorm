@@ -14,7 +14,7 @@ Get three files from [TwittStorm-GitHub-Repository](https://github.com/PaulaScha
 Open ``.env`` and set the values of all five variables to your own API keys. Without doing this the app will not work. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys and where to insert which of them.<br/>
 Then open a docker shell in the same directory and enter `docker-compose up`.<br/>
 The started application can be found with your browser at ``http://<your IP>:3000`` (e.g.: http://192.168.99.100:3000).<br/>
-(Your IP will be shown on start of the docker shell. <b>TODO: wann, nicht bei allen?<b/>)
+(Your IP will be shown on start of the docker shell. <b>TODO: wann, nicht bei allen?</b>)
 
 ## How to get and use your own API-keys
 In order to use this app, you have to sign up for the necessary services. You'll need a mapbox access key for the map, and a twitter developer account with keys in order to access real-time twitter data.
