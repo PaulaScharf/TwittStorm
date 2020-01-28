@@ -11,15 +11,10 @@ Get three files from [TwittStorm-GitHub-Repository](https://github.com/PaulaScha
 - ``docker-compose.yml``
 - ``.env``    
 
-Open ``.env`` and set ........... to your own API keys. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys.<br/>
-Then open the docker shell in the same directory and enter ``docker-compose up``.<br/>
-The started application can be found with your browser at ``http://<your IP>:3000``. E.g.: http://192.168.99.100:3000/.<br/>
-Your IP will be shown on start of the dockershell (TODO: wann, nicht bei allen?).<br/>  
-
-<br>
-TODO: falls Docker Hub Image genutzt wird, sind config-Möglichkeiten (abgesehen von API-keys) nicht gegeben, dazu wäre GitHub clone und lokales bauen nötig, damit vorher die config.yaml angepasst werden kann - ODER: config.yaml noch in .env ändern!
-<br>
-
+Open ``.env`` and set the values of all five variables to your own API keys. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys and where to insert which of them.<br/>
+Then open a docker shell in the same directory and enter ``docker-compose up``.<br/>
+The started application can be found with your browser at ``http://<your IP>:3000`` (e.g.: http://192.168.99.100:3000).<br/>
+Your IP will be shown on start of the docker shell (TODO: wann, nicht bei allen?).<br/>  
 
 ## How to get and use your own API-keys
 In order to use this app, you have to sign up for the necessary services. You'll need a mapbox access key for the map, and a twitter developer account with keys in order to access real-time twitter data.
@@ -64,5 +59,6 @@ In order to use this app, you have to sign up for the necessary services. You'll
 Ensure that your adblocker does not prevent JSNLog from working.
 
 ## Information for Developers
+When using the image from Docker Hub, the configuration possibilities are limited. If you want to configure some aspects as it is specified in our [Configuration Wiki](https://github.com/PaulaScharf/TwittStorm/wiki/Configuration), you need to clone the [GitHub Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm), edit the ``config.yaml`` and use a local image.
+<br>
 See our [Configuration Wiki](https://github.com/PaulaScharf/TwittStorm/wiki/Configuration) for information about what you are able to configurate in ``config.yaml``.
-<br><b>TODO: (EVTL. ANPASSEN WG. .ENV).<br>
