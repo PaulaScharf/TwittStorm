@@ -310,8 +310,6 @@ function reloadAnimation(wType){
   //if the weathertype is severeweather
   if ((wType === "warnings") ) {
 
-    // weathertype indicator for style switcher
-    wIndicator = wType;
     //update the URL
     updateURL("wtype", "warnings");
     deleteFromURL("radProd");
@@ -333,8 +331,6 @@ function reloadAnimation(wType){
 
   // if the weathertype is radar
   if ((wType === "radar") ) {
-    // weathertype indicator for style switcher
-    wIndicator = wType;
     //update the URL
     updateURL("wtype", "radar");
     updateURL("radProd", "ry");

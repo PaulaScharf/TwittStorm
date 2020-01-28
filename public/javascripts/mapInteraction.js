@@ -369,10 +369,10 @@ function styleSelector(map, base){
 		// add onclick-functionality for clicking on satellite or streets button
 		inputs[i].addEventListener('click', function(layer){
 			switchLayer(map, layer);
-if (base == "animation"){
-			// TODO: nur für animationsseite, abfangen!!
+			// if the style is selected on the animationpage stop the animation first
+			if (base == "animation"){
 			clearInterval(automationIntervall);
-};
+			};
 		});
 	}
 }
