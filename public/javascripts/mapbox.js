@@ -1204,12 +1204,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
 
-				// TODO: zu HTML div ändern!!
-				let rateLimitMessage = "The twitter API rate limit exceeded.<br>Please try again later.";
-				// TODO: rateLimitMessage in div schreiben
-
-				// TODO: folgendes löschen, wenn div fertig
-				window.alert("The twitter API rate limit exceeded.\nPlease try again later.");
+				//show the user a popup to inform that the limit has exceeded
+				$("#twitterInf").css("display","block");
 			}
 
 			doneProcessingAOI = true;
@@ -1371,13 +1367,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 				if ((typeof(xhr.responseJSON.err_msg[0].code) !== "undefined") && (xhr.responseJSON.err_msg[0].code === 88)) {
 
-					// TODO: zu HTML div ändern!!
-					let rateLimitMessage = "The twitter API rate limit exceeded.<br>Please try again later.";
-					// TODO: rateLimitMessage in div schreiben
-
-					// TODO: folgendes löschen, wenn div fertig
-
-					window.alert("The twitter API rate limit exceeded.\nPlease try again later.");
+					//show the user a popup to inform that the limit has exceeded
+					$("#twitterInf").css("display","block");
 				}
 
 			});
