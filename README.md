@@ -8,7 +8,7 @@ The corresponding Docker Repository can be found on Docker Hub: [https://hub.doc
 ## How to start the App
 
 ANPASSEN:<br>
-Get three files from the [TwittStorm-GitHub-Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm):
+Get three files from [TwittStorm-GitHub-Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm):
 - ``Dockerfile``
 - ``docker-compose.yml``
 - ``.env``    
@@ -16,7 +16,7 @@ Get three files from the [TwittStorm-GitHub-Repository](https://github.com/Paula
 Open ``.env`` and set ........... to your own API keys. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys.<br/>
 Use those three files to ...<br/>
 <b>TODO: DockerHub einfügen</b><br>
-Pull the image from Docker Hub: https://hub.docker.com/r/paulasch/twittstorm<br/>
+Pull the image from [TwittStorm-Docker Hub-Repository](https://hub.docker.com/r/paulasch/twittstorm).<br/>
 <br><br>
 TODO: falls Docker Hub Image genutzt wird, sind config-Möglichkeiten (abgesehen von API-keys) nicht gegeben, dazu wäre GitHub clone und lokales bauen nötig, damit vorher die config.yaml angepasst werden kann - ODER: config.yaml noch in .env ändern!
 <br><br>
