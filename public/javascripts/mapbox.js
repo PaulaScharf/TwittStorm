@@ -1187,7 +1187,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 							// if bool is true, displayEvent()
 
-							//if(bool) {
+							if(bool) {
 							let tweetFeature = {
 								"type": "Feature",
 								"geometry": item.location_actual,
@@ -1195,7 +1195,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							};
 							tweetFeatureCollection.features = [tweetFeature];
 							displayEvent(map, "tweet rainradar", tweetFeatureCollection);
-							//}
+							}
 
 						}
 					});
