@@ -764,6 +764,9 @@ function showTweetPopup(map, e) {
 	}
 }
 
+// indicator for the current position of the image carousel
+var mover = 0;
+
 /**
 * @desc This function will add functionality to the helppages image tabs and changes the texts according
 * to the shown image.
@@ -777,6 +780,9 @@ function tabSelector(tab){
 	var tabInserter = document.getElementById(tab + ' text');
 	//change the text
 	changer.innerHTML = tabInserter.innerHTML;
+	// change the movers value so that the usage of the arrows is working correctly
+	mover = tab;
+	console.log(mover);
 	}
 
 /**
@@ -789,7 +795,6 @@ function helpPageHandler(){
 
 	// functionality for the next and prev buttons on the help page
 	// counters for the helppage carousel
-	var mover = 0;
 	// link to the helptext
 	var changer = document.getElementById('helpText');
 	// the helptext for the first image
