@@ -364,9 +364,9 @@ function styleSelector(map){
 		inputs[i].addEventListener('click', function(layer){
 			switchLayer(map, layer);
 
-			// TODO: nur für animationsseite, abfangen!!
-			clearInterval(automationIntervall);
-
+			if (indicator === "animation"){
+				clearInterval(automationIntervall);
+			}
 		});
 	}
 }
