@@ -174,11 +174,12 @@ var previousWeather = function(req, res) {
           }
         })
         .then(function(result) {
-          promiseToGetTweetsForEvent("rainRadar_" + prod.toLowerCase(), req.params.timestamp, 300000, req.db)
+          promiseToGetTweetsForRadar("rainRadar_" + prod.toLowerCase(), req.db)
           .catch(console.error)
           .then(function(tweets) {
+
             // are we looking for not-yet loaded historic data?
-            let pastBorder;
+            var pastBorder;
             if(prod == "RY") {
               // 65min
               pastBorder = 3900000;
@@ -189,7 +190,7 @@ var previousWeather = function(req, res) {
             }
             pastBorder = Date.now() - pastBorder;
             let bool = pastBorder > lastTimestamp;
-            console.log("prevWeather radar check: " + new Date(pastBorder) + " > " + new Date(lastTimestamp) + " ? -> " + bool);
+            //console.log("prevWeather radar check: " + new Date(pastBorder) + " > " + new Date(lastTimestamp) + " ? -> " + bool);
 
             if(pastBorder > lastTimestamp) {
               // TODO if < 5 found, reload
@@ -277,7 +278,7 @@ var previousWeather = function(req, res) {
                                             result.forEach(function(image) {
                                               answer[image.timestamp] = [image];
                                               tweets.forEach(function(tweet) {
-                                                if(image.timestamp <= tweet.timestamp) {
+                                                if(image.timestampOfAvailability <= tweet.timestamp && tweet.timestamp < image.timestampOfAvailability + pastBorder) {
                                                   answer[image.timestamp].push(tweet);
                                                 }
                                               });
@@ -330,7 +331,7 @@ var previousWeather = function(req, res) {
                   result.forEach(function(image) {
                     answer[image.timestamp] = [image];
                     tweets.forEach(function(tweet) {
-                      if(image.timestamp <= tweet.timestamp) {
+                      if(image.timestampOfAvailability <= tweet.timestamp && tweet.timestamp < image.timestampOfAvailability + pastBorder) {
                         answer[image.timestamp].push(tweet);
                       }
                     });
@@ -356,7 +357,7 @@ var previousWeather = function(req, res) {
                   result.forEach(function(image) {
                     answer[image.timestamp] = [image];
                     tweets.forEach(function(tweet) {
-                      if(image.timestamp <= tweet.timestamp) {
+                      if(image.timestampOfAvailability <= tweet.timestamp && tweet.timestamp < image.timestampOfAvailability + pastBorder) {
                         answer[image.timestamp].push(tweet);
                       }
                     });
@@ -383,6 +384,31 @@ var previousWeather = function(req, res) {
   }
 };
 
+
+/**
+  * Retrieves tweets from the given database (db) with a given dwd_id. The tweets have to have been created between the
+  * given timestamp and 5 minutes before that.
+  * @author Paula Scharf, Jonathan Bahlmann
+  * @param dwd_id - dwd id of the event
+  * @param db - the database
+  */
+function promiseToGetTweetsForRadar(dwd_id, db) {
+  //
+  return new Promise((resolve, reject) => {
+    // JSON with the ID of the current event, needed for following database-check
+    let query = {
+      type: "tweet",
+      dwd_id: dwd_id
+    };
+    promiseToGetItems(query, db)
+      .catch(function (error) {
+        reject(error);
+      })
+      .then(function (result) {
+        resolve(result);
+      });
+  });
+}
 
 /**
 * Retrieves tweets from the given database (db) with a given dwd_id. The tweets have to have been created between the
