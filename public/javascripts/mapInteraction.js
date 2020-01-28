@@ -168,7 +168,7 @@ function panMapWithButton(map, directionToPan) {
 * @desc Zoom given map to the given coordinates.
 * @author https://gist.github.com/aerispaha/826a9f2fbbdf37983dc01e6074ce7cd7
 * @param {Object} map - mapbox-map
-* @param {} coordinates -
+* @param {Array} coordinates -
 */
 function zoomToCoordinates(map, coordinates) {
 
@@ -286,12 +286,12 @@ function removeAddGermany(map){
 }
 
 
-// TODO: JSDoc
+
 /**
 * @desc
 * @author Benjamin Rieke, Paula Scharf
 * @param {Object} map mapbox-map
-* @param {} layer - the chosen maplayer style
+* @param {Object} layer - the chosen maplayer style
 */
 function switchLayer(map, layer) {
 
@@ -363,6 +363,8 @@ function styleSelector(map){
 		// add onclick-functionality for clicking on satellite or streets button
 		inputs[i].addEventListener('click', function(layer){
 			switchLayer(map, layer);
+
+			// TODO: nur für animationsseite, abfangen!!
 			clearInterval(automationIntervall);
 
 		});
@@ -766,14 +768,13 @@ function tabSelector(tab){
 	changer.innerHTML = tabInserter.innerHTML;
 	// change the movers value so that the usage of the arrows is working correctly
 	mover = tab;
-	}
+}
 
 /**
 * @desc This function will add functionality to the helppages image carousel and changes the texts according
 * to the shown image.
 * @author Benjamin Rieke
 */
-
 function helpPageHandler(){
 
 	// functionality for the next and prev buttons on the help page

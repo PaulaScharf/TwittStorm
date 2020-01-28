@@ -17,15 +17,11 @@
 */
 let animationMap;
 
-
-// TODO: JSDoc für globale Variablen
-
 /**
 *
 * @type {Array}
 */
 let resultOutput = [];
-
 
 /**
 *
@@ -33,13 +29,11 @@ let resultOutput = [];
 */
 let usedTimestamps = [];
 
-
 /**
 * all individual events from a timestamp get temporally stored in here
 * @type {Array}
 */
 let outputArray = [];
-
 
 /**
 * a GeoJSON mask
@@ -47,13 +41,11 @@ let outputArray = [];
 */
 let mask;
 
-
 /**
 * an Array where all active layers are stored
 * @type {Array}
 */
 let allLayers = [];
-
 
 /**
 * stores all GeoJSONs with their timestamps
@@ -61,13 +53,11 @@ let allLayers = [];
 */
 let timestampStorage = [];
 
-
 /**
 * indicates which weathertype is requested
 * @type {String}
 */
 wtypeFlag = "";
-
 
 /**
 * adds up canvasshots from the map in base64 format
@@ -75,20 +65,17 @@ wtypeFlag = "";
 */
 var imageArray = [];
 
-
 /**
 * the final output to create a gif from
 * @type {Array}
 */
 var gifArray = [];
 
-
 /**
 * the intervall that is started with the animation and used to stop it
 * @type {number}
 */
 var automationIntervall;
-
 
 /**
 * gives the information that the styleswitcher is on the animation page
@@ -97,17 +84,6 @@ var automationIntervall;
 var indicator = "";
 
 
-// TODO: löschen, da nicht benötigt?
-/**
-* gives the wtype information to the style since the paramarray wont change
-* @type {String}
-*/
-var wIndicator = "";
-
-
-
-// TODO: dies in Funktion schreiben??
-// paula fragen
 // is there a timestamp?
 let currentTimestamp = Date.now();
 if (typeof paramArray.timestamp !== "undefined") {
@@ -499,7 +475,6 @@ function automate(map){
 }
 
 
-// TODO: in onload-Funktion?
 // functionality for the download button
 $("#downloadButton").click(function() {
   // set reference for the popup
@@ -729,8 +704,6 @@ function loadPreviousWeather(map, weatherEv){
   // if the request is done successfully, ...
   .done(function (result) {
 
-    console.log(result);
-    
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
 
@@ -831,7 +804,6 @@ function loadPreviousWeather(map, weatherEv){
               if (result.radProd === "RW") {
                 showLegend(animationMap, "radar", "rw");
               }
-
 
               layerID = "radar " + key + " " + j;
               mask.geometry.features = currentUnwetter;
@@ -942,7 +914,6 @@ function removeAllSource(map) {
 */
 function addToSource(map, layerID, previousFeatureCollection){
 
-  //
   let sourceObject = map.getSource(layerID);
   // if there is already an existing Source of this map with the given layerID ...
   if (typeof sourceObject !== 'undefined') {
