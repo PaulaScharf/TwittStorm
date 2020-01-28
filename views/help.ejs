@@ -24,10 +24,10 @@
 
       <!--    Carousel Indicators    -->
       <ol class="carousel-indicators">
-        <li data-target="#magicCarousel" data-slide-to="0" class="active"></li>
-        <li data-target="#magicCarousel" data-slide-to="1"></li>
-        <li data-target="#magicCarousel" data-slide-to="2"></li>
-        <li data-target="#magicCarousel" data-slide-to="3"></li>
+        <li data-target="#magicCarousel" data-slide-to="0" id="0" onclick="tabSelector('0')" class="active"></li>
+        <li data-target="#magicCarousel" data-slide-to="1" id="1" onclick="tabSelector('1')"></li>
+        <li data-target="#magicCarousel" data-slide-to="2" id="2" onclick="tabSelector('2')"></li>
+        <li data-target="#magicCarousel" data-slide-to="3" id="3" onclick="tabSelector('3')"></li>
       </ol>
 
       <!--    Carousel Slider    -->
@@ -134,7 +134,6 @@
           <li>Default map location: [X,Y] - coordinate based input that will change the default map location.</li>
           <li>Default map zoom: If you change this value the default zoom level will be changed accordingly.</li>
           <li>Tweet History: By changing this value to a number that is smaller than 10080 you can adjust how old tweets will be. The value is based on minutes</li>
-          <li>Change Twittstorms time: If you want to go back in time change this value.</li>
       </ul>
         </div>
 

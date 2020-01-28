@@ -765,6 +765,21 @@ function showTweetPopup(map, e) {
 }
 
 /**
+* @desc This function will add functionality to the helppages image tabs and changes the texts according
+* to the shown image.
+* @param {Object} tab - the carousel tab on its position
+* @author Benjamin Rieke
+*/
+function tabSelector(tab){
+	// link to the helptext
+	var changer = document.getElementById('helpText');
+	// link to the corresponding tab´s text
+	var tabInserter = document.getElementById(tab + ' text');
+	//change the text
+	changer.innerHTML = tabInserter.innerHTML;
+	}
+
+/**
 * @desc This function will add functionality to the helppages image carousel and changes the texts according
 * to the shown image.
 * @author Benjamin Rieke
@@ -774,14 +789,13 @@ function helpPageHandler(){
 
 	// functionality for the next and prev buttons on the help page
 	// counters for the helppage carousel
-	var mover = 0
+	var mover = 0;
 	// link to the helptext
 	var changer = document.getElementById('helpText');
 	// the helptext for the first image
 	var first = document.getElementById('0 text').innerHTML;
-
+	// onload show the first text
 	changer.innerHTML = first;
-
 
 	// functionality for the next button
 	$("#next").click(function() {
