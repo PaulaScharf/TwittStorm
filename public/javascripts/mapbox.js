@@ -584,7 +584,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 
 		// TODO: mit if status abfangen, bei dem folgendes nötig ist
 		console.log(status);
-		window.alert("There has been an error while fetching the precipitations radar data.\n This could be due to the dwd server having update delays.\n Please repeat your request by clicking the radar " + prodcut + "button again.");
+		window.alert("There has been an error while fetching the precipitations radar data.\n This could be due to the dwd server having update delays.\n Please repeat your request by clicking the radar " + prodcut + " button again.");
 
 	});
 }
@@ -637,7 +637,6 @@ function callRainRadar(map, prod) {
 
 	// progress update info
 	$('#information').html("Retrieving the requested " + prod + " rain radar data.");
-/*
 	$.ajax({
 		// use a http GET request
 		type: "GET",
@@ -689,9 +688,8 @@ function callRainRadar(map, prod) {
 
 		// TODO: mit if status abfangen, bei dem folgendes nötig ist
 		console.log(status);
-		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
+		window.alert("There has been an error while fetching the precipitations radar data.\n This could be due to the dwd server having update delays.\n Please repeat your request by clicking the radar " + prodcut + " button again.");
 	});
-	*/
 }
 // *****************************************************************************************************
 
