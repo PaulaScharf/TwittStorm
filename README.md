@@ -9,10 +9,11 @@ The code of this project can be found on GitHub: [https://github.com/PaulaScharf
 
 ANPASSEN:<br>
 Get three files from the [TwittStorm-GitHub-Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm):
-- Dockerfile
-- docker-compose.yaml
-- .env
-Open .env and set ........... to your own API keys. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys.<br/>
+- ``Dockerfile``
+- ``docker-compose.yml``
+- ``.env``    
+<br>
+Open ``.env`` and set ........... to your own API keys. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys.<br/>
 Use those three files to ...<br/>
 <b>TODO: DockerHub einfügen</b><br>
 Pull the image from Docker Hub: https://hub.docker.com/r/paulasch/twittstorm<br/>
