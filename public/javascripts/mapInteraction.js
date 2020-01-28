@@ -782,7 +782,6 @@ function tabSelector(tab){
 	changer.innerHTML = tabInserter.innerHTML;
 	// change the movers value so that the usage of the arrows is working correctly
 	mover = tab;
-	console.log(mover);
 	}
 
 /**
