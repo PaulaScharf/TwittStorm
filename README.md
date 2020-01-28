@@ -1,5 +1,5 @@
 # TwittStorm
-TwittStorm for Geosoftware II (University of Munster) by Jonathan Bahlmann, Katharina Poppinga, Paula Scharf and Benjamin Rieke.
+TwittStorm for Geosoftware II (University of Münster, winter semester 2019/2020) by Jonathan Bahlmann, Katharina Poppinga, Paula Scharf and Benjamin Rieke.
 ## Weblinks
 The code of this project is published on GitHub: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)<br>
 <br>
