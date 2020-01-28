@@ -12,7 +12,6 @@
 // an API access token is required for using mapbox GL JS
 mapboxgl.accessToken = paramArray.config.mapbox_access_key;
 
-// TODO: JSDoc
 
 // ****************************** global variables *****************************
 
@@ -38,7 +37,7 @@ let customLayerIds = [];
 
 
 /**
-* // TODO: JSDoc
+* Indicates whether popups are enabled (if value is true) or not (if value is false)
 * @type {boolean}
 */
 let popupsEnabled = true;
@@ -50,6 +49,8 @@ let popupsEnabled = true;
 */
 let initTimestamp = Date.now();
 
+console.log(initTimestamp);
+
 
 /**
 * Flag that indicates which weathertype is requested
@@ -59,8 +60,8 @@ let wtypeFlag = "";
 
 
 /**
-* // TODO: JSDoc
-* array
+*
+* Array in which all filter phrases are stored separately
 * @type {Array}
 */
 let filterwords;
@@ -87,8 +88,6 @@ var doneProcessingAOI = true;
 var doneLoadingWeather = true;
 
 
-// TODO: folgendes in eine Funktion schreiben:
-// TODO: was macht dieser code?
 window.twttr = (function(d, s, id) {
 	var js, fjs = d.getElementsByTagName(s)[0],
 	t = window.twttr || {};
@@ -369,7 +368,6 @@ function showMap() {
 			if ((paramArray.config.timestamp_last_warnings_request == null) || (msecsToLastUnwetterRequest >= paramArray.config.refresh_rate)) {
 				// ... do a new warnings request right now ...
 				requestNewAndDisplayCurrentUnwetters(map);
-				// TODO: wird folgendes immer wieder ausgeführt, auch wenn Bedingung in if sich ändert?
 				// ... and afterwards request warnings each "paramArray.config.refresh_rate" again
 				requestNewAndDisplayCurrentUnwettersEachInterval(map, paramArray.config.refresh_rate);
 
@@ -652,7 +650,6 @@ function callRainRadar(map, prod) {
 		// if radar is currently shown, update the map
 		if((readURL("wtype") === "radar") && (readURL("radProd") === prod)) {
 
-			// TODO hier evtl display modularisieren um nicht noch einen request zu machen
 			requestAndDisplayAllRainRadar(map, prod);
 
 		} else {
@@ -765,7 +762,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 				displayCurrentUnwetters(map, result.events);
 			}
-			
+
 			map.fire('draw.reloadTweets', {});
 			doneLoadingWeather = true;
 		})
@@ -795,7 +792,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* warnings ("Rain", "Snowfall", "Thunderstorm" or "BlackIce").
 	* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
 	* @param {Object} map - mapbox-map in which to display the current warnings
-	* @param {Array} currentUnwetters -
+	* @param {Array} currentUnwetters - all warnings to show in the given map
 	*/
 	function displayCurrentUnwetters(map, currentUnwetters) {
 
@@ -863,8 +860,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @author Katharina Poppinga, Benjamin Rieke, Paula Scharf
 	* @private
 	* @param {Object} map - mapbox-map in which to display the layers events
-	* @param {String} layerID ID for the map-layer to be created
-	* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of events to show in map
+	* @param {String} layerID - ID for the map-layer to be created
+	* @param {Object} eventFeatureCollection - GeoJSON-FeatureCollection of events to show in map
 	*/
 	function displayEvent(map, layerID, eventFeatureCollection) {
 
@@ -1013,16 +1010,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 
-	// TODO: JSDoc
 	/**
 	* @desc Takes an Array of warnings-Objects and checks wether they are expired or not.
-	* If they are expired, removes them from given map. ??
-	findAndRemoveOldLayerIDs from customLayerIds and remove jeweiligen layer und source aus map
-	* ...............................
+	* If they are expired, removes them from given map.
 	* @author Katharina Poppinga
 	* @private
 	* @param {Object} map - mapbox-map from which to remove the given warnings
-	* @param {Array} currentUnwetters -
+	* @param {Array} currentUnwetters - all so far shown warnings
 	*/
 	function findAndRemoveOldLayerIDs(map, currentUnwetters){
 
