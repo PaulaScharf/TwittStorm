@@ -55,8 +55,8 @@ In order to use this app, you have to sign up for the necessary services. You'll
 6. Start the test threads and look at the results in "View Results Tree", "Summary Report" and "Response Time Graph"
 
 ## Troubleshoot
-<b>TODO: keyserver Probleme nennen oder über Docker Hub nicht vorhanden?</b><br>
-Ensure that your adblocker does not prevent JSNLog from working.
+- Ensure that your adblocker does not prevent JSNLog from working.
+- For the newest R packages, we use a repository which needs to be signed with a keyserver. Building a docker image locally, we experienced some keyserver unavailabilities. Using a prebuilt image from dockerhub (the intended use as described in this readme) we did not run unto this problem. Please just be aware that that could be an issue, especially when working locally. In the case of an error remain patient and try again.
 
 ## Information for Developers
 When using the image from Docker Hub, the configuration possibilities are limited. If you want to configure some aspects as it is specified in our [Configuration Wiki](https://github.com/PaulaScharf/TwittStorm/wiki/Configuration), you need to clone the [GitHub Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm), edit the ``config.yaml`` and build your own local image.
