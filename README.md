@@ -43,16 +43,16 @@ In order to use this app, you have to sign up for the necessary services. You'll
     3. open Plugins Manager
     4. go to available plugins
     5. search for "Selenium/WebDriver Support" and install it
-4. open the JMeter script (located in this repo at ``./test/Twittstorm.jmx``)
-5. configure the WebDriver for chrome
-    1. download chrome from here: https://www.google.com/intl/de_de/chrome/
+4. Open the JMeter script (located in this repo at ``./test/Twittstorm.jmx``)
+5. Configure the WebDriver for Chrome
+    1. download Chrome from here: https://www.google.com/intl/de_de/chrome/
     2. download ChromeDriver.exe from here: https://chromedriver.chromium.org/downloads  
     (we used "ChromeDriver **79**.0.3945.36", because we operate chrome version **79**)
     3. in JM open thread "client side tests"
     4. open "jp@gc - Chrome Driver Config"
     5. open tab "chrome"
     6. set the path to the location of the "chromedriver.exe" on your local system
-6. start the test threads and look at the results in "View Results Tree", "Summary Report" and "Response Time Graph"
+6. Start the test threads and look at the results in "View Results Tree", "Summary Report" and "Response Time Graph"
 
 ## Troubleshoot
 <b>TODO: keyserver Probleme nennen oder über Docker Hub nicht vorhanden?</b><br>
