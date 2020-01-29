@@ -1,12 +1,12 @@
 # TwittStorm
 TwittStorm for Geosoftware II (University of Münster, winter semester 2019/2020) by Jonathan Bahlmann, Katharina Poppinga, Paula Scharf and Benjamin Rieke.
 ## Weblinks
-The code of this project is published on GitHub: [https://github.com/PaulaScharf/Geosoftware2-TwittStorm](https://github.com/PaulaScharf/Geosoftware2-TwittStorm)<br>
+The code of this project is published on GitHub: [https://github.com/PaulaScharf/TwittStorm](https://github.com/PaulaScharf/TwittStorm)<br>
 <br>
 The corresponding Docker Repository can be found on Docker Hub: [https://hub.docker.com/r/paulasch/twittstorm](https://hub.docker.com/r/paulasch/twittstorm)
 
 ## How to start the App
-Get three files from [TwittStorm-GitHub-Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm):
+Get three files from [TwittStorm-GitHub-Repository](https://github.com/PaulaScharf/TwittStorm):
 - ``Dockerfile``
 - ``docker-compose.yml``
 - ``.env``    
