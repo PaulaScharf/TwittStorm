@@ -24,7 +24,7 @@ In order to use this app, you have to sign up for the necessary services. You'll
 3. Set the value of the variable ``MAPBOX_ACCESS_KEY`` in ``.env`` to your default token.
 
 #### Twitter
-1. If you don't already have one, please create a twitter account. This can be done by downloading and opening the moible app or through the web at https://twitter.com.
+1. If you don't already have one, please create a twitter account. This can be done by downloading and opening the mobile app or through the web at https://twitter.com.
 2. You'll need to register as a developer. This can be done here: https://developer.twitter.com/en/apply-for-access. You're only going to get and display twitter data, so you can disable all other options in the "how are you going to use twitter"-form.
 3. Create an app at https://developer.twitter.com/en/apps (accessible only with an account). You can name this app whatever you like.
 4. You can see and copy the tokens you'll need from the "Keys and tokens" section in the overview of the app you just created.
