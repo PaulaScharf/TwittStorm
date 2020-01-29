@@ -12,7 +12,8 @@ Get three files from [TwittStorm-GitHub-Repository](https://github.com/PaulaScha
 - ``.env``    
 
 Open ``.env`` and replace the XXX-placeholder for the values of all five given variables by your own API keys. See [How to get and use your own API-keys](https://github.com/PaulaScharf/TwittStorm/tree/master#how-to-get-and-use-your-own-api-keys) for information about how to create your API keys and where to insert which of them.<br/>
-Then open a docker shell in the same directory and enter ``docker-compose up``. In case the pulling of the image fails, do it manually by typing ``docker pull paulasch/twittstorm``.<br/>
+Then open a docker shell in the same directory and enter ``docker-compose up``.<br/>
+In case the pulling of the image fails, do it manually by typing ``docker pull paulasch/twittstorm``.<br/>
 The started application can be found with your browser at ``http://<your IP>:3000`` (e.g.: http://192.168.99.100:3000 on windows or http://localhost:3000 on ubuntu).<br/>
 
 ## How to get and use your own API-keys
@@ -58,4 +59,4 @@ In order to use this app, you have to sign up for the necessary services. You'll
 - For the newest R packages, we use a repository which needs to be signed with a keyserver. Building a docker image locally, we experienced some keyserver unavailabilities. Using a prebuilt image from Docker Hub (the intended use as described in this readme) we did not run into this problem. Please just be aware that that could be an issue, especially when working locally. In the case of an error remain patient and try again.
 
 ## Information for Developers
-When using the image from Docker Hub, the configuration possibilities are limited. If you want to configure some aspects as it is specified in our [Configuration Wiki](https://github.com/PaulaScharf/TwittStorm/wiki/Configuration), you need to clone the [GitHub Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm), edit the ``config.yaml`` and build your own local image.
+When using the image from Docker Hub, the configuration possibilities are limited (only given for the API keys in ``.env``). If you want to configure some aspects as it is specified in our [Configuration Wiki](https://github.com/PaulaScharf/TwittStorm/wiki/Configuration), you need to clone the [GitHub Repository](https://github.com/PaulaScharf/Geosoftware2-TwittStorm), edit the ``config.yaml`` and build your own local image.
