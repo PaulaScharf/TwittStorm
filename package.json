@@ -27,7 +27,6 @@
     "mapbox-gl": "1.6.1",
     "mongodb": "3.5.2",
     "morgan": "1.9.1",
-    "nodemon": "2.0.1",
     "r-script": "0.0.4",
     "serve-favicon": "2.5.0",
     "twitter": "1.7.1"
