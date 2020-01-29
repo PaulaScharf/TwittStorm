@@ -1,5 +1,8 @@
 # TwittStorm
-TwittStorm for Geosoftware II (University of Münster, winter semester 2019/2020) by Jonathan Bahlmann, Katharina Poppinga, Paula Scharf and Benjamin Rieke.
+TwittStorm for Geosoftware II (University of Münster, winter semester 2019/2020) by Jonathan Bahlmann, Katharina Poppinga, Paula Scharf and Benjamin Rieke.    
+
+TwittStorm is built to monitor heavy weather events and is most useful for severe precipitation events. It connects different, highly dynamic sources of data as live precipitation data, precipitation sums, severe weather warnings and tweets in an area of interest of the users choice, all backed by useful background data. Additionally, an animation gives the ability to reenact the event. 
+
 ## Weblinks
 The code of this project is published on GitHub: [https://github.com/PaulaScharf/TwittStorm](https://github.com/PaulaScharf/TwittStorm)<br>
 <br>
