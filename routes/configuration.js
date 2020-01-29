@@ -74,6 +74,6 @@ function updateVariableInConfigYaml(variableName, value){
 	fs.writeFileSync('config.yaml', yamlStr, 'utf8');
 }
 
-router.route("/").get(updateConfig);
+router.route("/").post(updateConfig);
 module.exports.updateVariableInConfigYaml = updateVariableInConfigYaml;
 module.exports.router = router;
