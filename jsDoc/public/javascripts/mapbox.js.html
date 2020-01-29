@@ -40,7 +40,6 @@
 // an API access token is required for using mapbox GL JS
 mapboxgl.accessToken = paramArray.config.mapbox_access_key;
 
-// TODO: JSDoc
 
 // ****************************** global variables *****************************
 
@@ -50,13 +49,11 @@ mapboxgl.accessToken = paramArray.config.mapbox_access_key;
 */
 let map;
 
-
 /**
 * refers to the layer menu
 * @type {HTML-element-ID}
 */
 let layers = document.getElementById('menu');
-
 
 /**
 * referes to all the layers that are not defaults
@@ -64,20 +61,17 @@ let layers = document.getElementById('menu');
 */
 let customLayerIds = [];
 
-
 /**
-* // TODO: JSDoc
+* indicates whether popups are enabled (if value is true) or not (if value is false)
 * @type {boolean}
 */
 let popupsEnabled = true;
 
-
 /**
-* time of app start
-* @type {}
+* time of app start (in Epoch milliseconds)
+* @type {number}
 */
 let initTimestamp = Date.now();
-
 
 /**
 * Flag that indicates which weathertype is requested
@@ -85,13 +79,12 @@ let initTimestamp = Date.now();
 */
 let wtypeFlag = "";
 
-
 /**
-* // TODO: JSDoc
-* @type {}
+*
+* Array in which all filter phrases are stored separately
+* @type {Array}
 */
 let filterwords;
-
 
 /**
 * gives the information that the styleswitcher is on the animation page
@@ -99,23 +92,19 @@ let filterwords;
 */
 var indicator = "";
 
-
 /**
-*
+* indicates whether processing AOI is finished (if value is true) or not (if value is false)
 * @type {boolean}
 */
 var doneProcessingAOI = true;
 
-
 /**
-*
+* indicates whether loading weather is finished (if value is true) or not (if value is false)
 * @type {boolean}
 */
 var doneLoadingWeather = true;
 
 
-// TODO: folgendes in eine Funktion schreiben:
-// TODO: was macht dieser code?
 window.twttr = (function(d, s, id) {
 	var js, fjs = d.getElementsByTagName(s)[0],
 	t = window.twttr || {};
@@ -134,13 +123,13 @@ window.twttr = (function(d, s, id) {
 }(document, "script", "twitter-wjs"));
 
 
-
 // ******************************** functions **********************************
 
 // shows and hides the current status of an AJAX-call
 $(document).ajaxSend(function(){
 	$('#loading').fadeIn(250);
 });
+
 $(document).ajaxComplete(function(){
 	$('#loading').fadeOut(250);
 });
@@ -264,7 +253,7 @@ function showMap() {
 
 
 	// enables the ability to choose between different mapstyles
-	styleSelector(map);
+	styleSelector(map, "index");
 
 
 	// ************************ adding boundary of Germany ***********************
@@ -294,19 +283,19 @@ function showMap() {
 		// *************************************************************************
 
 		$("#severeWeather").click(function() {
-			loadSevereWeather(map, draw);
+			loadSevereWeather(map);
 		});
 
 		$("#radio1").click(function() {
-			loadRaster(map, "ry", draw);
+			loadRaster(map, "ry");
 		});
 
 		$("#radio2").click(function() {
-			loadRaster(map, "rw", draw);
+			loadRaster(map, "rw");
 		});
 
 		$("#radio3").click(function() {
-			loadRaster(map, "sf", draw);
+			loadRaster(map, "sf");
 		});
 
 
@@ -335,7 +324,6 @@ function showMap() {
 			severeWeatherMenuToggle = document.getElementById('severeWeather');
 			severeWeatherMenuToggle.classList.remove("active");
 
-			// TODO: hier auch readURL verwenden?
 			// if rasterProduct is defined
 			if (paramArray.rasterProduct !== undefined) {
 
@@ -396,7 +384,6 @@ function showMap() {
 			if ((paramArray.config.timestamp_last_warnings_request == null) || (msecsToLastUnwetterRequest >= paramArray.config.refresh_rate)) {
 				// ... do a new warnings request right now ...
 				requestNewAndDisplayCurrentUnwetters(map);
-				// TODO: wird folgendes immer wieder ausgeführt, auch wenn Bedingung in if sich ändert?
 				// ... and afterwards request warnings each "paramArray.config.refresh_rate" again
 				requestNewAndDisplayCurrentUnwettersEachInterval(map, paramArray.config.refresh_rate);
 
@@ -588,11 +575,6 @@ function requestAndDisplayAllRainRadar(map, product) {
 		// load tweets if aoi is drawn
 		map.fire('draw.reloadTweets', {});
 		doneLoadingWeather = true;
-
-		// TODO: hier sinnlos?? dann löschen
-		//		if ((readURL("aoi")) !== false) {
-		//			useAOIFromURL(readURL("aoi"), draw);
-		//		}
 	})
 
 	// if the request has failed, ...
@@ -608,12 +590,11 @@ function requestAndDisplayAllRainRadar(map, product) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
+		if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") &amp;&amp; (xhr.responseJSON.err_msg[0].code === 123)) {
+			window.alert("There has been an error while fetching the precipitation radar data.\n This could be due to the DWD server having update delays.\n Please repeat your request by clicking the radar " + product + " button again.");
+		}
+
 		doneLoadingWeather = true;
-
-		// TODO: mit if status abfangen, bei dem folgendes nötig ist
-		console.log(status);
-		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
-
 	});
 }
 
@@ -665,7 +646,6 @@ function callRainRadar(map, prod) {
 
 	// progress update info
 	$('#information').html("Retrieving the requested " + prod + " rain radar data.");
-
 	$.ajax({
 		// use a http GET request
 		type: "GET",
@@ -685,18 +665,10 @@ function callRainRadar(map, prod) {
 		// if radar is currently shown, update the map
 		if((readURL("wtype") === "radar") &amp;&amp; (readURL("radProd") === prod)) {
 
-			// TODO hier evtl display modularisieren um nicht noch einen request zu machen
 			requestAndDisplayAllRainRadar(map, prod);
 
 		} else {
-
-			// TODO: paula fragen?
 			doneLoadingWeather = true;
-
-			// TODO: hier sinnlos?? dann löschen
-			//			if ((readURL("aoi")) !== false) {
-			//				useAOIFromURL(readURL("aoi"), draw);
-			//			}
 		}
 	})
 
@@ -713,11 +685,11 @@ function callRainRadar(map, prod) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
-		doneLoadingWeather = true;
+		if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") &amp;&amp; (xhr.responseJSON.err_msg[0].code === 123)) {
+			window.alert("There has been an error while fetching the precipitation radar data.\n This could be due to the DWD server having update delays.\n Please repeat your request by clicking the radar " + prod + " button again.");
+		}
 
-		// TODO: mit if status abfangen, bei dem folgendes nötig ist
-		console.log(status);
-		window.alert("The current rain radar data could not be gotten from DWD.\nThis problem might occur if the timestamp of your request lies between the last and the upcoming radar dataset because only the current data can be retrieved.\nPlease try again requesting current rain radar data by clicking the radio button a second time.");
+		doneLoadingWeather = true;
 	});
 }
 // *****************************************************************************************************
@@ -796,7 +768,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				}
 				// if the warnings shown are demodata
 				else {
-					// TODO: eher im Code nötig, direkt wenn Legende eingeladen wird, aber wie dann an currentTimestamp kommen??
 					timestampLastRequest.innerHTML = "";
 
 					let posAccuracy = document.getElementById("posAccuracy");
@@ -822,7 +793,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			else {
 				JL("ajaxReadingWarningsError").fatalException(error);
 			}
-
 			doneLoadingWeather = true;
 		});
 	}
@@ -835,7 +805,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* warnings ("Rain", "Snowfall", "Thunderstorm" or "BlackIce").
 	* @author Katharina Poppinga, Paula Scharf, Benjamin Rieke
 	* @param {Object} map - mapbox-map in which to display the current warnings
-	* @param {Array} currentUnwetters -
+	* @param {Array} currentUnwetters - all warnings to show in the given map
 	*/
 	function displayCurrentUnwetters(map, currentUnwetters) {
 
@@ -903,8 +873,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	* @author Katharina Poppinga, Benjamin Rieke, Paula Scharf
 	* @private
 	* @param {Object} map - mapbox-map in which to display the layers events
-	* @param {String} layerID ID for the map-layer to be created
-	* @param {Object} eventFeatureCollection GeoJSON-FeatureCollection of events to show in map
+	* @param {String} layerID - ID for the map-layer to be created
+	* @param {Object} eventFeatureCollection - GeoJSON-FeatureCollection of events to show in map
 	*/
 	function displayEvent(map, layerID, eventFeatureCollection) {
 
@@ -940,7 +910,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				// Layer-adding for warnings with a polygon-geometry
 			} else {
 				// add the given warnings as a layer to the map and create checkboxes for the menu
-			addWarningsLayerAndCheckboxes(map, layerID);
+				addWarningsLayerAndCheckboxes(map, layerID);
 			}
 
 			makeLayerInteractive(map, layerID);
@@ -960,109 +930,106 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	*/
 	function addWarningsLayerAndCheckboxes(map, layerID, animationBool){
 
-	  map.addLayer({
-	    'id': layerID,
-	    'type': 'fill',
-	    'source': layerID,
-	    "paint": {
-	      "fill-color": [
-	        "match", ["string", ["get", "ec_ii"]],
-	        "24", // black ice
-	        "yellow",
-	        "84",
-	        "yellow",
-	        "85",
-	        "yellow",
-	        "87",
-	        "yellow",
-	        "31", // thunderstorm
-	        "red",
-	        "33",
-	        "red",
-	        "34",
-	        "red",
-	        "36",
-	        "red",
-	        "38",
-	        "red",
-	        "40",
-	        "red",
-	        "41",
-	        "red",
-	        "42",
-	        "red",
-	        "44",
-	        "red",
-	        "45",
-	        "red",
-	        "46",
-	        "red",
-	        "48",
-	        "red",
-	        "49",
-	        "red",
-	        "90",
-	        "red",
-	        "91",
-	        "red",
-	        "92",
-	        "red",
-	        "93",
-	        "red",
-	        "95",
-	        "red",
-	        "96",
-	        "red",
-	        "61", // rain
-	        "blue",
-	        "62",
-	        "blue",
-	        "63",
-	        "blue",
-	        "64",
-	        "blue",
-	        "65",
-	        "blue",
-	        "66",
-	        "blue",
-	        "70", // snowfall
-	        "darkviolet",
-	        "71",
-	        "darkviolet",
-	        "72",
-	        "darkviolet",
-	        "73",
-	        "darkviolet",
-	        "74",
-	        "darkviolet",
-	        "75",
-	        "darkviolet",
-	        "76",
-	        "darkviolet",
-	        "77",
-	        "darkviolet",
-	        "78",
-	        "darkviolet",
-	        "black" // other events
-	      ],
-	      "fill-opacity": 0.3
-	    }
-	  });
-	  createWarningsCheckboxes(map, animationBool);
+		map.addLayer({
+			'id': layerID,
+			'type': 'fill',
+			'source': layerID,
+			"paint": {
+				"fill-color": [
+					"match", ["string", ["get", "ec_ii"]],
+					"24", // black ice
+					"yellow",
+					"84",
+					"yellow",
+					"85",
+					"yellow",
+					"87",
+					"yellow",
+					"31", // thunderstorm
+					"red",
+					"33",
+					"red",
+					"34",
+					"red",
+					"36",
+					"red",
+					"38",
+					"red",
+					"40",
+					"red",
+					"41",
+					"red",
+					"42",
+					"red",
+					"44",
+					"red",
+					"45",
+					"red",
+					"46",
+					"red",
+					"48",
+					"red",
+					"49",
+					"red",
+					"90",
+					"red",
+					"91",
+					"red",
+					"92",
+					"red",
+					"93",
+					"red",
+					"95",
+					"red",
+					"96",
+					"red",
+					"61", // rain
+					"blue",
+					"62",
+					"blue",
+					"63",
+					"blue",
+					"64",
+					"blue",
+					"65",
+					"blue",
+					"66",
+					"blue",
+					"70", // snowfall
+					"darkviolet",
+					"71",
+					"darkviolet",
+					"72",
+					"darkviolet",
+					"73",
+					"darkviolet",
+					"74",
+					"darkviolet",
+					"75",
+					"darkviolet",
+					"76",
+					"darkviolet",
+					"77",
+					"darkviolet",
+					"78",
+					"darkviolet",
+					"black" // other events
+				],
+				"fill-opacity": 0.3
+			}
+		});
+		createWarningsCheckboxes(map, animationBool);
 	}
 
 
 
-	// TODO: JSDoc
 	/**
 	* @desc Takes an Array of warnings-Objects and checks wether they are expired or not.
-	* If they are expired, removes them from given map. ??
-	findAndRemoveOldLayerIDs from customLayerIds and remove jeweiligen layer und source aus map
-	* ...............................
-	* @author Katharina Poppinga
+	* If they are expired, removes them from given map.
+	* @author Katharina Poppinga, Paula Scharf
 	* @private
 	* @param {Object} map - mapbox-map from which to remove the given warnings
-	* @param {Array} currentUnwetters -
+	* @param {Array} currentUnwetters - all so far shown warnings
 	*/
 	function findAndRemoveOldLayerIDs(map, currentUnwetters){
 
@@ -1092,7 +1059,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					}
 				}
 
-				// TODO: paula geändert?
 				// if the layer-warning is not (no longer) a current warning, remove its ID from customLayerIds
 				if (isCurrent === false) {
 					showAllExcept(map, layerIdParts[2]);
@@ -1109,7 +1075,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc
+	* @desc This function makes only warnings and its tweets visible, if they are (fully) contained by the given
+	* polygon.
+	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf, Jonathan Bahlmann
 	* @param {Object} map - mapbox-map in which to show the data
 	* @param {} polygon a turf polygon (aoi)
@@ -1150,8 +1118,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 		let searchWords = ["rain", "raining", "heavy rain", "rainfall", "precipitation", "Niederschlag", "Regen", "Starkregen", "Dauerregen", "Sturmflut", "Sinnflut", "regnet", "Unwetter", "Gewitter", "Feuerwehr", "Sturm", "Flut"];
 		let query = {
 			twitterSearchQuery: {
-				// TODO which geometry is correct here
-				geometry: geom, //polygon.geometry,  //.coordinates,
+				geometry: geom,
 				searchWords: searchWords
 			},
 			dwd_id: "rainRadar_" + prod.toLowerCase(),
@@ -1205,7 +1172,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// create a boolean
 							let bool = false;
 							for(let i = 0; i &lt; rainRadarLayer._data.features.length; i++) {
-								console.log(rainRadarLayer._data.features[i]);
 								let rainRadarPolygon = turf.polygon(rainRadarLayer._data.features[i].geometry.coordinates);
 								// if the point lies in any of these rainRadar polygons, set bool true
 								if(turf.booleanPointInPolygon(tweetLocation, rainRadarPolygon)) {
@@ -1216,13 +1182,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 							// if bool is true, displayEvent()
 
 							if(bool) {
-							let tweetFeature = {
-								"type": "Feature",
-								"geometry": item.location_actual,
-								"properties": item
-							};
-							tweetFeatureCollection.features = [tweetFeature];
-							displayEvent(map, "tweet rainradar", tweetFeatureCollection);
+								let tweetFeature = {
+									"type": "Feature",
+									"geometry": item.location_actual,
+									"properties": item
+								};
+								tweetFeatureCollection.features = [tweetFeature];
+								displayEvent(map, "tweet rainradar", tweetFeatureCollection);
 							}
 
 						}
@@ -1246,15 +1212,18 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			else {
 				JL("ajaxRetrievingTweetsError").fatalException(error);
 			}
+
+			if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") &amp;&amp; (xhr.responseJSON.err_msg[0].code === 88)) {
+				// show the user a popup to inform that the twitter API rate limit has exceeded
+				$("#twitterInf").css("display","block");
+			}
 			doneProcessingAOI = true;
 		});
-
-		// TODO: ???  and then check whether they lie in the rainRadar polygons
 	}
 
 
 	/**
-	* @desc This function makes only warnings and its tweets visible, if the include a polygon that is fully contained by the given
+	* @desc This function makes only warnings and its tweets visible, if they are (fully) contained by the given
 	* polygon.
 	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf
@@ -1340,8 +1309,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				contentType: "application/json; charset=utf-8",
 				// data to send to the server
 				data: JSON.stringify(query),
-				// timeout set to 30 seconds
-				timeout: 30000,
+				// timeout set to 50 seconds
+				timeout: 50000,
 				// update the status display
 				success: function () {
 					$('#information').html("Trying to find and insert fitting tweets.");
@@ -1401,6 +1370,11 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				if (i >= requests.length - 1) {
 					doneProcessingAOI = true;
 				}
+
+				if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") &amp;&amp; (xhr.responseJSON.err_msg[0].code === 88)) {
+					// show the user a popup to inform that the twitter API rate limit has exceeded
+					$("#twitterInf").css("display","block");
+				}
 			});
 		}
 		if (requests.length &lt; 1) {
@@ -1410,25 +1384,28 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc This function ensures that all warnings but no tweets are visible.
+	* @desc This function removes all layers which include the given keyword in their id.
 	* @author Paula Scharf
 	* @param {Object} map - mapbox-map
-	* @param {String} keyword -
+	* @param {String} keyword - the layers that include this keyword in their id will be removed from given map
 	*/
 	function showAllExcept(map, keyword) {
 
-		for (let i = 0; i&lt;customLayerIds.length; i++) {
+		for (let i = 0; i &lt; customLayerIds.length; i++) {
 			let layerID = customLayerIds[i];
-			if(layerID.includes(keyword)) {
-				map.removeLayer(layerID);
-				map.removeSource(layerID);
-				customLayerIds.remove(layerID);
-				if(layerID.includes("tweet") &amp;&amp; document.getElementById(layerID.split(/[ ]+/)[1])) {
-					closeAllPopups();
+			if (typeof map.getLayer(layerID) !== "undefined") {
+				if (layerID.includes(keyword)) {
+					customLayerIds.remove(layerID);
+					map.removeLayer(layerID);
+					map.removeSource(layerID);
+					if (layerID.includes("tweet") &amp;&amp; document.getElementById(layerID.split(/[ ]+/)[1])) {
+						closeAllPopups();
+					}
+					i--;
+
+				} else {
+					map.setLayoutProperty(layerID, 'visibility', 'visible');
 				}
-				i--;
-			} else {
-				map.setLayoutProperty(layerID, 'visibility', 'visible');
 			}
 		}
 	}
@@ -1467,10 +1444,10 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc
+	* @desc Deletes a tweet with given id and removes it and its popup from given map.
 	* @author Paula Scharf
 	* @param {Object} map mapbox-map
-	* @param {} id -
+	* @param {} id - id of tweet
 	* @param {} popup -
 	*/
 	function deleteTweet(map, id, popup) {
@@ -1592,13 +1569,13 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addItem">addItem</a></li><li><a href="global.html#addToSource">addToSource</a></li><li><a href="global.html#addWarningsLayerAndCheckboxes">addWarningsLayerAndCheckboxes</a></li><li><a href="global.html#allLayers">allLayers</a></li><li><a href="global.html#animationMap">animationMap</a></li><li><a href="global.html#automate">automate</a></li><li><a href="global.html#automationIntervall">automationIntervall</a></li><li><a href="global.html#boundaryGermany">boundaryGermany</a></li><li><a href="global.html#callRainRadar">callRainRadar</a></li><li><a href="global.html#closeAllMenus">closeAllMenus</a></li><li><a href="global.html#closeAllPopups">closeAllPopups</a></li><li><a href="global.html#createGif">createGif</a></li><li><a href="global.html#customLayerIds">customLayerIds</a></li><li><a href="global.html#deleteFromURL">deleteFromURL</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#displayCurrentUnwetters">displayCurrentUnwetters</a></li><li><a href="global.html#doneLoadingWeather">doneLoadingWeather</a></li><li><a href="global.html#doneProcessingAOI">doneProcessingAOI</a></li><li><a href="global.html#drawForAOI">drawForAOI</a></li><li><a href="global.html#filterTweetPopups">filterTweetPopups</a></li><li><a href="global.html#filterTweets">filterTweets</a></li><li><a href="global.html#filterwords">filterwords</a></li><li><a href="global.html#final">final</a></li><li><a href="global.html#forEachLayer">forEachLayer</a></li><li><a href="global.html#gifArray">gifArray</a></li><li><a href="global.html#goGeoJson">goGeoJson</a></li><li><a href="global.html#helpPageHandler">helpPageHandler</a></li><li><a href="global.html#imageArray">imageArray</a></li><li><a href="global.html#indicator">indicator</a></li><li><a href="global.html#initTimestamp">initTimestamp</a></li><li><a href="global.html#intervalRainRadar">intervalRainRadar</a></li><li><a href="global.html#layers">layers</a></li><li><a href="global.html#loadAnimation">loadAnimation</a></li><li><a href="global.html#loadPreviousWeather">loadPreviousWeather</a></li><li><a href="global.html#loadRaster">loadRaster</a></li><li><a href="global.html#loadSevereWeather">loadSevereWeather</a></li><li><a href="global.html#makeLayerInteractive">makeLayerInteractive</a></li><li><a href="global.html#map">map</a></li><li><a href="global.html#mask">mask</a></li><li><a href="global.html#msToMin">msToMin</a></li><li><a href="global.html#onlyShowRainRadarAndTweetsInPolygon">onlyShowRainRadarAndTweetsInPolygon</a></li><li><a href="global.html#onlyShowUnwetterAndTweetsInPolygon">onlyShowUnwetterAndTweetsInPolygon</a></li><li><a href="global.html#openMenu">openMenu</a></li><li><a href="global.html#outputArray">outputArray</a></li><li><a href="global.html#panMapWithButton">panMapWithButton</a></li><li><a href="global.html#popupsEnabled">popupsEnabled</a></li><li><a href="global.html#readURL">readURL</a></li><li><a href="global.html#reloadAnimation">reloadAnimation</a></li><li><a href="global.html#removeAddGermany">removeAddGermany</a></li><li><a href="global.html#removeAllSource">removeAllSource</a></li><li><a href="global.html#removeSevereWeather">removeSevereWeather</a></li><li><a href="global.html#requestAndDisplayAllRainRadar">requestAndDisplayAllRainRadar</a></li><li><a href="global.html#requestNewAndDisplayCurrentUnwetters">requestNewAndDisplayCurrentUnwetters</a></li><li><a href="global.html#resultOutput">resultOutput</a></li><li><a href="global.html#setToReady">setToReady</a></li><li><a href="global.html#showAllExcept">showAllExcept</a></li><li><a href="global.html#showAnimationMap">showAnimationMap</a></li><li><a href="global.html#showLegend">showLegend</a></li><li><a href="global.html#showMap">showMap</a></li><li><a href="global.html#showTweetPopup">showTweetPopup</a></li><li><a href="global.html#showUnwetterPopup">showUnwetterPopup</a></li><li><a href="global.html#styleSelector">styleSelector</a></li><li><a href="global.html#switchLayer">switchLayer</a></li><li><a href="global.html#takeScreenshot">takeScreenshot</a></li><li><a href="global.html#timestampStorage">timestampStorage</a></li><li><a href="global.html#updateURL">updateURL</a></li><li><a href="global.html#usedTimestamps">usedTimestamps</a></li><li><a href="global.html#wIndicator">wIndicator</a></li><li><a href="global.html#wtypeFlag">wtypeFlag</a></li><li><a href="global.html#zoomToCoordinates">zoomToCoordinates</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addItem">addItem</a></li><li><a href="global.html#addToSource">addToSource</a></li><li><a href="global.html#addWarningsLayerAndCheckboxes">addWarningsLayerAndCheckboxes</a></li><li><a href="global.html#allLayers">allLayers</a></li><li><a href="global.html#animationMap">animationMap</a></li><li><a href="global.html#automate">automate</a></li><li><a href="global.html#automationIntervall">automationIntervall</a></li><li><a href="global.html#boundaryGermany">boundaryGermany</a></li><li><a href="global.html#callRainRadar">callRainRadar</a></li><li><a href="global.html#closeAllMenus">closeAllMenus</a></li><li><a href="global.html#closeAllPopups">closeAllPopups</a></li><li><a href="global.html#createGif">createGif</a></li><li><a href="global.html#customLayerIds">customLayerIds</a></li><li><a href="global.html#deleteFromURL">deleteFromURL</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#displayCurrentUnwetters">displayCurrentUnwetters</a></li><li><a href="global.html#doneLoadingWeather">doneLoadingWeather</a></li><li><a href="global.html#doneProcessingAOI">doneProcessingAOI</a></li><li><a href="global.html#drawForAOI">drawForAOI</a></li><li><a href="global.html#filterTweetPopups">filterTweetPopups</a></li><li><a href="global.html#filterTweets">filterTweets</a></li><li><a href="global.html#filterwords">filterwords</a></li><li><a href="global.html#forEachLayer">forEachLayer</a></li><li><a href="global.html#gifArray">gifArray</a></li><li><a href="global.html#goGeoJson">goGeoJson</a></li><li><a href="global.html#helpPageHandler">helpPageHandler</a></li><li><a href="global.html#imageArray">imageArray</a></li><li><a href="global.html#indicator">indicator</a></li><li><a href="global.html#initTimestamp">initTimestamp</a></li><li><a href="global.html#intervalRainRadar">intervalRainRadar</a></li><li><a href="global.html#layers">layers</a></li><li><a href="global.html#loadAnimation">loadAnimation</a></li><li><a href="global.html#loadPreviousWeather">loadPreviousWeather</a></li><li><a href="global.html#loadRaster">loadRaster</a></li><li><a href="global.html#loadSevereWeather">loadSevereWeather</a></li><li><a href="global.html#makeLayerInteractive">makeLayerInteractive</a></li><li><a href="global.html#map">map</a></li><li><a href="global.html#mask">mask</a></li><li><a href="global.html#mover">mover</a></li><li><a href="global.html#msToMin">msToMin</a></li><li><a href="global.html#onlyShowRainRadarAndTweetsInPolygon">onlyShowRainRadarAndTweetsInPolygon</a></li><li><a href="global.html#onlyShowUnwetterAndTweetsInPolygon">onlyShowUnwetterAndTweetsInPolygon</a></li><li><a href="global.html#openMenu">openMenu</a></li><li><a href="global.html#outputArray">outputArray</a></li><li><a href="global.html#panMapWithButton">panMapWithButton</a></li><li><a href="global.html#popupsEnabled">popupsEnabled</a></li><li><a href="global.html#readURL">readURL</a></li><li><a href="global.html#reloadAnimation">reloadAnimation</a></li><li><a href="global.html#removeAddGermany">removeAddGermany</a></li><li><a href="global.html#removeAllSource">removeAllSource</a></li><li><a href="global.html#removeSevereWeather">removeSevereWeather</a></li><li><a href="global.html#requestAndDisplayAllRainRadar">requestAndDisplayAllRainRadar</a></li><li><a href="global.html#requestNewAndDisplayCurrentUnwetters">requestNewAndDisplayCurrentUnwetters</a></li><li><a href="global.html#resultOutput">resultOutput</a></li><li><a href="global.html#setToReady">setToReady</a></li><li><a href="global.html#showAllExcept">showAllExcept</a></li><li><a href="global.html#showAnimationMap">showAnimationMap</a></li><li><a href="global.html#showLegend">showLegend</a></li><li><a href="global.html#showMap">showMap</a></li><li><a href="global.html#showTweetPopup">showTweetPopup</a></li><li><a href="global.html#showUnwetterPopup">showUnwetterPopup</a></li><li><a href="global.html#styleSelector">styleSelector</a></li><li><a href="global.html#switchLayer">switchLayer</a></li><li><a href="global.html#tabSelector">tabSelector</a></li><li><a href="global.html#takeScreenshot">takeScreenshot</a></li><li><a href="global.html#timestampStorage">timestampStorage</a></li><li><a href="global.html#updateURL">updateURL</a></li><li><a href="global.html#usedTimestamps">usedTimestamps</a></li><li><a href="global.html#wtypeFlag">wtypeFlag</a></li><li><a href="global.html#zoomToCoordinates">zoomToCoordinates</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jan 28 2020 11:01:40 GMT+0100 (GMT+01:00)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jan 29 2020 10:42:12 GMT+0100 (GMT+01:00)
 </footer>
 
 <script> prettyPrint(); </script>

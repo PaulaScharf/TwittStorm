@@ -135,9 +135,9 @@ function convertTimestamp(radarProduct, timestampString) {
       let reqTime = timestamp + tz + variance - access;
       let reqTimeLower = reqTime - access;
 
-      console.log("converting newDate timestamp " + new Date(timestamp));
-      console.log(" .. to sequence: " + new Date(reqTime));
-      console.log(" from [lower border] " + new Date(reqTimeLower));
+      //console.log("converting newDate timestamp " + new Date(timestamp));
+      //console.log(" .. to sequence: " + new Date(reqTime));
+      //console.log(" from [lower border] " + new Date(reqTimeLower));
 
       return [reqTimeLower, reqTime];
 }
@@ -173,11 +173,11 @@ var promiseToFetchRadarData = function(radarProduct) {
         if(radarProduct.toLowerCase() == "sf") {
           timestampAvailability = timestamp + 5580000;
         }
-        /**
-        console.log(new Date(timestamp));
-        console.log(new Date(timestampNow));
-        console.log(new Date(timestampAvailability));
-        */
+
+        //console.log(new Date(timestamp));
+        //console.log(new Date(timestampNow));
+        //console.log(new Date(timestampAvailability));
+
 
         var answerJSON = {
           "type": "rainRadar",
@@ -341,7 +341,6 @@ var radarRoute = function(req, res) {
                   promiseToPostItems(allProducts, req.db)
                   .catch(console.error)
                   .then(function() {
-
                     let query = {
                       type: "rainRadar",
                       radarProduct: prod.toUpperCase(),
@@ -457,7 +456,7 @@ var radarRoute = function(req, res) {
               // this could be because of dwd inconsitencies
               // when a new product should be available, but isn't due to dwd update difficulties
               if(reqTimeUpper > latestTimestamp &amp;&amp; reqTimeLower > latestTimestamp) {
-                console.log("the latest radar product is behind the requested timestamp");
+                console.log("DWD updating delay. loading last available product. try again in a few seconds for newest product.");
                 // query for last available prod
                 let query = {
                   type: "rainRadar",
@@ -480,8 +479,8 @@ var radarRoute = function(req, res) {
               }
               else {
                 // not the future case
-                let e = "It is likely that a timestamp error occured. This is dueto DWD publishing delays. Please try again.";
-                e = { "err_msg": e };
+                let e_String = "It is likely that a timestamp error occured. This is due to DWD publishing delays. Please try again.";
+                let e = { "err_msg": e_String, "code": 123};
                 res.status(422).send(e);
               }
             }
@@ -513,13 +512,13 @@ module.exports = router;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#calculateEnclosingCircle">calculateEnclosingCircle</a></li><li><a href="global.html#checkForExistingTweets">checkForExistingTweets</a></li><li><a href="global.html#checkParamsPreviousWeather">checkParamsPreviousWeather</a></li><li><a href="global.html#checkParamsTwitterTweets">checkParamsTwitterTweets</a></li><li><a href="global.html#checkParamsWarnings">checkParamsWarnings</a></li><li><a href="global.html#convertTimestamp">convertTimestamp</a></li><li><a href="global.html#createUnwetterForDB">createUnwetterForDB</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#express">express</a></li><li><a href="global.html#findLastTimestamp">findLastTimestamp</a></li><li><a href="global.html#GeoJSONPolygon">GeoJSONPolygon</a></li><li><a href="global.html#getWarningsForTime">getWarningsForTime</a></li><li><a href="global.html#getWarningsFromDB">getWarningsFromDB</a></li><li><a href="global.html#groupByArray">groupByArray</a></li><li><a href="global.html#mongodb">mongodb</a></li><li><a href="global.html#paramList">paramList</a></li><li><a href="global.html#previousWeather">previousWeather</a></li><li><a href="global.html#proccessUnwettersFromLocal">proccessUnwettersFromLocal</a></li><li><a href="global.html#processUnwettersFromDWD">processUnwettersFromDWD</a></li><li><a href="global.html#promiseToDeleteItems">promiseToDeleteItems</a></li><li><a href="global.html#promiseToFetchRadarData">promiseToFetchRadarData</a></li><li><a href="global.html#promiseToGetItems">promiseToGetItems</a></li><li><a href="global.html#promiseToGetTweetsForEvent">promiseToGetTweetsForEvent</a></li><li><a href="global.html#promiseToGetTweetsFromTwitter">promiseToGetTweetsFromTwitter</a></li><li><a href="global.html#promiseToPostItems">promiseToPostItems</a></li><li><a href="global.html#promiseToUpdateItems">promiseToUpdateItems</a></li><li><a href="global.html#radarRoute">radarRoute</a></li><li><a href="global.html#searchTweetsForEvent">searchTweetsForEvent</a></li><li><a href="global.html#updateConfig">updateConfig</a></li><li><a href="global.html#updateVariableInConfigYaml">updateVariableInConfigYaml</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#calculateEnclosingCircle">calculateEnclosingCircle</a></li><li><a href="global.html#checkForExistingTweets">checkForExistingTweets</a></li><li><a href="global.html#checkParamsPreviousWeather">checkParamsPreviousWeather</a></li><li><a href="global.html#checkParamsTwitterTweets">checkParamsTwitterTweets</a></li><li><a href="global.html#checkParamsWarnings">checkParamsWarnings</a></li><li><a href="global.html#convertTimestamp">convertTimestamp</a></li><li><a href="global.html#createUnwetterForDB">createUnwetterForDB</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#express">express</a></li><li><a href="global.html#findLastTimestamp">findLastTimestamp</a></li><li><a href="global.html#GeoJSONPolygon">GeoJSONPolygon</a></li><li><a href="global.html#getWarningsForTime">getWarningsForTime</a></li><li><a href="global.html#getWarningsFromDB">getWarningsFromDB</a></li><li><a href="global.html#groupByArray">groupByArray</a></li><li><a href="global.html#mongodb">mongodb</a></li><li><a href="global.html#paramList">paramList</a></li><li><a href="global.html#previousWeather">previousWeather</a></li><li><a href="global.html#proccessUnwettersFromLocal">proccessUnwettersFromLocal</a></li><li><a href="global.html#processUnwettersFromDWD">processUnwettersFromDWD</a></li><li><a href="global.html#promiseToDeleteItems">promiseToDeleteItems</a></li><li><a href="global.html#promiseToFetchRadarData">promiseToFetchRadarData</a></li><li><a href="global.html#promiseToGetItems">promiseToGetItems</a></li><li><a href="global.html#promiseToGetTweetsForEvent">promiseToGetTweetsForEvent</a></li><li><a href="global.html#promiseToGetTweetsForRadar">promiseToGetTweetsForRadar</a></li><li><a href="global.html#promiseToGetTweetsFromTwitter">promiseToGetTweetsFromTwitter</a></li><li><a href="global.html#promiseToPostItems">promiseToPostItems</a></li><li><a href="global.html#promiseToUpdateItems">promiseToUpdateItems</a></li><li><a href="global.html#radarRoute">radarRoute</a></li><li><a href="global.html#searchTweetsForEvent">searchTweetsForEvent</a></li><li><a href="global.html#updateConfig">updateConfig</a></li><li><a href="global.html#updateVariableInConfigYaml">updateVariableInConfigYaml</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jan 28 2020 11:36:59 GMT+0100 (GMT+01:00)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jan 29 2020 10:35:35 GMT+0100 (GMT+01:00)
 </footer>
 
 <script> prettyPrint(); </script>

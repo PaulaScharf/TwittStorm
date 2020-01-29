@@ -111,7 +111,9 @@ var previousWeather = function(req, res) {
               arrayOfTimestamps = arrayOfTimestamps.slice(0, 10);
             }
             let arrayOfPromises = [];
-            arrayOfTimestamps.forEach( (timestamp) => {
+            for (let i = 0; i&lt;arrayOfTimestamps.length; i++) {
+              let timestamp = arrayOfTimestamps[i];
+              let timeframe = (i === 0) ? Number.MAX_SAFE_INTEGER : 300000;
               if (!weatherEvents[timestamp]) {
                 weatherEvents[timestamp] = [];
               }
@@ -120,8 +122,8 @@ var previousWeather = function(req, res) {
                   ((event.properties.onset) ? true : (event.properties.onset &lt;= timestamp)) &amp;&amp;
                   ((event.properties.expires) ? true : (event.properties.expires > timestamp))) {
                   weatherEvents[timestamp].push(event);
-                  arrayOfPromises.push(promiseToGetTweetsForEvent(event.dwd_id, timestamp, req.db)
-                    .catch(function(error) {
+                  arrayOfPromises.push(promiseToGetTweetsForEvent(event.dwd_id, timestamp, timeframe, req.db)
+                    .catch(function (error) {
                       if (!res.headersSent) {
                         res.status(500).send({err_msg: error});
                       }
@@ -131,14 +133,14 @@ var previousWeather = function(req, res) {
                         weatherEvents[timestamp].push(tweet);
                       });
                     })
-                    .catch(function(error) {
+                    .catch(function (error) {
                       if (!res.headersSent) {
                         res.status(500).send({err_msg: error});
                       }
                     }));
                 }
               });
-            });
+            }
             await Promise.all(arrayOfPromises);
             if (!res.headersSent) {
               res.json(weatherEvents);
@@ -200,11 +202,12 @@ var previousWeather = function(req, res) {
           }
         })
         .then(function(result) {
-          promiseToGetTweetsForEvent("rainRadar_" + prod.toLowerCase(), req.params.timestamp, req.db)
+          promiseToGetTweetsForRadar("rainRadar_" + prod.toLowerCase(), req.db)
           .catch(console.error)
           .then(function(tweets) {
+
             // are we looking for not-yet loaded historic data?
-            let pastBorder;
+            var pastBorder;
             if(prod == "RY") {
               // 65min
               pastBorder = 3900000;
@@ -215,10 +218,10 @@ var previousWeather = function(req, res) {
             }
             pastBorder = Date.now() - pastBorder;
             let bool = pastBorder > lastTimestamp;
-            console.log("prevWeather radar check: " + new Date(pastBorder) + " > " + new Date(lastTimestamp) + " ? -> " + bool);
+            //console.log("prevWeather radar check: " + new Date(pastBorder) + " > " + new Date(lastTimestamp) + " ? -> " + bool);
 
             if(pastBorder > lastTimestamp) {
-              // TODO if &lt; 5 found, reload
+              // if &lt; 5 found, reload
               if(result.length &lt; 5) {
                 // read from hist data file
                 var allProducts = [];
@@ -303,7 +306,7 @@ var previousWeather = function(req, res) {
                                             result.forEach(function(image) {
                                               answer[image.timestamp] = [image];
                                               tweets.forEach(function(tweet) {
-                                                if(image.timestamp &lt;= tweet.timestamp) {
+                                                if(image.timestampOfAvailability &lt;= tweet.timestamp &amp;&amp; tweet.timestamp &lt; image.timestampOfAvailability + pastBorder) {
                                                   answer[image.timestamp].push(tweet);
                                                 }
                                               });
@@ -356,7 +359,7 @@ var previousWeather = function(req, res) {
                   result.forEach(function(image) {
                     answer[image.timestamp] = [image];
                     tweets.forEach(function(tweet) {
-                      if(image.timestamp &lt;= tweet.timestamp) {
+                      if(image.timestampOfAvailability &lt;= tweet.timestamp &amp;&amp; tweet.timestamp &lt; image.timestampOfAvailability + pastBorder) {
                         answer[image.timestamp].push(tweet);
                       }
                     });
@@ -368,7 +371,7 @@ var previousWeather = function(req, res) {
                 }
               }
               else {
-                // TODO if not historic, return all
+                // if not historic, return all
                 //if results found
                 if(result.length > 0) {
                   // return all found data
@@ -382,7 +385,7 @@ var previousWeather = function(req, res) {
                   result.forEach(function(image) {
                     answer[image.timestamp] = [image];
                     tweets.forEach(function(tweet) {
-                      if(image.timestamp &lt;= tweet.timestamp) {
+                      if(image.timestampOfAvailability &lt;= tweet.timestamp &amp;&amp; tweet.timestamp &lt; image.timestampOfAvailability + pastBorder) {
                         answer[image.timestamp].push(tweet);
                       }
                     });
@@ -411,6 +414,31 @@ var previousWeather = function(req, res) {
 
 
 /**
+  * Retrieves tweets from the given database (db) with a given dwd_id. The tweets have to have been created between the
+  * given timestamp and 5 minutes before that.
+  * @author Paula Scharf, Jonathan Bahlmann
+  * @param dwd_id - dwd id of the event
+  * @param db - the database
+  */
+function promiseToGetTweetsForRadar(dwd_id, db) {
+  //
+  return new Promise((resolve, reject) => {
+    // JSON with the ID of the current event, needed for following database-check
+    let query = {
+      type: "tweet",
+      dwd_id: dwd_id
+    };
+    promiseToGetItems(query, db)
+      .catch(function (error) {
+        reject(error);
+      })
+      .then(function (result) {
+        resolve(result);
+      });
+  });
+}
+
+/**
 * Retrieves tweets from the given database (db) with a given dwd_id. The tweets have to have been created between the
 * given timestamp and 5 minutes before that.
 * @author Paula Scharf, matr.: 450334
@@ -418,7 +446,7 @@ var previousWeather = function(req, res) {
 * @param timestamp {number} - timestamp as an epoch timestamp
 * @param db - the database
 */
-function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
+function promiseToGetTweetsForEvent(dwd_id, timestamp, timeframe, db) {
   //
   return new Promise((resolve, reject) => {
     // JSON with the ID of the current event, needed for following database-check
@@ -426,7 +454,7 @@ function promiseToGetTweetsForEvent(dwd_id, timestamp, db) {
       type: "tweet",
       dwd_id: dwd_id,
       $and: [
-        {"timestamp": {"$gte": ((timestamp - 299000) &lt; 0) ? 0 : (timestamp - 299000)}},
+        {"timestamp": {"$gt": ((timestamp - timeframe) &lt; 0) ? 0 : (timestamp - timeframe)}},
         {"timestamp": {"$lte": (timestamp)}}
       ]
     };
@@ -481,13 +509,13 @@ module.exports = router;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#calculateEnclosingCircle">calculateEnclosingCircle</a></li><li><a href="global.html#checkForExistingTweets">checkForExistingTweets</a></li><li><a href="global.html#checkParamsPreviousWeather">checkParamsPreviousWeather</a></li><li><a href="global.html#checkParamsTwitterTweets">checkParamsTwitterTweets</a></li><li><a href="global.html#checkParamsWarnings">checkParamsWarnings</a></li><li><a href="global.html#convertTimestamp">convertTimestamp</a></li><li><a href="global.html#createUnwetterForDB">createUnwetterForDB</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#express">express</a></li><li><a href="global.html#findLastTimestamp">findLastTimestamp</a></li><li><a href="global.html#GeoJSONPolygon">GeoJSONPolygon</a></li><li><a href="global.html#getWarningsForTime">getWarningsForTime</a></li><li><a href="global.html#getWarningsFromDB">getWarningsFromDB</a></li><li><a href="global.html#groupByArray">groupByArray</a></li><li><a href="global.html#mongodb">mongodb</a></li><li><a href="global.html#paramList">paramList</a></li><li><a href="global.html#previousWeather">previousWeather</a></li><li><a href="global.html#proccessUnwettersFromLocal">proccessUnwettersFromLocal</a></li><li><a href="global.html#processUnwettersFromDWD">processUnwettersFromDWD</a></li><li><a href="global.html#promiseToDeleteItems">promiseToDeleteItems</a></li><li><a href="global.html#promiseToFetchRadarData">promiseToFetchRadarData</a></li><li><a href="global.html#promiseToGetItems">promiseToGetItems</a></li><li><a href="global.html#promiseToGetTweetsForEvent">promiseToGetTweetsForEvent</a></li><li><a href="global.html#promiseToGetTweetsFromTwitter">promiseToGetTweetsFromTwitter</a></li><li><a href="global.html#promiseToPostItems">promiseToPostItems</a></li><li><a href="global.html#promiseToUpdateItems">promiseToUpdateItems</a></li><li><a href="global.html#radarRoute">radarRoute</a></li><li><a href="global.html#searchTweetsForEvent">searchTweetsForEvent</a></li><li><a href="global.html#updateConfig">updateConfig</a></li><li><a href="global.html#updateVariableInConfigYaml">updateVariableInConfigYaml</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#calculateEnclosingCircle">calculateEnclosingCircle</a></li><li><a href="global.html#checkForExistingTweets">checkForExistingTweets</a></li><li><a href="global.html#checkParamsPreviousWeather">checkParamsPreviousWeather</a></li><li><a href="global.html#checkParamsTwitterTweets">checkParamsTwitterTweets</a></li><li><a href="global.html#checkParamsWarnings">checkParamsWarnings</a></li><li><a href="global.html#convertTimestamp">convertTimestamp</a></li><li><a href="global.html#createUnwetterForDB">createUnwetterForDB</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#express">express</a></li><li><a href="global.html#findLastTimestamp">findLastTimestamp</a></li><li><a href="global.html#GeoJSONPolygon">GeoJSONPolygon</a></li><li><a href="global.html#getWarningsForTime">getWarningsForTime</a></li><li><a href="global.html#getWarningsFromDB">getWarningsFromDB</a></li><li><a href="global.html#groupByArray">groupByArray</a></li><li><a href="global.html#mongodb">mongodb</a></li><li><a href="global.html#paramList">paramList</a></li><li><a href="global.html#previousWeather">previousWeather</a></li><li><a href="global.html#proccessUnwettersFromLocal">proccessUnwettersFromLocal</a></li><li><a href="global.html#processUnwettersFromDWD">processUnwettersFromDWD</a></li><li><a href="global.html#promiseToDeleteItems">promiseToDeleteItems</a></li><li><a href="global.html#promiseToFetchRadarData">promiseToFetchRadarData</a></li><li><a href="global.html#promiseToGetItems">promiseToGetItems</a></li><li><a href="global.html#promiseToGetTweetsForEvent">promiseToGetTweetsForEvent</a></li><li><a href="global.html#promiseToGetTweetsForRadar">promiseToGetTweetsForRadar</a></li><li><a href="global.html#promiseToGetTweetsFromTwitter">promiseToGetTweetsFromTwitter</a></li><li><a href="global.html#promiseToPostItems">promiseToPostItems</a></li><li><a href="global.html#promiseToUpdateItems">promiseToUpdateItems</a></li><li><a href="global.html#radarRoute">radarRoute</a></li><li><a href="global.html#searchTweetsForEvent">searchTweetsForEvent</a></li><li><a href="global.html#updateConfig">updateConfig</a></li><li><a href="global.html#updateVariableInConfigYaml">updateVariableInConfigYaml</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jan 28 2020 11:36:59 GMT+0100 (GMT+01:00)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jan 29 2020 10:35:35 GMT+0100 (GMT+01:00)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -37,6 +37,17 @@
 */
 
 
+// ****************************** global variables *****************************
+
+/**
+* indicator for the current position of the image carousel
+* @type {number}
+*/
+var mover = 0;
+
+
+// ******************************** functions **********************************
+
 /**
 * @desc Creates and shows a legend for the given map and given type of data.
 * Contains information about different layers in map, their source and corrsponding timestamps.
@@ -196,7 +207,7 @@ function panMapWithButton(map, directionToPan) {
 * @desc Zoom given map to the given coordinates.
 * @author https://gist.github.com/aerispaha/826a9f2fbbdf37983dc01e6074ce7cd7
 * @param {Object} map - mapbox-map
-* @param {} coordinates -
+* @param {Array} coordinates
 */
 function zoomToCoordinates(map, coordinates) {
 
@@ -268,7 +279,7 @@ function openMenu(button, menu, page) {
 
 
 /**
-* @desc Closes all open submenus on click
+* @desc Closes all open submenus on click.
 * @author Benjamin Rieke
 */
 function closeAllMenus() {
@@ -314,12 +325,12 @@ function removeAddGermany(map){
 }
 
 
-// TODO: JSDoc
+
 /**
 * @desc
 * @author Benjamin Rieke, Paula Scharf
 * @param {Object} map mapbox-map
-* @param {} layer - the chosen maplayer style
+* @param {Object} layer - the chosen maplayer style
 */
 function switchLayer(map, layer) {
 
@@ -355,7 +366,6 @@ function switchLayer(map, layer) {
 			});
 		}, 1000);
 
-
 	}
 	else{
 		setTimeout(() => {
@@ -377,11 +387,12 @@ function switchLayer(map, layer) {
 
 
 /**
-* @desc Uses the styles that are set on the index page to switch between them on click of the switcher field
+* @desc Uses the styles that are set on the index page to switch between them on click of the switcher field.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
+* @param {String} base - the current page ()"index" or "animation")
 */
-function styleSelector(map){
+function styleSelector(map, base){
 
 	// takes the map styles from the selection on the corresponding ejs-page
 	let layerList = document.getElementById('styleMenu');
@@ -391,8 +402,10 @@ function styleSelector(map){
 		// add onclick-functionality for clicking on satellite or streets button
 		inputs[i].addEventListener('click', function(layer){
 			switchLayer(map, layer);
-			clearInterval(automationIntervall);
-
+			// if the style is selected on the animationpage, stop the animation first
+			if (base === "animation"){
+				clearInterval(automationIntervall);
+			};
 		});
 	}
 }
@@ -400,13 +413,12 @@ function styleSelector(map){
 
 
 /**
-* @desc Loads the chosen radar product, updates the url, and hides previous selected layers
+* @desc Loads the chosen radar product, updates the url, and hides previous selected layers.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
 * @param {String} product - the desired radar product (check the GitHub-Wiki for further information)
-* @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
 */
-function loadRaster(map, product, draw){
+function loadRaster(map, product){
 
 	closeAllPopups();
 	showAllExcept(map, "germany");
@@ -440,13 +452,6 @@ function loadRaster(map, product, draw){
 	// add active attribute to radar tab
 	var rasterMenuToggle = document.getElementById('raster');
 	rasterMenuToggle.classList.add("active");
-
-	// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
-	// TODO: dann löschen, da sonst user-irritierend!!
-	// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
-	if ((readURL("aoi")) !== false) {
-		useAOIFromURL(readURL("aoi"), draw);
-	}
 }
 
 
@@ -495,12 +500,13 @@ function removeSevereWeather(map){
 * @desc Loads the warnings-polygons, updates the URL and hides previous selected radar data.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
-* @param {Object} draw - the former created MapboxDraw-Object which enables drawing polygons in the map
 */
-function loadSevereWeather(map, draw){
+function loadSevereWeather(map){
 
 	closeAllPopups();
-	showAllExcept(map, "germany");
+
+	showAllExcept(map, "tweet");
+	showAllExcept(map, "unwetter");
 
 	// if there was the rainradar data shown before, change the legend
 	if (wtypeFlag == "radar") {
@@ -511,7 +517,7 @@ function loadSevereWeather(map, draw){
 	wtypeFlag = "severeWeather";
 
 	// update the url
-	updateURL('wtype', 'unwetter');
+	updateURL('wtype', 'warnings');
 	deleteFromURL('radProd');
 
 	// create checkboxes for submenus
@@ -546,13 +552,6 @@ function loadSevereWeather(map, draw){
 	// activate the severe weather tab
 	var severeWeatherMenuToggle = document.getElementById('severeWeather');
 	severeWeatherMenuToggle.classList.add("active");
-
-	// TODO: hier sinnlos, da noch keine wetterdaten für tweetsuche da sind??
-	// TODO: dann löschen, da sonst user-irritierend!!
-	// TODO: falls gelöscht wird, dann auch draw aus loadRaster und loadSevereWeather entfernen
-	if ((readURL("aoi")) !== false) {
-		useAOIFromURL(readURL("aoi"), draw);
-	}
 }
 
 
@@ -752,7 +751,7 @@ function showUnwetterPopup(map, e) {
 
 /**
 * @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
-* The popup gives information about the author, the message content and time of creation
+* The popup gives information about the author, the message content and time of creation.
 * @author Paula Scharf
 * @param {Object} map - mapbox-map in which the warnings are in
 * @param {Object} e listener-event
@@ -792,24 +791,41 @@ function showTweetPopup(map, e) {
 	}
 }
 
+
+
+/**
+* @desc This function will add functionality to the helppages image tabs and changes the texts according
+* to the shown image.
+* @param {Object} tab - the carousel tab on its position
+* @author Benjamin Rieke
+*/
+function tabSelector(tab){
+	// link to the helptext
+	var changer = document.getElementById('helpText');
+	// link to the corresponding tab´s text
+	var tabInserter = document.getElementById(tab + ' text');
+	//change the text
+	changer.innerHTML = tabInserter.innerHTML;
+	// change the movers value so that the usage of the arrows is working correctly
+	mover = tab;
+}
+
+
 /**
 * @desc This function will add functionality to the helppages image carousel and changes the texts according
 * to the shown image.
 * @author Benjamin Rieke
 */
-
 function helpPageHandler(){
 
 	// functionality for the next and prev buttons on the help page
 	// counters for the helppage carousel
-	var mover = 0
 	// link to the helptext
 	var changer = document.getElementById('helpText');
 	// the helptext for the first image
 	var first = document.getElementById('0 text').innerHTML;
-
+	// onload show the first text
 	changer.innerHTML = first;
-
 
 	// functionality for the next button
 	$("#next").click(function() {
@@ -862,13 +878,13 @@ function helpPageHandler(){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addItem">addItem</a></li><li><a href="global.html#addToSource">addToSource</a></li><li><a href="global.html#addWarningsLayerAndCheckboxes">addWarningsLayerAndCheckboxes</a></li><li><a href="global.html#allLayers">allLayers</a></li><li><a href="global.html#animationMap">animationMap</a></li><li><a href="global.html#automate">automate</a></li><li><a href="global.html#automationIntervall">automationIntervall</a></li><li><a href="global.html#boundaryGermany">boundaryGermany</a></li><li><a href="global.html#callRainRadar">callRainRadar</a></li><li><a href="global.html#closeAllMenus">closeAllMenus</a></li><li><a href="global.html#closeAllPopups">closeAllPopups</a></li><li><a href="global.html#createGif">createGif</a></li><li><a href="global.html#customLayerIds">customLayerIds</a></li><li><a href="global.html#deleteFromURL">deleteFromURL</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#displayCurrentUnwetters">displayCurrentUnwetters</a></li><li><a href="global.html#doneLoadingWeather">doneLoadingWeather</a></li><li><a href="global.html#doneProcessingAOI">doneProcessingAOI</a></li><li><a href="global.html#drawForAOI">drawForAOI</a></li><li><a href="global.html#filterTweetPopups">filterTweetPopups</a></li><li><a href="global.html#filterTweets">filterTweets</a></li><li><a href="global.html#filterwords">filterwords</a></li><li><a href="global.html#final">final</a></li><li><a href="global.html#forEachLayer">forEachLayer</a></li><li><a href="global.html#gifArray">gifArray</a></li><li><a href="global.html#goGeoJson">goGeoJson</a></li><li><a href="global.html#helpPageHandler">helpPageHandler</a></li><li><a href="global.html#imageArray">imageArray</a></li><li><a href="global.html#indicator">indicator</a></li><li><a href="global.html#initTimestamp">initTimestamp</a></li><li><a href="global.html#intervalRainRadar">intervalRainRadar</a></li><li><a href="global.html#layers">layers</a></li><li><a href="global.html#loadAnimation">loadAnimation</a></li><li><a href="global.html#loadPreviousWeather">loadPreviousWeather</a></li><li><a href="global.html#loadRaster">loadRaster</a></li><li><a href="global.html#loadSevereWeather">loadSevereWeather</a></li><li><a href="global.html#makeLayerInteractive">makeLayerInteractive</a></li><li><a href="global.html#map">map</a></li><li><a href="global.html#mask">mask</a></li><li><a href="global.html#msToMin">msToMin</a></li><li><a href="global.html#onlyShowRainRadarAndTweetsInPolygon">onlyShowRainRadarAndTweetsInPolygon</a></li><li><a href="global.html#onlyShowUnwetterAndTweetsInPolygon">onlyShowUnwetterAndTweetsInPolygon</a></li><li><a href="global.html#openMenu">openMenu</a></li><li><a href="global.html#outputArray">outputArray</a></li><li><a href="global.html#panMapWithButton">panMapWithButton</a></li><li><a href="global.html#popupsEnabled">popupsEnabled</a></li><li><a href="global.html#readURL">readURL</a></li><li><a href="global.html#reloadAnimation">reloadAnimation</a></li><li><a href="global.html#removeAddGermany">removeAddGermany</a></li><li><a href="global.html#removeAllSource">removeAllSource</a></li><li><a href="global.html#removeSevereWeather">removeSevereWeather</a></li><li><a href="global.html#requestAndDisplayAllRainRadar">requestAndDisplayAllRainRadar</a></li><li><a href="global.html#requestNewAndDisplayCurrentUnwetters">requestNewAndDisplayCurrentUnwetters</a></li><li><a href="global.html#resultOutput">resultOutput</a></li><li><a href="global.html#setToReady">setToReady</a></li><li><a href="global.html#showAllExcept">showAllExcept</a></li><li><a href="global.html#showAnimationMap">showAnimationMap</a></li><li><a href="global.html#showLegend">showLegend</a></li><li><a href="global.html#showMap">showMap</a></li><li><a href="global.html#showTweetPopup">showTweetPopup</a></li><li><a href="global.html#showUnwetterPopup">showUnwetterPopup</a></li><li><a href="global.html#styleSelector">styleSelector</a></li><li><a href="global.html#switchLayer">switchLayer</a></li><li><a href="global.html#takeScreenshot">takeScreenshot</a></li><li><a href="global.html#timestampStorage">timestampStorage</a></li><li><a href="global.html#updateURL">updateURL</a></li><li><a href="global.html#usedTimestamps">usedTimestamps</a></li><li><a href="global.html#wIndicator">wIndicator</a></li><li><a href="global.html#wtypeFlag">wtypeFlag</a></li><li><a href="global.html#zoomToCoordinates">zoomToCoordinates</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addItem">addItem</a></li><li><a href="global.html#addToSource">addToSource</a></li><li><a href="global.html#addWarningsLayerAndCheckboxes">addWarningsLayerAndCheckboxes</a></li><li><a href="global.html#allLayers">allLayers</a></li><li><a href="global.html#animationMap">animationMap</a></li><li><a href="global.html#automate">automate</a></li><li><a href="global.html#automationIntervall">automationIntervall</a></li><li><a href="global.html#boundaryGermany">boundaryGermany</a></li><li><a href="global.html#callRainRadar">callRainRadar</a></li><li><a href="global.html#closeAllMenus">closeAllMenus</a></li><li><a href="global.html#closeAllPopups">closeAllPopups</a></li><li><a href="global.html#createGif">createGif</a></li><li><a href="global.html#customLayerIds">customLayerIds</a></li><li><a href="global.html#deleteFromURL">deleteFromURL</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#displayCurrentUnwetters">displayCurrentUnwetters</a></li><li><a href="global.html#doneLoadingWeather">doneLoadingWeather</a></li><li><a href="global.html#doneProcessingAOI">doneProcessingAOI</a></li><li><a href="global.html#drawForAOI">drawForAOI</a></li><li><a href="global.html#filterTweetPopups">filterTweetPopups</a></li><li><a href="global.html#filterTweets">filterTweets</a></li><li><a href="global.html#filterwords">filterwords</a></li><li><a href="global.html#forEachLayer">forEachLayer</a></li><li><a href="global.html#gifArray">gifArray</a></li><li><a href="global.html#goGeoJson">goGeoJson</a></li><li><a href="global.html#helpPageHandler">helpPageHandler</a></li><li><a href="global.html#imageArray">imageArray</a></li><li><a href="global.html#indicator">indicator</a></li><li><a href="global.html#initTimestamp">initTimestamp</a></li><li><a href="global.html#intervalRainRadar">intervalRainRadar</a></li><li><a href="global.html#layers">layers</a></li><li><a href="global.html#loadAnimation">loadAnimation</a></li><li><a href="global.html#loadPreviousWeather">loadPreviousWeather</a></li><li><a href="global.html#loadRaster">loadRaster</a></li><li><a href="global.html#loadSevereWeather">loadSevereWeather</a></li><li><a href="global.html#makeLayerInteractive">makeLayerInteractive</a></li><li><a href="global.html#map">map</a></li><li><a href="global.html#mask">mask</a></li><li><a href="global.html#mover">mover</a></li><li><a href="global.html#msToMin">msToMin</a></li><li><a href="global.html#onlyShowRainRadarAndTweetsInPolygon">onlyShowRainRadarAndTweetsInPolygon</a></li><li><a href="global.html#onlyShowUnwetterAndTweetsInPolygon">onlyShowUnwetterAndTweetsInPolygon</a></li><li><a href="global.html#openMenu">openMenu</a></li><li><a href="global.html#outputArray">outputArray</a></li><li><a href="global.html#panMapWithButton">panMapWithButton</a></li><li><a href="global.html#popupsEnabled">popupsEnabled</a></li><li><a href="global.html#readURL">readURL</a></li><li><a href="global.html#reloadAnimation">reloadAnimation</a></li><li><a href="global.html#removeAddGermany">removeAddGermany</a></li><li><a href="global.html#removeAllSource">removeAllSource</a></li><li><a href="global.html#removeSevereWeather">removeSevereWeather</a></li><li><a href="global.html#requestAndDisplayAllRainRadar">requestAndDisplayAllRainRadar</a></li><li><a href="global.html#requestNewAndDisplayCurrentUnwetters">requestNewAndDisplayCurrentUnwetters</a></li><li><a href="global.html#resultOutput">resultOutput</a></li><li><a href="global.html#setToReady">setToReady</a></li><li><a href="global.html#showAllExcept">showAllExcept</a></li><li><a href="global.html#showAnimationMap">showAnimationMap</a></li><li><a href="global.html#showLegend">showLegend</a></li><li><a href="global.html#showMap">showMap</a></li><li><a href="global.html#showTweetPopup">showTweetPopup</a></li><li><a href="global.html#showUnwetterPopup">showUnwetterPopup</a></li><li><a href="global.html#styleSelector">styleSelector</a></li><li><a href="global.html#switchLayer">switchLayer</a></li><li><a href="global.html#tabSelector">tabSelector</a></li><li><a href="global.html#takeScreenshot">takeScreenshot</a></li><li><a href="global.html#timestampStorage">timestampStorage</a></li><li><a href="global.html#updateURL">updateURL</a></li><li><a href="global.html#usedTimestamps">usedTimestamps</a></li><li><a href="global.html#wtypeFlag">wtypeFlag</a></li><li><a href="global.html#zoomToCoordinates">zoomToCoordinates</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jan 28 2020 11:01:40 GMT+0100 (GMT+01:00)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jan 29 2020 10:42:12 GMT+0100 (GMT+01:00)
 </footer>
 
 <script> prettyPrint(); </script>

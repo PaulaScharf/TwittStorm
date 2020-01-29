@@ -45,22 +45,17 @@
 */
 let animationMap;
 
-
-// TODO: JSDoc für globale Variablen
-
 /**
-*
+* Stores the response from the db and is used to check if the play button should be activatable
 * @type {Array}
 */
 let resultOutput = [];
 
-
 /**
-*
+* An array that stores all timestamps that are delivered in the db response
 * @type {Array}
 */
 let usedTimestamps = [];
-
 
 /**
 * all individual events from a timestamp get temporally stored in here
@@ -68,49 +63,35 @@ let usedTimestamps = [];
 */
 let outputArray = [];
 
-
-// TODO: nicht mehr verwendet?? dann löschen
 /**
-* contains the sources in GeoJSON format
-* @type {}
-*/
-let final = [];
-
-
-/**
-* a GeoJSON mask
+* An empty geojson object that gets filled with the desired data
 * @type {Object}
 */
 let mask;
 
-
 /**
-* an Array where all active layers are stored
+* In this array all active layers get stored
 * @type {Array}
 */
 let allLayers = [];
 
-
 /**
-* stores all GeoJSONs with their timestamps
+* stores all processed GeoJSONs with their corresponding timestamps
 * @type {Array}
 */
 let timestampStorage = [];
 
-
 /**
-* indicates which weathertype is requested
+* indicates which weathertype is requested, defined in mapbox.js
 * @type {String}
 */
 wtypeFlag = "";
 
-
 /**
-* adds up canvasshots from the map in base64 format
+* stores the several canvasshots from the map in base64 format
 * @type {Array}
 */
 var imageArray = [];
-
 
 /**
 * the final output to create a gif from
@@ -118,13 +99,11 @@ var imageArray = [];
 */
 var gifArray = [];
 
-// TODO: type festlegen
 /**
 * the intervall that is started with the animation and used to stop it
-* @type {}
+* @type {number}
 */
 var automationIntervall;
-
 
 /**
 * gives the information that the styleswitcher is on the animation page
@@ -133,17 +112,6 @@ var automationIntervall;
 var indicator = "";
 
 
-// TODO: löschen, da nicht benötigt?
-/**
-* gives the wtype information to the style since the paramarray wont change
-* @type {String}
-*/
-var wIndicator = "";
-
-
-
-// TODO: dies in Funktion schreiben??
-// paula fragen
 // is there a timestamp?
 let currentTimestamp = Date.now();
 if (typeof paramArray.timestamp !== "undefined") {
@@ -251,7 +219,7 @@ function showAnimationMap() {
   animationMap.addControl(new mapboxgl.NavigationControl());
 
   // enables the ability to choose between different mapstyles
-  styleSelector(animationMap);
+  styleSelector(animationMap, "animation");
 
   // ************************ adding boundary of Germany *************************
   // this event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the map has occurred
@@ -370,8 +338,6 @@ function reloadAnimation(wType){
   //if the weathertype is severeweather
   if ((wType === "warnings") ) {
 
-    // weathertype indicator for style switcher
-    wIndicator = wType;
     //update the URL
     updateURL("wtype", "warnings");
     deleteFromURL("radProd");
@@ -393,8 +359,6 @@ function reloadAnimation(wType){
 
   // if the weathertype is radar
   if ((wType === "radar") ) {
-    // weathertype indicator for style switcher
-    wIndicator = wType;
     //update the URL
     updateURL("wtype", "radar");
     updateURL("radProd", "ry");
@@ -535,7 +499,6 @@ function automate(map){
 }
 
 
-// TODO: in onload-Funktion?
 // functionality for the download button
 $("#downloadButton").click(function() {
   // set reference for the popup
@@ -566,7 +529,7 @@ $("#downloadButton").click(function() {
 */
 function takeScreenshot(){
   //save the current map canvas as a base64 formatted array entry
-  html2canvas(document.querySelector("#animationMap")).then(function(canvas){
+  html2canvas(document.querySelector("#animationMap"), {logging: false}).then(function(canvas){
     var gifImage = canvas.toDataURL('image/jpeg');
     imageArray.push(gifImage);
     // activate the downloadbutton if ready
@@ -616,7 +579,9 @@ function loadAnimation(position, map){
   //check if a layer is shown
   for (let i = 0; i &lt; allLayers.length; i++) {
     // if yes remove them
-    map.removeLayer(allLayers[i]);
+    if (typeof map.getLayer(allLayers[i]) !== "undefined") {
+      map.removeLayer(allLayers[i]);
+    }
   }
   closeAllPopups();
 
@@ -624,7 +589,7 @@ function loadAnimation(position, map){
   allLayers = [];
   customLayerIds.forEach(function (layerID) {
     let layerIdParts = layerID.split(/[ ]+/);
-    if (layerIdParts[1] == posMarker) {
+    if ((layerIdParts[1] == posMarker) ? !(layerIdParts[2] == posMarker) : (layerIdParts[2] == posMarker)) {
 
       let dataTimestamp = document.getElementById("dataTimestamp");
       dataTimestamp.innerHTML = "&lt;b>Timestamp of current timestep:&lt;/b>&lt;br>" + formattedTimestamp;
@@ -655,26 +620,6 @@ function loadAnimation(position, map){
         // add the given warnings as a layer to the map and create checkboxes for the menu
         addWarningsLayerAndCheckboxes(map, layerID, true);
 
-
-        // check whether corresponding checkbox is checked for showing the layer
-        //    if ((layerIdParts[3] === "Rain" || layerIdParts[3] === "Snowfall" || layerIdParts[3] === "Thunderstorm" || layerIdParts[3] === "BlackIce")) {
-
-        //addWarningsLayerAndCheckboxes(map, layerID, true);
-
-        //          if (document.getElementById("warningsCheckbox_" + layerIdParts[3]) == null) {
-        //            console.log(document.getElementById("warningsCheckbox_" + layerIdParts[3]));
-        //            addWarningsLayerAndCheckboxes(map, layerID, true);
-        //            console.log(layerID);
-        //          }
-
-        //          if ((document.getElementById("warningsCheckbox_" + layerIdParts[3]) != null) &amp;&amp; (document.getElementById("warningsCheckbox_" + layerIdParts[3]).checked)) {
-        //            console.log(document.getElementById("warningsCheckbox_" + layerIdParts[3]));
-        //            addWarningsLayerAndCheckboxes(map, layerID, true);
-        //            console.log(layerID);
-        //          }
-        //    }
-
-
       } else if (layerID.includes("tweet")) {
         map.addLayer({
           "id": layerID,
@@ -698,9 +643,10 @@ function loadAnimation(position, map){
 /**
 * @desc Function provided from gif libary Gifshot
 * @author Benjamin Rieke
-* @param {} array - image containing array
+* @param {Array} array - image containing array
 */
 function createGif(array) {
+
   var date = new Date();
   var utc = date.toJSON().slice(0,10).replace(/-/g,'/');
   var time = date.toLocaleTimeString();
@@ -763,6 +709,7 @@ function loadPreviousWeather(map, weatherEv){
 
   // if the request is done successfully, ...
   .done(function (result) {
+
     // ... give a notice on the console that the AJAX request for reading previous weather has succeeded
     console.log("AJAX request (reading previous weather) is done successfully.");
 
@@ -788,7 +735,7 @@ function loadPreviousWeather(map, weatherEv){
         for (let j = 0; j &lt; result[key].length; j++){
 
           if (result[key][j].type === "tweet") {
-            layerID = "tweet " + key + " " + j;
+            layerID = "tweet " + result[key][j].idstr + " " + key + " " + j;
             mask = {
               "timestamp": key,
               "type": weatherEvent,
@@ -859,11 +806,9 @@ function loadPreviousWeather(map, weatherEv){
             // add the current events to the geojson for each timestamp
             if (weatherEv == "radar") {
 
-              // TODO: "rw" in großbuchstaben?
               if (result.radProd === "RW") {
                 showLegend(animationMap, "radar", "rw");
               }
-
 
               layerID = "radar " + key + " " + j;
               mask.geometry.features = currentUnwetter;
@@ -901,9 +846,9 @@ function loadPreviousWeather(map, weatherEv){
 /**
 * @desc Function to return a GeoJSON formatted Polygon.
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
-* @param {} object - the individual polygons of an event, containing the coords of a polygon
-* @param {} time - timestamp of the data
-* @param {} properties - properties of the event
+* @param {Array} object - the individual polygons of an event, containing the coords of a polygon
+* @param {String} time - timestamp of the data
+* @param {Object} properties - properties of the event
 */
 function goGeoJson(object, time, properties) {
 
@@ -923,9 +868,10 @@ function goGeoJson(object, time, properties) {
 /**
 * @desc Checks if a part of an Object is already in an array.
 * @author Benjamin Rieke
-* @param {} item - geojson object
+* @param {Object} item - geojson object
 */
 function addItem(item) {
+
   var index = timestampStorage.findIndex(x => x.timestamp == item.timestamp);
   if (index === -1) {
     timestampStorage.push(item);
@@ -968,11 +914,11 @@ function removeAllSource(map) {
 * @desc Adds a GEOJSON to the map as a source.
 * @author Benjamin Rieke
 * @param {Object} map - links to the mapbox-map
-* @param {} layerID - to be id of the source. in this case the timestamp
-* @param {} previousFeatureCollection - the geojson featurecollection
+* @param {String} layerID - to be id of the source. in this case the timestamp
+* @param {Object} previousFeatureCollection - the geojson featurecollection
 */
 function addToSource(map, layerID, previousFeatureCollection){
-  //
+
   let sourceObject = map.getSource(layerID);
   // if there is already an existing Source of this map with the given layerID ...
   if (typeof sourceObject !== 'undefined') {
@@ -1009,13 +955,13 @@ function addToSource(map, layerID, previousFeatureCollection){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addItem">addItem</a></li><li><a href="global.html#addToSource">addToSource</a></li><li><a href="global.html#addWarningsLayerAndCheckboxes">addWarningsLayerAndCheckboxes</a></li><li><a href="global.html#allLayers">allLayers</a></li><li><a href="global.html#animationMap">animationMap</a></li><li><a href="global.html#automate">automate</a></li><li><a href="global.html#automationIntervall">automationIntervall</a></li><li><a href="global.html#boundaryGermany">boundaryGermany</a></li><li><a href="global.html#callRainRadar">callRainRadar</a></li><li><a href="global.html#closeAllMenus">closeAllMenus</a></li><li><a href="global.html#closeAllPopups">closeAllPopups</a></li><li><a href="global.html#createGif">createGif</a></li><li><a href="global.html#customLayerIds">customLayerIds</a></li><li><a href="global.html#deleteFromURL">deleteFromURL</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#displayCurrentUnwetters">displayCurrentUnwetters</a></li><li><a href="global.html#doneLoadingWeather">doneLoadingWeather</a></li><li><a href="global.html#doneProcessingAOI">doneProcessingAOI</a></li><li><a href="global.html#drawForAOI">drawForAOI</a></li><li><a href="global.html#filterTweetPopups">filterTweetPopups</a></li><li><a href="global.html#filterTweets">filterTweets</a></li><li><a href="global.html#filterwords">filterwords</a></li><li><a href="global.html#final">final</a></li><li><a href="global.html#forEachLayer">forEachLayer</a></li><li><a href="global.html#gifArray">gifArray</a></li><li><a href="global.html#goGeoJson">goGeoJson</a></li><li><a href="global.html#helpPageHandler">helpPageHandler</a></li><li><a href="global.html#imageArray">imageArray</a></li><li><a href="global.html#indicator">indicator</a></li><li><a href="global.html#initTimestamp">initTimestamp</a></li><li><a href="global.html#intervalRainRadar">intervalRainRadar</a></li><li><a href="global.html#layers">layers</a></li><li><a href="global.html#loadAnimation">loadAnimation</a></li><li><a href="global.html#loadPreviousWeather">loadPreviousWeather</a></li><li><a href="global.html#loadRaster">loadRaster</a></li><li><a href="global.html#loadSevereWeather">loadSevereWeather</a></li><li><a href="global.html#makeLayerInteractive">makeLayerInteractive</a></li><li><a href="global.html#map">map</a></li><li><a href="global.html#mask">mask</a></li><li><a href="global.html#msToMin">msToMin</a></li><li><a href="global.html#onlyShowRainRadarAndTweetsInPolygon">onlyShowRainRadarAndTweetsInPolygon</a></li><li><a href="global.html#onlyShowUnwetterAndTweetsInPolygon">onlyShowUnwetterAndTweetsInPolygon</a></li><li><a href="global.html#openMenu">openMenu</a></li><li><a href="global.html#outputArray">outputArray</a></li><li><a href="global.html#panMapWithButton">panMapWithButton</a></li><li><a href="global.html#popupsEnabled">popupsEnabled</a></li><li><a href="global.html#readURL">readURL</a></li><li><a href="global.html#reloadAnimation">reloadAnimation</a></li><li><a href="global.html#removeAddGermany">removeAddGermany</a></li><li><a href="global.html#removeAllSource">removeAllSource</a></li><li><a href="global.html#removeSevereWeather">removeSevereWeather</a></li><li><a href="global.html#requestAndDisplayAllRainRadar">requestAndDisplayAllRainRadar</a></li><li><a href="global.html#requestNewAndDisplayCurrentUnwetters">requestNewAndDisplayCurrentUnwetters</a></li><li><a href="global.html#resultOutput">resultOutput</a></li><li><a href="global.html#setToReady">setToReady</a></li><li><a href="global.html#showAllExcept">showAllExcept</a></li><li><a href="global.html#showAnimationMap">showAnimationMap</a></li><li><a href="global.html#showLegend">showLegend</a></li><li><a href="global.html#showMap">showMap</a></li><li><a href="global.html#showTweetPopup">showTweetPopup</a></li><li><a href="global.html#showUnwetterPopup">showUnwetterPopup</a></li><li><a href="global.html#styleSelector">styleSelector</a></li><li><a href="global.html#switchLayer">switchLayer</a></li><li><a href="global.html#takeScreenshot">takeScreenshot</a></li><li><a href="global.html#timestampStorage">timestampStorage</a></li><li><a href="global.html#updateURL">updateURL</a></li><li><a href="global.html#usedTimestamps">usedTimestamps</a></li><li><a href="global.html#wIndicator">wIndicator</a></li><li><a href="global.html#wtypeFlag">wtypeFlag</a></li><li><a href="global.html#zoomToCoordinates">zoomToCoordinates</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addItem">addItem</a></li><li><a href="global.html#addToSource">addToSource</a></li><li><a href="global.html#addWarningsLayerAndCheckboxes">addWarningsLayerAndCheckboxes</a></li><li><a href="global.html#allLayers">allLayers</a></li><li><a href="global.html#animationMap">animationMap</a></li><li><a href="global.html#automate">automate</a></li><li><a href="global.html#automationIntervall">automationIntervall</a></li><li><a href="global.html#boundaryGermany">boundaryGermany</a></li><li><a href="global.html#callRainRadar">callRainRadar</a></li><li><a href="global.html#closeAllMenus">closeAllMenus</a></li><li><a href="global.html#closeAllPopups">closeAllPopups</a></li><li><a href="global.html#createGif">createGif</a></li><li><a href="global.html#customLayerIds">customLayerIds</a></li><li><a href="global.html#deleteFromURL">deleteFromURL</a></li><li><a href="global.html#deleteTweet">deleteTweet</a></li><li><a href="global.html#displayCurrentUnwetters">displayCurrentUnwetters</a></li><li><a href="global.html#doneLoadingWeather">doneLoadingWeather</a></li><li><a href="global.html#doneProcessingAOI">doneProcessingAOI</a></li><li><a href="global.html#drawForAOI">drawForAOI</a></li><li><a href="global.html#filterTweetPopups">filterTweetPopups</a></li><li><a href="global.html#filterTweets">filterTweets</a></li><li><a href="global.html#filterwords">filterwords</a></li><li><a href="global.html#forEachLayer">forEachLayer</a></li><li><a href="global.html#gifArray">gifArray</a></li><li><a href="global.html#goGeoJson">goGeoJson</a></li><li><a href="global.html#helpPageHandler">helpPageHandler</a></li><li><a href="global.html#imageArray">imageArray</a></li><li><a href="global.html#indicator">indicator</a></li><li><a href="global.html#initTimestamp">initTimestamp</a></li><li><a href="global.html#intervalRainRadar">intervalRainRadar</a></li><li><a href="global.html#layers">layers</a></li><li><a href="global.html#loadAnimation">loadAnimation</a></li><li><a href="global.html#loadPreviousWeather">loadPreviousWeather</a></li><li><a href="global.html#loadRaster">loadRaster</a></li><li><a href="global.html#loadSevereWeather">loadSevereWeather</a></li><li><a href="global.html#makeLayerInteractive">makeLayerInteractive</a></li><li><a href="global.html#map">map</a></li><li><a href="global.html#mask">mask</a></li><li><a href="global.html#mover">mover</a></li><li><a href="global.html#msToMin">msToMin</a></li><li><a href="global.html#onlyShowRainRadarAndTweetsInPolygon">onlyShowRainRadarAndTweetsInPolygon</a></li><li><a href="global.html#onlyShowUnwetterAndTweetsInPolygon">onlyShowUnwetterAndTweetsInPolygon</a></li><li><a href="global.html#openMenu">openMenu</a></li><li><a href="global.html#outputArray">outputArray</a></li><li><a href="global.html#panMapWithButton">panMapWithButton</a></li><li><a href="global.html#popupsEnabled">popupsEnabled</a></li><li><a href="global.html#readURL">readURL</a></li><li><a href="global.html#reloadAnimation">reloadAnimation</a></li><li><a href="global.html#removeAddGermany">removeAddGermany</a></li><li><a href="global.html#removeAllSource">removeAllSource</a></li><li><a href="global.html#removeSevereWeather">removeSevereWeather</a></li><li><a href="global.html#requestAndDisplayAllRainRadar">requestAndDisplayAllRainRadar</a></li><li><a href="global.html#requestNewAndDisplayCurrentUnwetters">requestNewAndDisplayCurrentUnwetters</a></li><li><a href="global.html#resultOutput">resultOutput</a></li><li><a href="global.html#setToReady">setToReady</a></li><li><a href="global.html#showAllExcept">showAllExcept</a></li><li><a href="global.html#showAnimationMap">showAnimationMap</a></li><li><a href="global.html#showLegend">showLegend</a></li><li><a href="global.html#showMap">showMap</a></li><li><a href="global.html#showTweetPopup">showTweetPopup</a></li><li><a href="global.html#showUnwetterPopup">showUnwetterPopup</a></li><li><a href="global.html#styleSelector">styleSelector</a></li><li><a href="global.html#switchLayer">switchLayer</a></li><li><a href="global.html#tabSelector">tabSelector</a></li><li><a href="global.html#takeScreenshot">takeScreenshot</a></li><li><a href="global.html#timestampStorage">timestampStorage</a></li><li><a href="global.html#updateURL">updateURL</a></li><li><a href="global.html#usedTimestamps">usedTimestamps</a></li><li><a href="global.html#wtypeFlag">wtypeFlag</a></li><li><a href="global.html#zoomToCoordinates">zoomToCoordinates</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jan 28 2020 11:01:40 GMT+0100 (GMT+01:00)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jan 29 2020 10:42:12 GMT+0100 (GMT+01:00)
 </footer>
 
 <script> prettyPrint(); </script>
