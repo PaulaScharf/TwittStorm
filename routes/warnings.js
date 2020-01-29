@@ -373,7 +373,6 @@ function proccessUnwettersFromLocal(currentTimestamp, db) {
 
             // if its MSGTYPE is "Cancel", than delete this warning from database because it was a mistake
           } else {
-            // TODO: SO RICHTIG? KORRIGIEREN!!
             promiseToDeleteItems({$and: [{"$or": [{"type": "unwetter"}, {"type": "tweet"}]}, {"dwd_id": response[0].dwd_id}]}, db)
             .then(function () {
             },

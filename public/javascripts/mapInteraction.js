@@ -8,11 +8,17 @@
 * @author Jonathan Bahlmann, Katharina Poppinga, Benjamin Rieke, Paula Scharf
 */
 
+
+// ****************************** global variables *****************************
+
 /**
 * indicator for the current position of the image carousel
 * @type {number}
 */
 var mover = 0;
+
+
+// ******************************** functions **********************************
 
 /**
 * @desc Creates and shows a legend for the given map and given type of data.
@@ -173,7 +179,7 @@ function panMapWithButton(map, directionToPan) {
 * @desc Zoom given map to the given coordinates.
 * @author https://gist.github.com/aerispaha/826a9f2fbbdf37983dc01e6074ce7cd7
 * @param {Object} map - mapbox-map
-* @param {Array} coordinates -
+* @param {Array} coordinates
 */
 function zoomToCoordinates(map, coordinates) {
 
@@ -245,7 +251,7 @@ function openMenu(button, menu, page) {
 
 
 /**
-* @desc Closes all open submenus on click
+* @desc Closes all open submenus on click.
 * @author Benjamin Rieke
 */
 function closeAllMenus() {
@@ -332,7 +338,6 @@ function switchLayer(map, layer) {
 			});
 		}, 1000);
 
-
 	}
 	else{
 		setTimeout(() => {
@@ -354,7 +359,7 @@ function switchLayer(map, layer) {
 
 
 /**
-* @desc Uses the styles that are set on the index page to switch between them on click of the switcher field
+* @desc Uses the styles that are set on the index page to switch between them on click of the switcher field.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
 * @param {String} base - the current page ()"index" or "animation")
@@ -371,7 +376,7 @@ function styleSelector(map, base){
 			switchLayer(map, layer);
 			// if the style is selected on the animationpage, stop the animation first
 			if (base === "animation"){
-			clearInterval(automationIntervall);
+				clearInterval(automationIntervall);
 			};
 		});
 	}
@@ -380,7 +385,7 @@ function styleSelector(map, base){
 
 
 /**
-* @desc Loads the chosen radar product, updates the url, and hides previous selected layers
+* @desc Loads the chosen radar product, updates the url, and hides previous selected layers.
 * @author Benjamin Rieke
 * @param {Object} map - mapbox-map
 * @param {String} product - the desired radar product (check the GitHub-Wiki for further information)
@@ -471,7 +476,7 @@ function removeSevereWeather(map){
 function loadSevereWeather(map){
 
 	closeAllPopups();
-	
+
 	showAllExcept(map, "tweet");
 	showAllExcept(map, "unwetter");
 
@@ -718,7 +723,7 @@ function showUnwetterPopup(map, e) {
 
 /**
 * @desc Provides a popup that will be shown onclick for each Tweet displayed in the map.
-* The popup gives information about the author, the message content and time of creation
+* The popup gives information about the author, the message content and time of creation.
 * @author Paula Scharf
 * @param {Object} map - mapbox-map in which the warnings are in
 * @param {Object} e listener-event
@@ -758,8 +763,7 @@ function showTweetPopup(map, e) {
 	}
 }
 
-// indicator for the current position of the image carousel
-var mover = 0;
+
 
 /**
 * @desc This function will add functionality to the helppages image tabs and changes the texts according
@@ -777,6 +781,7 @@ function tabSelector(tab){
 	// change the movers value so that the usage of the arrows is working correctly
 	mover = tab;
 }
+
 
 /**
 * @desc This function will add functionality to the helppages image carousel and changes the texts according

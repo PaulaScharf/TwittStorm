@@ -193,7 +193,7 @@ var previousWeather = function(req, res) {
             //console.log("prevWeather radar check: " + new Date(pastBorder) + " > " + new Date(lastTimestamp) + " ? -> " + bool);
 
             if(pastBorder > lastTimestamp) {
-              // TODO if < 5 found, reload
+              // if < 5 found, reload
               if(result.length < 5) {
                 // read from hist data file
                 var allProducts = [];
@@ -343,7 +343,7 @@ var previousWeather = function(req, res) {
                 }
               }
               else {
-                // TODO if not historic, return all
+                // if not historic, return all
                 //if results found
                 if(result.length > 0) {
                   // return all found data

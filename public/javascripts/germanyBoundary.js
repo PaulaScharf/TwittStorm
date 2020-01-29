@@ -10,7 +10,6 @@
 
 
 // source: https://github.com/isellsoap/deutschlandGeoJSON
-
 let boundaryGermany = {
   "type": "FeatureCollection",
   "features": [{

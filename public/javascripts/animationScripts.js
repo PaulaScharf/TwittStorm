@@ -54,7 +54,7 @@ let allLayers = [];
 let timestampStorage = [];
 
 /**
-* indicates which weathertype is requested
+* indicates which weathertype is requested, defined in mapbox.js
 * @type {String}
 */
 wtypeFlag = "";
@@ -778,7 +778,6 @@ function loadPreviousWeather(map, weatherEv){
             // add the current events to the geojson for each timestamp
             if (weatherEv == "radar") {
 
-              // TODO: "rw" in großbuchstaben?
               if (result.radProd === "RW") {
                 showLegend(animationMap, "radar", "rw");
               }

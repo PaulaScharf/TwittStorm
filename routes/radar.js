@@ -145,11 +145,11 @@ var promiseToFetchRadarData = function(radarProduct) {
         if(radarProduct.toLowerCase() == "sf") {
           timestampAvailability = timestamp + 5580000;
         }
-        /**
-        console.log(new Date(timestamp));
-        console.log(new Date(timestampNow));
-        console.log(new Date(timestampAvailability));
-        */
+
+        //console.log(new Date(timestamp));
+        //console.log(new Date(timestampNow));
+        //console.log(new Date(timestampAvailability));
+
 
         var answerJSON = {
           "type": "rainRadar",

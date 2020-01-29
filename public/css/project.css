@@ -6,6 +6,7 @@
 * {
   font-family: 'Open Sans', sans-serif;
 }
+
 .carousel {
   position: relative;
 }
@@ -25,6 +26,7 @@
 .texts {
   display: none;
 }
+
 /* Animation Overlay */
 .animation-overlay {
   font-size: 12px;
@@ -599,8 +601,6 @@
   display: flex;
 }
 
-
-
 .closebtn {
   margin-left: 15px;
   color: white;
@@ -615,7 +615,6 @@
 .closebtn:hover {
   color: black;
 }
-
 
 .map-overlay {
   font-size: 14px;

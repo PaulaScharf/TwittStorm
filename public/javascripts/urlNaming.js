@@ -10,13 +10,13 @@
 
 
 /**
-	* @desc function to alter the URL, in order to keep it updated
-	* can change the value of a parameter or add it to the existing url
-	* @author Jonathan Bahlmann
-	* @param {String} param - the parameter to be updated/inserted
-	* @param {String} newString - the value to above mentioned parameter
-	* @example updateURL("wtype", "radar");
-	*/
+* @desc function to alter the URL, in order to keep it updated
+* can change the value of a parameter or add it to the existing url
+* @author Jonathan Bahlmann
+* @param {String} param - the parameter to be updated/inserted
+* @param {String} newString - the value to above mentioned parameter
+* @example updateURL("wtype", "radar");
+*/
 function updateURL(param, newString) {
 	let toInsert = param + "=" + newString;
 	let oldURL = document.location.href;
@@ -25,7 +25,7 @@ function updateURL(param, newString) {
 	let newURL;
 	// index of parameter desc
 	let index = url.search(param);
- 	// if param is found, change it
+	// if param is found, change it
 	if (index > 0) {
 		// slice the complete part of url to the right
 		let right = url.slice(index, url.length);
@@ -62,12 +62,12 @@ function updateURL(param, newString) {
 
 
 /**
-	* @desc
-	* function to read a specified parameter from the current URL
-	* @author Jonathan Bahlmann
-	* @param {String} param - Parameter to be returned
-	* @returns value of parameter or false, if parameter is not in URL
-	*/
+* @desc
+* function to read a specified parameter from the current URL
+* @author Jonathan Bahlmann
+* @param {String} param - Parameter to be returned
+* @returns value of parameter or false, if parameter is not in URL
+*/
 function readURL(param) {
 	// result
 	let value;
@@ -92,12 +92,12 @@ function readURL(param) {
 
 
 /**
-	* @desc
-	* function to delete a specified parameter from the URL to maintain permalink integrity
-	* @author Jonathan Bahlmann
-	* @param {String} param - Parameter to delete
-	* @returns nothing or false (if parameter not found)
-	*/
+* @desc
+* function to delete a specified parameter from the URL to maintain permalink integrity
+* @author Jonathan Bahlmann
+* @param {String} param - Parameter to delete
+* @returns nothing or false (if parameter not found)
+*/
 function deleteFromURL(param) {
 	let oldURL = document.location.href;
 	let index = oldURL.indexOf(param);
@@ -117,7 +117,7 @@ function deleteFromURL(param) {
 		}
 		let newURL = firstPart.concat(lastPart);
 		// write
-			history.pushState({}, '', newURL);
+		history.pushState({}, '', newURL);
 	}
 	else {
 		// parameter not found

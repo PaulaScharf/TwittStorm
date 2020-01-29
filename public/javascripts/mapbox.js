@@ -562,7 +562,6 @@ function requestAndDisplayAllRainRadar(map, product) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
-		console.log(xhr.responseJSON.err_msg[0].code);
 		if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
 			window.alert("There has been an error while fetching the precipitation radar data.\n This could be due to the DWD server having update delays.\n Please repeat your request by clicking the radar " + product + " button again.");
 		}
@@ -658,7 +657,6 @@ function callRainRadar(map, prod) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
-		console.log(xhr.responseJSON.err_msg[0].code);
 		if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
 			window.alert("There has been an error while fetching the precipitation radar data.\n This could be due to the DWD server having update delays.\n Please repeat your request by clicking the radar " + prod + " button again.");
 		}
@@ -767,7 +765,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 			else {
 				JL("ajaxReadingWarningsError").fatalException(error);
 			}
-
 			doneLoadingWeather = true;
 		});
 	}
@@ -1050,7 +1047,9 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc
+	* @desc This function makes only warnings and its tweets visible, if they are (fully) contained by the given
+	* polygon.
+	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf, Jonathan Bahlmann
 	* @param {Object} map - mapbox-map in which to show the data
 	* @param {} polygon a turf polygon (aoi)
@@ -1195,10 +1194,8 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 	}
 
 
-// TODO: loading spinner !!!!
-
 	/**
-	* @desc This function makes only warnings and its tweets visible, if the include a polygon that is fully contained by the given
+	* @desc This function makes only warnings and its tweets visible, if they are (fully) contained by the given
 	* polygon.
 	* Attention: Turf is very inaccurate.
 	* @author Paula Scharf
@@ -1419,10 +1416,10 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 
 	/**
-	* @desc
+	* @desc Deletes a tweet with given id and removes it and its popup from given map.
 	* @author Paula Scharf
 	* @param {Object} map mapbox-map
-	* @param {} id -
+	* @param {} id - id of tweet
 	* @param {} popup -
 	*/
 	function deleteTweet(map, id, popup) {
