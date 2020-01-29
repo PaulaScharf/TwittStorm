@@ -327,7 +327,7 @@ var radarRoute = function(req, res) {
                       promiseToGetItems(query, req.db)
                       .catch(console.error)
                       .then(function(result) {
-                        if(result.length == 1) {
+                        if(result.length >= 1) {
                           res.send(result[0]);
                         }
                         else {
