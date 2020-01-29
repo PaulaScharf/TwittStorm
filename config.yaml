@@ -9,7 +9,7 @@ map:
     - 51.2
   zoom: 5
 refresh_rate: 300000
-timestamp_last_warnings_request: 1580244624229
+timestamp_last_warnings_request: 1537513863357
 max_age_tweets: null
 demo:
   timestamp_start: 1537513200000

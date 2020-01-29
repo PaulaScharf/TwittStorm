@@ -313,7 +313,6 @@ var radarRoute = function(req, res) {
                   promiseToPostItems(allProducts, req.db)
                   .catch(console.error)
                   .then(function() {
-
                     let query = {
                       type: "rainRadar",
                       radarProduct: prod.toUpperCase(),
