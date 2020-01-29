@@ -1118,7 +1118,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 		// if the request is done successfully, ...
 		.done(function(result) { 			// result is our tweets that lie in the aoi
-			$('#loading').fadeIn(250);
 			// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 			console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
@@ -1171,7 +1170,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 					console.dir("There was an error while processing the tweets from the database", e);
 				}
 			}
-			$('#loading').fadeOut(250);
 			doneProcessingAOI = true;
 		})
 
@@ -1296,7 +1294,6 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 
 			// if the request is done successfully, ...
 			.done(function (result) {
-				$('#loading').fadeIn(250);
 				// ... give a notice on the console that the AJAX request for finding and inserting tweets has succeeded
 				console.log("AJAX request (finding and inserting tweets) is done successfully.");
 
@@ -1330,9 +1327,7 @@ function requestNewAndDisplayCurrentUnwetters(map) {
 				}
 				if (i >= requests.length - 1) {
 					doneProcessingAOI = true;
-							$('#loading').fadeOut(250);
 				}
-		//		$('#loading').fadeOut(250);
 			})
 
 			// if the request has failed, ...
