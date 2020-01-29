@@ -9,14 +9,13 @@ map:
     - 51.2
   zoom: 5
 refresh_rate: 300000
-timestamp_last_warnings_request: 1580287164964
+timestamp_last_warnings_request: null
 max_age_tweets: null
 demo:
   timestamp_start: 1537513200000
   timestamp_end: 1537524006000
   location: ../demo/
-mapbox_access_key: >-
-  pk.eyJ1Ijoib3VhZ2Fkb3Vnb3UiLCJhIjoiY2pvZTNodGRzMnY4cTNxbmx2eXF6czExcCJ9.pqbCaR8fTaR9q1dipdthAA
+mapbox_access_key: null
 dwd:
   warnings: >-
     https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dwd%3AWarnungen_Gemeinden_vereinigt&maxFeatures=200&outputFormat=application%2Fjson
