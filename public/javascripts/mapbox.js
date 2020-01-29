@@ -562,7 +562,7 @@ function requestAndDisplayAllRainRadar(map, product) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
-		if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
+		if ((typeof xhr.responseJSON !== "undefined") && (typeof xhr.responseJSON.err_msg[0] !== "undefined") && (typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
 			window.alert("There has been an error while fetching the precipitation radar data.\n This could be due to the DWD server having update delays.\n Please repeat your request by clicking the radar " + product + " button again.");
 		}
 
@@ -657,7 +657,7 @@ function callRainRadar(map, prod) {
 			JL("ajaxReadingRainRadarError").fatalException(error);
 		}
 
-		if ((typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
+		if ((typeof xhr.responseJSON !== "undefined") && (typeof xhr.responseJSON.err_msg[0] !== "undefined") && (typeof xhr.responseJSON.err_msg[0].code !== "undefined") && (xhr.responseJSON.err_msg[0].code === 123)) {
 			window.alert("There has been an error while fetching the precipitation radar data.\n This could be due to the DWD server having update delays.\n Please repeat your request by clicking the radar " + prod + " button again.");
 		}
 
