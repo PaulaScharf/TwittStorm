@@ -20,7 +20,7 @@
     "express": "~4.16.1",
     "gifshot": "0.4.5",
     "html2canvas": "1.0.0-rc.5",
-    "jquery": "3.4.1",
+    "jquery": "3.5.0",
     "js-yaml": "3.13.1",
     "jsnlog": "2.29.0",
     "jsnlog-nodejs": "2.29.0",
